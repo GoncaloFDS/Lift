@@ -1,0 +1,3 @@
+[submodule "Lift/vendor/spdlog"]
+	path = Lift/vendor/spdlog
+	url = https://github.com/gabime/spdlog
