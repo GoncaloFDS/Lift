@@ -4,6 +4,9 @@
     <Filter Include="Lift">
       <UniqueIdentifier>{9488887C-80BF-890D-29AC-6F1015C2050F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Lift\Events">
+      <UniqueIdentifier>{F845246E-64FB-9C63-EDEF-963A59A49367}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Lift.h" />
@@ -16,9 +19,22 @@
     <ClInclude Include="src\Lift\EntryPoint.h">
       <Filter>Lift</Filter>
     </ClInclude>
+    <ClInclude Include="src\Lift\Events\ApplicationEvent.h">
+      <Filter>Lift\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Lift\Events\Event.h">
+      <Filter>Lift\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Lift\Events\KeyEvent.h">
+      <Filter>Lift\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Lift\Events\MouseEvent.h">
+      <Filter>Lift\Events</Filter>
+    </ClInclude>
     <ClInclude Include="src\Lift\Log.h">
       <Filter>Lift</Filter>
     </ClInclude>
+    <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Lift\Application.cpp">
@@ -27,5 +43,6 @@
     <ClCompile Include="src\Lift\Log.cpp">
       <Filter>Lift</Filter>
     </ClCompile>
+    <ClCompile Include="src\pch.cpp" />
   </ItemGroup>
 </Project>

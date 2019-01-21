@@ -13,7 +13,6 @@ int main(int argc, char* argv[]) {
 	LF_INFO("Info Log! Var={0}", a);
 	
 	
-	
 	auto app = Lift::CreateApplication();
 	app->Run();
 	delete app;

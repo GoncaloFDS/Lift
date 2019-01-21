@@ -1,19 +1,20 @@
+#include "pch.h"
 #include "Log.h"
 
 #include "spdlog/sinks/stdout_color_sinks.h"
 
 namespace Lift {
 
-	std::shared_ptr<spdlog::logger> Log::sCoreLogger_;
-	std::shared_ptr<spdlog::logger> Log::sClientLogger_;
+	std::shared_ptr<spdlog::logger> Log::_sCoreLogger;
+	std::shared_ptr<spdlog::logger> Log::_sClientLogger;
 
 	void Log::Init() {
 		spdlog::set_pattern("%^[%T] %n: %v%$");
-		sCoreLogger_ = spdlog::stdout_color_mt("LIFT");
-		sCoreLogger_->set_level(spdlog::level::trace);
+		_sCoreLogger = spdlog::stdout_color_mt("LIFT");
+		_sCoreLogger->set_level(spdlog::level::trace);
 		
-		sClientLogger_ = spdlog::stdout_color_mt("APP");
-		sClientLogger_->set_level(spdlog::level::trace);
+		_sClientLogger = spdlog::stdout_color_mt("APP");
+		_sClientLogger->set_level(spdlog::level::trace);
 	}
 
 }

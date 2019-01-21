@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "spdlog/spdlog.h"
+#include "spdlog/fmt/ostr.h"
 
 namespace Lift {
 	
@@ -9,11 +10,11 @@ namespace Lift {
 	public:
 		static void Init();
 
-		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return sCoreLogger_; }
-		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return sClientLogger_; }
+		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return _sCoreLogger; }
+		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return _sClientLogger; }
 	private:
-		static std::shared_ptr<spdlog::logger> sCoreLogger_;
-		static std::shared_ptr<spdlog::logger> sClientLogger_;
+		static std::shared_ptr<spdlog::logger> _sCoreLogger;
+		static std::shared_ptr<spdlog::logger> _sClientLogger;
 	};
 
 }
