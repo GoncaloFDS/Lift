@@ -37,17 +37,31 @@
     <ClInclude Include="src\Lift\Events\MouseEvent.h">
       <Filter>Lift\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Lift\Layer.h">
+      <Filter>Lift</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Lift\LayerStack.h">
+      <Filter>Lift</Filter>
+    </ClInclude>
     <ClInclude Include="src\Lift\Log.h">
       <Filter>Lift</Filter>
     </ClInclude>
     <ClInclude Include="src\Lift\Platform\Windows\WindowsWindow.h">
       <Filter>Lift\Platform\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="src\Lift\Window.h">
+      <Filter>Lift</Filter>
+    </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Lift\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Lift\Application.cpp">
+      <Filter>Lift</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Lift\Layer.cpp">
+      <Filter>Lift</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Lift\LayerStack.cpp">
       <Filter>Lift</Filter>
     </ClCompile>
     <ClCompile Include="src\Lift\Log.cpp">

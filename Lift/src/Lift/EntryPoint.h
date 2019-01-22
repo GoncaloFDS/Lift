@@ -8,10 +8,7 @@ extern Lift::Application* Lift::CreateApplication();
 int main(int argc, char* argv[]) {
 	
 	Lift::Log::Init();
-	LF_CORE_WARN("Initialized Log!");
-	int a = 5;
-	LF_INFO("Info Log! Var={0}", a);
-	
+	LF_CORE_INFO("Initialized Log!");
 	
 	auto app = Lift::CreateApplication();
 	app->Run();

@@ -10,10 +10,10 @@ namespace Lift {
 
 	void Log::Init() {
 		spdlog::set_pattern("%^[%T] %n: %v%$");
-		_sCoreLogger = spdlog::stdout_color_mt("LIFT");
+		_sCoreLogger = spdlog::stdout_color_mt("Lift");
 		_sCoreLogger->set_level(spdlog::level::trace);
 		
-		_sClientLogger = spdlog::stdout_color_mt("APP");
+		_sClientLogger = spdlog::stdout_color_mt("App");
 		_sClientLogger->set_level(spdlog::level::trace);
 	}
 

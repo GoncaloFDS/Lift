@@ -33,7 +33,8 @@ namespace Lift {
 #define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
 
 	class LIFT_API Event {
-		friend class EventDispatcher;
+	public:
+		bool Handled = false;
 	public:
 		virtual ~Event() = default;
 		
@@ -46,8 +47,6 @@ namespace Lift {
 			return GetCategoryFlags() & category;
 			
 		}
-	protected:
-		bool _handled = false;
 	};
 
 	class EventDispatcher {
@@ -60,7 +59,7 @@ namespace Lift {
 		template<typename T>
 		bool Dispatch(EventFn<T> func) {
 			if(_event.GetEventType() == T::GetStaticType()) {
-				_event._handled = func(*(T*)&_event);
+				_event.Handled = func(*(T*)&_event);
 				return true;
 			}
 			return false;

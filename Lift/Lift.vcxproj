@@ -79,11 +79,12 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>LF_PLATFORM_WINDOWS;LF_BUILD_DLL;LF_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LF_PLATFORM_WINDOWS;LF_BUILD_DLL;LF_DEBUG;LF_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/MDd %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -100,7 +101,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>LF_PLATFORM_WINDOWS;LF_BUILD_DLL;LF_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LF_PLATFORM_WINDOWS;LF_BUILD_DLL;LF_RELEASE;LF_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -108,6 +109,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/MD %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -133,6 +135,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/MD %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -154,6 +157,8 @@
     <ClInclude Include="src\Lift\Events\Event.h" />
     <ClInclude Include="src\Lift\Events\KeyEvent.h" />
     <ClInclude Include="src\Lift\Events\MouseEvent.h" />
+    <ClInclude Include="src\Lift\Layer.h" />
+    <ClInclude Include="src\Lift\LayerStack.h" />
     <ClInclude Include="src\Lift\Log.h" />
     <ClInclude Include="src\Lift\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\Lift\Window.h" />
@@ -161,6 +166,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Lift\Application.cpp" />
+    <ClCompile Include="src\Lift\Layer.cpp" />
+    <ClCompile Include="src\Lift\LayerStack.cpp" />
     <ClCompile Include="src\Lift\Log.cpp" />
     <ClCompile Include="src\Lift\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\pch.cpp">
