@@ -12,8 +12,7 @@
  		inline float GetX() const { return _mouseX; }
 		inline float GetY() const { return _mouseY; }
 
- 		std::string ToString() const override
-		{
+ 		std::string ToString() const override {
 			std::stringstream ss;
 			ss << "MouseMovedEvent: " << _mouseX << ", " << _mouseY;
 			return ss.str();

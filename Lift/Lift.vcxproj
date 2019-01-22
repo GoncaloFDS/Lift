@@ -155,11 +155,14 @@
     <ClInclude Include="src\Lift\Events\KeyEvent.h" />
     <ClInclude Include="src\Lift\Events\MouseEvent.h" />
     <ClInclude Include="src\Lift\Log.h" />
+    <ClInclude Include="src\Lift\Platform\Windows\WindowsWindow.h" />
+    <ClInclude Include="src\Lift\Window.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Lift\Application.cpp" />
     <ClCompile Include="src\Lift\Log.cpp" />
+    <ClCompile Include="src\Lift\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

@@ -10,6 +10,9 @@ workspace "Lift"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+-- Include directories relative to root folder (solution directory)
+IncludeDir = {}
+
 project "Lift"
 	location "Lift"
 	kind "SharedLib"

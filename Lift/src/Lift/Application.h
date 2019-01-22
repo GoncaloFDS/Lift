@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core.h"
-#include "Events/Event.h"
+#include "Window.h"
+#include "Events/ApplicationEvent.h"
 
 namespace Lift {
 
@@ -11,8 +12,15 @@ namespace Lift {
 		virtual ~Application();
 
 		void Run();
+		void OnEvent(Event& e);
+	private:
+		bool OnWindowClose(WindowCloseEvent& e);
+
+		std::unique_ptr<Window> _window;
+		bool _isRunning = true;
 	};
 
+	// Define by Sandbox
 	Application* CreateApplication();
 }
 
