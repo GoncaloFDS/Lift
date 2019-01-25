@@ -140,6 +140,9 @@
     <ProjectReference Include="..\Lift\Lift.vcxproj">
       <Project>{9488887C-80BF-890D-29AC-6F1015C2050F}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Lift\vendor\imgui\ImGui.vcxproj">
+      <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

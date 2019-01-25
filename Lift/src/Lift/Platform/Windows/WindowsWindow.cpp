@@ -18,15 +18,15 @@ namespace Lift {
 
 	LRESULT CALLBACK WindowsWindow::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {	
-		WindowData* data;
+		WindowData* windowData;
 		if(msg == WM_CREATE) {
 			
-			CREATESTRUCT *pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
-			data = reinterpret_cast<WindowData*>(pCreate->lpCreateParams);
-			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)data);
+			auto* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+			windowData = reinterpret_cast<WindowData*>(pCreate->lpCreateParams);
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(windowData));
 		}
 		else {
-			data = GetWindowData(hwnd);
+			windowData = GetWindowData(hwnd);
 		}
 
 		switch (msg) {
@@ -34,50 +34,50 @@ namespace Lift {
         case WM_CLOSE: {
             DestroyWindow(hwnd);
 			WindowCloseEvent event;
-			data->EventCallback(event);
+			windowData->EventCallback(event);
             return 0;
 		}
         case WM_DESTROY: {
 			WindowCloseEvent event;
-			data->EventCallback(event);
+			windowData->EventCallback(event);
             PostQuitMessage(0);
             return 0;
 		}
         case WM_KEYDOWN: {
 	        KeyPressedEvent event(wParam, 0);
-			data->EventCallback(event);
+			windowData->EventCallback(event);
             if (wParam == VK_ESCAPE) PostQuitMessage(0);
             return 0;
         }
 		case WM_KEYUP: {
 	        KeyReleasedEvent event(wParam);
-			data->EventCallback(event);
+			windowData->EventCallback(event);
 			return 0;
         }
 		case WM_SIZE: {
-			data->Width = LOWORD(lParam);
-			data->Height = HIWORD(lParam);
+			windowData->Width = LOWORD(lParam);
+			windowData->Height = HIWORD(lParam);
 			
-			WindowResizeEvent event(data->Width, data->Height);
-			if(data->EventCallback != nullptr)
-				data->EventCallback(event);
+			WindowResizeEvent event(windowData->Width, windowData->Height);
+			if(windowData->EventCallback != nullptr)
+				windowData->EventCallback(event);
 			return 0;
 		}
 		case WM_LBUTTONDOWN: {
 	        MouseButtonPressedEvent event(0);
-			data->EventCallback(event);
+			windowData->EventCallback(event);
 			return 0;
         }
 		case WM_MOUSEHWHEEL: {
 			//TODO fix me 
 	        MouseScrolledEvent event(0, static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)));
-			data->EventCallback(event);
+			windowData->EventCallback(event);
 			return 0;
         }
 		case  WM_MOUSEMOVE: {
 			
 	        MouseMovedEvent event(static_cast<float>(GET_X_LPARAM(lParam)), static_cast<float>(GET_Y_LPARAM(lParam)));
-			data->EventCallback(event);
+			windowData->EventCallback(event);
 			return 0;
 		}
         default:
@@ -94,8 +94,8 @@ namespace Lift {
 		
 		LF_CORE_INFO("Creating Window {0} ({1} x {2})", props.Title, props.Width, props.Height);
 
-		const WCHAR* className = L"LiftEngineWindowClass"; 
-		DWORD winStyle =  WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+		const WCHAR* className = L"LiftEngineWindowClass";
+		const DWORD winStyle =  WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
 
 		WNDCLASS wc = {};
 		wc.lpfnWndProc = MsgProc;
@@ -161,9 +161,9 @@ namespace Lift {
 		return ws;
 	}
 
-	WindowsWindow::WindowData* WindowsWindow::GetWindowData(HWND hwnd) {
-		LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		WindowData* data = reinterpret_cast<WindowData*>(ptr);
+	WindowsWindow::WindowData* WindowsWindow::GetWindowData(const HWND hwnd) {
+		const LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+		auto* data = reinterpret_cast<WindowData*>(ptr);
 		return data;
 	}
 

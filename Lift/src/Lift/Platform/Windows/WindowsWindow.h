@@ -23,7 +23,7 @@ namespace Lift {
 		static LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	private:
 
-		std::wstring String2WString(const std::string& s);
+		static std::wstring String2WString(const std::string& s);
 	private:
 		HWND _windowHandle;
 

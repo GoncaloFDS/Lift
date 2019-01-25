@@ -12,6 +12,9 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
+IncludeDir["ImGui"] = "Lift/vendor/imgui"
+
+include "Lift/vendor/imgui"
 
 project "Lift"
 	location "Lift"
@@ -31,7 +34,8 @@ project "Lift"
 
 	includedirs {
 		"%{prj.name}/src",
-		"%{prj.name}/vendor/spdlog/include"
+		"%{prj.name}/vendor/spdlog/include",
+		"%{IncludeDir.ImGui}"
 	}
 
 	filter "system:windows"
@@ -84,7 +88,8 @@ project "Sandbox"
 	}
 
 	links {
-		"Lift"
+		"Lift",
+		"ImGui"
 	}
 
 	filter "system:windows"
