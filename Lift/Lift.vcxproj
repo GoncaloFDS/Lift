@@ -79,7 +79,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>LF_PLATFORM_WINDOWS;LF_BUILD_DLL;LF_DEBUG;LF_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LF_PLATFORM_WINDOWS;LF_BUILD_DLL;LF_DEBUG;LF_ENABLE_ASSERTS;Win32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
@@ -90,6 +90,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3dcompiler.lib;dxguid.lib;d3d12.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>..\bin\Debug-windows-x86_64\Lift\Lift.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
@@ -116,6 +117,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>d3dcompiler.lib;dxguid.lib;d3d12.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>..\bin\Release-windows-x86_64\Lift\Lift.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
@@ -142,6 +144,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>d3dcompiler.lib;dxguid.lib;d3d12.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>..\bin\Dist-windows-x86_64\Lift\Lift.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
@@ -161,6 +164,9 @@
     <ClInclude Include="src\Lift\Layer.h" />
     <ClInclude Include="src\Lift\LayerStack.h" />
     <ClInclude Include="src\Lift\Log.h" />
+    <ClInclude Include="src\Lift\Platform\DX12\d3dx12.h" />
+    <ClInclude Include="src\Lift\Platform\DX12\imgui_impl_dx12.h" />
+    <ClInclude Include="src\Lift\Platform\DX12\imgui_impl_win32.h" />
     <ClInclude Include="src\Lift\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\Lift\Window.h" />
     <ClInclude Include="src\pch.h" />
@@ -171,10 +177,17 @@
     <ClCompile Include="src\Lift\Layer.cpp" />
     <ClCompile Include="src\Lift\LayerStack.cpp" />
     <ClCompile Include="src\Lift\Log.cpp" />
+    <ClCompile Include="src\Lift\Platform\DX12\imgui_impl_dx12.cpp" />
+    <ClCompile Include="src\Lift\Platform\DX12\imgui_impl_win32.cpp" />
     <ClCompile Include="src\Lift\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="vendor\imgui\ImGui.vcxproj">
+      <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

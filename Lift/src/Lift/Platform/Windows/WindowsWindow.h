@@ -13,6 +13,7 @@ namespace Lift {
 
 		inline unsigned int GetWidth() const override;
 		inline unsigned int GetHeight() const override;
+		inline HWND GetWindowHandle() const override;
 
 		//Window attributes
 		inline void SetEventCallback(const EventCallbackFn& callback) override;

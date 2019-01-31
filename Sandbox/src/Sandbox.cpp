@@ -20,6 +20,7 @@ class Sandbox : public Lift::Application {
 public:
 	Sandbox() {
 		//PushLayer(new ExampleLayer());
+		PushOverlay(new Lift::ImGuiLayer);
 	}
 
 	~Sandbox() {

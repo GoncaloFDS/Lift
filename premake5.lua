@@ -38,6 +38,14 @@ project "Lift"
 		"%{IncludeDir.ImGui}"
 	}
 
+	links {
+		"ImGui",
+		"d3dcompiler", 
+		"dxguid", 
+		"d3d12", 
+		"dxgi"
+	}
+
 	filter "system:windows"
 		cppdialect "c++17"
 		staticruntime "On"
@@ -53,8 +61,11 @@ project "Lift"
 		}
 
 	filter "configurations:Debug"
-		defines "LF_DEBUG"
-		defines "LF_ENABLE_ASSERTS"
+		defines{
+			"LF_DEBUG",
+			"LF_ENABLE_ASSERTS", 
+			"Win32"
+		} 
 		buildoptions "/MDd"
 		symbols "On"
 
@@ -88,8 +99,7 @@ project "Sandbox"
 	}
 
 	links {
-		"Lift",
-		"ImGui"
+		"Lift"
 	}
 
 	filter "system:windows"

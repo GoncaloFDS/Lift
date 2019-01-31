@@ -144,6 +144,10 @@ namespace Lift {
 		return _data.Height;
 	}
 
+	inline HWND WindowsWindow::GetWindowHandle() const {
+		return _windowHandle;
+	}
+
 	void Lift::WindowsWindow::SetEventCallback(const EventCallbackFn& callback) {
 		_data.EventCallback = callback;
 	}
