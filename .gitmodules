@@ -3,4 +3,7 @@
 	url = https://github.com/gabime/spdlog
 [submodule "Lift\\vendor\\imgui"]
 	path = Lift\\vendor\\imgui
-	url = https://github.com/GoncaloFDS/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "Lift/vendor/glfw"]
+	path = Lift/vendor/glfw
+	url = https://github.com/glfw/glfw.git

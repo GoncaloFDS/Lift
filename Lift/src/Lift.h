@@ -5,4 +5,4 @@
 #include "Lift/Log.h"
 #include "Lift/ImGui/ImGuiLayer.h"
 
-#include "Lift/EntryPoint.h"
+#include "Lift/Main.h"

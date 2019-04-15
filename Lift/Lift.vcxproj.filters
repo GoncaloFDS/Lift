@@ -13,8 +13,8 @@
     <Filter Include="Lift\Platform">
       <UniqueIdentifier>{68AB6BA4-D46B-E7DA-9DA6-305809262CB7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Lift\Platform\DX12">
-      <UniqueIdentifier>{B65280F7-A236-414D-0B97-3BA0F7992BCF}</UniqueIdentifier>
+    <Filter Include="Lift\Platform\OpenGL">
+      <UniqueIdentifier>{9C6F58F4-88FE-E1BD-311D-F6B81D8BF263}</UniqueIdentifier>
     </Filter>
     <Filter Include="Lift\Platform\Windows">
       <UniqueIdentifier>{A23D82D7-0EAA-3DD2-D79D-D52F43C95F3A}</UniqueIdentifier>
@@ -26,9 +26,6 @@
       <Filter>Lift</Filter>
     </ClInclude>
     <ClInclude Include="src\Lift\Core.h">
-      <Filter>Lift</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Lift\EntryPoint.h">
       <Filter>Lift</Filter>
     </ClInclude>
     <ClInclude Include="src\Lift\Events\ApplicationEvent.h">
@@ -55,14 +52,11 @@
     <ClInclude Include="src\Lift\Log.h">
       <Filter>Lift</Filter>
     </ClInclude>
-    <ClInclude Include="src\Lift\Platform\DX12\d3dx12.h">
-      <Filter>Lift\Platform\DX12</Filter>
+    <ClInclude Include="src\Lift\Main.h">
+      <Filter>Lift</Filter>
     </ClInclude>
-    <ClInclude Include="src\Lift\Platform\DX12\imgui_impl_dx12.h">
-      <Filter>Lift\Platform\DX12</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Lift\Platform\DX12\imgui_impl_win32.h">
-      <Filter>Lift\Platform\DX12</Filter>
+    <ClInclude Include="src\Lift\Platform\OpenGL\ImGuiOpenGLRenderer.h">
+      <Filter>Lift\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Lift\Platform\Windows\WindowsWindow.h">
       <Filter>Lift\Platform\Windows</Filter>
@@ -88,11 +82,8 @@
     <ClCompile Include="src\Lift\Log.cpp">
       <Filter>Lift</Filter>
     </ClCompile>
-    <ClCompile Include="src\Lift\Platform\DX12\imgui_impl_dx12.cpp">
-      <Filter>Lift\Platform\DX12</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Lift\Platform\DX12\imgui_impl_win32.cpp">
-      <Filter>Lift\Platform\DX12</Filter>
+    <ClCompile Include="src\Lift\Platform\OpenGL\ImGuiOpenGLRenderer.cpp">
+      <Filter>Lift\Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Lift\Platform\Windows\WindowsWindow.cpp">
       <Filter>Lift\Platform\Windows</Filter>

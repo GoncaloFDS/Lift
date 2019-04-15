@@ -20,7 +20,7 @@ void Lift::LayerStack::PushOverlay(Layer* overlay) {
 }
 
 void Lift::LayerStack::PopLayer(Layer* layer) {
-	auto it = std::find(_layers.begin(), _layers.end(), layer);
+	const auto it = std::find(_layers.begin(), _layers.end(), layer);
 	if (it != _layers.end()) {
 		_layers.erase(it);
 		--_layerInsert;
@@ -28,7 +28,7 @@ void Lift::LayerStack::PopLayer(Layer* layer) {
 }
 
 void Lift::LayerStack::PopOverlay(Layer* overlay) {
-	auto it = std::find(_layers.begin(), _layers.end(), overlay);
+	const auto it = std::find(_layers.begin(), _layers.end(), overlay);
 	if (it != _layers.end()) {
 		_layers.erase(it);
 	}

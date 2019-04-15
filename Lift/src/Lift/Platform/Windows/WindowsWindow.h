@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Lift/Window.h"
+#include "GLFW/glfw3.h"
 
 namespace Lift {
-	
+
 	class WindowsWindow : public Window {
 	public:
 		WindowsWindow(const WindowProps& props);
@@ -13,20 +14,19 @@ namespace Lift {
 
 		inline unsigned int GetWidth() const override;
 		inline unsigned int GetHeight() const override;
-		inline HWND GetWindowHandle() const override;
 
 		//Window attributes
 		inline void SetEventCallback(const EventCallbackFn& callback) override;
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
 
-		void OnSize(HWND hwnd, UINT flag, int width, int height);
-		static LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+		inline void* GetNativeWindow() const override;
 	private:
+		virtual void Init(const WindowProps& props);
+		virtual void Shutdown();
 
-		static std::wstring String2WString(const std::string& s);
 	private:
-		HWND _windowHandle;
+		GLFWwindow* m_windowHandle{};
 
 		struct WindowData {
 			std::string Title;
@@ -37,8 +37,7 @@ namespace Lift {
 
 		};
 
-		WindowData _data;
-		inline static WindowsWindow::WindowData* GetWindowData(HWND hwnd);
+		WindowData m_data;
 	};
 
 }

@@ -1,174 +1,163 @@
 #include "pch.h"
 
 #include "WindowsWindow.h"
-#include <codecvt>
 
 #include "Lift/Events/ApplicationEvent.h"
 #include "Lift/Events/MouseEvent.h"
 #include "Lift/Events/KeyEvent.h"
 
+#include <glad/glad.h>
 
 namespace Lift {
 	
-	static bool _sInitialized = false;
+	static bool s_GLFWInitialized = false;
 
+	static void GLFWErrorCallback(int error, const char* description) {
+		LF_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
+		
+	}
 	Window* Window::Create(const WindowProps& props) {
 		return new WindowsWindow(props);
 	}
 
-	LRESULT CALLBACK WindowsWindow::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-    {	
-		WindowData* windowData;
-		if(msg == WM_CREATE) {
-			
-			auto* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
-			windowData = reinterpret_cast<WindowData*>(pCreate->lpCreateParams);
-			SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(windowData));
-		}
-		else {
-			windowData = GetWindowData(hwnd);
+	WindowsWindow::WindowsWindow(const WindowProps& props) {
+		Init(props);
+	}
+
+	WindowsWindow::~WindowsWindow() {
+		Shutdown();
+	}
+
+	void WindowsWindow::OnUpdate() {
+		glfwPollEvents();
+		glfwSwapBuffers(m_windowHandle);
+	}
+
+	unsigned WindowsWindow::GetWidth() const {
+		return  m_data.Width;
+	}
+
+	unsigned WindowsWindow::GetHeight() const {
+		return m_data.Height;
+	}
+
+	void WindowsWindow::SetEventCallback(const EventCallbackFn& callback) {
+		m_data.EventCallback = callback;
+	}
+
+	void WindowsWindow::SetVSync(bool enabled) {
+		if(enabled)
+			glfwSwapInterval(1);
+		else
+			glfwSwapInterval(0);
+		m_data.VSync = enabled;
+	}
+
+	bool WindowsWindow::IsVSync() const {
+		return  m_data.VSync;
+	}
+
+	void* WindowsWindow::GetNativeWindow() const {
+		return m_windowHandle;
+	}
+
+	void WindowsWindow::Init(const WindowProps& props) {
+		m_data.Title = props.Title;
+		m_data.Width = props.Width;
+		m_data.Height = props.Height;
+
+		LF_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
+
+		if (!s_GLFWInitialized) {
+			// TODO: glfwTerminate on system shutdown
+			int success = glfwInit();
+			LF_CORE_ASSERT(success, "Could not intialize GLFW!");
+			glfwSetErrorCallback(GLFWErrorCallback);
+			s_GLFWInitialized = true;
 		}
 
-		switch (msg) {
-		
-        case WM_CLOSE: {
-            DestroyWindow(hwnd);
+		m_windowHandle = glfwCreateWindow(static_cast<int>(props.Width), static_cast<int>(props.Height), m_data.Title.c_str(), nullptr, nullptr);
+		glfwMakeContextCurrent(m_windowHandle);
+		const int status = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
+		LF_CORE_ASSERT(status, "Failed to initialize Glad!");
+		glfwSetWindowUserPointer(m_windowHandle, &m_data);
+		SetVSync(true);
+
+		// Set GLFW callbacks
+		glfwSetWindowSizeCallback(m_windowHandle, [](GLFWwindow* window, int width, int height) {
+			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+			data.Width = width;
+			data.Height = height;
+
+			WindowResizeEvent event(width, height);
+			data.EventCallback(event);
+		});
+
+		glfwSetWindowCloseCallback(m_windowHandle, [](GLFWwindow* window) {
+			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 			WindowCloseEvent event;
-			windowData->EventCallback(event);
-            return 0;
-		}
-        case WM_DESTROY: {
-			WindowCloseEvent event;
-			windowData->EventCallback(event);
-            PostQuitMessage(0);
-            return 0;
-		}
-        case WM_KEYDOWN: {
-	        KeyPressedEvent event(wParam, 0);
-			windowData->EventCallback(event);
-            if (wParam == VK_ESCAPE) PostQuitMessage(0);
-            return 0;
-        }
-		case WM_KEYUP: {
-	        KeyReleasedEvent event(wParam);
-			windowData->EventCallback(event);
-			return 0;
-        }
-		case WM_SIZE: {
-			windowData->Width = LOWORD(lParam);
-			windowData->Height = HIWORD(lParam);
-			
-			WindowResizeEvent event(windowData->Width, windowData->Height);
-			if(windowData->EventCallback != nullptr)
-				windowData->EventCallback(event);
-			return 0;
-		}
-		case WM_LBUTTONDOWN: {
-	        MouseButtonPressedEvent event(0);
-			windowData->EventCallback(event);
-			return 0;
-        }
-		case WM_MOUSEHWHEEL: {
-			//TODO fix me 
-	        MouseScrolledEvent event(0, static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)));
-			windowData->EventCallback(event);
-			return 0;
-        }
-		case  WM_MOUSEMOVE: {
-			
-	        MouseMovedEvent event(static_cast<float>(GET_X_LPARAM(lParam)), static_cast<float>(GET_Y_LPARAM(lParam)));
-			windowData->EventCallback(event);
-			return 0;
-		}
-        default:
-            return DefWindowProc(hwnd, msg, wParam, lParam);
-        }
-    }
+			data.EventCallback(event);
+		});
 
+		glfwSetKeyCallback(m_windowHandle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
+			switch (action) {
+				case GLFW_PRESS: {
+					KeyPressedEvent event(key, 0);
+					data.EventCallback(event);
+					break;
+				}
+				case GLFW_RELEASE: {
+					KeyReleasedEvent event(key);
+					data.EventCallback(event);
+					break;
+				}
+				case GLFW_REPEAT: {
+					KeyPressedEvent event(key, 1);
+					data.EventCallback(event);
+					break;
+				}
+			}
+		});
 
-	Lift::WindowsWindow::WindowsWindow(const WindowProps& props) {
-		_data.Title = props.Title;
-		_data.Width = props.Width;
-		_data.Height = props.Height;
-		
-		LF_CORE_INFO("Creating Window {0} ({1} x {2})", props.Title, props.Width, props.Height);
+		glfwSetMouseButtonCallback(m_windowHandle, [](GLFWwindow* window, int button, int action, int mods) {
+			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
-		const WCHAR* className = L"LiftEngineWindowClass";
-		const DWORD winStyle =  WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+			switch (action) {
+				case GLFW_PRESS: {
+					MouseButtonPressedEvent event(button);
+					data.EventCallback(event);
+					break;
+				}
+				case GLFW_RELEASE: {
+					MouseButtonReleasedEvent event(button);
+					data.EventCallback(event);
+					break;
+				}
+			}
+		});
 
-		WNDCLASS wc = {};
-		wc.lpfnWndProc = MsgProc;
-        wc.hInstance = GetModuleHandle(nullptr);
-        wc.lpszClassName = className;	
-		
-		if (RegisterClass(&wc) == 0) {
-            LF_CORE_ERROR("RegisterClass() failed");
-            _windowHandle = nullptr;
-        }
+		glfwSetScrollCallback(m_windowHandle, [](GLFWwindow* window, double xOffset, double yOffset)
+		{
+			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
-		RECT r {0, 0, static_cast<LONG>(props.Width), static_cast<LONG>(props.Height) };
-		AdjustWindowRect(&r, winStyle, false);
+			MouseScrolledEvent event(static_cast<float>(xOffset), static_cast<float>(yOffset));
+			data.EventCallback(event);
+		});
 
-		std::wstring wTitle = String2WString(props.Title);
-		_windowHandle = CreateWindowEx(0, className, 
-			wTitle.c_str(), winStyle,
-			CW_USEDEFAULT, CW_USEDEFAULT,
-			props.Width, props.Height, 
-			nullptr, nullptr, 
-			wc.hInstance, &_data);
-		if(_windowHandle == nullptr) {
-            LF_CORE_ERROR("CreateWindowEx() failed");
-		}
+		glfwSetCursorPosCallback(m_windowHandle, [](GLFWwindow* window, double xPos, double yPos)
+		{
+			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
-		ShowWindow(_windowHandle, SW_SHOWNORMAL);
+			MouseMovedEvent event(static_cast<float>(xPos), static_cast<float>(yPos));
+			data.EventCallback(event);
+});
 	}
 
-	Lift::WindowsWindow::~WindowsWindow() {
-		DestroyWindow(_windowHandle);
+	void WindowsWindow::Shutdown() {
+		glfwDestroyWindow(m_windowHandle);
 	}
 
-	void Lift::WindowsWindow::OnUpdate() {
-		MSG msg;
-		if(PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
-
-	unsigned Lift::WindowsWindow::GetWidth() const {
-		return _data.Width;
-	}
-
-	unsigned Lift::WindowsWindow::GetHeight() const {
-		return _data.Height;
-	}
-
-	inline HWND WindowsWindow::GetWindowHandle() const {
-		return _windowHandle;
-	}
-
-	void Lift::WindowsWindow::SetEventCallback(const EventCallbackFn& callback) {
-		_data.EventCallback = callback;
-	}
-
-	void Lift::WindowsWindow::SetVSync(bool enabled) {
-	}
-
-	bool Lift::WindowsWindow::IsVSync() const {
-		return true;
-	}
-
-	std::wstring WindowsWindow::String2WString(const std::string& s) {
-		std::wstring_convert<std::codecvt_utf8<WCHAR>> cvt;
-		std::wstring ws = cvt.from_bytes(s);
-		return ws;
-	}
-
-	WindowsWindow::WindowData* WindowsWindow::GetWindowData(const HWND hwnd) {
-		const LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		auto* data = reinterpret_cast<WindowData*>(ptr);
-		return data;
-	}
-
+	
 }

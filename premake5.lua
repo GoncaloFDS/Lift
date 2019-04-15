@@ -13,13 +13,18 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
 IncludeDir["ImGui"] = "Lift/vendor/imgui"
+IncludeDir["GLFW"] = "Lift/vendor/glfw/include"
+IncludeDir["Glad"] = "Lift/vendor/glad/include"
 
+include "Lift/vendor/glfw"
+include "Lift/vendor/glad"
 include "Lift/vendor/imgui"
 
 project "Lift"
 	location "Lift"
 	kind "SharedLib"
 	language "C++"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("intermediate/" .. outputdir .. "/%{prj.name}")
@@ -35,10 +40,15 @@ project "Lift"
 	includedirs {
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}"
 	}
 
 	links {
+		"GLFW",
+		"Glad",
+		"opengl32.lib", -- this might not be needed
 		"ImGui",
 		"d3dcompiler", 
 		"dxguid", 
@@ -48,12 +58,12 @@ project "Lift"
 
 	filter "system:windows"
 		cppdialect "c++17"
-		staticruntime "On"
 		systemversion "latest"
 
 		defines {
 			"LF_PLATFORM_WINDOWS",
-			"LF_BUILD_DLL"
+			"LF_BUILD_DLL",
+			"GLFW_INCLUDE_NONE"
 		}
 
 		postbuildcommands {
@@ -84,6 +94,7 @@ project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("intermediate/" .. outputdir .. "/%{prj.name}")
@@ -95,7 +106,8 @@ project "Sandbox"
 
 	includedirs {
 		"Lift/vendor/spdlog/include",
-		"Lift/src"
+		"Lift/src",
+		"Lift/vendor"
 	}
 
 	links {
@@ -104,7 +116,6 @@ project "Sandbox"
 
 	filter "system:windows"
 		cppdialect "c++17"
-		staticruntime "On"
 		systemversion "latest"
 
 		defines {
