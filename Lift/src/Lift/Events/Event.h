@@ -12,7 +12,7 @@ namespace Lift {
 		None = 0,
 		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
 		AppTick, AppUpdate, AppRender, // Might not used this
-		KeyPressed, KeyReleased,
+		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};
 
@@ -54,19 +54,19 @@ namespace Lift {
 		using EventFn = std::function<bool(T&)>;
 	public:
 		EventDispatcher(Event& event) 
-			: _event(event) {}
+			: m_event(event) {}
 
 		template<typename T>
 		bool Dispatch(EventFn<T> func) {
-			if(_event.GetEventType() == T::GetStaticType()) {
-				_event.Handled = func(*(T*)&_event);
+			if(m_event.GetEventType() == T::GetStaticType()) {
+				m_event.Handled = func(*(T*)&m_event);
 				return true;
 			}
 			return false;
 		}
 
 	private:
-		Event& _event;
+		Event& m_event;
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const Event& e){

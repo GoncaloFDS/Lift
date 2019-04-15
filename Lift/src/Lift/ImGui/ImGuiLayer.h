@@ -1,6 +1,9 @@
 ﻿#pragma once
 
 #include "Lift/Layer.h"
+#include "Lift/Events/MouseEvent.h"
+#include "Lift/Events/KeyEvent.h"
+#include "Lift/Events/ApplicationEvent.h"
 
 namespace Lift {
 	
@@ -13,10 +16,17 @@ namespace Lift {
 		void OnAttach() override;
 		void OnDetach() override;
 		void OnUpdate() override;
-		void OnImGuiRender() override;
+		void OnEvent(Event& event) override;
 
-		void Begin();
-		void End();
+	private:
+		bool OnMouseButtonPressedEvent(MouseButtonPressedEvent& e);
+		bool OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e);
+		bool OnMouseMovedEvent(MouseMovedEvent& e);
+		bool OnMouseScrolledEvent(MouseScrolledEvent& e);
+		bool OnKeyPressedEvent(KeyPressedEvent& e);
+		bool OnKeyReleasedEvent(KeyReleasedEvent& e);
+		bool OnKeyTypedEvent(KeyTypedEvent& e);
+		bool OnWindowResizedEvent(WindowResizeEvent& e);
 	private:
 		float m_time = 0.0f;
 	};

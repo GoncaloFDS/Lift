@@ -121,6 +121,13 @@ namespace Lift {
 			}
 		});
 
+		glfwSetCharCallback(m_windowHandle, [](GLFWwindow* window, unsigned int keycode) {
+			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+
+			KeyTypedEvent event(keycode);
+			data.EventCallback(event);
+		});
+
 		glfwSetMouseButtonCallback(m_windowHandle, [](GLFWwindow* window, int button, int action, int mods) {
 			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 

@@ -6,14 +6,14 @@
 
  	class LIFT_API KeyEvent : public Event {
 	public:
-		inline int GetKeyCode() const { return _keyCode; }
+		inline int GetKeyCode() const { return m_keyCode; }
 
  		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
 	protected:
 		KeyEvent(int keycode)
-			: _keyCode(keycode) {}
+			: m_keyCode(keycode) {}
 
- 		int _keyCode;
+ 		int m_keyCode;
 	};
 
  	class LIFT_API KeyPressedEvent : public KeyEvent {
@@ -26,7 +26,7 @@
  		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyPressedEvent: " << _keyCode << " (" << _repeatCount << " repeats)";
+			ss << "KeyPressedEvent: " << m_keyCode << " (" << _repeatCount << " repeats)";
 			return ss.str();
 		}
 
@@ -42,10 +42,25 @@
 
  		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "KeyReleasedEvent: " << _keyCode;
+			ss << "KeyReleasedEvent: " << m_keyCode;
 			return ss.str();
 		}
 
  		EVENT_CLASS_TYPE(KeyReleased)
 	};
+
+	class LIFT_API KeyTypedEvent : public KeyEvent {
+	public:
+		KeyTypedEvent(int keycode)
+			: KeyEvent(keycode) {}
+
+ 		std::string ToString() const override {
+			std::stringstream ss;
+			ss << "KeyTypedEvent: " << m_keyCode;
+			return ss.str();
+		}
+
+ 		EVENT_CLASS_TYPE(KeyTyped)
+	};
+
 } 

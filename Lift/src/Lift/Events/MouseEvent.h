@@ -46,14 +46,14 @@
 
  	class LIFT_API MouseButtonEvent : public Event {
 	public:
-		inline int GetMouseButton() const { return _button; }
+		inline int GetMouseButton() const { return m_button; }
 
  		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 	protected:
 		MouseButtonEvent(int button)
-			: _button(button) {}
+			: m_button(button) {}
 
- 		int _button;
+ 		int m_button;
 	};
 
  	class LIFT_API MouseButtonPressedEvent : public MouseButtonEvent {
@@ -63,7 +63,7 @@
 
  		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "MouseButtonPressedEvent: " << _button;
+			ss << "MouseButtonPressedEvent: " << m_button;
 			return ss.str();
 		}
 
@@ -77,7 +77,7 @@
 
  		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "MouseButtonReleasedEvent: " << _button;
+			ss << "MouseButtonReleasedEvent: " << m_button;
 			return ss.str();
 		}
 

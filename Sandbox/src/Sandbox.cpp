@@ -7,7 +7,7 @@ public:
 	}
 
 	void OnUpdate() override {
-		LF_INFO("ExampleLayer::Update");
+		//LF_INFO("ExampleLayer::Update");
 	}
 
 	void OnEvent(Lift::Event& event) override {
@@ -19,8 +19,8 @@ public:
 class Sandbox : public Lift::Application {
 public:
 	Sandbox() {
-		//PushLayer(new ExampleLayer());
-		PushOverlay(new Lift::ImGuiLayer);
+		PushLayer(new ExampleLayer());
+		PushOverlay(new Lift::ImGuiLayer());
 	}
 
 	~Sandbox() {
