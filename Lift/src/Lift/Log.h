@@ -10,11 +10,11 @@ namespace Lift {
 	public:
 		static void Init();
 
-		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return _sCoreLogger; }
-		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return _sClientLogger; }
+		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger();
+		inline static std::shared_ptr<spdlog::logger>& GetClientLogger();
 	private:
-		static std::shared_ptr<spdlog::logger> _sCoreLogger;
-		static std::shared_ptr<spdlog::logger> _sClientLogger;
+		static std::shared_ptr<spdlog::logger> m_sCoreLogger;
+		static std::shared_ptr<spdlog::logger> m_sClientLogger;
 	};
 
 }

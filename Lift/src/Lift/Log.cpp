@@ -5,16 +5,24 @@
 
 namespace Lift {
 
-	std::shared_ptr<spdlog::logger> Log::_sCoreLogger;
-	std::shared_ptr<spdlog::logger> Log::_sClientLogger;
+	std::shared_ptr<spdlog::logger> Log::m_sCoreLogger;
+	std::shared_ptr<spdlog::logger> Log::m_sClientLogger;
 
 	void Log::Init() {
 		spdlog::set_pattern("%^[%T] %n: %v%$");
-		_sCoreLogger = spdlog::stdout_color_mt("Lift");
-		_sCoreLogger->set_level(spdlog::level::trace);
+		m_sCoreLogger = spdlog::stdout_color_mt("Lift");
+		m_sCoreLogger->set_level(spdlog::level::trace);
 		
-		_sClientLogger = spdlog::stdout_color_mt("App");
-		_sClientLogger->set_level(spdlog::level::trace);
+		m_sClientLogger = spdlog::stdout_color_mt("App");
+		m_sClientLogger->set_level(spdlog::level::trace);
+	}
+
+	std::shared_ptr<spdlog::logger>& Log::GetCoreLogger() {
+		return m_sCoreLogger;
+	}
+
+	std::shared_ptr<spdlog::logger>& Log::GetClientLogger() {
+		return m_sClientLogger;
 	}
 
 }
