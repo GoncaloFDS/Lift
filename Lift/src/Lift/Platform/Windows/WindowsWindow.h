@@ -33,7 +33,7 @@ namespace Lift {
 			unsigned int Width{}, Height{};
 			bool VSync{};
 
-			EventCallbackFn EventCallback;
+			EventCallbackFn eventCallback;
 
 		};
 

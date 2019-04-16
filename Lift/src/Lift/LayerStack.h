@@ -18,7 +18,7 @@ namespace Lift {
 		std::vector<Layer*>::iterator begin();	
 		std::vector<Layer*>::iterator end();	
 	private:
-		std::vector<Layer*> _layers;
-		std::vector<Layer*>::iterator _layerInsert;
+		std::vector<Layer*> m_layers;
+		std::vector<Layer*>::iterator m_layerInsert;
 	};
 }

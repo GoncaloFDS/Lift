@@ -2,6 +2,7 @@
 .vs/
 bin/
 intermediate/
+bin-int/
 
 # Files
 *.user

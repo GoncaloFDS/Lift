@@ -16,9 +16,11 @@ IncludeDir["ImGui"] = "Lift/vendor/imgui"
 IncludeDir["GLFW"] = "Lift/vendor/glfw/include"
 IncludeDir["Glad"] = "Lift/vendor/glad/include"
 
-include "Lift/vendor/glfw"
-include "Lift/vendor/glad"
-include "Lift/vendor/imgui"
+group "Dependencies"
+	include "Lift/vendor/glfw"
+	include "Lift/vendor/glad"
+	include "Lift/vendor/imgui"
+group ""
 
 project "Lift"
 	location "Lift"
@@ -27,7 +29,7 @@ project "Lift"
 	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("intermediate/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	pchheader "pch.h"
 	pchsource "Lift/src/pch.cpp"
@@ -67,27 +69,22 @@ project "Lift"
 		}
 
 		postbuildcommands {
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "configurations:Debug"
-		defines{
-			"LF_DEBUG",
-			"LF_ENABLE_ASSERTS", 
-			"Win32"
-		} 
-		buildoptions "/MDd"
+		defines "LF_DEBUG"
+		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "LF_RELEASE"
-		defines "LF_ENABLE_ASSERTS"
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "LF_DIST"
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
 
 project "Sandbox"
@@ -97,7 +94,7 @@ project "Sandbox"
 	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("intermediate/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files {
 		"%{prj.name}/src/**.h",
@@ -124,15 +121,15 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "LF_DEBUG"
-		buildoptions "/MDd"
+		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "LF_RELEASE"
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "LF_DIST"
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"

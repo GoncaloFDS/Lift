@@ -56,21 +56,21 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\bin\Debug-windows-x86_64\Lift\</OutDir>
-    <IntDir>..\intermediate\Debug-windows-x86_64\Lift\</IntDir>
+    <IntDir>..\bin-int\Debug-windows-x86_64\Lift\</IntDir>
     <TargetName>Lift</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\bin\Release-windows-x86_64\Lift\</OutDir>
-    <IntDir>..\intermediate\Release-windows-x86_64\Lift\</IntDir>
+    <IntDir>..\bin-int\Release-windows-x86_64\Lift\</IntDir>
     <TargetName>Lift</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\bin\Dist-windows-x86_64\Lift\</OutDir>
-    <IntDir>..\intermediate\Dist-windows-x86_64\Lift\</IntDir>
+    <IntDir>..\bin-int\Dist-windows-x86_64\Lift\</IntDir>
     <TargetName>Lift</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
@@ -79,12 +79,11 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>LF_PLATFORM_WINDOWS;LF_BUILD_DLL;GLFW_INCLUDE_NONE;LF_DEBUG;LF_ENABLE_ASSERTS;Win32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LF_PLATFORM_WINDOWS;LF_BUILD_DLL;GLFW_INCLUDE_NONE;LF_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalOptions>/MDd %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -94,7 +93,7 @@
       <ImportLibrary>..\bin\Debug-windows-x86_64\Lift\Lift.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST ..\bin\Debug-windows-x86_64\Lift\Lift.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-windows-x86_64\Lift\Lift.dll ..\bin\Debug-windows-x86_64\Sandbox &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-windows-x86_64\Lift\Lift.dll ..\bin\Debug-windows-x86_64\Sandbox &gt; nul)</Command>
+      <Command>IF EXIST ..\bin\Debug-windows-x86_64\Lift\Lift.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-windows-x86_64\Lift\Lift.dll "..\bin\Debug-windows-x86_64\Sandbox\" &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-windows-x86_64\Lift\Lift.dll "..\bin\Debug-windows-x86_64\Sandbox\" &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -102,7 +101,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>LF_PLATFORM_WINDOWS;LF_BUILD_DLL;GLFW_INCLUDE_NONE;LF_RELEASE;LF_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LF_PLATFORM_WINDOWS;LF_BUILD_DLL;GLFW_INCLUDE_NONE;LF_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -110,7 +109,6 @@
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalOptions>/MD %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -121,7 +119,7 @@
       <ImportLibrary>..\bin\Release-windows-x86_64\Lift\Lift.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST ..\bin\Release-windows-x86_64\Lift\Lift.dll\ (xcopy /Q /E /Y /I ..\bin\Release-windows-x86_64\Lift\Lift.dll ..\bin\Release-windows-x86_64\Sandbox &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Release-windows-x86_64\Lift\Lift.dll ..\bin\Release-windows-x86_64\Sandbox &gt; nul)</Command>
+      <Command>IF EXIST ..\bin\Release-windows-x86_64\Lift\Lift.dll\ (xcopy /Q /E /Y /I ..\bin\Release-windows-x86_64\Lift\Lift.dll "..\bin\Release-windows-x86_64\Sandbox\" &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Release-windows-x86_64\Lift\Lift.dll "..\bin\Release-windows-x86_64\Sandbox\" &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -137,7 +135,6 @@
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalOptions>/MD %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -148,7 +145,7 @@
       <ImportLibrary>..\bin\Dist-windows-x86_64\Lift\Lift.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST ..\bin\Dist-windows-x86_64\Lift\Lift.dll\ (xcopy /Q /E /Y /I ..\bin\Dist-windows-x86_64\Lift\Lift.dll ..\bin\Dist-windows-x86_64\Sandbox &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Dist-windows-x86_64\Lift\Lift.dll ..\bin\Dist-windows-x86_64\Sandbox &gt; nul)</Command>
+      <Command>IF EXIST ..\bin\Dist-windows-x86_64\Lift\Lift.dll\ (xcopy /Q /E /Y /I ..\bin\Dist-windows-x86_64\Lift\Lift.dll "..\bin\Dist-windows-x86_64\Sandbox\" &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Dist-windows-x86_64\Lift\Lift.dll "..\bin\Dist-windows-x86_64\Sandbox\" &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -160,11 +157,13 @@
     <ClInclude Include="src\Lift\Events\KeyEvent.h" />
     <ClInclude Include="src\Lift\Events\MouseEvent.h" />
     <ClInclude Include="src\Lift\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="src\Lift\Input.h" />
     <ClInclude Include="src\Lift\Layer.h" />
     <ClInclude Include="src\Lift\LayerStack.h" />
     <ClInclude Include="src\Lift\Log.h" />
     <ClInclude Include="src\Lift\Main.h" />
     <ClInclude Include="src\Lift\Platform\OpenGL\ImGuiOpenGLRenderer.h" />
+    <ClInclude Include="src\Lift\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Lift\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\Lift\Window.h" />
     <ClInclude Include="src\pch.h" />
@@ -176,6 +175,7 @@
     <ClCompile Include="src\Lift\LayerStack.cpp" />
     <ClCompile Include="src\Lift\Log.cpp" />
     <ClCompile Include="src\Lift\Platform\OpenGL\ImGuiOpenGLRenderer.cpp" />
+    <ClCompile Include="src\Lift\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Lift\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

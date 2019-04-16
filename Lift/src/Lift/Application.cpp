@@ -4,6 +4,7 @@
 #include "Log.h"
 
 #include <glad/glad.h>
+#include "Input.h"
 
 namespace Lift {
 
@@ -23,7 +24,7 @@ namespace Lift {
 	}
 
 	void Application::Run() {
-	
+
 		while(m_isRunning) {
 			glClearColor(1, 0, 1, 1);
 			glClear(GL_COLOR_BUFFER_BIT);

@@ -10,6 +10,10 @@
 	#error Lift only supports windows
 #endif
 
+#ifdef LF_DEBUG
+	#define LF_ENABLE_ASSERTS
+#endif
+
 #ifdef LF_ENABLE_ASSERTS
 	#define LF_ASSERT(x, ...) { if(!(x)) { LF_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); }}
 	#define LF_CORE_ASSERT(x, ...) { if(!(x)) { LF_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); }}

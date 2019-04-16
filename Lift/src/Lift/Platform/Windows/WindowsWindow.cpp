@@ -42,7 +42,7 @@ namespace Lift {
 	}
 
 	void WindowsWindow::SetEventCallback(const EventCallbackFn& callback) {
-		m_data.EventCallback = callback;
+		m_data.eventCallback = callback;
 	}
 
 	void WindowsWindow::SetVSync(bool enabled) {
@@ -90,13 +90,13 @@ namespace Lift {
 			data.Height = height;
 
 			WindowResizeEvent event(width, height);
-			data.EventCallback(event);
+			data.eventCallback(event);
 		});
 
 		glfwSetWindowCloseCallback(m_windowHandle, [](GLFWwindow* window) {
 			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 			WindowCloseEvent event;
-			data.EventCallback(event);
+			data.eventCallback(event);
 		});
 
 		glfwSetKeyCallback(m_windowHandle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -105,17 +105,17 @@ namespace Lift {
 			switch (action) {
 				case GLFW_PRESS: {
 					KeyPressedEvent event(key, 0);
-					data.EventCallback(event);
+					data.eventCallback(event);
 					break;
 				}
 				case GLFW_RELEASE: {
 					KeyReleasedEvent event(key);
-					data.EventCallback(event);
+					data.eventCallback(event);
 					break;
 				}
 				case GLFW_REPEAT: {
 					KeyPressedEvent event(key, 1);
-					data.EventCallback(event);
+					data.eventCallback(event);
 					break;
 				}
 			}
@@ -125,7 +125,7 @@ namespace Lift {
 			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
 			KeyTypedEvent event(keycode);
-			data.EventCallback(event);
+			data.eventCallback(event);
 		});
 
 		glfwSetMouseButtonCallback(m_windowHandle, [](GLFWwindow* window, int button, int action, int mods) {
@@ -134,12 +134,12 @@ namespace Lift {
 			switch (action) {
 				case GLFW_PRESS: {
 					MouseButtonPressedEvent event(button);
-					data.EventCallback(event);
+					data.eventCallback(event);
 					break;
 				}
 				case GLFW_RELEASE: {
 					MouseButtonReleasedEvent event(button);
-					data.EventCallback(event);
+					data.eventCallback(event);
 					break;
 				}
 			}
@@ -150,7 +150,7 @@ namespace Lift {
 			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
 			MouseScrolledEvent event(static_cast<float>(xOffset), static_cast<float>(yOffset));
-			data.EventCallback(event);
+			data.eventCallback(event);
 		});
 
 		glfwSetCursorPosCallback(m_windowHandle, [](GLFWwindow* window, double xPos, double yPos)
@@ -158,7 +158,7 @@ namespace Lift {
 			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
 			MouseMovedEvent event(static_cast<float>(xPos), static_cast<float>(yPos));
-			data.EventCallback(event);
+			data.eventCallback(event);
 });
 	}
 

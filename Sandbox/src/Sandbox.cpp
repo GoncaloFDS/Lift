@@ -11,7 +11,7 @@ public:
 	}
 
 	void OnEvent(Lift::Event& event) override {
-		LF_TRACE("{0}", event);
+		//LF_TRACE("{0}", event);
 	}
 };
 
