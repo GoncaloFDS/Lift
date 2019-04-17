@@ -13,9 +13,6 @@
     <Filter Include="Lift\Platform">
       <UniqueIdentifier>{68AB6BA4-D46B-E7DA-9DA6-305809262CB7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Lift\Platform\OpenGL">
-      <UniqueIdentifier>{9C6F58F4-88FE-E1BD-311D-F6B81D8BF263}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Lift\Platform\Windows">
       <UniqueIdentifier>{A23D82D7-0EAA-3DD2-D79D-D52F43C95F3A}</UniqueIdentifier>
     </Filter>
@@ -43,6 +40,12 @@
     <ClInclude Include="src\Lift\ImGui\ImGuiLayer.h">
       <Filter>Lift\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="src\Lift\Input.h">
+      <Filter>Lift</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Lift\KeyCodes.h">
+      <Filter>Lift</Filter>
+    </ClInclude>
     <ClInclude Include="src\Lift\Layer.h">
       <Filter>Lift</Filter>
     </ClInclude>
@@ -55,8 +58,8 @@
     <ClInclude Include="src\Lift\Main.h">
       <Filter>Lift</Filter>
     </ClInclude>
-    <ClInclude Include="src\Lift\Platform\OpenGL\ImGuiOpenGLRenderer.h">
-      <Filter>Lift\Platform\OpenGL</Filter>
+    <ClInclude Include="src\Lift\Platform\Windows\WindowsInput.h">
+      <Filter>Lift\Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\Lift\Platform\Windows\WindowsWindow.h">
       <Filter>Lift\Platform\Windows</Filter>
@@ -65,12 +68,13 @@
       <Filter>Lift</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Lift\Input.h" />
-    <ClInclude Include="src\Lift\Platform\Windows\WindowsInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Lift\Application.cpp">
       <Filter>Lift</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Lift\ImGui\ImGuiBuild.cpp">
+      <Filter>Lift\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\Lift\ImGui\ImGuiLayer.cpp">
       <Filter>Lift\ImGui</Filter>
@@ -84,13 +88,12 @@
     <ClCompile Include="src\Lift\Log.cpp">
       <Filter>Lift</Filter>
     </ClCompile>
-    <ClCompile Include="src\Lift\Platform\OpenGL\ImGuiOpenGLRenderer.cpp">
-      <Filter>Lift\Platform\OpenGL</Filter>
+    <ClCompile Include="src\Lift\Platform\Windows\WindowsInput.cpp">
+      <Filter>Lift\Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\Lift\Platform\Windows\WindowsWindow.cpp">
       <Filter>Lift\Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Lift\Platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
 </Project>

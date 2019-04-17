@@ -29,9 +29,9 @@ namespace Lift {
 		GLFWwindow* m_windowHandle{};
 
 		struct WindowData {
-			std::string Title;
-			unsigned int Width{}, Height{};
-			bool VSync{};
+			std::string title;
+			unsigned int width{}, height{};
+			bool vSync{};
 
 			EventCallbackFn eventCallback;
 

@@ -4,13 +4,14 @@
 #include "Window.h"
 #include "LayerStack.h"
 #include "Events/ApplicationEvent.h"
+#include "ImGui/ImGuiLayer.h"
 
 namespace Lift {
 
 	class LIFT_API Application	{
 	public:
 		Application();
-		virtual ~Application();
+		virtual ~Application() = default;
 
 		void Run();
 
@@ -29,6 +30,7 @@ namespace Lift {
 		std::unique_ptr<Window> m_window;
 		bool m_isRunning = true;
 		LayerStack m_layerStack;
+		ImGuiLayer* m_imGuiLayer;
 		static Application* s_Instance;
 
 	};

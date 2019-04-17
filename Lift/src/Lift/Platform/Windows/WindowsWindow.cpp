@@ -34,11 +34,11 @@ namespace Lift {
 	}
 
 	unsigned WindowsWindow::GetWidth() const {
-		return  m_data.Width;
+		return  m_data.width;
 	}
 
 	unsigned WindowsWindow::GetHeight() const {
-		return m_data.Height;
+		return m_data.height;
 	}
 
 	void WindowsWindow::SetEventCallback(const EventCallbackFn& callback) {
@@ -50,11 +50,11 @@ namespace Lift {
 			glfwSwapInterval(1);
 		else
 			glfwSwapInterval(0);
-		m_data.VSync = enabled;
+		m_data.vSync = enabled;
 	}
 
 	bool WindowsWindow::IsVSync() const {
-		return  m_data.VSync;
+		return  m_data.vSync;
 	}
 
 	void* WindowsWindow::GetNativeWindow() const {
@@ -62,9 +62,9 @@ namespace Lift {
 	}
 
 	void WindowsWindow::Init(const WindowProps& props) {
-		m_data.Title = props.Title;
-		m_data.Width = props.Width;
-		m_data.Height = props.Height;
+		m_data.title = props.Title;
+		m_data.width = props.Width;
+		m_data.height = props.Height;
 
 		LF_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
@@ -76,7 +76,7 @@ namespace Lift {
 			s_GLFWInitialized = true;
 		}
 
-		m_windowHandle = glfwCreateWindow(static_cast<int>(props.Width), static_cast<int>(props.Height), m_data.Title.c_str(), nullptr, nullptr);
+		m_windowHandle = glfwCreateWindow(static_cast<int>(props.Width), static_cast<int>(props.Height), m_data.title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_windowHandle);
 		const int status = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
 		LF_CORE_ASSERT(status, "Failed to initialize Glad!");
@@ -86,8 +86,8 @@ namespace Lift {
 		// Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_windowHandle, [](GLFWwindow* window, int width, int height) {
 			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
-			data.Width = width;
-			data.Height = height;
+			data.width = width;
+			data.height = height;
 
 			WindowResizeEvent event(width, height);
 			data.eventCallback(event);

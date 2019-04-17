@@ -17,10 +17,9 @@ namespace Lift {
 		s_Instance = this;
 		m_window = std::unique_ptr<Window>(Window::Create());
 		m_window->SetEventCallback(BIND_EVENT_FN(OnEvent));
-	}
 
-
-	Application::~Application() {
+		m_imGuiLayer = new ImGuiLayer();
+		PushOverlay(m_imGuiLayer);
 	}
 
 	void Application::Run() {
@@ -31,6 +30,11 @@ namespace Lift {
 
 			for (Layer* layer : m_layerStack)
 				layer->OnUpdate();
+
+			m_imGuiLayer->Begin();
+			for (Layer* layer : m_layerStack)
+				layer->OnImGuiRender();
+			m_imGuiLayer->End();
 
 			m_window->OnUpdate();	
 		}

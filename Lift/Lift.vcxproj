@@ -80,7 +80,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>LF_PLATFORM_WINDOWS;LF_BUILD_DLL;GLFW_INCLUDE_NONE;LF_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\glm;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -102,7 +102,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>LF_PLATFORM_WINDOWS;LF_BUILD_DLL;GLFW_INCLUDE_NONE;LF_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\glm;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -128,7 +128,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>LF_PLATFORM_WINDOWS;LF_BUILD_DLL;GLFW_INCLUDE_NONE;LF_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\glfw\include;vendor\glad\include;vendor\glm;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -158,11 +158,11 @@
     <ClInclude Include="src\Lift\Events\MouseEvent.h" />
     <ClInclude Include="src\Lift\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Lift\Input.h" />
+    <ClInclude Include="src\Lift\KeyCodes.h" />
     <ClInclude Include="src\Lift\Layer.h" />
     <ClInclude Include="src\Lift\LayerStack.h" />
     <ClInclude Include="src\Lift\Log.h" />
     <ClInclude Include="src\Lift\Main.h" />
-    <ClInclude Include="src\Lift\Platform\OpenGL\ImGuiOpenGLRenderer.h" />
     <ClInclude Include="src\Lift\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Lift\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\Lift\Window.h" />
@@ -170,11 +170,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Lift\Application.cpp" />
+    <ClCompile Include="src\Lift\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Lift\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Lift\Layer.cpp" />
     <ClCompile Include="src\Lift\LayerStack.cpp" />
     <ClCompile Include="src\Lift\Log.cpp" />
-    <ClCompile Include="src\Lift\Platform\OpenGL\ImGuiOpenGLRenderer.cpp" />
     <ClCompile Include="src\Lift\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Lift\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\pch.cpp">

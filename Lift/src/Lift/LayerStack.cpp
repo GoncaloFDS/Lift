@@ -2,7 +2,6 @@
 #include "LayerStack.h"
 
 Lift::LayerStack::LayerStack() {
-	m_layerInsert = m_layers.begin();
 }
 
 Lift::LayerStack::~LayerStack() {
@@ -12,7 +11,7 @@ Lift::LayerStack::~LayerStack() {
 }
 
 void Lift::LayerStack::PushLayer(Layer* layer) {
-	m_layerInsert = m_layers.emplace(m_layerInsert, layer);		
+	m_layers.emplace(m_layers.begin() + m_layerInsertIndex++, layer);		
 }
 
 void Lift::LayerStack::PushOverlay(Layer* overlay) {
@@ -23,7 +22,7 @@ void Lift::LayerStack::PopLayer(Layer* layer) {
 	const auto it = std::find(m_layers.begin(), m_layers.end(), layer);
 	if (it != m_layers.end()) {
 		m_layers.erase(it);
-		--m_layerInsert;
+		--m_layerInsertIndex;
 	}
 }
 
