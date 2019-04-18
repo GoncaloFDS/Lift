@@ -45,7 +45,7 @@ namespace Lift {
 
 	#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
 
-	class LIFT_API Event {
+	class Event {
 	public:
 		bool Handled = false;
 	public:
@@ -62,7 +62,7 @@ namespace Lift {
 		}
 	};
 
-	class LIFT_API EventDispatcher {
+	class EventDispatcher {
 		template <typename T>
 		using EventFn = std::function<bool(T&)>;
 	public:

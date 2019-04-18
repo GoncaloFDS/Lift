@@ -4,7 +4,7 @@
 
 namespace Lift {
 
-	class LIFT_API Input {
+	class Input {
 	public:
 		virtual ~Input() = default;
 		inline static bool IsKeyPressed(int keyCode);

@@ -57,6 +57,10 @@ project "Lift"
 		"opengl32.lib" -- this might not be needed
 	}
 
+	defines {
+		"_CRT_SECURE_NO_WARNINGS"
+	}
+
 	filter "system:windows"
 		systemversion "latest"
 

@@ -6,7 +6,7 @@
 
 namespace Lift {
 	
-	class LIFT_API Layer {
+	class Layer {
 	public:
 		Layer(std::string name = "Layer");
 		virtual ~Layer();

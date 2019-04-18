@@ -21,7 +21,7 @@ namespace Lift {
 	};
 
 	// Window Interface to be implemented for each platform
-	class LIFT_API Window {
+	class Window {
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;
 

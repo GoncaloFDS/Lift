@@ -4,7 +4,7 @@
 
 namespace Lift {
 
-	class LIFT_API KeyEvent : public Event {
+	class KeyEvent : public Event {
 	public:
 		inline int GetKeyCode() const { return m_keyCode; }
 
@@ -17,7 +17,7 @@ namespace Lift {
 		int m_keyCode;
 	};
 
-	class LIFT_API KeyPressedEvent : public KeyEvent {
+	class KeyPressedEvent : public KeyEvent {
 	public:
 		KeyPressedEvent(int keycode, int repeatCount)
 			: KeyEvent(keycode), _repeatCount(repeatCount) {
@@ -36,7 +36,7 @@ namespace Lift {
 		int _repeatCount;
 	};
 
-	class LIFT_API KeyReleasedEvent : public KeyEvent {
+	class KeyReleasedEvent : public KeyEvent {
 	public:
 		KeyReleasedEvent(int keycode)
 			: KeyEvent(keycode) {
@@ -51,7 +51,7 @@ namespace Lift {
 		EVENT_CLASS_TYPE(KeyReleased)
 	};
 
-	class LIFT_API KeyTypedEvent : public KeyEvent {
+	class KeyTypedEvent : public KeyEvent {
 	public:
 		KeyTypedEvent(int keycode)
 			: KeyEvent(keycode) {

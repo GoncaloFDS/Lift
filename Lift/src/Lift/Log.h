@@ -6,15 +6,21 @@
 
 namespace Lift {
 
-	class LIFT_API Log {
+	class Log {
 	public:
 		static void Init();
 
-		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger();
-		inline static std::shared_ptr<spdlog::logger>& GetClientLogger();
+		static std::shared_ptr<spdlog::logger>& GetCoreLogger() {
+			return s_CoreLogger;
+		}
+
+		static std::shared_ptr<spdlog::logger>& GetClientLogger() {
+			return s_ClientLogger;
+		}
+
 	private:
-		static std::shared_ptr<spdlog::logger> m_sCoreLogger;
-		static std::shared_ptr<spdlog::logger> m_sClientLogger;
+		static std::shared_ptr<spdlog::logger> s_CoreLogger;
+		static std::shared_ptr<spdlog::logger> s_ClientLogger;
 	};
 
 }

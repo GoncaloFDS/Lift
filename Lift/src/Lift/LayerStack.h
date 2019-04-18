@@ -5,7 +5,7 @@
 
 namespace Lift {
 
-	class LIFT_API LayerStack {
+	class LayerStack {
 	public:
 		LayerStack();
 		~LayerStack();

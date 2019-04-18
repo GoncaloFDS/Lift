@@ -8,7 +8,7 @@
 
 namespace Lift {
 
-	class LIFT_API Application {
+	class Application {
 	public:
 		Application();
 		virtual ~Application() = default;
@@ -20,8 +20,8 @@ namespace Lift {
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
 
-		inline Window& GetWindow() const;
-		static inline Application& Get();
+		Window& GetWindow() const { return *m_window; }
+		static Application& Get() { return *m_instance; }
 
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);

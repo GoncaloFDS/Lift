@@ -3,7 +3,7 @@
 #include "Lift/Input.h"
 
 namespace Lift {
-	class LIFT_API WindowsInput : public Input {
+	class WindowsInput : public Input {
 	protected:
 		bool IsKeyPressedImpl(int keyCode) override;
 		bool IsMouseButtonPressedImpl(int button) override;

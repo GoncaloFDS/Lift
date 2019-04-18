@@ -3,18 +3,18 @@
 #include "Event.h"
 
 namespace Lift {
-	class LIFT_API WindowResizeEvent : public Event {
+	class WindowResizeEvent : public Event {
 	public:
 		WindowResizeEvent(unsigned int width, unsigned int height)
-			: _width(width), _height(height) {
+			: m_width(width), m_height(height) {
 		}
 
-		inline unsigned int GetWidth() const { return _width; }
-		inline unsigned int GetHeight() const { return _height; }
+		inline unsigned int GetWidth() const { return m_width; }
+		inline unsigned int GetHeight() const { return m_height; }
 
 		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "WindowResizeEvent: " << _width << " x " << _height;
+			ss << "WindowResizeEvent: " << m_width << " x " << m_height;
 			return ss.str();
 		}
 
@@ -22,10 +22,10 @@ namespace Lift {
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
 	private:
-		unsigned int _width, _height;
+		unsigned int m_width, m_height;
 	};
 
-	class LIFT_API WindowCloseEvent : public Event {
+	class WindowCloseEvent : public Event {
 	public:
 		WindowCloseEvent() = default;
 
@@ -33,7 +33,7 @@ namespace Lift {
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class LIFT_API AppTickEvent : public Event {
+	class AppTickEvent : public Event {
 	public:
 		AppTickEvent() = default;
 
@@ -42,7 +42,7 @@ namespace Lift {
 
 	};
 
-	class LIFT_API AppUpdateEvent : public Event {
+	class AppUpdateEvent : public Event {
 	public:
 		AppUpdateEvent() = default;
 
@@ -51,7 +51,7 @@ namespace Lift {
 
 	};
 
-	class LIFT_API AppRenderEvent : public Event {
+	class AppRenderEvent : public Event {
 	public:
 		AppRenderEvent() = default;
 

@@ -1,20 +1,5 @@
 #pragma once
 
-#ifdef LF_PLATFORM_WINDOWS
-#if LF_DYNAMIC_LINK
-	#ifdef LF_BUILD_DLL
-		#define LIFT_API __declspec(dllexport)
-	#else
-		#define LIFT_API __declspec(dllimport)
-	#endif
-#else
-	#define LIFT_API
-#endif
-
-#else
-	#error Lift only supports windows
-#endif
-
 #ifdef LF_DEBUG
 	#define LF_ENABLE_ASSERTS
 #endif

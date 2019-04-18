@@ -4,7 +4,7 @@
 
 namespace Lift {
 
-	class LIFT_API MouseMovedEvent : public Event {
+	class MouseMovedEvent : public Event {
 	public:
 		MouseMovedEvent(float x, float y)
 			: _mouseX(x), _mouseY(y) {
@@ -25,7 +25,7 @@ namespace Lift {
 		float _mouseX, _mouseY;
 	};
 
-	class LIFT_API MouseScrolledEvent : public Event {
+	class MouseScrolledEvent : public Event {
 	public:
 		MouseScrolledEvent(float xOffset, float yOffset)
 			: _xOffset(xOffset), _yOffset(yOffset) {
@@ -46,7 +46,7 @@ namespace Lift {
 		float _xOffset, _yOffset;
 	};
 
-	class LIFT_API MouseButtonEvent : public Event {
+	class MouseButtonEvent : public Event {
 	public:
 		inline int GetMouseButton() const { return m_button; }
 
@@ -59,7 +59,7 @@ namespace Lift {
 		int m_button;
 	};
 
-	class LIFT_API MouseButtonPressedEvent : public MouseButtonEvent {
+	class MouseButtonPressedEvent : public MouseButtonEvent {
 	public:
 		MouseButtonPressedEvent(int button)
 			: MouseButtonEvent(button) {
@@ -74,7 +74,7 @@ namespace Lift {
 		EVENT_CLASS_TYPE(MouseButtonPressed)
 	};
 
-	class LIFT_API MouseButtonReleasedEvent : public MouseButtonEvent {
+	class MouseButtonReleasedEvent : public MouseButtonEvent {
 	public:
 		MouseButtonReleasedEvent(int button)
 			: MouseButtonEvent(button) {

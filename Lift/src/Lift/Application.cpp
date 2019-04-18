@@ -61,14 +61,6 @@ namespace Lift {
 
 	}
 
-	Window& Application::GetWindow() const {
-		return *m_window;
-	}
-
-	Application& Application::Get() {
-		return *m_instance;
-	}
-
 	bool Application::OnWindowClose(WindowCloseEvent& e) {
 		m_isRunning = false;
 
