@@ -1,5 +1,7 @@
 #include <Lift.h>
 
+#include "imgui/imgui.h"
+
 class ExampleLayer : public Lift::Layer {
 public:
 	ExampleLayer()
@@ -12,14 +14,20 @@ public:
 	}
 
 	void OnEvent(Lift::Event& event) override {
-		//LF_TRACE("{0}", event);
+		if(event.GetEventType() == Lift::EventType::KeyPressed) {
+			auto& e = dynamic_cast<Lift::KeyPressedEvent&>(event);
+			if(e.GetKeyCode() == LF_KEY_TAB)
+				LF_TRACE("Tab key is pressed (event)!");
+			LF_TRACE("{0}", static_cast<char>(e.GetKeyCode()));
+		}
 	}
-	
+
 	void OnImGuiRender() override {
-		
+		ImGui::Begin("Test");
+		ImGui::Text("Hello World!");
+		ImGui::End();
 	}
 };
-
 
 class Sandbox : public Lift::Application {
 public:
@@ -27,14 +35,10 @@ public:
 		PushLayer(new ExampleLayer());
 	}
 
-	~Sandbox() {
-		
-	}
+	~Sandbox() = default;
 
 };
 
 Lift::Application* Lift::CreateApplication() {
 	return new Sandbox();
 }
-
-

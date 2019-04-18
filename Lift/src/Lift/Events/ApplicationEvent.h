@@ -2,11 +2,12 @@
 
 #include "Event.h"
 
-namespace  Lift {
+namespace Lift {
 	class LIFT_API WindowResizeEvent : public Event {
 	public:
 		WindowResizeEvent(unsigned int width, unsigned int height)
-			: _width(width), _height(height) {}
+			: _width(width), _height(height) {
+		}
 
 		inline unsigned int GetWidth() const { return _width; }
 		inline unsigned int GetHeight() const { return _height; }
@@ -14,7 +15,7 @@ namespace  Lift {
 		std::string ToString() const override {
 			std::stringstream ss;
 			ss << "WindowResizeEvent: " << _width << " x " << _height;
-			return  ss.str();
+			return ss.str();
 		}
 
 		EVENT_CLASS_TYPE(WindowResize)

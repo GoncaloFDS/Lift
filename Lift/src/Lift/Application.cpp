@@ -4,17 +4,16 @@
 #include "Log.h"
 
 #include <glad/glad.h>
-#include "Input.h"
 
 namespace Lift {
 
-#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
+	#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
-	Application* Application::s_Instance = nullptr;
+	Application* Application::m_instance = nullptr;
 
-	Application::Application()	{
-		LF_CORE_ASSERT(!s_Instance, "Application already exists");
-		s_Instance = this;
+	Application::Application() {
+		LF_CORE_ASSERT(!m_instance, "Application already exists");
+		m_instance = this;
 		m_window = std::unique_ptr<Window>(Window::Create());
 		m_window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 
@@ -28,15 +27,15 @@ namespace Lift {
 			glClearColor(1, 0, 1, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			for (Layer* layer : m_layerStack)
+			for(Layer* layer : m_layerStack)
 				layer->OnUpdate();
 
 			m_imGuiLayer->Begin();
-			for (Layer* layer : m_layerStack)
+			for(Layer* layer : m_layerStack)
 				layer->OnImGuiRender();
 			m_imGuiLayer->End();
 
-			m_window->OnUpdate();	
+			m_window->OnUpdate();
 		}
 	}
 
@@ -44,7 +43,7 @@ namespace Lift {
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 
-		for (auto it = m_layerStack.end(); it != m_layerStack.begin(); ) {
+		for(auto it = m_layerStack.end(); it != m_layerStack.begin();) {
 			(*--it)->OnEvent(e);
 			if(e.Handled)
 				break;
@@ -67,12 +66,12 @@ namespace Lift {
 	}
 
 	Application& Application::Get() {
-		return *s_Instance;
+		return *m_instance;
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent& e) {
 		m_isRunning = false;
-		
+
 		return true;
 	}
 }

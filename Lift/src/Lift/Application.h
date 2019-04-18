@@ -8,7 +8,7 @@
 
 namespace Lift {
 
-	class LIFT_API Application	{
+	class LIFT_API Application {
 	public:
 		Application();
 		virtual ~Application() = default;
@@ -25,19 +25,16 @@ namespace Lift {
 
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
-	
+
 	private:
 		std::unique_ptr<Window> m_window;
 		bool m_isRunning = true;
 		LayerStack m_layerStack;
 		ImGuiLayer* m_imGuiLayer;
-		static Application* s_Instance;
+		static Application* m_instance;
 
 	};
 
 	// Define by Sandbox
 	Application* CreateApplication();
 }
-
-
-

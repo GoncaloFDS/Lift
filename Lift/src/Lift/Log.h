@@ -5,7 +5,7 @@
 #include "spdlog/fmt/ostr.h"
 
 namespace Lift {
-	
+
 	class LIFT_API Log {
 	public:
 		static void Init();
@@ -18,7 +18,6 @@ namespace Lift {
 	};
 
 }
-
 
 // Core log macros
 #define LF_CORE_TRACE(...)	::Lift::Log::GetCoreLogger()->trace(__VA_ARGS__)

@@ -4,7 +4,7 @@
 
 namespace Lift {
 
-	class  LIFT_API Input {
+	class LIFT_API Input {
 	public:
 		virtual ~Input() = default;
 		inline static bool IsKeyPressed(int keyCode);
@@ -23,8 +23,6 @@ namespace Lift {
 	private:
 		static Input* s_instance;
 	};
-
-
 
 	inline bool Input::IsKeyPressed(const int keyCode) {
 		return s_instance->IsKeyPressedImpl(keyCode);

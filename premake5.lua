@@ -25,9 +25,10 @@ group ""
 
 project "Lift"
 	location "Lift"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
-	staticruntime "off"
+	cppdialect "c++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -52,16 +53,11 @@ project "Lift"
 	links {
 		"GLFW",
 		"Glad",
-		"opengl32.lib", -- this might not be needed
 		"ImGui",
-		"d3dcompiler", 
-		"dxguid", 
-		"d3d12", 
-		"dxgi"
+		"opengl32.lib" -- this might not be needed
 	}
 
 	filter "system:windows"
-		cppdialect "c++17"
 		systemversion "latest"
 
 		defines {
@@ -70,30 +66,27 @@ project "Lift"
 			"GLFW_INCLUDE_NONE"
 		}
 
-		postbuildcommands {
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
-		}
-
 	filter "configurations:Debug"
 		defines "LF_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "LF_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "LF_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
-	staticruntime "off"
+	cppdialect "c++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -115,7 +108,6 @@ project "Sandbox"
 	}
 
 	filter "system:windows"
-		cppdialect "c++17"
 		systemversion "latest"
 
 		defines {
@@ -125,14 +117,14 @@ project "Sandbox"
 	filter "configurations:Debug"
 		defines "LF_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "LF_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "LF_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "on"

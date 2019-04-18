@@ -2,7 +2,7 @@
 #include "Layer.h"
 #include <utility>
 
-Lift::Layer::Layer(std::string name) 
+Lift::Layer::Layer(std::string name)
 	: m_debugName(std::move(name)) {
 }
 

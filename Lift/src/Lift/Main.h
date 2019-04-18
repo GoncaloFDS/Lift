@@ -6,10 +6,10 @@
 extern Lift::Application* Lift::CreateApplication();
 
 int main(int argc, char* argv[]) {
-	
+
 	Lift::Log::Init();
 	LF_CORE_INFO("Initialized Log!");
-	
+
 	auto app = Lift::CreateApplication();
 	app->Run();
 	delete app;
@@ -17,4 +17,3 @@ int main(int argc, char* argv[]) {
 }
 
 #endif
-

@@ -10,20 +10,33 @@ namespace Lift {
 
 	enum class EventType {
 		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
-		AppTick, AppUpdate, AppRender, // Might not used this
-		KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
+		WindowClose,
+		WindowResize,
+		WindowFocus,
+		WindowLostFocus,
+		WindowMoved,
+		// 
+		AppTick,
+		AppUpdate,
+		AppRender,
+		// Might not used this
+		KeyPressed,
+		KeyReleased,
+		KeyTyped,
+		MouseButtonPressed,
+		MouseButtonReleased,
+		MouseMoved,
+		MouseScrolled
 	};
 
 	// Used to filter Events
 	enum EventCategory {
 		None = 0,
-		EventCategoryApplication	= BIT(0),
-		EventCategoryInput			= BIT(1),
-		EventCategoryKeyboard		= BIT(2),
-		EventCategoryMouse			= BIT(3),
-		EventCategoryMouseButton	= BIT(4),
+		EventCategoryApplication = BIT(0),
+		EventCategoryInput = BIT(1),
+		EventCategoryKeyboard = BIT(2),
+		EventCategoryMouse = BIT(3),
+		EventCategoryMouseButton = BIT(4),
 	};
 
 	#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
@@ -37,7 +50,7 @@ namespace Lift {
 		bool Handled = false;
 	public:
 		virtual ~Event() = default;
-		
+
 		virtual EventType GetEventType() const = 0;
 		virtual const char* GetName() const = 0;
 		virtual int GetCategoryFlags() const = 0;
@@ -45,18 +58,19 @@ namespace Lift {
 
 		inline bool IsInCategory(const EventCategory category) const {
 			return GetCategoryFlags() & category;
-			
+
 		}
 	};
 
-	class EventDispatcher {
-		template<typename T>
+	class LIFT_API EventDispatcher {
+		template <typename T>
 		using EventFn = std::function<bool(T&)>;
 	public:
-		EventDispatcher(Event& event) 
-			: m_event(event) {}
+		EventDispatcher(Event& event)
+			: m_event(event) {
+		}
 
-		template<typename T>
+		template <typename T>
 		bool Dispatch(EventFn<T> func) {
 			if(m_event.GetEventType() == T::GetStaticType()) {
 				m_event.Handled = func(*static_cast<T*>(&m_event));
@@ -69,8 +83,8 @@ namespace Lift {
 		Event& m_event;
 	};
 
-	inline std::ostream& operator<<(std::ostream& os, const Event& e){
+	inline std::ostream& operator<<(std::ostream& os, const Event& e) {
 		return os << e.ToString();
 	}
-	
+
 }

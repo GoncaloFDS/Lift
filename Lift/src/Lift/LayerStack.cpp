@@ -5,13 +5,13 @@ Lift::LayerStack::LayerStack() {
 }
 
 Lift::LayerStack::~LayerStack() {
-	for (Layer* layer : m_layers) {
+	for(Layer* layer : m_layers) {
 		delete layer;
 	}
 }
 
 void Lift::LayerStack::PushLayer(Layer* layer) {
-	m_layers.emplace(m_layers.begin() + m_layerInsertIndex++, layer);		
+	m_layers.emplace(m_layers.begin() + m_layerInsertIndex++, layer);
 }
 
 void Lift::LayerStack::PushOverlay(Layer* overlay) {
@@ -20,7 +20,7 @@ void Lift::LayerStack::PushOverlay(Layer* overlay) {
 
 void Lift::LayerStack::PopLayer(Layer* layer) {
 	const auto it = std::find(m_layers.begin(), m_layers.end(), layer);
-	if (it != m_layers.end()) {
+	if(it != m_layers.end()) {
 		m_layers.erase(it);
 		--m_layerInsertIndex;
 	}
@@ -28,7 +28,7 @@ void Lift::LayerStack::PopLayer(Layer* layer) {
 
 void Lift::LayerStack::PopOverlay(Layer* overlay) {
 	const auto it = std::find(m_layers.begin(), m_layers.end(), overlay);
-	if (it != m_layers.end()) {
+	if(it != m_layers.end()) {
 		m_layers.erase(it);
 	}
 

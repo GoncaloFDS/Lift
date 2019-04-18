@@ -6,7 +6,7 @@
 #include "Lift/Events/Event.h"
 
 namespace Lift {
-	
+
 	struct WindowProps {
 		std::string Title;
 		unsigned int Width;
@@ -14,10 +14,10 @@ namespace Lift {
 
 		WindowProps(std::string title = "Lift Engine",
 		            const unsigned int width = 1280,
-		            const unsigned int height = 720 )
-			: Title(std::move(title)), Width(width), Height(height)
-		{}
-			
+		            const unsigned int height = 720)
+			: Title(std::move(title)), Width(width), Height(height) {
+		}
+
 	};
 
 	// Window Interface to be implemented for each platform
@@ -38,7 +38,7 @@ namespace Lift {
 		virtual bool IsVSync() const = 0;
 
 		virtual void* GetNativeWindow() const = 0;
-		
+
 		static Window* Create(const WindowProps& props = WindowProps());
 	};
 }

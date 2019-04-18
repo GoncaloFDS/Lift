@@ -6,5 +6,8 @@
 #include "Lift/ImGui/ImGuiLayer.h"
 #include "Lift/Input.h"
 #include "Lift/KeyCodes.h"
+#include "Lift/Events/ApplicationEvent.h"
+#include "Lift/Events/KeyEvent.h"
+#include "Lift/Events/MouseEvent.h"
 
 #include "Lift/Main.h"

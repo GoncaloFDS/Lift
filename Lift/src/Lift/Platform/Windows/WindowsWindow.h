@@ -5,7 +5,7 @@
 
 namespace Lift {
 
-	class WindowsWindow : public Window {
+	class LIFT_API WindowsWindow : public Window {
 	public:
 		WindowsWindow(const WindowProps& props);
 		virtual ~WindowsWindow();
