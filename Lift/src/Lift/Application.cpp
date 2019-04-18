@@ -5,6 +5,10 @@
 
 #include <glad/glad.h>
 
+//Temporary
+#include <optix.h>
+#include "optixu/optixpp_namespace.h"
+
 namespace Lift {
 
 	#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
@@ -22,6 +26,10 @@ namespace Lift {
 	}
 
 	void Application::Run() {
+
+		/*Primary RTAPI objects*/
+		RTprogram rayGenProgram;
+		RTbuffer buffer;
 
 		while(m_isRunning) {
 			glClearColor(1, 0, 1, 1);

@@ -16,6 +16,8 @@ IncludeDir["ImGui"] = "Lift/vendor/imgui"
 IncludeDir["GLFW"] = "Lift/vendor/glfw/include"
 IncludeDir["Glad"] = "Lift/vendor/glad/include"
 IncludeDir["glm"] = "Lift/vendor/glm"
+IncludeDir["optix"] = "C:/ProgramData/NVIDIA Corporation/OptiX SDK 6.0.0"
+IncludeDir["cuda"] = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1"
 
 group "Dependencies"
 	include "Lift/vendor/glfw"
@@ -47,14 +49,23 @@ project "Lift"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.optix}/include",
+		"%{IncludeDir.optix}/SDK",
+		"%{IncludeDir.optix}/SDK/sutil",
+		"%{IncludeDir.optix}/include/optixu",
+		"%{IncludeDir.optix}/SDK/build",
+		"%{IncludeDir.cuda}/include"
 	}
 
 	links {
 		"GLFW",
 		"Glad",
 		"ImGui",
-		"opengl32.lib" -- this might not be needed
+		"opengl32.lib",
+		"%{IncludeDir.optix}/lib64/optix.6.0.0.lib",
+		"%{IncludeDir.cuda}/lib/x64/nvrtc.lib",
+		"%{IncludeDir.optix}/SDK/build/lib/Release/sutil_sdk.lib"
 	}
 
 	defines {
