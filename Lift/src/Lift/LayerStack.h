@@ -3,7 +3,7 @@
 #include "Core.h"
 #include "Layer.h"
 
-namespace Lift {
+namespace lift {
 
 	class LayerStack {
 	public:
@@ -18,7 +18,7 @@ namespace Lift {
 		std::vector<Layer*>::iterator begin();
 		std::vector<Layer*>::iterator end();
 	private:
-		std::vector<Layer*> m_layers;
-		unsigned int m_layerInsertIndex = 0;
+		std::vector<Layer*> layers_;
+		unsigned int layer_insert_index_ = 0;
 	};
 }

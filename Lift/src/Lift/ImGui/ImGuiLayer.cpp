@@ -11,21 +11,20 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
-namespace Lift {
+namespace lift {
 
 	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer") {
 
 	}
 
-	ImGuiLayer::~ImGuiLayer() {
-	}
+	ImGuiLayer::~ImGuiLayer() = default;
 
 	void ImGuiLayer::OnAttach() {
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO();
+		auto& io = ImGui::GetIO();
 		//(void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -45,8 +44,8 @@ namespace Lift {
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
-		Application& app = Application::Get();
-		GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
+		auto& app = Application::Get();
+		auto* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -72,8 +71,8 @@ namespace Lift {
 	}
 
 	void ImGuiLayer::End() {
-		ImGuiIO& io = ImGui::GetIO();
-		Application& app = Application::Get();
+		auto& io = ImGui::GetIO();
+		auto& app = Application::Get();
 		io.DisplaySize = ImVec2(static_cast<float>(app.GetWindow().GetWidth()), static_cast<float>(app.GetWindow().GetHeight()));
 
 		// Rendering
@@ -81,10 +80,10 @@ namespace Lift {
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-			GLFWwindow* backupCurrentContext = glfwGetCurrentContext();
+			GLFWwindow* backup_current_context = glfwGetCurrentContext();
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
-			glfwMakeContextCurrent(backupCurrentContext);
+			glfwMakeContextCurrent(backup_current_context);
 		}
 	}
 }

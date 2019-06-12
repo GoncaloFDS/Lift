@@ -2,7 +2,7 @@
 
 #include "Lift/Layer.h"
 
-namespace Lift {
+namespace lift {
 
 	class ImGuiLayer : public Layer {
 	public:
@@ -13,8 +13,8 @@ namespace Lift {
 		void OnDetach() override;
 		void OnImGuiRender() override;
 
-		void Begin();
-		void End();
+		static void Begin();
+		static void End();
 	};
 
 }

@@ -9,68 +9,65 @@
 #include <optix.h>
 #include "optixu/optixpp_namespace.h"
 
-namespace Lift {
+namespace lift {
 
-	#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
-	Application* Application::m_instance = nullptr;
+	Application* Application::instance_ = nullptr;
 
 	Application::Application() {
-		LF_CORE_ASSERT(!m_instance, "Application already exists");
-		m_instance = this;
-		m_window = std::unique_ptr<Window>(Window::Create());
-		m_window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+		LF_CORE_ASSERT(!instance_, "Application already exists");
+		instance_ = this;
+		window_ = std::unique_ptr<Window>(Window::Create());
+		window_->SetEventCallback(LF_BIND_EVENT_FN(Application::OnEvent));
 
-		m_imGuiLayer = new ImGuiLayer();
-		PushOverlay(m_imGuiLayer);
+		imgui_layer_ = new ImGuiLayer();
+		PushOverlay(imgui_layer_);
 	}
 
 	void Application::Run() {
 
-		/*Primary RTAPI objects*/
-		RTprogram rayGenProgram;
+		RTprogram ray_gen_program;
 		RTbuffer buffer;
 
-		while(m_isRunning) {
+		while (is_running_) {
 			glClearColor(1, 0, 1, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			for(Layer* layer : m_layerStack)
+			for (Layer* layer : layer_stack_)
 				layer->OnUpdate();
 
-			m_imGuiLayer->Begin();
-			for(Layer* layer : m_layerStack)
+			ImGuiLayer::Begin();
+			for (Layer* layer : layer_stack_)
 				layer->OnImGuiRender();
-			m_imGuiLayer->End();
+			ImGuiLayer::End();
 
-			m_window->OnUpdate();
+			window_->OnUpdate();
 		}
 	}
 
 	void Application::OnEvent(Event& e) {
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
+		dispatcher.Dispatch<WindowCloseEvent>(LF_BIND_EVENT_FN(Application::OnWindowClose));
 
-		for(auto it = m_layerStack.end(); it != m_layerStack.begin();) {
+		for (auto it = layer_stack_.end(); it != layer_stack_.begin();) {
 			(*--it)->OnEvent(e);
-			if(e.Handled)
+			if (e.handled_)
 				break;
 		}
 	}
 
 	void Application::PushLayer(Layer* layer) {
-		m_layerStack.PushLayer(layer);
+		layer_stack_.PushLayer(layer);
 		layer->OnAttach();
 	}
 
 	void Application::PushOverlay(Layer* overlay) {
-		m_layerStack.PushOverlay(overlay);
+		layer_stack_.PushOverlay(overlay);
 		overlay->OnAttach();
-
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent& e) {
-		m_isRunning = false;
+		is_running_ = false;
 
 		return true;
 	}

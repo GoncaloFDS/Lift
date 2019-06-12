@@ -6,7 +6,7 @@
 #include "Events/ApplicationEvent.h"
 #include "ImGui/ImGuiLayer.h"
 
-namespace Lift {
+namespace lift {
 
 	class Application {
 	public:
@@ -20,18 +20,18 @@ namespace Lift {
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
 
-		Window& GetWindow() const { return *m_window; }
-		static Application& Get() { return *m_instance; }
+		Window& GetWindow() const { return *window_; }
+		static Application& Get() { return *instance_; }
 
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 
 	private:
-		std::unique_ptr<Window> m_window;
-		bool m_isRunning = true;
-		LayerStack m_layerStack;
-		ImGuiLayer* m_imGuiLayer;
-		static Application* m_instance;
+		std::unique_ptr<Window> window_;
+		bool is_running_ = true;
+		LayerStack layer_stack_;
+		ImGuiLayer* imgui_layer_;
+		static Application* instance_;
 
 	};
 

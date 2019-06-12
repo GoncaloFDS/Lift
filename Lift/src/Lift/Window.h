@@ -5,17 +5,17 @@
 #include "Lift/Core.h"
 #include "Lift/Events/Event.h"
 
-namespace Lift {
+namespace lift {
 
-	struct WindowProps {
-		std::string Title;
-		unsigned int Width;
-		unsigned int Height;
+	struct WindowProperties {
+		std::string title;
+		unsigned int width;
+		unsigned int height;
 
-		WindowProps(std::string title = "Lift Engine",
+		WindowProperties(std::string title = "lift Engine",
 		            const unsigned int width = 1280,
 		            const unsigned int height = 720)
-			: Title(std::move(title)), Width(width), Height(height) {
+			: title(std::move(title)), width(width), height(height) {
 		}
 
 	};
@@ -39,6 +39,6 @@ namespace Lift {
 
 		virtual void* GetNativeWindow() const = 0;
 
-		static Window* Create(const WindowProps& props = WindowProps());
+		static Window* Create(const WindowProperties& props = WindowProperties());
 	};
 }

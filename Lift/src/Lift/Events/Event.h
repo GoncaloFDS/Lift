@@ -3,40 +3,40 @@
 #include "pch.h"
 #include  "Lift/Core.h"
 
-namespace Lift {
+namespace lift {
 	// Events are immediately dispatched
 	// TODO buffer events in an event bus and process them 
 	// during the "event" part of the update stage 
 
 	enum class EventType {
-		None = 0,
-		WindowClose,
-		WindowResize,
-		WindowFocus,
-		WindowLostFocus,
-		WindowMoved,
+		kNone = 0,
+		kWindowClose,
+		kWindowResize,
+		kWindowFocus,
+		kWindowLostFocus,
+		kWindowMoved,
 		// 
-		AppTick,
-		AppUpdate,
-		AppRender,
+		kAppTick,
+		kAppUpdate,
+		kAppRender,
 		// Might not used this
-		KeyPressed,
-		KeyReleased,
-		KeyTyped,
-		MouseButtonPressed,
-		MouseButtonReleased,
-		MouseMoved,
-		MouseScrolled
+		kKeyPressed,
+		kKeyReleased,
+		kKeyTyped,
+		kMouseButtonPressed,
+		kMouseButtonReleased,
+		kMouseMoved,
+		kMouseScrolled
 	};
 
 	// Used to filter Events
 	enum EventCategory {
-		None = 0,
-		EventCategoryApplication = BIT(0),
-		EventCategoryInput = BIT(1),
-		EventCategoryKeyboard = BIT(2),
-		EventCategoryMouse = BIT(3),
-		EventCategoryMouseButton = BIT(4),
+		kNone = 0,
+		kEventCategoryApplication = Bit(0),
+		kEventCategoryInput = Bit(1),
+		kEventCategoryKeyboard = Bit(2),
+		kEventCategoryMouse = Bit(3),
+		kEventCategoryMouseButton = Bit(4),
 	};
 
 	#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
@@ -47,16 +47,16 @@ namespace Lift {
 
 	class Event {
 	public:
-		bool Handled = false;
+		bool handled_ = false;
 	public:
 		virtual ~Event() = default;
 
-		virtual EventType GetEventType() const = 0;
-		virtual const char* GetName() const = 0;
-		virtual int GetCategoryFlags() const = 0;
-		virtual std::string ToString() const { return GetName(); }
+		[[nodiscard]] virtual EventType GetEventType() const = 0;
+		[[nodiscard]] virtual const char* GetName() const = 0;
+		[[nodiscard]] virtual int GetCategoryFlags() const = 0;
+		[[nodiscard]] virtual std::string ToString() const { return GetName(); }
 
-		inline bool IsInCategory(const EventCategory category) const {
+		bool IsInCategory(const EventCategory category) const {
 			return GetCategoryFlags() & category;
 
 		}
@@ -67,20 +67,20 @@ namespace Lift {
 		using EventFn = std::function<bool(T&)>;
 	public:
 		EventDispatcher(Event& event)
-			: m_event(event) {
+			: event_(event) {
 		}
 
 		template <typename T>
 		bool Dispatch(EventFn<T> func) {
-			if(m_event.GetEventType() == T::GetStaticType()) {
-				m_event.Handled = func(*static_cast<T*>(&m_event));
+			if(event_.GetEventType() == T::GetStaticType()) {
+				event_.handled_ = func(*static_cast<T*>(&event_));
 				return true;
 			}
 			return false;
 		}
 
 	private:
-		Event& m_event;
+		Event& event_;
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const Event& e) {

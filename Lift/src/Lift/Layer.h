@@ -4,7 +4,7 @@
 #include "Events/Event.h"
 
 
-namespace Lift {
+namespace lift {
 	
 	class Layer {
 	public:
@@ -20,6 +20,6 @@ namespace Lift {
 		inline const std::string& GetName() const;
 
 	protected:
-		std::string m_debugName;
+		std::string name_;
 	};
 }

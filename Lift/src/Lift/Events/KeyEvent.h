@@ -2,68 +2,68 @@
 
 #include "Event.h"
 
-namespace Lift {
+namespace lift {
 
 	class KeyEvent : public Event {
 	public:
-		inline int GetKeyCode() const { return m_keyCode; }
+		unsigned int GetKeyCode() const { return key_code_; }
 
-		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
+		EVENT_CLASS_CATEGORY(kEventCategoryKeyboard | kEventCategoryInput)
 	protected:
-		KeyEvent(int keycode)
-			: m_keyCode(keycode) {
+		KeyEvent(const int keycode)
+			: key_code_(keycode) {
 		}
 
-		int m_keyCode;
+		unsigned int key_code_;
 	};
 
 	class KeyPressedEvent : public KeyEvent {
 	public:
-		KeyPressedEvent(int keycode, int repeatCount)
-			: KeyEvent(keycode), _repeatCount(repeatCount) {
+		KeyPressedEvent(const int keycode, const int repeatCount)
+			: KeyEvent(keycode), repeat_count_(repeatCount) {
 		}
 
-		inline int GetRepeatCount() const { return _repeatCount; }
+		int GetRepeatCount() const { return repeat_count_; }
 
-		std::string ToString() const override {
+		[[nodiscard]] std::string ToString() const override {
 			std::stringstream ss;
-			ss << "KeyPressedEvent: " << m_keyCode << " (" << _repeatCount << " repeats)";
+			ss << "KeyPressedEvent: " << key_code_ << " (" << repeat_count_ << " repeats)";
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(KeyPressed)
+		EVENT_CLASS_TYPE(kKeyPressed)
 	private:
-		int _repeatCount;
+		int repeat_count_;
 	};
 
 	class KeyReleasedEvent : public KeyEvent {
 	public:
-		KeyReleasedEvent(int keycode)
+		KeyReleasedEvent(const int keycode)
 			: KeyEvent(keycode) {
 		}
 
 		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "KeyReleasedEvent: " << m_keyCode;
+			ss << "KeyReleasedEvent: " << key_code_;
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(KeyReleased)
+		EVENT_CLASS_TYPE(kKeyReleased)
 	};
 
 	class KeyTypedEvent : public KeyEvent {
 	public:
-		KeyTypedEvent(int keycode)
+		explicit KeyTypedEvent(const int keycode)
 			: KeyEvent(keycode) {
 		}
 
 		std::string ToString() const override {
 			std::stringstream ss;
-			ss << "KeyTypedEvent: " << m_keyCode;
+			ss << "KeyTypedEvent: " << key_code_;
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(KeyTyped)
+		EVENT_CLASS_TYPE(kKeyTyped)
 	};
 
 }

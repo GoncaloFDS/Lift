@@ -2,10 +2,10 @@
 
 #include "Lift/Input.h"
 
-namespace Lift {
+namespace lift {
 	class WindowsInput : public Input {
 	protected:
-		bool IsKeyPressedImpl(int keyCode) override;
+		bool IsKeyPressedImpl(int key_code) override;
 		bool IsMouseButtonPressedImpl(int button) override;
 		std::pair<float, float> GetMousePosImpl() override;
 		float GetMouseXImpl() override;

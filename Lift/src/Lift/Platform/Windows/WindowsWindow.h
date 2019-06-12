@@ -3,11 +3,11 @@
 #include "Lift/Window.h"
 #include "GLFW/glfw3.h"
 
-namespace Lift {
+namespace lift {
 
 	class WindowsWindow : public Window {
 	public:
-		WindowsWindow(const WindowProps& props);
+		WindowsWindow(const WindowProperties& props);
 		virtual ~WindowsWindow();
 
 		void OnUpdate() override;
@@ -22,22 +22,22 @@ namespace Lift {
 
 		inline void* GetNativeWindow() const override;
 	private:
-		virtual void Init(const WindowProps& props);
+		virtual void Init(const WindowProperties& props);
 		virtual void Shutdown();
 
 	private:
-		GLFWwindow* m_windowHandle{};
+		GLFWwindow* window_handle_{};
 
 		struct WindowData {
 			std::string title;
 			unsigned int width{}, height{};
-			bool vSync{};
+			bool v_sync{};
 
-			EventCallbackFn eventCallback;
+			EventCallbackFn event_callback;
 
 		};
 
-		WindowData m_data;
+		WindowData properties_;
 	};
 
 }

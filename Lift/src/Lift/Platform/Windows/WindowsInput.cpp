@@ -4,17 +4,17 @@
 #include "Lift/Application.h"
 #include  <GLFW/glfw3.h>
 
-namespace Lift {
+namespace lift {
 
-	Input* Input::s_instance = new WindowsInput();
+	Input* Input::instance_ = new WindowsInput();
 
-	bool Lift::WindowsInput::IsKeyPressedImpl(const int keyCode) {
+	bool lift::WindowsInput::IsKeyPressedImpl(const int key_code) {
 		const auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		const auto state = glfwGetKey(window, keyCode);
+		const auto state = glfwGetKey(window, key_code);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
-	bool WindowsInput::IsMouseButtonPressedImpl(int button) {
+	bool WindowsInput::IsMouseButtonPressedImpl(const int button) {
 		const auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		const auto state = glfwGetMouseButton(window, button);
 		return state == GLFW_PRESS;
@@ -22,10 +22,10 @@ namespace Lift {
 
 	std::pair<float, float> WindowsInput::GetMousePosImpl() {
 		const auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		double xPos, yPos;
-		glfwGetCursorPos(window, &xPos, &yPos);
+		double x_pos, y_pos;
+		glfwGetCursorPos(window, &x_pos, &y_pos);
 
-		return {static_cast<float>(xPos), static_cast<float>(yPos)};
+		return {static_cast<float>(x_pos), static_cast<float>(y_pos)};
 	}
 
 	float WindowsInput::GetMouseXImpl() {

@@ -2,13 +2,12 @@
 #include "Layer.h"
 #include <utility>
 
-Lift::Layer::Layer(std::string name)
-	: m_debugName(std::move(name)) {
+lift::Layer::Layer(std::string name)
+	: name_(std::move(name)) {
 }
 
-Lift::Layer::~Layer() {
-}
+lift::Layer::~Layer() = default;
 
-const std::string& Lift::Layer::GetName() const {
-	return m_debugName;
+const std::string& lift::Layer::GetName() const {
+	return name_;
 }
