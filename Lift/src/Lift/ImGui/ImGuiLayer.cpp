@@ -18,7 +18,9 @@ namespace lift {
 
 	}
 
-	ImGuiLayer::~ImGuiLayer() = default;
+	ImGuiLayer::~ImGuiLayer() {
+		ImGuiLayer::OnDetach();
+	};
 
 	void ImGuiLayer::OnAttach() {
 		// Setup Dear ImGui context

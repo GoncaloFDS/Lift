@@ -10,7 +10,7 @@
 
 namespace lift {
 
-	static bool s_glfw_initialized = false;
+	static bool glfw_initialized = false;
 
 	static void GLFWErrorCallback(const int error, const char* description) {
 		LF_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
@@ -47,7 +47,7 @@ namespace lift {
 	}
 
 	void WindowsWindow::SetVSync(const bool enabled) {
-		if(enabled)
+		if (enabled)
 			glfwSwapInterval(1);
 		else
 			glfwSwapInterval(0);
@@ -69,13 +69,14 @@ namespace lift {
 
 		LF_CORE_INFO("Creating window {0} ({1}, {2})", props.title, props.width, props.height);
 
-		if(!s_glfw_initialized) {
-			// TODO: glfwTerminate on system shutdown
-			const int success = glfwInit();
-			LF_CORE_ASSERT(success, "Could not intialize GLFW!");
-			glfwSetErrorCallback(GLFWErrorCallback);
-			s_glfw_initialized = true;
+		if (glfw_initialized) {
+			glfwTerminate();
 		}
+
+		const int success = glfwInit();
+		LF_CORE_ASSERT(success, "Could not intialize GLFW!");
+		glfwSetErrorCallback(GLFWErrorCallback);
+		glfw_initialized = true;
 
 		window_handle_ = glfwCreateWindow(static_cast<int>(props.width), static_cast<int>(props.height),
 		                                  properties_.title.c_str(), nullptr, nullptr);
@@ -101,10 +102,10 @@ namespace lift {
 			data.event_callback(event);
 		});
 
-		glfwSetKeyCallback(window_handle_, [](GLFWwindow* window, const int key, int scancode, const int action, int mods) {
+		glfwSetKeyCallback(window_handle_, [](GLFWwindow* window,int key, int scancode, const int action, int mods) {
 			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
-			switch(action) {
+			switch (action) {
 			case GLFW_PRESS: {
 				KeyPressedEvent event(key, 0);
 				data.event_callback(event);
@@ -126,7 +127,7 @@ namespace lift {
 
 		glfwSetCharCallback(window_handle_, [](GLFWwindow* window, const unsigned int keycode) {
 			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
-			
+
 			KeyTypedEvent event(keycode);
 			data.event_callback(event);
 		});
@@ -134,7 +135,7 @@ namespace lift {
 		glfwSetMouseButtonCallback(window_handle_, [](GLFWwindow* window, int button, int action, int mods) {
 			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
-			switch(action) {
+			switch (action) {
 			case GLFW_PRESS: {
 				MouseButtonPressedEvent event(button);
 				data.event_callback(event);
@@ -165,6 +166,7 @@ namespace lift {
 
 	void WindowsWindow::Shutdown() {
 		glfwDestroyWindow(window_handle_);
+		glfwTerminate();
 	}
 
 }

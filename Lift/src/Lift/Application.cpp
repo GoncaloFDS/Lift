@@ -20,8 +20,7 @@ namespace lift {
 		window_ = std::unique_ptr<Window>(Window::Create());
 		window_->SetEventCallback(LF_BIND_EVENT_FN(Application::OnEvent));
 
-		imgui_layer_ = new ImGuiLayer();
-		PushOverlay(imgui_layer_);
+		PushOverlay<ImGuiLayer>();
 	}
 
 	void Application::Run() {
@@ -33,11 +32,11 @@ namespace lift {
 			glClearColor(1, 0, 1, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			for (Layer* layer : layer_stack_)
+			for (auto& layer : layer_stack_)
 				layer->OnUpdate();
 
 			ImGuiLayer::Begin();
-			for (Layer* layer : layer_stack_)
+			for (auto& layer : layer_stack_)
 				layer->OnImGuiRender();
 			ImGuiLayer::End();
 
@@ -56,15 +55,6 @@ namespace lift {
 		}
 	}
 
-	void Application::PushLayer(Layer* layer) {
-		layer_stack_.PushLayer(layer);
-		layer->OnAttach();
-	}
-
-	void Application::PushOverlay(Layer* overlay) {
-		layer_stack_.PushOverlay(overlay);
-		overlay->OnAttach();
-	}
 
 	bool Application::OnWindowClose(WindowCloseEvent& e) {
 		is_running_ = false;

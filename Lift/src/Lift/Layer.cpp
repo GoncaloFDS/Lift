@@ -6,7 +6,9 @@ lift::Layer::Layer(std::string name)
 	: name_(std::move(name)) {
 }
 
-lift::Layer::~Layer() = default;
+lift::Layer::~Layer() {
+	Layer::OnDetach();
+}
 
 const std::string& lift::Layer::GetName() const {
 	return name_;

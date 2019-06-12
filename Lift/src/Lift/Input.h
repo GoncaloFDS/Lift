@@ -21,7 +21,7 @@ namespace lift {
 		virtual float GetMouseYImpl() = 0;
 
 	private:
-		static Input* instance_;
+		static std::unique_ptr<Input> instance_;
 	};
 
 	inline bool Input::IsKeyPressed(const int key_code) {

@@ -10,15 +10,30 @@ namespace lift {
 		LayerStack();
 		~LayerStack();
 
-		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* overlay);
-		void PopLayer(Layer* layer);
-		void PopOverlay(Layer* overlay);
 
-		std::vector<Layer*>::iterator begin();
-		std::vector<Layer*>::iterator end();
+		template <typename T>
+		void PushLayer() {
+			std::unique_ptr<T> layer = std::make_unique<T>();
+			layer->OnAttach();
+			layers_.emplace(layers_.begin() + layer_insert_index_++, std::move(layer));
+		}
+
+		template <typename T>
+		void PushOverlay() {
+			std::unique_ptr<T> layer = std::make_unique<T>();
+			layer->OnAttach();
+			layers_.emplace_back(std::move(layer));
+		}
+
+		template <typename T>
+		void PopLayer(std::string name);
+		template <typename T>
+		void PopOverlay(std::string name);
+
+		std::vector<std::unique_ptr<Layer>>::iterator begin();
+		std::vector<std::unique_ptr<Layer>>::iterator end();
 	private:
-		std::vector<Layer*> layers_;
+		std::vector<std::unique_ptr<Layer>> layers_;
 		unsigned int layer_insert_index_ = 0;
 	};
 }

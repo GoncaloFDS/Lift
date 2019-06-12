@@ -6,7 +6,7 @@
 
 namespace lift {
 
-	Input* Input::instance_ = new WindowsInput();
+	std::unique_ptr<Input> Input::instance_ = std::make_unique<WindowsInput>();
 
 	bool lift::WindowsInput::IsKeyPressedImpl(const int key_code) {
 		const auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
