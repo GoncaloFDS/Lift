@@ -4,7 +4,8 @@
 
 class ExampleLayer : public lift::Layer {
 public:
-	ExampleLayer() : Layer("Example") {
+	ExampleLayer()
+		: Layer("Example") {
 	}
 
 	void OnUpdate() override {
@@ -12,8 +13,7 @@ public:
 			LF_INFO("Tab pressed");
 	}
 
-	void OnEvent(lift::Event& event) override 
-	{
+	void OnEvent(lift::Event& event) override {
 		if (event.GetEventType() == lift::EventType::kKeyPressed) {
 			auto& e = dynamic_cast<lift::KeyPressedEvent&>(event);
 			if (e.GetKeyCode() == LF_KEY_TAB)
@@ -22,7 +22,7 @@ public:
 		}
 	}
 
-	void OnImGuiRender() override {
+	void OnImguiRender() override {
 		ImGui::Begin("Test");
 		ImGui::Text("Hello World!");
 		ImGui::End();

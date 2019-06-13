@@ -8,20 +8,20 @@ lift::LayerStack::~LayerStack() = default;
 
 template <typename T>
 void lift::LayerStack::PopLayer(std::string name) {
-//	const auto it = std::find(layers_.begin(), layers_.end(), layer);
-//	if (it != layers_.end()) {
-//		layers_.erase(it);
-//		--layer_insert_index_;
-//	}
+	//	const auto it = std::find(layers_.begin(), layers_.end(), layer);
+	//	if (it != layers_.end()) {
+	//		layers_.erase(it);
+	//		--layer_insert_index_;
+	//	}
 }
 
 template <typename T>
 void lift::LayerStack::PopOverlay(std::string name) {
-//	const auto it = std::find(layers_.begin(), layers_.end(), overlay);
-//	if (it != layers_.end()) {
-//		layers_.erase(it);
-//	}
-//
+	//	const auto it = std::find(layers_.begin(), layers_.end(), overlay);
+	//	if (it != layers_.end()) {
+	//		layers_.erase(it);
+	//	}
+	//
 }
 
 std::vector<std::unique_ptr<lift::Layer>>::iterator lift::LayerStack::begin() {

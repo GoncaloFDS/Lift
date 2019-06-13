@@ -4,8 +4,9 @@
 #include "Window.h"
 #include "LayerStack.h"
 #include "Events/ApplicationEvent.h"
-#include "ImGui/ImGuiLayer.h"
+#include "ImGui/ImguiLayer.h"
 #include "Renderer/Shader.h"
+#include "Renderer/Buffer.h"
 
 namespace lift {
 
@@ -38,7 +39,9 @@ namespace lift {
 		bool is_running_ = true;
 		std::unique_ptr<Window> window_;
 		LayerStack layer_stack_;
-		unsigned int vertex_array_, vertex_buffer_, index_buffer_;
+		unsigned int vertex_array_{};
+		std::unique_ptr<VertexBuffer> vertex_buffer_;
+		std::unique_ptr<IndexBuffer> index_buffer_;
 		std::unique_ptr<Shader> shader_;
 
 		static Application* instance_;

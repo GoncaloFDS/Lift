@@ -38,8 +38,7 @@ namespace lift {
 		glCompileShader(fragment_shader);
 
 		glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &is_compiled);
-		if (is_compiled == GL_FALSE)
-		{
+		if (is_compiled == GL_FALSE) {
 			GLint maxLength = 0;
 			glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &maxLength);
 
@@ -73,8 +72,7 @@ namespace lift {
 		// Note the different functions here: glGetProgram* instead of glGetShader*.
 		GLint is_linked = 0;
 		glGetProgramiv(program, GL_LINK_STATUS, static_cast<int*>(&is_linked));
-		if (is_linked == GL_FALSE)
-		{
+		if (is_linked == GL_FALSE) {
 			GLint maxLength = 0;
 			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
 

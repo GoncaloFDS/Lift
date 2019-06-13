@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
 	std::shared_ptr<lift::Application> app = lift::CreateApplication();
 
 	app->Run();
-	
+
 	return 0;
 }
 

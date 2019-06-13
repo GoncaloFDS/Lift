@@ -4,14 +4,14 @@
 
 namespace lift {
 
-	class ImGuiLayer : public Layer {
+	class ImguiLayer : public Layer {
 	public:
-		ImGuiLayer();
-		~ImGuiLayer();
+		ImguiLayer();
+		~ImguiLayer();
 
 		void OnAttach() override;
 		void OnDetach() override;
-		void OnImGuiRender() override;
+		void OnImguiRender() override;
 
 		static void Begin();
 		static void End();

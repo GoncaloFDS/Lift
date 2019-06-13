@@ -108,22 +108,22 @@ namespace lift {
 			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
 			switch (action) {
-			case GLFW_PRESS: {
-				KeyPressedEvent event(key, 0);
-				data.event_callback(event);
-				break;
-			}
-			case GLFW_RELEASE: {
-				KeyReleasedEvent event(key);
-				data.event_callback(event);
-				break;
-			}
-			case GLFW_REPEAT: {
-				KeyPressedEvent event(key, 1);
-				data.event_callback(event);
-				break;
-			}
-			default: ;
+				case GLFW_PRESS: {
+					KeyPressedEvent event(key, 0);
+					data.event_callback(event);
+					break;
+				}
+				case GLFW_RELEASE: {
+					KeyReleasedEvent event(key);
+					data.event_callback(event);
+					break;
+				}
+				case GLFW_REPEAT: {
+					KeyPressedEvent event(key, 1);
+					data.event_callback(event);
+					break;
+				}
+				default: ;
 			}
 		});
 
@@ -138,16 +138,16 @@ namespace lift {
 			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
 			switch (action) {
-			case GLFW_PRESS: {
-				MouseButtonPressedEvent event(button);
-				data.event_callback(event);
-				break;
-			}
-			case GLFW_RELEASE: {
-				MouseButtonReleasedEvent event(button);
-				data.event_callback(event);
-				break;
-			}
+				case GLFW_PRESS: {
+					MouseButtonPressedEvent event(button);
+					data.event_callback(event);
+					break;
+				}
+				case GLFW_RELEASE: {
+					MouseButtonReleasedEvent event(button);
+					data.event_callback(event);
+					break;
+				}
 			}
 		});
 

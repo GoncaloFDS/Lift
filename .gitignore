@@ -1,8 +1,8 @@
 # Directories
 .vs/
-bin/
-intermediate/
-bin-int/
+/bin/
+/intermediate/
+/bin-int/
 
 # Files
 *.user
@@ -11,3 +11,9 @@ bin-int/
 
 imgui.ini
 \.vscode/
+
+Lift/vendor/glad/bin-int/
+
+Lift/vendor/glad/bin/
+
+*.filters

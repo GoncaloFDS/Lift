@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "ImGuiLayer.h"
+#include "ImguiLayer.h"
 
 #include "imgui.h"
 
@@ -13,16 +13,16 @@
 
 namespace lift {
 
-	ImGuiLayer::ImGuiLayer()
+	ImguiLayer::ImguiLayer()
 		: Layer("ImGuiLayer") {
 
 	}
 
-	ImGuiLayer::~ImGuiLayer() {
-		ImGuiLayer::OnDetach();
+	ImguiLayer::~ImguiLayer() {
+		ImguiLayer::OnDetach();
 	};
 
-	void ImGuiLayer::OnAttach() {
+	void ImguiLayer::OnAttach() {
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -30,7 +30,7 @@ namespace lift {
 		//(void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
@@ -41,7 +41,7 @@ namespace lift {
 
 		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
 		ImGuiStyle& style = ImGui::GetStyle();
-		if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
 			style.WindowRounding = 0.0f;
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
@@ -54,34 +54,34 @@ namespace lift {
 		ImGui_ImplOpenGL3_Init("#version 410");
 	}
 
-	void ImGuiLayer::OnDetach() {
+	void ImguiLayer::OnDetach() {
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
-
 	}
 
-	void ImGuiLayer::OnImGuiRender() {
+	void ImguiLayer::OnImguiRender() {
 		static bool show = true;
 		ImGui::ShowDemoWindow(&show);
 	}
 
-	void ImGuiLayer::Begin() {
+	void ImguiLayer::Begin() {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
 
-	void ImGuiLayer::End() {
+	void ImguiLayer::End() {
 		auto& io = ImGui::GetIO();
 		auto& app = Application::Get();
-		io.DisplaySize = ImVec2(static_cast<float>(app.GetWindow().GetWidth()), static_cast<float>(app.GetWindow().GetHeight()));
+		io.DisplaySize = ImVec2(static_cast<float>(app.GetWindow().GetWidth()),
+		                        static_cast<float>(app.GetWindow().GetHeight()));
 
 		// Rendering
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-		if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
 			GLFWwindow* backup_current_context = glfwGetCurrentContext();
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
