@@ -68,6 +68,9 @@
       <Filter>Lift</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Lift\Renderer\GraphicsContext.h" />
+    <ClInclude Include="src\Lift\Platform\OpenGL\OpenGLContext.h" />
+    <ClInclude Include="src\Lift\Renderer\Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Lift\Application.cpp">
@@ -95,5 +98,7 @@
       <Filter>Lift\Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Lift\Platform\OpenGL\OpenGLContext.cpp" />
+    <ClCompile Include="src\Lift\Renderer\Shader.cpp" />
   </ItemGroup>
 </Project>

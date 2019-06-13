@@ -6,7 +6,7 @@
 #include "Lift/Events/MouseEvent.h"
 #include "Lift/Events/KeyEvent.h"
 
-#include <glad/glad.h>
+#include "Lift/Platform/OpenGL/OpenGLContext.h"
 
 namespace lift {
 
@@ -31,7 +31,7 @@ namespace lift {
 
 	void WindowsWindow::OnUpdate() {
 		glfwPollEvents();
-		glfwSwapBuffers(window_handle_);
+		context_->SwapBuffers();
 	}
 
 	unsigned WindowsWindow::GetWidth() const {
@@ -80,9 +80,11 @@ namespace lift {
 
 		window_handle_ = glfwCreateWindow(static_cast<int>(props.width), static_cast<int>(props.height),
 		                                  properties_.title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(window_handle_);
-		const int status = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
-		LF_CORE_ASSERT(status, "Failed to initialize Glad!");
+
+		context_ = std::make_unique<OpenGLContext>(window_handle_);
+		context_->Init();
+
+
 		glfwSetWindowUserPointer(window_handle_, &properties_);
 		SetVSync(true);
 

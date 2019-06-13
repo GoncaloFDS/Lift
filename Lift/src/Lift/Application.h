@@ -5,6 +5,7 @@
 #include "LayerStack.h"
 #include "Events/ApplicationEvent.h"
 #include "ImGui/ImGuiLayer.h"
+#include "Renderer/Shader.h"
 
 namespace lift {
 
@@ -34,9 +35,12 @@ namespace lift {
 		bool OnWindowClose(WindowCloseEvent& e);
 
 	private:
-		std::unique_ptr<Window> window_;
 		bool is_running_ = true;
+		std::unique_ptr<Window> window_;
 		LayerStack layer_stack_;
+		unsigned int vertex_array_, vertex_buffer_, index_buffer_;
+		std::unique_ptr<Shader> shader_;
+
 		static Application* instance_;
 
 	};

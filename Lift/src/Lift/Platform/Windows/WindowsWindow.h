@@ -2,6 +2,7 @@
 
 #include "Lift/Window.h"
 #include "GLFW/glfw3.h"
+#include "Lift/Renderer/GraphicsContext.h"
 
 namespace lift {
 
@@ -27,6 +28,7 @@ namespace lift {
 
 	private:
 		GLFWwindow* window_handle_{};
+		std::unique_ptr<GraphicsContext> context_;
 
 		struct WindowData {
 			std::string title;
