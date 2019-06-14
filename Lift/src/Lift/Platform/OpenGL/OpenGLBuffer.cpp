@@ -49,4 +49,5 @@ namespace lift {
 	uint32_t OpenGLIndexBuffer::GetCount() const {
 		return count_;
 	}
+
 }

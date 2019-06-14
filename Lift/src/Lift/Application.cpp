@@ -8,6 +8,7 @@
 //Temporary
 #include <optix.h>
 #include "optixu/optixpp_namespace.h"
+#include "Platform/Optix/OptixErrorCodes.h"
 
 namespace lift {
 
@@ -43,10 +44,11 @@ namespace lift {
 		glGenVertexArrays(1, &vertex_array_);
 		glBindVertexArray(vertex_array_);
 
-		float vertices [3 * 7] = {
-			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
-			0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
-			0.0f, 0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
+		float vertices [4 * 7] = {
+			-1.0f, -1.0f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
+			1.0f, -1.0f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
+			1.0f, 1.0f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f,
+			-1.0f, 1.0f, 0.0f, 0.1f, 0.8f, 0.2f, 1.0f,
 		};
 
 		vertex_buffer_.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
@@ -73,7 +75,7 @@ namespace lift {
 			index++;
 		}
 
-		uint32_t indices[3] = {0, 1, 2};
+		uint32_t indices[6] = {0, 1, 2, 0, 2, 3};
 		index_buffer_.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 
 		const std::string vertex_src =
@@ -110,12 +112,56 @@ namespace lift {
 
 		shader_ = std::make_unique<Shader>(vertex_src, fragment_src);
 
+		RTcontext context = nullptr;
+
+		RTprogram ray_gen_program;
+		RTbuffer buffer;
+
+		RTvariable result_buffer;
+		RTvariable draw_color;
+
+		char path_to_ptx[512];
+		char out_file[512];
+
+		int width = 512u;
+		int height = 385u;
+		int i;
+
+		out_file[0] = '\0';
+		RTresult result;
+		OPTIX_CALL(rtContextCreate(&context));
+		OPTIX_CALL(rtContextSetRayTypeCount(context, 1));
+		OPTIX_CALL(rtContextSetEntryPointCount(context, 1));
+
+		OPTIX_CALL(rtBufferCreate(context, RT_BUFFER_OUTPUT, &buffer));
+		OPTIX_CALL(rtBufferSetFormat(buffer, RT_FORMAT_FLOAT4));
+		OPTIX_CALL(rtBufferSetSize2D(buffer, width, height));
+		OPTIX_CALL(rtContextDeclareVariable(context, "result_buffer", &result_buffer));
+		OPTIX_CALL(rtVariableSetObject(result_buffer, buffer));
+
+		sprintf(path_to_ptx, "%s/%s", "Resources", "optixHello_generated_draw_color.cu.ptx");
+		OPTIX_CALL(rtProgramCreateFromPTXFile(context, path_to_ptx, "draw_solid_color", &ray_gen_program));
+		OPTIX_CALL(rtProgramDeclareVariable(ray_gen_program, "draw_color", &draw_color));
+		OPTIX_CALL(rtVariableSet3f(draw_color, 0.4f, 0.7, 0.0f));
+		OPTIX_CALL(rtContextSetRayGenerationProgram(context, 0, ray_gen_program));
+
+		// Run
+		OPTIX_CALL(rtContextValidate(context));
+		OPTIX_CALL(rtContextLaunch2D(context, 0, width, height));
+
+		// Display image
+
+
+		// Clean up
+		OPTIX_CALL(rtBufferDestroy(buffer));
+		OPTIX_CALL(rtProgramDestroy(ray_gen_program));
+		OPTIX_CALL(rtContextDestroy(context));
+
+
 	}
 
 	void Application::Run() {
 
-		RTprogram ray_gen_program;
-		RTbuffer buffer;
 
 		while (is_running_) {
 			glClearColor(0.1f, 0.1f, 0.1f, 1);
