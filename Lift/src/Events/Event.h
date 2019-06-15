@@ -39,11 +39,11 @@ namespace lift {
 		kEventCategoryMouseButton = Bit(4),
 	};
 
-	#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
+#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
 							virtual EventType GetEventType() const override { return GetStaticType(); }\
 							virtual const char* GetName() const override { return #type; }
 
-	#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
+#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
 
 	class Event {
 	public:
@@ -72,7 +72,7 @@ namespace lift {
 
 		template <typename T>
 		bool Dispatch(EventFn<T> func) {
-			if(event_.GetEventType() == T::GetStaticType()) {
+			if (event_.GetEventType() == T::GetStaticType()) {
 				event_.handled_ = func(*static_cast<T*>(&event_));
 				return true;
 			}

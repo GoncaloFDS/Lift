@@ -51,10 +51,10 @@ project "Lift"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.optix}/include",
-		"%{IncludeDir.optix}/SDK",
-		"%{IncludeDir.optix}/SDK/sutil",
+		--"%{IncludeDir.optix}/SDK",
+		--"%{IncludeDir.optix}/SDK/sutil",
 		"%{IncludeDir.optix}/include/optixu",
-		"%{IncludeDir.optix}/SDK/build",
+		--"%{IncludeDir.optix}/SDK/build",
 		"%{IncludeDir.cuda}/include"
 	}
 
@@ -65,7 +65,6 @@ project "Lift"
 		"opengl32.lib",
 		"%{IncludeDir.cuda}/lib/x64/nvrtc.lib",
 		"%{IncludeDir.optix}/lib64/optix.6.0.0.lib",
-		"%{IncludeDir.optix}/SDK/build/lib/Release/sutil_sdk.lib"
 	}
 
 	defines {
@@ -108,7 +107,8 @@ project "Sandbox"
 
 	files {
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/res/**"
 	}
 
 	includedirs {

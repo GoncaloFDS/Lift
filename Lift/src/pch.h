@@ -17,6 +17,6 @@
 #include "Log.h"
 
 #ifdef LF_PLATFORM_WINDOWS
-	#include <Windows.h>
-	#include "Windowsx.h"
+#include <Windows.h>
+#include "Windowsx.h"
 #endif

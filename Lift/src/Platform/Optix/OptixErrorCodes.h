@@ -1,13 +1,6 @@
 #pragma once
 #include <optix_host.h>
 
-#define OPTIX_CALL(result) \
-	if((result) != RT_SUCCESS) {\
-		LF_CORE_ERROR("Optix error: {0}", RTresultToString(result)); \
-		LF_CORE_ERROR("\tFile: {0}", __FILE__); \
-		LF_CORE_ERROR("\tLINE: {0}", __LINE__); \
-	}
-
 namespace lift {
 
 	static std::string RTresultToString(const RTresult result) {
@@ -16,7 +9,7 @@ namespace lift {
 			case RT_TIMEOUT_CALLBACK: return "Timeout callback";
 			case RT_ERROR_INVALID_CONTEXT: return "Invalid context";
 			case RT_ERROR_INVALID_VALUE: return "Invalid value";
-			case RT_ERROR_MEMORY_ALLOCATION_FAILED: return "Memory allocation failed";				
+			case RT_ERROR_MEMORY_ALLOCATION_FAILED: return "Memory allocation failed";
 			case RT_ERROR_TYPE_MISMATCH: return "Type mismatch";
 			case RT_ERROR_VARIABLE_NOT_FOUND: return "Variable not found";
 			case RT_ERROR_VARIABLE_REDECLARED: return "Variable redeclared";

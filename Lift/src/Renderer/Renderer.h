@@ -8,7 +8,7 @@ namespace lift {
 
 	class Renderer {
 	public:
-		inline static RendererAPI GetAPI() { return renderer_api_; }
+		static RendererAPI GetAPI() { return renderer_api_; }
 
 	private:
 		static RendererAPI renderer_api_;

@@ -78,39 +78,7 @@ namespace lift {
 		uint32_t indices[6] = {0, 1, 2, 0, 2, 3};
 		index_buffer_.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 
-		const std::string vertex_src =
-			R"(
-			#version 330 core
-			
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
-		
-			out vec3 v_Position;
-			out vec4 v_Color;
-
-			void main() {
-				v_Position = a_Position;
-				v_Color = a_Color;
-				gl_Position = vec4(a_Position, 1.0);
-			}
-		)";
-
-		const std::string fragment_src =
-			R"(
-			#version 330 core
-			
-			layout(location = 0) out vec4 color;
-
-			in vec3 v_Position;
-			in vec4 v_Color;
-
-			void main()	{
-				color = vec4(v_Position * 0.5 + 0.5, 1.0);
-				color = v_Color;
-			}
-		)";
-
-		shader_ = std::make_unique<Shader>(vertex_src, fragment_src);
+		shader_ = std::make_unique<Shader>("res/shaders/default");
 
 		RTcontext context = nullptr;
 
@@ -124,7 +92,7 @@ namespace lift {
 		char out_file[512];
 
 		out_file[0] = '\0';
-		RTresult result;
+		
 		OPTIX_CALL(rtContextCreate(&context));
 		OPTIX_CALL(rtContextSetRayTypeCount(context, 1));
 		OPTIX_CALL(rtContextSetEntryPointCount(context, 1));
@@ -138,7 +106,7 @@ namespace lift {
 		sprintf(path_to_ptx, "%s/%s", "Resources", "optixHello_generated_draw_color.cu.ptx");
 		OPTIX_CALL(rtProgramCreateFromPTXFile(context, path_to_ptx, "draw_solid_color", &ray_gen_program));
 		OPTIX_CALL(rtProgramDeclareVariable(ray_gen_program, "draw_color", &draw_color));
-		OPTIX_CALL(rtVariableSet3f(draw_color, 0.4f, 0.7, 0.0f));
+		OPTIX_CALL(rtVariableSet3f(draw_color, 0.4f, 0.7f, 0.0f));
 		OPTIX_CALL(rtContextSetRayGenerationProgram(context, 0, ray_gen_program));
 
 		// Run
