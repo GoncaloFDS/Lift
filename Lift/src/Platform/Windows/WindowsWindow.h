@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Lift/Window.h"
+#include "Window.h"
 #include "GLFW/glfw3.h"
-#include "Lift/Renderer/GraphicsContext.h"
+#include "Renderer/GraphicsContext.h"
 
 namespace lift {
 

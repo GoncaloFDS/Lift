@@ -1,6 +1,6 @@
 #pragma once
 
-#include  "Lift/Core.h"
+#include  "Core.h"
 
 namespace lift {
 

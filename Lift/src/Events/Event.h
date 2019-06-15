@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include  "Lift/Core.h"
+#include  "Core.h"
 
 namespace lift {
 	// Events are immediately dispatched

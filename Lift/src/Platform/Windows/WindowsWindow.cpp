@@ -2,11 +2,11 @@
 
 #include "WindowsWindow.h"
 
-#include "Lift/Events/ApplicationEvent.h"
-#include "Lift/Events/MouseEvent.h"
-#include "Lift/Events/KeyEvent.h"
+#include "Events/ApplicationEvent.h"
+#include "Events/MouseEvent.h"
+#include "Events/KeyEvent.h"
 
-#include "Lift/Platform/OpenGL/OpenGLContext.h"
+#include "Platform/OpenGL/OpenGLContext.h"
 
 namespace lift {
 

@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "Lift/Events/Event.h"
+#include "Events/Event.h"
 
 namespace lift {
 

@@ -2,8 +2,8 @@
 #include "Buffer.h"
 
 #include "Renderer.h"
-#include "Lift/Platform/OpenGL/OpenGLContext.h"
-#include "Lift/Platform/OpenGL/OpenGLBuffer.h"
+#include "Platform/OpenGL/OpenGLContext.h"
+#include "Platform/OpenGL/OpenGLBuffer.h"
 
 
 namespace lift {

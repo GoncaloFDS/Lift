@@ -63,8 +63,8 @@ project "Lift"
 		"Glad",
 		"ImGui",
 		"opengl32.lib",
-		"%{IncludeDir.optix}/lib64/optix.6.0.0.lib",
 		"%{IncludeDir.cuda}/lib/x64/nvrtc.lib",
+		"%{IncludeDir.optix}/lib64/optix.6.0.0.lib",
 		"%{IncludeDir.optix}/SDK/build/lib/Release/sutil_sdk.lib"
 	}
 

@@ -1,14 +1,14 @@
 #include "pch.h"
 #include  "WindowsInput.h"
 
-#include "Lift/Application.h"
+#include "Application.h"
 #include  <GLFW/glfw3.h>
 
 namespace lift {
 
 	std::unique_ptr<Input> Input::instance_ = std::make_unique<WindowsInput>();
 
-	bool lift::WindowsInput::IsKeyPressedImpl(const int key_code) {
+	bool WindowsInput::IsKeyPressedImpl(const int key_code) {
 		const auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		const auto state = glfwGetKey(window, key_code);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;

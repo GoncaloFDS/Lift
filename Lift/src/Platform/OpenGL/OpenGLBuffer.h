@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Lift/Renderer/Buffer.h"
+#include "Renderer/Buffer.h"
 
 namespace lift {
 

@@ -3,7 +3,7 @@
 
 #include "imgui.h"
 
-#include "Lift/Application.h"
+#include "Application.h"
 #include "examples/imgui_impl_glfw.h"
 #include "examples/imgui_impl_opengl3.h"
 
