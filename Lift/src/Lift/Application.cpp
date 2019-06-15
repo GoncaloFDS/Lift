@@ -123,10 +123,6 @@ namespace lift {
 		char path_to_ptx[512];
 		char out_file[512];
 
-		int width = 512u;
-		int height = 385u;
-		int i;
-
 		out_file[0] = '\0';
 		RTresult result;
 		OPTIX_CALL(rtContextCreate(&context));
@@ -135,7 +131,7 @@ namespace lift {
 
 		OPTIX_CALL(rtBufferCreate(context, RT_BUFFER_OUTPUT, &buffer));
 		OPTIX_CALL(rtBufferSetFormat(buffer, RT_FORMAT_FLOAT4));
-		OPTIX_CALL(rtBufferSetSize2D(buffer, width, height));
+		OPTIX_CALL(rtBufferSetSize2D(buffer, window_->GetWidth(), window_->GetHeight()));
 		OPTIX_CALL(rtContextDeclareVariable(context, "result_buffer", &result_buffer));
 		OPTIX_CALL(rtVariableSetObject(result_buffer, buffer));
 
@@ -147,7 +143,7 @@ namespace lift {
 
 		// Run
 		OPTIX_CALL(rtContextValidate(context));
-		OPTIX_CALL(rtContextLaunch2D(context, 0, width, height));
+		OPTIX_CALL(rtContextLaunch2D(context, 0, window_->GetWidth(), window_->GetHeight()));
 
 		// Display image
 

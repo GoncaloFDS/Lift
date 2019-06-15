@@ -15,6 +15,9 @@ namespace lift {
 
 		static void Begin();
 		static void End();
+		bool show_demo_window_;
+		bool show_another_window_;
+		int clear_color_;
 	};
 
 }
