@@ -16,6 +16,7 @@ IncludeDir["ImGui"] = "Lift/vendor/imgui"
 IncludeDir["GLFW"] = "Lift/vendor/glfw/include"
 IncludeDir["Glad"] = "Lift/vendor/glad/include"
 IncludeDir["glm"] = "Lift/vendor/glm"
+IncludeDir["mathfu"] = "Lift/vendor/mathfu/Include"
 IncludeDir["optix"] = "C:/ProgramData/NVIDIA Corporation/OptiX SDK 6.0.0"
 IncludeDir["cuda"] = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1"
 
@@ -46,9 +47,9 @@ project "Lift"
 	includedirs {
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
+		"%{prj.name}/vendor/mathfu/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.glm}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.optix}/include",
 		--"%{IncludeDir.optix}/SDK",
@@ -113,6 +114,7 @@ project "Sandbox"
 
 	includedirs {
 		"Lift/vendor/spdlog/include",
+		"Lift/vendor/mathfu/include",
 		"Lift/src",
 		"Lift/vendor",
 		"%{IncludeDir.glm}"

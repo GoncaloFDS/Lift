@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "ImguiLayer.h"
+#include "ImGuiLayer.h"
 
 #include "imgui.h"
 
@@ -14,31 +14,24 @@
 
 namespace lift {
 
-	ImguiLayer::ImguiLayer()
+	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer") {
 
 	}
 
-	ImguiLayer::~ImguiLayer() {
-		ImguiLayer::OnDetach();
+	ImGuiLayer::~ImGuiLayer() {
+		ImGuiLayer::OnDetach();
 	};
 
-	void ImguiLayer::OnAttach() {
-		// Setup Dear ImGui context
+	void ImGuiLayer::OnAttach() {
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		auto& io = ImGui::GetIO();
-		//(void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
-		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
-		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
-		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
-		//ImGui::StyleColorsClassic();
 
 		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
 		ImGuiStyle& style = ImGui::GetStyle();
@@ -57,13 +50,13 @@ namespace lift {
 
 	}
 
-	void ImguiLayer::OnDetach() {
+	void ImGuiLayer::OnDetach() {
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
 
-	void ImguiLayer::OnImguiRender() {
+	void ImGuiLayer::OnImguiRender() {
 		static float f = 0.0f;
 		static int counter = 0;
 
@@ -74,7 +67,7 @@ namespace lift {
 		ImGui::Checkbox("Another Window", &show_another_window_);
 
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);             // Edit 1 float using a slider from 0.0f to 1.0f
-		ImGui::ColorEdit3("clear color", (float*)&clear_color_); // Edit 3 floats representing a color
+		ImGui::ColorEdit3("clear color", &(clear_color_.x)); // Edit 3 floats representing a color
 
 		if (ImGui::Button("Button"))
 			// Buttons return true when clicked (most widgets return true when edited/activated)
@@ -88,13 +81,13 @@ namespace lift {
 
 	}
 
-	void ImguiLayer::Begin() {
+	void ImGuiLayer::Begin() {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
 
-	void ImguiLayer::End() {
+	void ImGuiLayer::End() {
 		auto& io = ImGui::GetIO();
 		auto& app = Application::Get();
 		io.DisplaySize = ImVec2(static_cast<float>(app.GetWindow().GetWidth()),

@@ -14,9 +14,14 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "mathfu/vector.h"
+#include "mathfu/glsl_mappings.h"
+
 #include "Log.h"
 
 #ifdef LF_PLATFORM_WINDOWS
 #include <Windows.h>
 #include "Windowsx.h"
 #endif
+
+using namespace mathfu;

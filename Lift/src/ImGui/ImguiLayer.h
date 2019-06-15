@@ -4,10 +4,10 @@
 
 namespace lift {
 
-	class ImguiLayer : public Layer {
+	class ImGuiLayer : public Layer {
 	public:
-		ImguiLayer();
-		~ImguiLayer();
+		ImGuiLayer();
+		~ImGuiLayer();
 
 		void OnAttach() override;
 		void OnDetach() override;
@@ -17,7 +17,8 @@ namespace lift {
 		static void End();
 		bool show_demo_window_;
 		bool show_another_window_;
-		int clear_color_;
+		vec3 clear_color_ {0.f, 0.f, 0.f};
+		
 	};
 
 }

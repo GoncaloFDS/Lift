@@ -9,29 +9,12 @@
 #include <optix.h>
 #include "optixu/optixpp_namespace.h"
 #include "Platform/Optix/OptixErrorCodes.h"
+#include "ImGui/ImguiLayer.h"
 
 namespace lift {
 
 	Application* Application::instance_ = nullptr;
 
-	static GLenum ShaderDataTypeToOpenGLBaseType(const ShaderDataType type) {
-		switch (type) {
-			case ShaderDataType::Float: return GL_FLOAT;
-			case ShaderDataType::Float2: return GL_FLOAT;
-			case ShaderDataType::Float3: return GL_FLOAT;
-			case ShaderDataType::Float4: return GL_FLOAT;
-			case ShaderDataType::Mat3: return GL_FLOAT;
-			case ShaderDataType::Mat4: return GL_FLOAT;
-			case ShaderDataType::Int: return GL_INT;
-			case ShaderDataType::Int2: return GL_INT;
-			case ShaderDataType::Int3: return GL_INT;
-			case ShaderDataType::Int4: return GL_INT;
-			case ShaderDataType::Bool: return GL_BOOL;
-		}
-
-		LF_CORE_ASSERT(false, "Unkown ShaderDataType");
-		return 0;
-	}
 
 	Application::Application() {
 		LF_CORE_ASSERT(!instance_, "Application already exists");
@@ -39,7 +22,7 @@ namespace lift {
 		window_ = std::unique_ptr<Window>(Window::Create());
 		window_->SetEventCallback(LF_BIND_EVENT_FN(Application::OnEvent));
 
-		PushOverlay<ImguiLayer>();
+		PushOverlay<ImGuiLayer>();
 
 		glGenVertexArrays(1, &vertex_array_);
 		glBindVertexArray(vertex_array_);
@@ -53,32 +36,20 @@ namespace lift {
 
 		vertex_buffer_.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
 
-		{
-			const BufferLayout layout = {
-				{ShaderDataType::Float3, "a_Position"},
-				{ShaderDataType::Float4, "a_Color"}
-			};
-
-			vertex_buffer_->SetLayout(layout);
-		}
-
-		uint32_t index = 0;
-		const auto& layout = vertex_buffer_->GetLayout();
-		for (const auto& element : layout) {
-			glEnableVertexAttribArray(index);
-			glVertexAttribPointer(index,
-			                      element.GetComponentCount(),
-			                      ShaderDataTypeToOpenGLBaseType(element.type),
-			                      element.normalized ? GL_TRUE : GL_FALSE,
-			                      layout.GetStride(),
-			                      reinterpret_cast<const void*>(element.offset));
-			index++;
-		}
+		vertex_buffer_->SetLayout({
+			{ShaderDataType::Float3, "a_Position"},
+			{ShaderDataType::Float4, "a_Color"}
+		});
 
 		uint32_t indices[6] = {0, 1, 2, 0, 2, 3};
 		index_buffer_.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 
 		shader_ = std::make_unique<Shader>("res/shaders/default");
+
+		///
+		/// Optix Testing
+		///
+
 
 		RTcontext context = nullptr;
 
@@ -92,7 +63,7 @@ namespace lift {
 		char out_file[512];
 
 		out_file[0] = '\0';
-		
+
 		OPTIX_CALL(rtContextCreate(&context));
 		OPTIX_CALL(rtContextSetRayTypeCount(context, 1));
 		OPTIX_CALL(rtContextSetEntryPointCount(context, 1));
@@ -138,10 +109,10 @@ namespace lift {
 			for (auto& layer : layer_stack_)
 				layer->OnUpdate();
 
-			ImguiLayer::Begin();
+			ImGuiLayer::Begin();
 			for (auto& layer : layer_stack_)
 				layer->OnImguiRender();
-			ImguiLayer::End();
+			ImGuiLayer::End();
 
 			window_->OnUpdate();
 		}

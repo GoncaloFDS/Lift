@@ -4,7 +4,6 @@
 #include "Window.h"
 #include "LayerStack.h"
 #include "Events/ApplicationEvent.h"
-#include "ImGui/ImguiLayer.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Buffer.h"
 
@@ -33,9 +32,6 @@ namespace lift {
 		static Application& Get() { return *instance_; }
 
 	private:
-		bool OnWindowClose(WindowCloseEvent& e);
-
-	private:
 		bool is_running_ = true;
 		std::unique_ptr<Window> window_;
 		LayerStack layer_stack_;
@@ -46,9 +42,11 @@ namespace lift {
 
 		static Application* instance_;
 
+		bool OnWindowClose(WindowCloseEvent& e);
+
 	};
 
 
-	// Define by Sandbox
+	// Defined by Sandbox
 	std::shared_ptr<Application> CreateApplication();
 }

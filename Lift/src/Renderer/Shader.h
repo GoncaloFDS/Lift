@@ -10,7 +10,6 @@ struct ShaderProgramSource {
 namespace lift {
 	class Shader {
 	public:
-		//Shader(const std::string& vertex_src, const std::string& fragment_src);
 		Shader(const std::string& file_path);
 		~Shader();
 

@@ -13,10 +13,10 @@ namespace lift {
 		void Unbind() const override;
 
 		const BufferLayout& GetLayout() const override { return layout_; }
-		void SetLayout(const BufferLayout& layout) override { layout_ = layout; }
+		void SetLayout(const BufferLayout& layout) override;
 
 	private:
-		uint32_t renderer_id_;
+		uint32_t renderer_id_{};
 		BufferLayout layout_;
 	};
 
@@ -30,7 +30,7 @@ namespace lift {
 
 		uint32_t GetCount() const override;
 	private:
-		uint32_t renderer_id_;
+		uint32_t renderer_id_{};
 		uint32_t count_;
 	};
 

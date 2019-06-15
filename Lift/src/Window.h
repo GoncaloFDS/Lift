@@ -3,6 +3,7 @@
 #include "pch.h"
 
 #include "Events/Event.h"
+#include "Renderer/GraphicsContext.h"
 
 namespace lift {
 
@@ -39,5 +40,9 @@ namespace lift {
 		virtual void* GetNativeWindow() const = 0;
 
 		static Window* Create(const WindowProperties& props = WindowProperties());
+
+	protected:
+		std::unique_ptr<GraphicsContext> context_;
+
 	};
 }

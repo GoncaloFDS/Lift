@@ -104,7 +104,7 @@ namespace lift {
 			data.event_callback(event);
 		});
 
-		glfwSetKeyCallback(window_handle_, [](GLFWwindow* window,int key, int scancode, const int action, int mods) {
+		glfwSetKeyCallback(window_handle_, [](GLFWwindow* window,int key, int scan_code, const int action, int mods) {
 			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
 			switch (action) {
