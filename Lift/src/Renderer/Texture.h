@@ -6,7 +6,7 @@ namespace lift {
 		kNone = 0, kDiffuse
 	};
 
-	struct  Texture {
+	struct Texture {
 		unsigned int id;
 		vec2 resolution;
 

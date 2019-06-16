@@ -9,7 +9,7 @@ namespace lift {
 
 
 	Shader::Shader(const std::string& file_path)
-		: renderer_id_{0}, file_path_{file_path} {
+		: renderer_id_ {0}, file_path_ {file_path} {
 
 		const ShaderProgramSource shader_program = ParseShader(file_path);
 		renderer_id_ = CreateShader(shader_program.vertex_source, shader_program.fragment_source);

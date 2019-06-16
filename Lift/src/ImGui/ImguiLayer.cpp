@@ -28,7 +28,7 @@ namespace lift {
 		ImGui::CreateContext();
 		auto& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
 
 		ImGui::StyleColorsDark();
@@ -66,7 +66,7 @@ namespace lift {
 		ImGui::Checkbox("Demo Window", &show_demo_window_); // Edit bools storing our window open/close state
 		ImGui::Checkbox("Another Window", &show_another_window_);
 
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);             // Edit 1 float using a slider from 0.0f to 1.0f
+		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);         // Edit 1 float using a slider from 0.0f to 1.0f
 		ImGui::ColorEdit3("clear color", &(clear_color_.x)); // Edit 3 floats representing a color
 
 		if (ImGui::Button("Button"))

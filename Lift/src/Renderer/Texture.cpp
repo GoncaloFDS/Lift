@@ -8,7 +8,7 @@ namespace lift {
 
 	Texture::Texture(const std::string& path) {
 		stbi_set_flip_vertically_on_load(1);
-		
+
 		OPENGL_CALL(glGenTextures(1, &id));
 
 		int width, height, component_count;

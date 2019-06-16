@@ -37,6 +37,8 @@ namespace lift {
 		std::unique_ptr<GraphicsContext> graphics_context_ {};
 		std::unique_ptr<optix::Context> optix_context_ {};
 		LayerStack layer_stack_;
+
+		// Temp
 		unsigned int vertex_array_ {};
 		std::unique_ptr<VertexBuffer> vertex_buffer_ {};
 		std::unique_ptr<IndexBuffer> index_buffer_ {};

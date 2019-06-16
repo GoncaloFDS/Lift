@@ -18,7 +18,7 @@ namespace lift {
 		bool show_demo_window_;
 		bool show_another_window_;
 		vec3 clear_color_ {0.f, 0.f, 0.f};
-		
+
 	};
 
 }

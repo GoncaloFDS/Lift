@@ -37,7 +37,8 @@ namespace lift {
 		BufferElement() = default;
 
 		BufferElement(const ShaderDataType type, std::string name, const bool normalized = false)
-			: type{type}, name{std::move(name)}, size{ShaderDataTypeSize(type)}, offset{0}, normalized{normalized} {
+			: type {type}, name {std::move(name)}, size {ShaderDataTypeSize(type)}, offset {0},
+			  normalized {normalized} {
 		}
 
 		uint32_t GetComponentCount() const {
@@ -65,7 +66,7 @@ namespace lift {
 		BufferLayout() = default;
 
 		BufferLayout(const std::initializer_list<BufferElement>& elements)
-			: elements_{elements} {
+			: elements_ {elements} {
 			CalculateOffsetAndStride();
 		}
 

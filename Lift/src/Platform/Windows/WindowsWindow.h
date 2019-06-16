@@ -26,12 +26,12 @@ namespace lift {
 		virtual void Shutdown();
 
 	private:
-		GLFWwindow* window_handle_{};
+		GLFWwindow* window_handle_ {};
 
 		struct WindowData {
 			std::string title;
-			unsigned int width{}, height{};
-			bool v_sync{};
+			unsigned int width {}, height {};
+			bool v_sync {};
 
 			EventCallbackFn event_callback;
 

@@ -39,4 +39,3 @@ constexpr T Bit(T x) {
 #else
 	#define OPENGL_CALL(x) (x); 
 #endif
-	

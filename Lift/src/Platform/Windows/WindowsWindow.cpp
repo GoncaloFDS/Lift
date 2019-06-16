@@ -80,7 +80,6 @@ namespace lift {
 		                                  properties_.title.c_str(), nullptr, nullptr);
 
 
-
 		glfwSetWindowUserPointer(window_handle_, &properties_);
 
 		// Set GLFW callbacks
