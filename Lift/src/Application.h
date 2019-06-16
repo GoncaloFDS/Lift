@@ -7,6 +7,7 @@
 #include "Renderer/Shader.h"
 #include "Renderer/Buffer.h"
 #include <optix_world.h>
+#include "Renderer/VertexArray.h"
 
 
 namespace lift {
@@ -35,14 +36,13 @@ namespace lift {
 		bool is_running_ = true;
 		std::unique_ptr<Window> window_ {};
 		std::unique_ptr<GraphicsContext> graphics_context_ {};
-		std::unique_ptr<optix::Context> optix_context_ {};
+		optix::Context optix_context_ {};
 		LayerStack layer_stack_;
 
 		// Temp
-		unsigned int vertex_array_ {};
-		std::unique_ptr<VertexBuffer> vertex_buffer_ {};
-		std::unique_ptr<IndexBuffer> index_buffer_ {};
-		std::unique_ptr<Shader> shader_ {};
+		std::shared_ptr<VertexArray> vertex_array_ {};
+		std::shared_ptr<Shader> shader_ {};
+		// 
 
 		static Application* instance_;
 
@@ -57,6 +57,7 @@ namespace lift {
 		void OnEvent(Event& e);
 		bool OnWindowClose(WindowCloseEvent& e);
 
+		void GetOptixSystemInformation();
 	};
 
 

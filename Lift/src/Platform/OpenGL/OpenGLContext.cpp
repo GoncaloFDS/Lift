@@ -17,6 +17,7 @@ namespace lift {
 		const int status = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
 		LF_CORE_ASSERT(status, "Failed to initialize Glad");
 
+		LF_CORE_INFO("");
 		LF_CORE_INFO("OpenGL Info:");
 		LF_CORE_INFO("	Vendor: {0}", glGetString(GL_VENDOR));
 		LF_CORE_INFO("	Renderer: {0}", glGetString(GL_RENDERER));

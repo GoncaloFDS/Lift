@@ -9,6 +9,7 @@
 #include <glad/glad.h>
 #include "Renderer/Texture.h"
 #include "Platform/OpenGL/OpenGLContext.h"
+#include "Platform/Optix/OptixErrorCodes.h"
 
 namespace lift {
 
@@ -46,36 +47,30 @@ namespace lift {
 		}
 	}
 
-
-	void Application::InitOptix() {
-	}
-
-	void Application::InitGraphicsContext() {
-		graphics_context_ = std::make_unique<OpenGLContext>(static_cast<GLFWwindow*>(window_->GetNativeWindow()));
-		graphics_context_->Init();
-	}
-
 	void Application::CreateScene() {
-		glGenVertexArrays(1, &vertex_array_);
-		glBindVertexArray(vertex_array_);
 
-		float vertices [4 * 9] = {
-			-1.0f, -1.0f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f, 0.0f, 0.0f,
-			1.0f, -1.0f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f, 1.0f, 0.0f,
-			1.0f, 1.0f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f, 1.0f, 1.0f,
-			-1.0f, 1.0f, 0.0f, 0.1f, 0.8f, 0.2f, 1.0f, 0.0f, 1.0f,
+		float vertices [4 * 5] = {
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+			1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
 		};
 
-		vertex_buffer_.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+		vertex_array_.reset(VertexArray::Create());
+		std::shared_ptr<VertexBuffer> vertex_buffer {};
+		vertex_buffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
 
-		vertex_buffer_->SetLayout({
+		vertex_buffer->SetLayout({
 			{ShaderDataType::Float3, "a_Position"},
-			{ShaderDataType::Float4, "a_Color"},
 			{ShaderDataType::Float2, "a_Uv"}
 		});
 
+		vertex_array_->AddVertexBuffer(vertex_buffer);
+
 		uint32_t indices[6] = {0, 1, 2, 0, 2, 3};
-		index_buffer_.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+		std::shared_ptr<IndexBuffer> index_buffer;
+		index_buffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+		vertex_array_->SetIndexBuffer(index_buffer);
 
 		Texture texture("res/textures/test.png");
 		texture.Bind();
@@ -84,10 +79,41 @@ namespace lift {
 		shader_->SetUniform1i("u_Texture", 0);
 	}
 
+	void Application::InitOptix() {
+		GetOptixSystemInformation();
+
+		optix_context_ = optix::Context::create();
+		unsigned int device_count = 0;
+		OPTIX_CALL(rtDeviceGetDeviceCount(&device_count));
+
+		std::vector<int> devices;
+		int devices_encoding = 3210;
+		// Decimal digits encode OptiX device ordinals. Default 3210 means to use all four first installed devices, when available.
+		unsigned int i = 0;
+		do {
+			int device = devices_encoding % 10;
+			devices.push_back(device);
+			devices_encoding /= 10;
+			i++;
+		} while (i < device_count && devices_encoding);
+
+		optix_context_->setDevices(devices.begin(), devices.end());
+
+		devices = optix_context_->getEnabledDevices();
+		for (int device : devices) {
+			LF_CORE_INFO("Optix context is using local device {0}: {1}", device, optix_context_->getDeviceName(device));
+		}
+	}
+
+	void Application::InitGraphicsContext() {
+		graphics_context_ = std::make_unique<OpenGLContext>(static_cast<GLFWwindow*>(window_->GetNativeWindow()));
+		graphics_context_->Init();
+	}
+
 	void Application::Render() {
 		shader_->Bind();
-		glBindVertexArray(vertex_array_);
-		glDrawElements(GL_TRIANGLES, index_buffer_->GetCount(), GL_UNSIGNED_INT, nullptr);
+		vertex_array_->Bind();
+		glDrawElements(GL_TRIANGLES, vertex_array_->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 	}
 
 	void Application::Display() {
@@ -116,10 +142,37 @@ namespace lift {
 		}
 	}
 
-
 	bool Application::OnWindowClose(WindowCloseEvent& e) {
 		is_running_ = false;
 
 		return true;
+	}
+
+	void Application::GetOptixSystemInformation() {
+		unsigned int optix_version;
+		OPTIX_CALL(rtGetVersion(&optix_version));
+
+		const unsigned int major = optix_version / 10000;
+		const unsigned int minor = (optix_version % 10000) / 100;
+		const unsigned int micro = optix_version % 100;
+		LF_CORE_INFO("");
+		LF_CORE_INFO("Optix Info:");
+		LF_CORE_INFO("\tVersion: {0}.{1}.{2}", major, minor, micro);
+
+		unsigned int number_of_devices = 0;
+		OPTIX_CALL(rtDeviceGetDeviceCount(&number_of_devices));
+		LF_CORE_INFO("\tNumber of Devices = {0}", number_of_devices);
+
+		for (unsigned int i = 0; i < number_of_devices; ++i) {
+			char name[256];
+			OPTIX_CALL(rtDeviceGetAttribute(i, RT_DEVICE_ATTRIBUTE_NAME, sizeof(name), name));
+			LF_CORE_INFO("\tDevice {0}: {1}", i, name);
+
+			int compute_capability[2] = {0, 0};
+			OPTIX_CALL(rtDeviceGetAttribute(i, RT_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY, sizeof(
+				           compute_capability), &compute_capability));
+			LF_CORE_INFO("\t\tCompute Support: {0}.{1}", compute_capability[0], compute_capability[1]);
+
+		}
 	}
 }
