@@ -6,6 +6,8 @@
 #include "Events/ApplicationEvent.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Buffer.h"
+#include <optix_world.h>
+
 
 namespace lift {
 
@@ -15,8 +17,6 @@ namespace lift {
 		virtual ~Application() = default;
 
 		void Run();
-
-		void OnEvent(Event& e);
 
 		template <typename T>
 		void PushLayer() {
@@ -33,15 +33,26 @@ namespace lift {
 
 	private:
 		bool is_running_ = true;
-		std::unique_ptr<Window> window_;
+		std::unique_ptr<Window> window_ {};
+		std::unique_ptr<GraphicsContext> graphics_context_ {};
+		std::unique_ptr<optix::Context> optix_context_ {};
 		LayerStack layer_stack_;
-		unsigned int vertex_array_{};
-		std::unique_ptr<VertexBuffer> vertex_buffer_;
-		std::unique_ptr<IndexBuffer> index_buffer_;
-		std::unique_ptr<Shader> shader_;
+		unsigned int vertex_array_ {};
+		std::unique_ptr<VertexBuffer> vertex_buffer_ {};
+		std::unique_ptr<IndexBuffer> index_buffer_ {};
+		std::unique_ptr<Shader> shader_ {};
 
 		static Application* instance_;
 
+		void InitOptix();
+		void InitGraphicsContext();
+
+		void CreateScene();
+		void Render();
+		void Display();
+		void StartFrame();
+		void EndFrame();
+		void OnEvent(Event& e);
 		bool OnWindowClose(WindowCloseEvent& e);
 
 	};

@@ -28,7 +28,7 @@ namespace lift {
 		glUseProgram(0);
 	}
 
-	void Shader::SetUniform1i(const std::string& name, const int value) {
+	void Shader::SetUniform1i(const std::string& name, int value) {
 		OPENGL_CALL(glUniform1i(GetUniformLocation(name), value));
 	}
 
@@ -98,6 +98,7 @@ namespace lift {
 			return uniform_location_cache_[name];
 
 		const int location = glGetUniformLocation(renderer_id_, name.c_str());
+		OPENGL_CALL(name);
 		if (location == -1)
 			LF_CORE_WARN("Uniform {0} is not defined on shader {1}", name, file_path_);
 		return location;

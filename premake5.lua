@@ -118,7 +118,10 @@ project "Sandbox"
 		"Lift/vendor/mathfu/include",
 		"Lift/src",
 		"Lift/vendor",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.optix}/include",
+		"%{IncludeDir.optix}/include/optixu",
+		"%{IncludeDir.cuda}/include"
 	}
 
 	links {

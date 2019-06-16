@@ -41,8 +41,5 @@ namespace lift {
 
 		static Window* Create(const WindowProperties& props = WindowProperties());
 
-	protected:
-		std::unique_ptr<GraphicsContext> context_;
-
 	};
 }
