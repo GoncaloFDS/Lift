@@ -7,8 +7,9 @@
 
 namespace lift {
 
+
 	Shader::Shader(const std::string& file_path)
-		: renderer_id_{0} {
+		: renderer_id_{0}, file_path_{file_path} {
 
 		const ShaderProgramSource shader_program = ParseShader(file_path);
 		renderer_id_ = CreateShader(shader_program.vertex_source, shader_program.fragment_source);
@@ -25,6 +26,14 @@ namespace lift {
 
 	void Shader::Unbind() const {
 		glUseProgram(0);
+	}
+
+	void Shader::SetUniform1i(const std::string& name, const int value) {
+		OPENGL_CALL(glUniform1i(GetUniformLocation(name), value));
+	}
+
+	void Shader::SetUniform1f(const std::string& name, float value) {
+		OPENGL_CALL(glUniform1f(GetUniformLocation(name), value));
 	}
 
 	ShaderProgramSource Shader::ParseShader(const std::string& file_path) const {
@@ -71,7 +80,7 @@ namespace lift {
 		if (is_compiled == GL_FALSE) {
 			int buf_size = 0;
 			OPENGL_CALL(glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &buf_size));
-			
+
 			std::vector<GLchar> info_log(buf_size);
 			OPENGL_CALL(glGetShaderInfoLog(shader_id, buf_size, &buf_size, &info_log[0]));
 
@@ -85,6 +94,12 @@ namespace lift {
 	}
 
 	int Shader::GetUniformLocation(const std::string& name) {
-		return 0;
+		if (uniform_location_cache_.find(name) != uniform_location_cache_.end())
+			return uniform_location_cache_[name];
+
+		const int location = glGetUniformLocation(renderer_id_, name.c_str());
+		if (location == -1)
+			LF_CORE_WARN("Uniform {0} is not defined on shader {1}", name, file_path_);
+		return location;
 	}
 }

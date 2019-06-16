@@ -3,13 +3,15 @@
 
 #include "Log.h"
 
-#include <glad/glad.h>
+#include "ImGui/ImguiLayer.h"
 
 //Temporary
 #include <optix.h>
+#include <glad/glad.h>
 #include "optixu/optixpp_namespace.h"
 #include "Platform/Optix/OptixErrorCodes.h"
-#include "ImGui/ImguiLayer.h"
+#include "stb_image.h"
+#include "Renderer/Texture.h"
 
 namespace lift {
 
@@ -27,29 +29,32 @@ namespace lift {
 		glGenVertexArrays(1, &vertex_array_);
 		glBindVertexArray(vertex_array_);
 
-		float vertices [4 * 7] = {
-			-1.0f, -1.0f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
-			1.0f, -1.0f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
-			1.0f, 1.0f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f,
-			-1.0f, 1.0f, 0.0f, 0.1f, 0.8f, 0.2f, 1.0f,
+		float vertices [4 * 9] = {
+			-1.0f, -1.0f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f, 0.0f, 0.0f,
+			1.0f, -1.0f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f, 1.0f, 0.0f,
+			1.0f, 1.0f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, 0.0f, 0.1f, 0.8f, 0.2f, 1.0f, 0.0f, 1.0f,
 		};
 
 		vertex_buffer_.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
 
 		vertex_buffer_->SetLayout({
 			{ShaderDataType::Float3, "a_Position"},
-			{ShaderDataType::Float4, "a_Color"}
+			{ShaderDataType::Float4, "a_Color"},
+			{ShaderDataType::Float2, "a_Uv"}
 		});
 
 		uint32_t indices[6] = {0, 1, 2, 0, 2, 3};
 		index_buffer_.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 
+		Texture texture("res/textures/test.png");
+		texture.Bind();
 		shader_ = std::make_unique<Shader>("res/shaders/default");
+		shader_->SetUniform1i("u_Texture", 0);
 
 		///
 		/// Optix Testing
 		///
-
 
 		RTcontext context = nullptr;
 

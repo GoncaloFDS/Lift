@@ -16,14 +16,18 @@ namespace lift {
 		void Bind() const;
 		void Unbind() const;
 
+		void SetUniform1i(const std::string& name, int value);
+		void SetUniform1f(const std::string& name, float value);
+
 	private:
-		//std::string file_path_;
-		uint32_t renderer_id_;
-		std::unordered_map<std::string, int> uniform_location_cache_;
-			   		
 		ShaderProgramSource ParseShader(const std::string& file_path) const;
 		static unsigned int CreateShader(const std::string& vertex_source, const std::string& fragment_source);
 		static unsigned CompileShader(unsigned int type, const std::string& source);
 		int GetUniformLocation(const std::string& name);
+
+
+		uint32_t renderer_id_;
+		std::string file_path_;
+		std::unordered_map<std::string, int> uniform_location_cache_;
 	};
 }
