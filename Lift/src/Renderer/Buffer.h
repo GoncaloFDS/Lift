@@ -36,7 +36,7 @@ namespace lift {
 
 		BufferElement() = default;
 
-		BufferElement(const ShaderDataType type, std::string name, const bool normalized = false)
+		BufferElement(const ShaderDataType type, const std::string& name, const bool normalized = false)
 			: type {type}, name {std::move(name)}, size {ShaderDataTypeSize(type)}, offset {0},
 			  normalized {normalized} {
 		}

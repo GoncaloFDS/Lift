@@ -172,7 +172,6 @@ namespace lift {
 			OPTIX_CALL(rtDeviceGetAttribute(i, RT_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY, sizeof(
 				           compute_capability), &compute_capability));
 			LF_CORE_INFO("\t\tCompute Support: {0}.{1}", compute_capability[0], compute_capability[1]);
-
 		}
 	}
 }
