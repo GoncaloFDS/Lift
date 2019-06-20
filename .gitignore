@@ -9,12 +9,7 @@
 *.sln
 *.vcxproj*
 
-imgui.ini
 \.vscode/
-
-Lift/vendor/glad/bin-int/
-
-Lift/vendor/glad/bin/
 
 *.filters
 
