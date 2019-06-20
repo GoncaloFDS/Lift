@@ -1,6 +1,3 @@
-[submodule "Lift/vendor/spdlog"]
-	path = Lift/vendor/spdlog
-	url = https://github.com/gabime/spdlog
 [submodule "Lift/vendor/imgui"]
 	path = Lift/vendor/imgui
 	url = https://github.com/GoncaloFDS/imgui.git
