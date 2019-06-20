@@ -1,9 +1,6 @@
 [submodule "Lift/vendor/imgui"]
 	path = Lift/vendor/imgui
 	url = https://github.com/GoncaloFDS/imgui.git
-[submodule "Lift/vendor/glfw"]
-	path = Lift/vendor/glfw
-	url = https://github.com/GoncaloFDS/glfw.git
 [submodule "Lift/vendor/mathfu"]
 	path = Lift/vendor/mathfu
 	url = https://github.com/google/mathfu.git
