@@ -1,0 +1,15 @@
+[submodule "external/imgui"]
+	path = external/imgui
+	url = https://github.com/GoncaloFDS/imgui.git
+[submodule "external/glfw"]
+	path = external/glfw
+	url = https://github.com/GoncaloFDS/glfw.git
+[submodule "external/mathfu"]
+	path = external/mathfu
+	url = https://github.com/google/mathfu.git
+[submodule "external/spdlog"]
+	path = external/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "external/random"]
+	path = external/random
+	url = https://github.com/effolkronium/random.git
