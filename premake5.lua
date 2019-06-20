@@ -12,43 +12,43 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
-IncludeDir["ImGui"] = "Lift/vendor/imgui"
-IncludeDir["GLFW"] = "Lift/vendor/glfw/include"
-IncludeDir["Glad"] = "Lift/vendor/glad/include"
-IncludeDir["glm"] = "Lift/vendor/glm"
-IncludeDir["mathfu"] = "Lift/vendor/mathfu/Include"
+IncludeDir["ImGui"] = "external/imgui"
+IncludeDir["GLFW"] = "external/glfw/include"
+IncludeDir["Glad"] = "external/glad/include"
+IncludeDir["glm"] = "external/glm"
+IncludeDir["mathfu"] = "external/mathfu/Include"
 IncludeDir["optix"] = "C:/ProgramData/NVIDIA Corporation/OptiX SDK 6.0.0"
 IncludeDir["cuda"] = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1"
 
 group "Dependencies"
-	include "Lift/vendor/glfw"
-	include "Lift/vendor/glad"
-	include "Lift/vendor/imgui"
+	include "external/glfw"
+	include "external/glad"
+	include "external/imgui"
 group ""
 
 project "Lift"
-	location "Lift"
+	location "lift"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "c++17"
 	staticruntime "on"
 
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("build/bin/" .. outputdir)
+	objdir ("build/bin-int/" .. outputdir)
 
 	pchheader "pch.h"
-	pchsource "Lift/src/pch.cpp"
+	pchsource "lift/src/pch.cpp"
 
 	files {
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"lift/src/**.h",
+		"lift/src/**.cpp"
 	}
 
 	includedirs {
-		"%{prj.name}/src",
-		"%{prj.name}/vendor/spdlog/include",
-		"%{prj.name}/vendor/mathfu/include",
-		"%{prj.name}/vendor/stb_image",
+		"lift/src",
+		"external/spdlog/include",
+		"external/mathfu/include",
+		"external/stb_image",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
@@ -67,6 +67,10 @@ project "Lift"
 		"opengl32.lib",
 		"%{IncludeDir.cuda}/lib/x64/nvrtc.lib",
 		"%{IncludeDir.optix}/lib64/optix.6.0.0.lib",
+	}
+
+	postbuildcommands {
+		("{COPY} \"%{IncludeDir.optix}/bin64/*\" \"%{cfg.targetdir}\"")
 	}
 
 	defines {
@@ -98,26 +102,26 @@ project "Lift"
 		optimize "on"
 
 project "Sandbox"
-	location "Sandbox"
+	location "tests"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "c++17"
 	staticruntime "on"
 
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("build/bin/" .. outputdir)
+	objdir ("build/bin-int/" .. outputdir)
 
 	files {
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp",
-		"%{prj.name}/res/**"
+		"tests/src/**.h",
+		"tests/src/**.cpp",
+		"tests/res/**"
 	}
 
 	includedirs {
-		"Lift/vendor/spdlog/include",
-		"Lift/vendor/mathfu/include",
-		"Lift/src",
-		"Lift/vendor",
+		"lift/src",
+		"external/spdlog/include",
+		"external/mathfu/include",
+		"external",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.optix}/include",
 		"%{IncludeDir.optix}/include/optixu",

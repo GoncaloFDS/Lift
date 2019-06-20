@@ -17,3 +17,5 @@ Lift/vendor/glad/bin-int/
 Lift/vendor/glad/bin/
 
 *.filters
+
+build/
