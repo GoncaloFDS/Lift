@@ -5,32 +5,29 @@
 #include "Platform/OpenGL/OpenGLBuffer.h"
 
 
-namespace lift {
-
-	VertexBuffer* VertexBuffer::Create(float* vertices, const uint32_t size) {
-		switch (Renderer::GetAPI()) {
-			case RendererAPI::API::None:
-			LF_CORE_ASSERT(false, "RendererAPI::API::None is set");
-				return nullptr;
-			case RendererAPI::API::OpenGL:
-				return new OpenGLVertexBuffer(vertices, size);
-		}
-
-		LF_CORE_ASSERT(false, "Unkown RenderAPI");
+lift::VertexBuffer* lift::VertexBuffer::Create(float* vertices, const uint32_t size) {
+	switch (Renderer::GetAPI()) {
+	case RendererAPI::API::None:
+	LF_CORE_ASSERT(false, "RendererAPI::API::None is set");
 		return nullptr;
+	case RendererAPI::API::OpenGL:
+		return new OpenGLVertexBuffer(vertices, size);
 	}
 
-	IndexBuffer* IndexBuffer::Create(uint32_t* indices, const uint32_t count) {
+	LF_CORE_ASSERT(false, "Unkown RenderAPI");
+	return nullptr;
+}
 
-		switch (Renderer::GetAPI()) {
-			case RendererAPI::API::None:
-			LF_CORE_ASSERT(false, "RendererAPI::API::None is set");
-				return nullptr;
-			case RendererAPI::API::OpenGL:
-				return new OpenGLIndexBuffer(indices, count);
-		}
+lift::IndexBuffer* lift::IndexBuffer::Create(uint32_t* indices, const uint32_t count) {
 
-		LF_CORE_ASSERT(false, "Unkown RenderAPI");
+	switch (Renderer::GetAPI()) {
+	case RendererAPI::API::None:
+	LF_CORE_ASSERT(false, "RendererAPI::API::None is set");
 		return nullptr;
+	case RendererAPI::API::OpenGL:
+		return new OpenGLIndexBuffer(indices, count);
 	}
+
+	LF_CORE_ASSERT(false, "Unkown RenderAPI");
+	return nullptr;
 }

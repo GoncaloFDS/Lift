@@ -19,6 +19,8 @@ namespace lift {
 		void SetUniform1i(const std::string& name, int value);
 		void SetUniform1f(const std::string& name, float value);
 
+		void SetTexImage2D(uint32_t width, uint32_t height);
+
 	private:
 		ShaderProgramSource ParseShader(const std::string& file_path) const;
 		static unsigned int CreateShader(const std::string& vertex_source, const std::string& fragment_source);

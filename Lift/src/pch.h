@@ -10,6 +10,7 @@
 #include <string>
 #include <cstdio>
 #include <sstream>
+#include <fstream>
 #include <vector>
 #include <unordered_map>
 #include <map>
@@ -19,6 +20,7 @@
 #include "mathfu/glsl_mappings.h"
 
 #include "Log.h"
+#include "Util.h"
 
 #ifdef LF_PLATFORM_WINDOWS
 #include <Windows.h>

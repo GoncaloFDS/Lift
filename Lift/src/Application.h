@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Core.h"
 #include "Window.h"
+
+#include <optix_world.h>
 #include "LayerStack.h"
 #include "Events/ApplicationEvent.h"
 #include "Renderer/Shader.h"
-#include "Renderer/Buffer.h"
-#include <optix_world.h>
 #include "Renderer/VertexArray.h"
 #include "Renderer/Texture.h"
+#include "Platform/OpenGL/PixelBuffer.h"
 
 
 namespace lift {
@@ -35,18 +35,18 @@ namespace lift {
 
 	private:
 		bool is_running_ = true;
-		std::unique_ptr<Window> window_{};
-		std::unique_ptr<GraphicsContext> graphics_context_{};
-		optix::Context optix_context_{};
+		std::unique_ptr<Window> window_;
+		std::unique_ptr<GraphicsContext> graphics_context_;
+		std::unique_ptr<PixelBuffer> pbo_output_buffer_;	
+		std::unique_ptr<Texture> hdr_texture_;
+		optix::Context optix_context_;
 		LayerStack layer_stack_;
-		std::map<std::string, optix::Program> ptx_programs_{};
+		std::map<std::string, optix::Program> ptx_programs_;
 
 		// Temp
-		std::shared_ptr<VertexArray> vertex_array_{};
-		std::shared_ptr<Shader> shader_{};
+		std::shared_ptr<VertexArray> vertex_array_;
+		std::shared_ptr<Shader> output_shader_;
 		optix::Buffer buffer_output_;
-		unsigned int pbo_output_buffer_;
-		unsigned int hdr_texture_;
 		// 
 
 		static Application* instance_;

@@ -8,11 +8,11 @@ namespace lift {
 	};
 
 	struct Texture {
-		unsigned int id;
+		unsigned int id{};
 		vec2 resolution;
 
 		Texture(const std::string& path);
-		Texture(optix::Buffer buffer);
+		Texture();
 		void Bind(unsigned int slot = 0) const;
 		void Unbind();
 

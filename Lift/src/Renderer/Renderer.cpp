@@ -2,18 +2,14 @@
 #include "Renderer.h"
 #include "RenderCommand.h"
 
-namespace lift {
+void lift::Renderer::BeginScene() {
 
+}
 
-	void Renderer::BeginScene() {
+void lift::Renderer::EndScene() {
+}
 
-	}
-
-	void Renderer::EndScene() {
-	}
-
-	void Renderer::Submit(const std::shared_ptr<VertexArray>& vertex_array) {
-		vertex_array->Bind();
-		RenderCommand::DrawIndexed(vertex_array);
-	}
+void lift::Renderer::Submit(const std::shared_ptr<VertexArray>& vertex_array) {
+	vertex_array->Bind();
+	RenderCommand::DrawIndexed(vertex_array);
 }
