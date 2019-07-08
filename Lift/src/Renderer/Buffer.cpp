@@ -9,10 +9,10 @@ namespace lift {
 
 	VertexBuffer* VertexBuffer::Create(float* vertices, const uint32_t size) {
 		switch (Renderer::GetAPI()) {
-			case RendererAPI::kNone:
-			LF_CORE_ASSERT(false, "RendererAPI::kNone is set");
+			case RendererAPI::API::None:
+			LF_CORE_ASSERT(false, "RendererAPI::API::None is set");
 				return nullptr;
-			case RendererAPI::kOpenGL:
+			case RendererAPI::API::OpenGL:
 				return new OpenGLVertexBuffer(vertices, size);
 		}
 
@@ -23,10 +23,10 @@ namespace lift {
 	IndexBuffer* IndexBuffer::Create(uint32_t* indices, const uint32_t count) {
 
 		switch (Renderer::GetAPI()) {
-			case RendererAPI::kNone:
-			LF_CORE_ASSERT(false, "RendererAPI::kNone is set");
+			case RendererAPI::API::None:
+			LF_CORE_ASSERT(false, "RendererAPI::API::None is set");
 				return nullptr;
-			case RendererAPI::kOpenGL:
+			case RendererAPI::API::OpenGL:
 				return new OpenGLIndexBuffer(indices, count);
 		}
 

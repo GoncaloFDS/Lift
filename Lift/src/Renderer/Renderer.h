@@ -1,16 +1,15 @@
 #pragma once
+#include "RendererAPI.h"
 
 namespace lift {
-	enum class RendererAPI {
-		kNone = 0,
-		kOpenGL = 1
-	};
-
 	class Renderer {
 	public:
-		static RendererAPI GetAPI() { return renderer_api_; }
+		static void BeginScene();
+		static void EndScene();
 
-	private:
-		static RendererAPI renderer_api_;
+		static void Submit(const std::shared_ptr<VertexArray>& vertex_array);
+
+		static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+
 	};
 }

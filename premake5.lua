@@ -9,7 +9,7 @@ workspace "Lift"
 	}
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
-
+-- Set $(TargetDir)ptxes\%(Filename).ptx as CUDA compiler output
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
 IncludeDir["ImGui"] = "external/imgui"
@@ -68,10 +68,12 @@ project "Lift"
 		"%{IncludeDir.cuda}/lib/x64/nvrtc.lib",
 		"%{IncludeDir.optix}/lib64/optix.6.0.0.lib",
 	}
-
+	
 	postbuildcommands {
 		("{COPY} \"%{IncludeDir.optix}/bin64/*\" \"%{cfg.targetdir}\"")
+		--,("{COPY} \"../tests/res/*\" \"%{cfg.targetdir}\"")
 	}
+
 
 	defines {
 		"_CRT_SECURE_NO_WARNINGS"

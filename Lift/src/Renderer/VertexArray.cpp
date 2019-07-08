@@ -7,10 +7,10 @@ namespace lift {
 
 	VertexArray* VertexArray::Create() {
 		switch (Renderer::GetAPI()) {
-			case RendererAPI::kNone:
-			LF_CORE_ASSERT(false, "RendererAPI::kNone is set");
+			case RendererAPI::API::None:
+			LF_CORE_ASSERT(false, "RendererAPI::API::kNone is set");
 				return nullptr;
-			case RendererAPI::kOpenGL:
+			case RendererAPI::API::OpenGL:
 				return new OpenGLVertexArray();
 		}
 		LF_CORE_ASSERT(false, "Unkown RendererAPI");

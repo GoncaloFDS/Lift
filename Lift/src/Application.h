@@ -34,26 +34,28 @@ namespace lift {
 
 	private:
 		bool is_running_ = true;
-		std::unique_ptr<Window> window_ {};
-		std::unique_ptr<GraphicsContext> graphics_context_ {};
-		optix::Context optix_context_ {};
+		std::unique_ptr<Window> window_{};
+		std::unique_ptr<GraphicsContext> graphics_context_{};
+		optix::Context optix_context_{};
 		LayerStack layer_stack_;
+		std::map<std::string, optix::Program> ptx_programs_{};
 
 		// Temp
-		std::shared_ptr<VertexArray> vertex_array_ {};
-		std::shared_ptr<Shader> shader_ {};
+		std::shared_ptr<VertexArray> vertex_array_{};
+		std::shared_ptr<Shader> shader_{};
 		// 
 
+		optix::GeometryInstance CreateParallelogram(const optix::float3& anchor, const optix::float3& offset1,
+													const optix::float3& offset2);
+		void UpdateCamera();
 		static Application* instance_;
 
 		void InitOptix();
 		void InitGraphicsContext();
+		void InitPrograms();
 
 		void CreateScene();
-		void Render();
-		void Display();
-		void StartFrame();
-		void EndFrame();
+		void EndFrame() const;
 		void OnEvent(Event& e);
 		bool OnWindowClose(WindowCloseEvent& e);
 
