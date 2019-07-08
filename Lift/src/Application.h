@@ -37,11 +37,13 @@ namespace lift {
 		bool is_running_ = true;
 		std::unique_ptr<Window> window_;
 		std::unique_ptr<GraphicsContext> graphics_context_;
-		std::unique_ptr<PixelBuffer> pbo_output_buffer_;	
+		std::unique_ptr<PixelBuffer> pixel_output_buffer_;	
 		std::unique_ptr<Texture> hdr_texture_;
+
+		std::map<std::string, optix::Program> ptx_programs_;
+		
 		optix::Context optix_context_;
 		LayerStack layer_stack_;
-		std::map<std::string, optix::Program> ptx_programs_;
 
 		// Temp
 		std::shared_ptr<VertexArray> vertex_array_;
@@ -53,16 +55,17 @@ namespace lift {
 
 		void InitOptix();
 		void InitGraphicsContext();
-		void InitPrograms();
 
-		void CreateScene();
+		void SetOptixVariables();
+
+		void CreateRenderFrame();
 		void EndFrame() const;
 		void OnEvent(Event& e);
 		bool OnWindowClose(WindowCloseEvent& e);
+		bool OnWindowResize(WindowResizeEvent& e);
 
-		void GetOptixSystemInformation();
+		static void GetOptixSystemInformation();
 	};
-
 
 	// Defined by Sandbox
 	std::shared_ptr<Application> CreateApplication();

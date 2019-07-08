@@ -9,6 +9,7 @@
 #include "Platform/Optix/OptixErrorCodes.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
+#include "glad/glad.h"
 
 lift::Application* lift::Application::instance_ = nullptr;
 
@@ -26,7 +27,8 @@ lift::Application::Application() {
 }
 
 void lift::Application::Run() {
-	CreateScene();
+	SetOptixVariables();
+	CreateRenderFrame();
 	optix_context_->validate();
 
 	while (is_running_) {
@@ -36,7 +38,7 @@ void lift::Application::Run() {
 		// Render
 		optix_context_->launch(0, window_->GetWidth(), window_->GetHeight());
 		hdr_texture_->Bind();
-		pbo_output_buffer_->Bind();
+		pixel_output_buffer_->Bind();
 		// Display
 		output_shader_->Bind();
 		output_shader_->SetTexImage2D(window_->GetWidth(), window_->GetHeight());
@@ -52,46 +54,20 @@ void lift::Application::Run() {
 	}
 }
 
-void lift::Application::CreateScene() {
-
-	float vertices [4 * 5] = {
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-	};
-
-	vertex_array_.reset(VertexArray::Create());
-	std::shared_ptr<VertexBuffer> vertex_buffer{};
-	vertex_buffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
-
-	vertex_buffer->SetLayout({
-		{ShaderDataType::Float3, "a_Position"},
-		{ShaderDataType::Float2, "a_Uv"}
-	});
-
-	vertex_array_->AddVertexBuffer(vertex_buffer);
-
-	uint32_t indices[6] = {0, 1, 2, 0, 2, 3};
-	std::shared_ptr<IndexBuffer> index_buffer;
-	index_buffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
-	vertex_array_->SetIndexBuffer(index_buffer);
-
-	output_shader_ = std::make_unique<Shader>("res/shaders/texture_quad");
-	output_shader_->Bind();
-	output_shader_->SetUniform1i("u_Texture", 0);
-}
-
 void lift::Application::InitOptix() {
 	GetOptixSystemInformation();
 
-	pbo_output_buffer_ = std::make_unique<PixelBuffer>(
+	pixel_output_buffer_ = std::make_unique<PixelBuffer>(
 		static_cast<float>(window_->GetWidth()) * window_->GetHeight() * sizeof(float) * 4);
 	hdr_texture_ = std::make_unique<Texture>();
 
 	optix_context_ = optix::Context::create();
 
-	InitPrograms();
+	std::string ptx_string = Util::GetPtxString("res/ptx/raygeneration.ptx");
+	ptx_programs_["raygeneration"] = optix_context_->createProgramFromPTXString(ptx_string, "raygeneration");
+
+	ptx_string = Util::GetPtxString("res/ptx/exception.ptx");
+	ptx_programs_["exception"] = optix_context_->createProgramFromPTXString(ptx_string, "exception");
 
 	optix_context_->setRayTypeCount(0);
 	optix_context_->setEntryPointCount(1);
@@ -100,30 +76,52 @@ void lift::Application::InitOptix() {
 	optix_context_->setPrintEnabled(true);
 	optix_context_->setExceptionEnabled(RT_EXCEPTION_ALL, true);
 
-	optix_context_["sysColorBackground"]->setFloat(0.46f, 0.72f, 0.0f);
-
-	buffer_output_ = optix_context_->createBufferFromGLBO(RT_BUFFER_OUTPUT, pbo_output_buffer_->id);
+	buffer_output_ = optix_context_->createBufferFromGLBO(RT_BUFFER_OUTPUT, pixel_output_buffer_->id);
 	buffer_output_->setFormat(RT_FORMAT_FLOAT4); //RGBA32F
 	buffer_output_->setSize(window_->GetWidth(), window_->GetHeight());
+}
+
+void lift::Application::InitGraphicsContext() {
+	graphics_context_ = std::make_unique<OpenGLContext>(static_cast<GLFWwindow*>(window_->GetNativeWindow()));
+	graphics_context_->Init();
+	RenderCommand::SetClearColor({1.0f, 0.1f, 1.0f, 0.0f});
+}
+
+void lift::Application::SetOptixVariables() {
+	optix_context_["sysColorBackground"]->setFloat(0.46f, 0.72f, 0.0f);
 	optix_context_["sysOutputBuffer"]->set(buffer_output_);
 
 	optix_context_->setRayGenerationProgram(0, ptx_programs_["raygeneration"]);
 	optix_context_->setExceptionProgram(0, ptx_programs_["exception"]);
 }
 
-void lift::Application::InitPrograms() {
-	std::string ptx_string = Util::GetPtxString("res/ptx/raygeneration.ptx");
-	ptx_programs_["raygeneration"] = optix_context_->createProgramFromPTXString(ptx_string, "raygeneration");
+void lift::Application::CreateRenderFrame() {
 
-	ptx_string = Util::GetPtxString("res/ptx/exception.ptx");
-	ptx_programs_["exception"] = optix_context_->createProgramFromPTXString(ptx_string, "exception");
-}
+	float quad_vertices [4 * 5] = {
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+	};
 
-void lift::Application::InitGraphicsContext() {
-	graphics_context_ = std::make_unique<OpenGLContext>(static_cast<GLFWwindow*>(window_->GetNativeWindow()));
-	graphics_context_->Init();
+	vertex_array_.reset(VertexArray::Create());
+	std::shared_ptr<VertexBuffer> vertex_buffer{};
+	vertex_buffer.reset(VertexBuffer::Create(quad_vertices, sizeof(quad_vertices)));
 
-	RenderCommand::SetClearColor({1.0f, 0.1f, 1.0f, 0.0f});
+	vertex_buffer->SetLayout({
+		{ShaderDataType::Float3, "a_Position"},
+		{ShaderDataType::Float2, "a_Uv"}
+	});
+
+	vertex_array_->AddVertexBuffer(vertex_buffer);
+	uint32_t indices[6] = {0, 1, 2, 0, 2, 3};
+	std::shared_ptr<IndexBuffer> index_buffer;
+	index_buffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+	vertex_array_->SetIndexBuffer(index_buffer);
+
+	output_shader_ = std::make_unique<Shader>("res/shaders/texture_quad");
+	output_shader_->Bind();
+	output_shader_->SetUniform1i("u_Texture", 0);
 }
 
 void lift::Application::EndFrame() const {
@@ -135,6 +133,7 @@ void lift::Application::EndFrame() const {
 void lift::Application::OnEvent(Event& e) {
 	EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<WindowCloseEvent>(LF_BIND_EVENT_FN(Application::OnWindowClose));
+	dispatcher.Dispatch<WindowResizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowResize));
 
 	for (auto it = layer_stack_.end(); it != layer_stack_.begin();) {
 		(*--it)->OnEvent(e);
@@ -145,7 +144,14 @@ void lift::Application::OnEvent(Event& e) {
 
 bool lift::Application::OnWindowClose(WindowCloseEvent& e) {
 	is_running_ = false;
+	LF_CORE_TRACE("Closing Window");
+	return true;
+}
 
+bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
+	RenderCommand::Resize(e.GetWidth(), e.GetHeight());
+	buffer_output_->setSize(e.GetWidth(), e.GetHeight());
+	pixel_output_buffer_->Resize(buffer_output_->getElementSize() * e.GetWidth() * e.GetHeight());
 	return true;
 }
 
@@ -153,9 +159,9 @@ void lift::Application::GetOptixSystemInformation() {
 	unsigned int optix_version;
 	OPTIX_CALL(rtGetVersion(&optix_version));
 
-	const unsigned int major = optix_version / 10000;
-	const unsigned int minor = (optix_version % 10000) / 100;
-	const unsigned int micro = optix_version % 100;
+	const auto major = optix_version / 10000;
+	const auto minor = (optix_version % 10000) / 100;
+	const auto micro = optix_version % 100;
 	LF_CORE_INFO("");
 	LF_CORE_INFO("Optix Info:");
 	LF_CORE_INFO("\tVersion: {0}.{1}.{2}", major, minor, micro);

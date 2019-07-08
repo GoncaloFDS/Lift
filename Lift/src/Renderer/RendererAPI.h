@@ -14,6 +14,7 @@ namespace lift {
 
 		virtual void SetClearColor(const mathfu::vec4& color ) = 0;
 		virtual void Clear() = 0;
+		virtual void Resize(uint32_t width, uint32_t height) = 0;
 
 		virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertex_array) = 0;
 

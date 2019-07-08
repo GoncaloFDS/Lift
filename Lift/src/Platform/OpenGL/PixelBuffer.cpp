@@ -16,3 +16,9 @@ void lift::PixelBuffer::Bind() const {
 void lift::PixelBuffer::Unbind() const {
 	OPENGL_CALL(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
 }
+
+void lift::PixelBuffer::Resize(const uint32_t size) {
+	OPENGL_CALL(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, id));
+	OPENGL_CALL(glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STREAM_DRAW));
+	OPENGL_CALL(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
+}

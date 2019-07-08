@@ -5,12 +5,16 @@
 namespace lift {
 	class RenderCommand {
 	public:
-		inline static void SetClearColor(const mathfu::vec4& color) {
+		static void SetClearColor(const mathfu::vec4& color) {
 			renderer_api_->SetClearColor(color);
 		}
 
-		inline static void Clear() {
+		static void Clear() {
 			renderer_api_->Clear();
+		}
+
+		static void Resize(uint32_t width, uint32_t height) {
+			renderer_api_->Resize(width, height);
 		}
 
 		static void DrawIndexed(const std::shared_ptr<VertexArray>& vertex_array) {
