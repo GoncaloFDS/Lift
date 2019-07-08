@@ -8,6 +8,7 @@
 #include "Renderer/Buffer.h"
 #include <optix_world.h>
 #include "Renderer/VertexArray.h"
+#include "Renderer/Texture.h"
 
 
 namespace lift {
@@ -43,11 +44,11 @@ namespace lift {
 		// Temp
 		std::shared_ptr<VertexArray> vertex_array_{};
 		std::shared_ptr<Shader> shader_{};
+		optix::Buffer buffer_output_;
+		unsigned int pbo_output_buffer_;
+		unsigned int hdr_texture_;
 		// 
 
-		optix::GeometryInstance CreateParallelogram(const optix::float3& anchor, const optix::float3& offset1,
-													const optix::float3& offset2);
-		void UpdateCamera();
 		static Application* instance_;
 
 		void InitOptix();
