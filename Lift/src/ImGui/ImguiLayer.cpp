@@ -54,6 +54,12 @@ void lift::ImGuiLayer::OnDetach() {
 	ImGui::DestroyContext();
 }
 
+void lift::ImGuiLayer::OnUpdate() {
+	auto& app = Application::Get();
+	app.SetTopColor(top_color_);
+	app.SetBottomColor(bottom_color_);
+}
+
 void lift::ImGuiLayer::OnImguiRender() {
 	static float f = 0.0f;
 	static int counter = 0;
@@ -65,8 +71,9 @@ void lift::ImGuiLayer::OnImguiRender() {
 	ImGui::Checkbox("Another Window", &show_another_window_);
 
 	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-	if (ImGui::ColorEdit3("clear color", &clear_color_.x))
-		LF_CORE_TRACE("clear color: {0} {1} {2}", clear_color_.x, clear_color_.y, clear_color_.z);
+	if (ImGui::ColorEdit3("Top color", &top_color_.x))
+		LF_CORE_TRACE("Top color: {0} {1} {2}", top_color_.x, top_color_.y, top_color_.z);
+	ImGui::ColorEdit3("Bottom color", &bottom_color_.x);
 	if (ImGui::Button("Button"))
 		counter++;
 	ImGui::SameLine();

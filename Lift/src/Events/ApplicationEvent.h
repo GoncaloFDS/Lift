@@ -33,6 +33,20 @@ namespace lift {
 		EVENT_CLASS_CATEGORY(kEventCategoryApplication)
 	};
 
+	class WindowMinimizeEvent : public Event {
+	public:
+		WindowMinimizeEvent(bool is_minimized)
+			: is_minimized_(is_minimized) {
+		}
+
+		bool IsMinimized() const { return is_minimized_; }
+
+		EVENT_CLASS_TYPE(kWindowMinimize)
+		EVENT_CLASS_CATEGORY(kEventCategoryApplication)
+	private:
+		bool is_minimized_;
+	};
+
 	class AppTickEvent : public Event {
 	public:
 		AppTickEvent() = default;

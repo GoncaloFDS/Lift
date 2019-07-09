@@ -9,7 +9,6 @@
 #include "Platform/Optix/OptixErrorCodes.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
-#include "glad/glad.h"
 
 lift::Application* lift::Application::instance_ = nullptr;
 
@@ -26,14 +25,21 @@ lift::Application::Application() {
 	PushOverlay<ImGuiLayer>();
 }
 
+lift::Application::~Application() {
+	RenderCommand::Shutdown();
+}
+
 void lift::Application::Run() {
 	SetOptixVariables();
 	CreateRenderFrame();
+	CreateScene();
 	optix_context_->validate();
 
 	while (is_running_) {
 		ImGuiLayer::Begin();
 		RenderCommand::Clear();
+
+		UpdateOptixVariables();
 
 		// Render
 		optix_context_->launch(0, window_->GetWidth(), window_->GetHeight());
@@ -55,21 +61,22 @@ void lift::Application::Run() {
 }
 
 void lift::Application::InitOptix() {
+	optix_context_ = optix::Context::create();
+
 	GetOptixSystemInformation();
 
 	pixel_output_buffer_ = std::make_unique<PixelBuffer>(
 		static_cast<float>(window_->GetWidth()) * window_->GetHeight() * sizeof(float) * 4);
 	hdr_texture_ = std::make_unique<Texture>();
 
-	optix_context_ = optix::Context::create();
+	ptx_programs_["ray_generation"] = optix_context_->createProgramFromPTXString(
+		Util::GetPtxString("res/ptx/ray_generation.ptx"), "ray_generation");
+	ptx_programs_["exception"] = optix_context_->createProgramFromPTXString(
+		Util::GetPtxString("res/ptx/exception.ptx"), "exception");
+	ptx_programs_["miss"] = optix_context_->createProgramFromPTXString(
+		Util::GetPtxString("res/ptx/miss.ptx"), "miss_gradient");
 
-	std::string ptx_string = Util::GetPtxString("res/ptx/raygeneration.ptx");
-	ptx_programs_["raygeneration"] = optix_context_->createProgramFromPTXString(ptx_string, "raygeneration");
-
-	ptx_string = Util::GetPtxString("res/ptx/exception.ptx");
-	ptx_programs_["exception"] = optix_context_->createProgramFromPTXString(ptx_string, "exception");
-
-	optix_context_->setRayTypeCount(0);
+	optix_context_->setRayTypeCount(1);
 	optix_context_->setEntryPointCount(1);
 	optix_context_->setStackSize(1800);
 	optix_context_->setMaxTraceDepth(2);
@@ -88,11 +95,23 @@ void lift::Application::InitGraphicsContext() {
 }
 
 void lift::Application::SetOptixVariables() {
-	optix_context_["sysColorBackground"]->setFloat(0.46f, 0.72f, 0.0f);
 	optix_context_["sysOutputBuffer"]->set(buffer_output_);
+	optix_context_["sysCameraPosition"]->setFloat(0.0f, 0.0f, 0.0f);
+	optix_context_["sysCameraU"]->setFloat(1.0f, 0.0f, 0.0f);
+	optix_context_["sysCameraV"]->setFloat(0.0f, 1.0f, 0.0f);
+	optix_context_["sysCameraW"]->setFloat(0.0f, 0.0f, -1.0f);
 
-	optix_context_->setRayGenerationProgram(0, ptx_programs_["raygeneration"]);
+	optix_context_["sysColorBottom"]->setFloat(bottom_color_);
+	optix_context_["sysColorTop"]->setFloat(top_color_);
+
+	optix_context_->setRayGenerationProgram(0, ptx_programs_["ray_generation"]);
 	optix_context_->setExceptionProgram(0, ptx_programs_["exception"]);
+	optix_context_->setMissProgram(0, ptx_programs_["miss"]);
+}
+
+void lift::Application::UpdateOptixVariables() {
+	optix_context_["sysColorBottom"]->setFloat(bottom_color_);
+	optix_context_["sysColorTop"]->setFloat(top_color_);
 }
 
 void lift::Application::CreateRenderFrame() {
@@ -124,6 +143,15 @@ void lift::Application::CreateRenderFrame() {
 	output_shader_->SetUniform1i("u_Texture", 0);
 }
 
+void lift::Application::CreateScene() {
+	optix::Acceleration acceleration_root = optix_context_->createAcceleration(std::string("NoAccel"));
+	optix::Group group_root = optix_context_->createGroup();
+	group_root->setAcceleration(acceleration_root);
+	group_root->setChildCount(0);
+
+	optix_context_["sysTopObject"]->set(group_root);
+}
+
 void lift::Application::EndFrame() const {
 	ImGuiLayer::End();
 	graphics_context_->SwapBuffers();
@@ -134,6 +162,7 @@ void lift::Application::OnEvent(Event& e) {
 	EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<WindowCloseEvent>(LF_BIND_EVENT_FN(Application::OnWindowClose));
 	dispatcher.Dispatch<WindowResizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowResize));
+	dispatcher.Dispatch<WindowMinimizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowMinimize));
 
 	for (auto it = layer_stack_.end(); it != layer_stack_.begin();) {
 		(*--it)->OnEvent(e);
@@ -149,9 +178,17 @@ bool lift::Application::OnWindowClose(WindowCloseEvent& e) {
 }
 
 bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
-	RenderCommand::Resize(e.GetWidth(), e.GetHeight());
-	buffer_output_->setSize(e.GetWidth(), e.GetHeight());
-	pixel_output_buffer_->Resize(buffer_output_->getElementSize() * e.GetWidth() * e.GetHeight());
+	if (e.GetHeight() && e.GetWidth()) {
+		// Only resize when not minimized
+		RenderCommand::Resize(e.GetWidth(), e.GetHeight());
+		buffer_output_->setSize(e.GetWidth(), e.GetHeight());
+		pixel_output_buffer_->Resize(buffer_output_->getElementSize() * e.GetWidth() * e.GetHeight());
+	}
+	return true;
+}
+
+bool lift::Application::OnWindowMinimize(WindowMinimizeEvent& e) {
+	LF_CORE_ERROR("window size: {0} {1}", window_->GetWidth(), window_->GetHeight());
 	return true;
 }
 
@@ -166,18 +203,17 @@ void lift::Application::GetOptixSystemInformation() {
 	LF_CORE_INFO("Optix Info:");
 	LF_CORE_INFO("\tVersion: {0}.{1}.{2}", major, minor, micro);
 
-	unsigned int number_of_devices = 0;
-	OPTIX_CALL(rtDeviceGetDeviceCount(&number_of_devices));
+	const auto number_of_devices = optix_context_.getDeviceCount();
 	LF_CORE_INFO("\tNumber of Devices = {0}", number_of_devices);
 
 	for (unsigned int i = 0; i < number_of_devices; ++i) {
 		char name[256];
-		OPTIX_CALL(rtDeviceGetAttribute(i, RT_DEVICE_ATTRIBUTE_NAME, sizeof(name), name));
+		optix_context_->getDeviceAttribute(i, RT_DEVICE_ATTRIBUTE_NAME, sizeof(name), name);
 		LF_CORE_INFO("\tDevice {0}: {1}", i, name);
 
 		int compute_capability[2] = {0, 0};
-		OPTIX_CALL(rtDeviceGetAttribute(i, RT_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY, sizeof(
-			compute_capability), &compute_capability));
+		optix_context_->getDeviceAttribute(i, RT_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY, sizeof(
+											   compute_capability), &compute_capability);
 		LF_CORE_INFO("\t\tCompute Support: {0}.{1}", compute_capability[0], compute_capability[1]);
 	}
 }

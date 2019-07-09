@@ -20,6 +20,10 @@ namespace lift {
 		static void DrawIndexed(const std::shared_ptr<VertexArray>& vertex_array) {
 			renderer_api_->DrawIndexed(vertex_array);
 		}
+
+		static void Shutdown() {
+			delete renderer_api_;
+		}
 		
 	private:
 		static RendererAPI* renderer_api_;

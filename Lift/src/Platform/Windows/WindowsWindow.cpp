@@ -77,6 +77,8 @@ void lift::WindowsWindow::Init(const WindowProperties& props) {
 									  properties_.title.c_str(), nullptr, nullptr);
 
 
+
+	glfwSetWindowPos(window_handle_, props.x, props.y);
 	glfwSetWindowUserPointer(window_handle_, &properties_);
 
 	// Set GLFW callbacks
@@ -92,6 +94,13 @@ void lift::WindowsWindow::Init(const WindowProperties& props) {
 	glfwSetWindowCloseCallback(window_handle_, [](GLFWwindow* window) {
 		WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 		WindowCloseEvent event;
+		data.event_callback(event);
+	});
+
+	glfwSetWindowIconifyCallback(window_handle_, [](GLFWwindow* window, int iconified) {
+		WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+
+		WindowMinimizeEvent event(iconified);
 		data.event_callback(event);
 	});
 

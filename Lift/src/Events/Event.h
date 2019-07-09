@@ -12,6 +12,7 @@ namespace lift {
 		kNone = 0,
 		kWindowClose,
 		kWindowResize,
+		kWindowMinimize,
 		kWindowFocus,
 		kWindowLostFocus,
 		kWindowMoved,

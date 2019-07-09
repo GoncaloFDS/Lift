@@ -16,7 +16,7 @@ namespace lift {
 	class Application {
 	public:
 		Application();
-		virtual ~Application() = default;
+		virtual ~Application();
 
 		void Run();
 
@@ -32,6 +32,18 @@ namespace lift {
 
 		Window& GetWindow() const { return *window_; }
 		static Application& Get() { return *instance_; }
+
+		void SetTopColor(vec3 color) {
+			top_color_.x = color.x;
+			top_color_.y = color.y;
+			top_color_.z = color.z;
+		}
+
+		void SetBottomColor(vec3 color) {
+			bottom_color_.x = color.x;
+			bottom_color_.y = color.y;
+			bottom_color_.z = color.z;
+		}
 
 	private:
 		bool is_running_ = true;
@@ -49,6 +61,7 @@ namespace lift {
 		std::shared_ptr<VertexArray> vertex_array_;
 		std::shared_ptr<Shader> output_shader_;
 		optix::Buffer buffer_output_;
+		optix::float3 top_color_, bottom_color_;
 		// 
 
 		static Application* instance_;
@@ -57,14 +70,17 @@ namespace lift {
 		void InitGraphicsContext();
 
 		void SetOptixVariables();
+		void UpdateOptixVariables();
 
 		void CreateRenderFrame();
+		void CreateScene();
 		void EndFrame() const;
 		void OnEvent(Event& e);
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
+		bool OnWindowMinimize(WindowMinimizeEvent& e);
 
-		static void GetOptixSystemInformation();
+		void GetOptixSystemInformation();
 	};
 
 	// Defined by Sandbox

@@ -11,11 +11,12 @@ namespace lift {
 		std::string title;
 		unsigned int width;
 		unsigned int height;
+		unsigned int x, y;
 
 		WindowProperties(std::string title = "lift Engine",
 		                 const unsigned int width = 1280,
 		                 const unsigned int height = 720)
-			: title(std::move(title)), width(width), height(height) {
+			: title(std::move(title)), width(width), height(height), x(0), y(20) {
 		}
 
 	};
