@@ -110,20 +110,20 @@ void lift::Application::SetOptixVariables() {
 	optix_context_["sys_camera_v"]->setFloat(0.0f, 1.0f, 0.0f);
 	optix_context_["sys_camera_w"]->setFloat(0.0f, 0.0f, -1.0f);
 
-	optix_context_["sys_color_top"]->set3fv(top_color_.data_);
-	optix_context_["sys_color_bottom"]->set3fv(bottom_color_.data_);
+	optix_context_["sys_color_top"]->set3fv(value_ptr(top_color_));
+	optix_context_["sys_color_bottom"]->set3fv(value_ptr(bottom_color_));
 
 }
 
 void lift::Application::UpdateOptixVariables() {
 	if (camera_.OnUpdate()) {
-		optix_context_["sys_camera_position"]->set3fv(camera_.GetPosition().data_);
-		optix_context_["sys_camera_u"]->set3fv(camera_.GetVectorU().data_);
-		optix_context_["sys_camera_v"]->set3fv(camera_.GetVectorV().data_);
-		optix_context_["sys_camera_w"]->set3fv(camera_.GetVectorW().data_);
+		optix_context_["sys_camera_position"]->set3fv(value_ptr(camera_.GetPosition()));
+		optix_context_["sys_camera_u"]->set3fv(value_ptr(camera_.GetVectorU()));
+		optix_context_["sys_camera_v"]->set3fv(value_ptr(camera_.GetVectorV()));
+		optix_context_["sys_camera_w"]->set3fv(value_ptr(camera_.GetVectorW()));
 	}
-	optix_context_["sys_color_top"]->set3fv(top_color_.data_);
-	optix_context_["sys_color_bottom"]->set3fv(bottom_color_.data_);
+	optix_context_["sys_color_top"]->set3fv(value_ptr(top_color_));
+	optix_context_["sys_color_bottom"]->set3fv(value_ptr(bottom_color_));
 }
 
 void lift::Application::CreateRenderFrame() {
@@ -187,13 +187,11 @@ void lift::Application::CreateScene() {
 	plane_geometry_group->setChildCount(1);
 	plane_geometry_group->setChild(0, plane_geometry_instance);
 
-	const auto plane_matrix = mat4::FromScaleVector({5.0f, 5.0f, 5.0f});
-	vec4_packed plane_packed_matrix[4];
-	plane_matrix.Pack(plane_packed_matrix);
+	const auto plane_matrix = scale(mat4(1.0f), {5.0f, 5.0f, 5.0f});
 
 	auto plane_transform = optix_context_->createTransform();
 	plane_transform->setChild(plane_geometry_group);
-	plane_transform->setMatrix(false, plane_packed_matrix->data_, plane_packed_matrix->data_);
+	plane_transform->setMatrix(false, value_ptr(plane_matrix), value_ptr(inverse(plane_matrix)));
 
 	auto count = group_root->getChildCount();
 	group_root->setChildCount(count + 1);

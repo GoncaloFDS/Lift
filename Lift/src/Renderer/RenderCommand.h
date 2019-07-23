@@ -5,7 +5,7 @@
 namespace lift {
 	class RenderCommand {
 	public:
-		static void SetClearColor(const mathfu::vec4& color) {
+		static void SetClearColor(const vec4& color) {
 			renderer_api_->SetClearColor(color);
 		}
 

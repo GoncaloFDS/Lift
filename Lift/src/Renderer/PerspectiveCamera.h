@@ -1,6 +1,4 @@
 #pragma once
-#include <mathfu/glsl_mappings.h>
-using namespace mathfu;
 
 class PerspectiveCamera {
 public:
@@ -19,13 +17,13 @@ public:
 
 	bool OnUpdate();
 	[[nodiscard]] float GetAspectRatio() const;
-	[[nodiscard]] Vector<float, 3> GetPosition() const { return camera_position_; }
-	[[nodiscard]] Vector<float, 3> GetVectorU() const { return camera_u_; }
-	[[nodiscard]] Vector<float, 3> GetVectorV() const { return camera_v_; }
-	[[nodiscard]] Vector<float, 3> GetVectorW() const { return camera_w_; }
+	[[nodiscard]] vec3 GetPosition() const { return camera_position_; }
+	[[nodiscard]] vec3 GetVectorU() const { return camera_u_; }
+	[[nodiscard]] vec3 GetVectorV() const { return camera_v_; }
+	[[nodiscard]] vec3 GetVectorW() const { return camera_w_; }
 
 public: // Just to be able to load and save them easily.
-	Vector<float, 3> center_;
+	vec3 center_;
 	// Center of interest point, around which is orbited (and the sharp plane of a depth of field camera).
 	float focus_distance_; // Distance of the camera from the center of interest.
 	float phi_; // Range [0.0f, 1.0f] from positive x-axis 360 degrees around the latitudes.
@@ -47,8 +45,8 @@ private:
 	int dx_;
 	int dy_;
 	bool changed_;
-	Vector<float, 3> camera_position_;
-	Vector<float, 3> camera_u_;
-	Vector<float, 3> camera_v_;
-	Vector<float, 3> camera_w_;
+	vec3 camera_position_;
+	vec3 camera_u_;
+	vec3 camera_v_;
+	vec3 camera_w_;
 };

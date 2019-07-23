@@ -9,14 +9,14 @@ workspace "Lift"
 	}
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
--- Set $(TargetDir)ptxes\%(Filename).ptx as CUDA compiler output
+
+-- Set $(SolutionDir)tests\res\ptx\%(Filename).ptx  as CUDA compiler output
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
 IncludeDir["ImGui"] = "external/imgui"
 IncludeDir["GLFW"] = "external/glfw/include"
 IncludeDir["Glad"] = "external/glad/include"
 IncludeDir["glm"] = "external/glm"
-IncludeDir["mathfu"] = "external/mathfu/Include"
 IncludeDir["optix"] = "C:/ProgramData/NVIDIA Corporation/OptiX SDK 6.0.0"
 IncludeDir["cuda"] = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1"
 
@@ -47,16 +47,13 @@ project "Lift"
 	includedirs {
 		"lift/src",
 		"external/spdlog/include",
-		"external/mathfu/include",
 		"external/stb_image",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
+		"%{IncludeDir.glm}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.optix}/include",
-		--"%{IncludeDir.optix}/SDK",
-		--"%{IncludeDir.optix}/SDK/sutil",
 		"%{IncludeDir.optix}/include/optixu",
-		--"%{IncludeDir.optix}/SDK/build",
 		"%{IncludeDir.cuda}/include"
 	}
 
@@ -122,7 +119,6 @@ project "Sandbox"
 	includedirs {
 		"lift/src",
 		"external/spdlog/include",
-		"external/mathfu/include",
 		"external",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.optix}/include",

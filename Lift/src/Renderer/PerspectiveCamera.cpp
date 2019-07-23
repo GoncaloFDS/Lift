@@ -69,7 +69,7 @@ void PerspectiveCamera::Pan(const int x, const int y) {
 
 void PerspectiveCamera::Dolly(const int x, const int y) {
 	if (SetDelta(x, y)) {
-		focus_distance_ -= float(dy_) / speed_ratio_ * camera_w_.Length();
+		focus_distance_ -= float(dy_) / speed_ratio_ * length(camera_w_);
 		if (focus_distance_ < 0.001f)
 			focus_distance_ = 0.001f;
 	}
@@ -77,7 +77,7 @@ void PerspectiveCamera::Dolly(const int x, const int y) {
 
 void PerspectiveCamera::Focus(const int x, const int y) {
 	if (SetDelta(x, y)) {
-		SetFocusDistance(focus_distance_ - float(dy_) / speed_ratio_ * camera_w_.Length());
+		SetFocusDistance(focus_distance_ - float(dy_) / speed_ratio_ * length(camera_w_));
 	}
 }
 

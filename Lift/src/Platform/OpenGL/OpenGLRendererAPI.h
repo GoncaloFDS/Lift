@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Renderer/RendererAPI.h"
+#include <glm/common.hpp>
 
 namespace lift {
 	class OpenGLRendererAPI : public RendererAPI {
 	public:
-		void SetClearColor(const mathfu::vec4& color) override;
+		void SetClearColor(const vec4& color) override;
 		void Clear() override;
 
 
