@@ -17,9 +17,9 @@
 	.param .b64 vprintf_param_1
 )
 ;
-.global .align 1 .b8 sysOutputBuffer[1];
-.global .align 8 .b8 theLaunchIndex[8];
-.global .align 4 .b8 _ZN21rti_internal_typeinfo14theLaunchIndexE[8] = {82, 97, 121, 0, 8, 0, 0, 0};
+.global .align 1 .b8 sys_output_buffer[1];
+.global .align 8 .b8 the_launch_index[8];
+.global .align 4 .b8 _ZN21rti_internal_typeinfo16the_launch_indexE[8] = {82, 97, 121, 0, 8, 0, 0, 0};
 .global .align 8 .u64 _ZN21rti_internal_register20reg_bitness_detectorE;
 .global .align 8 .u64 _ZN21rti_internal_register24reg_exception_64_detail0E;
 .global .align 8 .u64 _ZN21rti_internal_register24reg_exception_64_detail1E;
@@ -44,10 +44,10 @@
 .global .align 4 .u32 _ZN21rti_internal_register14reg_rayIndex_xE;
 .global .align 4 .u32 _ZN21rti_internal_register14reg_rayIndex_yE;
 .global .align 4 .u32 _ZN21rti_internal_register14reg_rayIndex_zE;
-.global .align 1 .b8 _ZN21rti_internal_typename14theLaunchIndexE[6] = {117, 105, 110, 116, 50, 0};
-.global .align 4 .u32 _ZN21rti_internal_typeenum14theLaunchIndexE = 4919;
-.global .align 1 .b8 _ZN21rti_internal_semantic14theLaunchIndexE[14] = {114, 116, 76, 97, 117, 110, 99, 104, 73, 110, 100, 101, 120, 0};
-.global .align 1 .b8 _ZN23rti_internal_annotation14theLaunchIndexE[1];
+.global .align 1 .b8 _ZN21rti_internal_typename16the_launch_indexE[6] = {117, 105, 110, 116, 50, 0};
+.global .align 4 .u32 _ZN21rti_internal_typeenum16the_launch_indexE = 4919;
+.global .align 1 .b8 _ZN21rti_internal_semantic16the_launch_indexE[14] = {114, 116, 76, 97, 117, 110, 99, 104, 73, 110, 100, 101, 120, 0};
+.global .align 1 .b8 _ZN23rti_internal_annotation16the_launch_indexE[1];
 .global .align 1 .b8 $str[31] = {85, 115, 101, 114, 32, 101, 120, 99, 101, 112, 116, 105, 111, 110, 32, 37, 100, 32, 97, 116, 32, 40, 37, 100, 44, 32, 37, 100, 41, 10, 0};
 .global .align 1 .b8 $str1[33] = {69, 120, 99, 101, 112, 116, 105, 111, 110, 32, 99, 111, 100, 101, 32, 48, 120, 37, 88, 32, 97, 116, 32, 40, 37, 100, 44, 32, 37, 100, 41, 10, 0};
 
@@ -72,7 +72,7 @@
 	call (%r4), _rt_get_exception_code, ();
 	// inline asm
 	setp.gt.u32	%p1, %r4, 1023;
-	ld.global.v2.u32 	{%r5, %r6}, [theLaunchIndex];
+	ld.global.v2.u32 	{%r5, %r6}, [the_launch_index];
 	add.s64 	%rd1, %rd3, 4;
 	@%p1 bra 	BB0_3;
 	bra.uni 	BB0_1;
@@ -144,10 +144,10 @@ BB0_1:
 	}// Callseq End 0
 
 BB0_5:
-	ld.global.v2.u32 	{%r14, %r15}, [theLaunchIndex];
+	ld.global.v2.u32 	{%r14, %r15}, [the_launch_index];
 	cvt.u64.u32	%rd14, %r14;
 	cvt.u64.u32	%rd15, %r15;
-	mov.u64 	%rd18, sysOutputBuffer;
+	mov.u64 	%rd18, sys_output_buffer;
 	cvta.global.u64 	%rd13, %rd18;
 	mov.u32 	%r12, 2;
 	mov.u32 	%r13, 16;

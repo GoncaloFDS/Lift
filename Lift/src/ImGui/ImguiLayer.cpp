@@ -64,8 +64,7 @@ void lift::ImGuiLayer::OnImguiRender() {
 	static float f = 0.0f;
 	static int counter = 0;
 
-	ImGui::Begin("Hello, world!");
-
+	ImGui::Begin("Begin Window");
 	ImGui::Text("This is some useful text.");
 	ImGui::Checkbox("Demo Window", &show_demo_window_);
 	ImGui::Checkbox("Another Window", &show_another_window_);
@@ -89,6 +88,7 @@ void lift::ImGuiLayer::Begin() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+
 }
 
 void lift::ImGuiLayer::End() {

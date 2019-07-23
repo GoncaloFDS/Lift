@@ -11,14 +11,14 @@
 .address_size 64
 
 	// .globl	_Z13miss_gradientv
-.global .align 4 .b8 theRay[36];
-.global .align 4 .b8 thePerRayData[12];
-.global .align 4 .b8 sysColorBottom[12];
-.global .align 4 .b8 sysColorTop[12];
-.global .align 4 .b8 _ZN21rti_internal_typeinfo6theRayE[8] = {82, 97, 121, 0, 36, 0, 0, 0};
-.global .align 4 .b8 _ZN21rti_internal_typeinfo13thePerRayDataE[8] = {82, 97, 121, 0, 12, 0, 0, 0};
-.global .align 4 .b8 _ZN21rti_internal_typeinfo14sysColorBottomE[8] = {82, 97, 121, 0, 12, 0, 0, 0};
-.global .align 4 .b8 _ZN21rti_internal_typeinfo11sysColorTopE[8] = {82, 97, 121, 0, 12, 0, 0, 0};
+.global .align 4 .b8 the_ray[36];
+.global .align 4 .b8 the_ray_payload[12];
+.global .align 4 .b8 sys_color_top[12];
+.global .align 4 .b8 sys_color_bottom[12];
+.global .align 4 .b8 _ZN21rti_internal_typeinfo7the_rayE[8] = {82, 97, 121, 0, 36, 0, 0, 0};
+.global .align 4 .b8 _ZN21rti_internal_typeinfo15the_ray_payloadE[8] = {82, 97, 121, 0, 12, 0, 0, 0};
+.global .align 4 .b8 _ZN21rti_internal_typeinfo13sys_color_topE[8] = {82, 97, 121, 0, 12, 0, 0, 0};
+.global .align 4 .b8 _ZN21rti_internal_typeinfo16sys_color_bottomE[8] = {82, 97, 121, 0, 12, 0, 0, 0};
 .global .align 8 .u64 _ZN21rti_internal_register20reg_bitness_detectorE;
 .global .align 8 .u64 _ZN21rti_internal_register24reg_exception_64_detail0E;
 .global .align 8 .u64 _ZN21rti_internal_register24reg_exception_64_detail1E;
@@ -43,22 +43,22 @@
 .global .align 4 .u32 _ZN21rti_internal_register14reg_rayIndex_xE;
 .global .align 4 .u32 _ZN21rti_internal_register14reg_rayIndex_yE;
 .global .align 4 .u32 _ZN21rti_internal_register14reg_rayIndex_zE;
-.global .align 1 .b8 _ZN21rti_internal_typename6theRayE[11] = {111, 112, 116, 105, 120, 58, 58, 82, 97, 121, 0};
-.global .align 1 .b8 _ZN21rti_internal_typename13thePerRayDataE[11] = {80, 101, 114, 82, 97, 121, 68, 97, 116, 97, 0};
-.global .align 1 .b8 _ZN21rti_internal_typename14sysColorBottomE[7] = {102, 108, 111, 97, 116, 51, 0};
-.global .align 1 .b8 _ZN21rti_internal_typename11sysColorTopE[7] = {102, 108, 111, 97, 116, 51, 0};
-.global .align 4 .u32 _ZN21rti_internal_typeenum6theRayE = 4919;
-.global .align 4 .u32 _ZN21rti_internal_typeenum13thePerRayDataE = 4919;
-.global .align 4 .u32 _ZN21rti_internal_typeenum14sysColorBottomE = 4919;
-.global .align 4 .u32 _ZN21rti_internal_typeenum11sysColorTopE = 4919;
-.global .align 1 .b8 _ZN21rti_internal_semantic6theRayE[13] = {114, 116, 67, 117, 114, 114, 101, 110, 116, 82, 97, 121, 0};
-.global .align 1 .b8 _ZN21rti_internal_semantic13thePerRayDataE[10] = {114, 116, 80, 97, 121, 108, 111, 97, 100, 0};
-.global .align 1 .b8 _ZN21rti_internal_semantic14sysColorBottomE[1];
-.global .align 1 .b8 _ZN21rti_internal_semantic11sysColorTopE[1];
-.global .align 1 .b8 _ZN23rti_internal_annotation6theRayE[1];
-.global .align 1 .b8 _ZN23rti_internal_annotation13thePerRayDataE[1];
-.global .align 1 .b8 _ZN23rti_internal_annotation14sysColorBottomE[1];
-.global .align 1 .b8 _ZN23rti_internal_annotation11sysColorTopE[1];
+.global .align 1 .b8 _ZN21rti_internal_typename7the_rayE[11] = {111, 112, 116, 105, 120, 58, 58, 82, 97, 121, 0};
+.global .align 1 .b8 _ZN21rti_internal_typename15the_ray_payloadE[11] = {82, 97, 121, 80, 97, 121, 108, 111, 97, 100, 0};
+.global .align 1 .b8 _ZN21rti_internal_typename13sys_color_topE[7] = {102, 108, 111, 97, 116, 51, 0};
+.global .align 1 .b8 _ZN21rti_internal_typename16sys_color_bottomE[7] = {102, 108, 111, 97, 116, 51, 0};
+.global .align 4 .u32 _ZN21rti_internal_typeenum7the_rayE = 4919;
+.global .align 4 .u32 _ZN21rti_internal_typeenum15the_ray_payloadE = 4919;
+.global .align 4 .u32 _ZN21rti_internal_typeenum13sys_color_topE = 4919;
+.global .align 4 .u32 _ZN21rti_internal_typeenum16sys_color_bottomE = 4919;
+.global .align 1 .b8 _ZN21rti_internal_semantic7the_rayE[13] = {114, 116, 67, 117, 114, 114, 101, 110, 116, 82, 97, 121, 0};
+.global .align 1 .b8 _ZN21rti_internal_semantic15the_ray_payloadE[10] = {114, 116, 80, 97, 121, 108, 111, 97, 100, 0};
+.global .align 1 .b8 _ZN21rti_internal_semantic13sys_color_topE[1];
+.global .align 1 .b8 _ZN21rti_internal_semantic16sys_color_bottomE[1];
+.global .align 1 .b8 _ZN23rti_internal_annotation7the_rayE[1];
+.global .align 1 .b8 _ZN23rti_internal_annotation15the_ray_payloadE[1];
+.global .align 1 .b8 _ZN23rti_internal_annotation13sys_color_topE[1];
+.global .align 1 .b8 _ZN23rti_internal_annotation16sys_color_bottomE[1];
 
 .visible .entry _Z13miss_gradientv(
 
@@ -67,23 +67,23 @@
 	.reg .f32 	%f<15>;
 
 
-	ld.global.f32 	%f1, [theRay+16];
+	ld.global.f32 	%f1, [the_ray+16];
 	fma.rn.f32 	%f2, %f1, 0f3F000000, 0f3F000000;
-	ld.global.f32 	%f3, [sysColorTop];
-	ld.global.f32 	%f4, [sysColorBottom];
+	ld.global.f32 	%f3, [sys_color_top];
+	ld.global.f32 	%f4, [sys_color_bottom];
 	sub.f32 	%f5, %f3, %f4;
-	ld.global.f32 	%f6, [sysColorTop+4];
-	ld.global.f32 	%f7, [sysColorBottom+4];
+	ld.global.f32 	%f6, [sys_color_top+4];
+	ld.global.f32 	%f7, [sys_color_bottom+4];
 	sub.f32 	%f8, %f6, %f7;
-	ld.global.f32 	%f9, [sysColorTop+8];
-	ld.global.f32 	%f10, [sysColorBottom+8];
+	ld.global.f32 	%f9, [sys_color_top+8];
+	ld.global.f32 	%f10, [sys_color_bottom+8];
 	sub.f32 	%f11, %f9, %f10;
 	fma.rn.f32 	%f12, %f2, %f5, %f4;
 	fma.rn.f32 	%f13, %f2, %f8, %f7;
 	fma.rn.f32 	%f14, %f2, %f11, %f10;
-	st.global.f32 	[thePerRayData], %f12;
-	st.global.f32 	[thePerRayData+4], %f13;
-	st.global.f32 	[thePerRayData+8], %f14;
+	st.global.f32 	[the_ray_payload], %f12;
+	st.global.f32 	[the_ray_payload+4], %f13;
+	st.global.f32 	[the_ray_payload+8], %f14;
 	ret;
 }
 

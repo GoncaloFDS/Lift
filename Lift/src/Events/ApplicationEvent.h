@@ -39,7 +39,7 @@ namespace lift {
 			: is_minimized_(is_minimized) {
 		}
 
-		bool IsMinimized() const { return is_minimized_; }
+		bool GetIsMinimized() const { return is_minimized_; }
 
 		EVENT_CLASS_TYPE(kWindowMinimize)
 		EVENT_CLASS_CATEGORY(kEventCategoryApplication)

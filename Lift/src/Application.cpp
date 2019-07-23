@@ -15,7 +15,7 @@ lift::Application* lift::Application::instance_ = nullptr;
 lift::Application::Application() {
 	LF_CORE_ASSERT(!instance_, "Application already exists");
 	instance_ = this;
-	window_ = std::unique_ptr<Window>(Window::Create());
+	window_ = std::unique_ptr<Window>(Window::Create({"Lift Engine", 1280, 720, 0, 28}));
 	window_->SetEventCallback(LF_BIND_EVENT_FN(Application::OnEvent));
 
 	InitGraphicsContext();
@@ -33,7 +33,6 @@ void lift::Application::Run() {
 	SetOptixVariables();
 	CreateRenderFrame();
 	CreateScene();
-	optix_context_->validate();
 
 	while (is_running_) {
 		ImGuiLayer::Begin();
@@ -75,10 +74,16 @@ void lift::Application::InitOptix() {
 		Util::GetPtxString("res/ptx/exception.ptx"), "exception");
 	ptx_programs_["miss"] = optix_context_->createProgramFromPTXString(
 		Util::GetPtxString("res/ptx/miss.ptx"), "miss_gradient");
+	ptx_programs_["triangle_bounding_box"] = optix_context_->createProgramFromPTXString(
+		Util::GetPtxString("res/ptx/triangle_bounding_box.ptx"), "triangle_bounding_box");
+	ptx_programs_["triangle_intersection"] = optix_context_->createProgramFromPTXString(
+		Util::GetPtxString("res/ptx/triangle_intersection.ptx"), "triangle_intersection");
+	ptx_programs_["closest_hit"] = optix_context_->createProgramFromPTXString(
+		Util::GetPtxString("res/ptx/closest_hit.ptx"), "closest_hit");
 
 	optix_context_->setRayTypeCount(1);
 	optix_context_->setEntryPointCount(1);
-	optix_context_->setStackSize(1800);
+	optix_context_->setStackSize(1024);
 	optix_context_->setMaxTraceDepth(2);
 	optix_context_->setPrintEnabled(true);
 	optix_context_->setExceptionEnabled(RT_EXCEPTION_ALL, true);
@@ -95,23 +100,30 @@ void lift::Application::InitGraphicsContext() {
 }
 
 void lift::Application::SetOptixVariables() {
-	optix_context_["sysOutputBuffer"]->set(buffer_output_);
-	optix_context_["sysCameraPosition"]->setFloat(0.0f, 0.0f, 0.0f);
-	optix_context_["sysCameraU"]->setFloat(1.0f, 0.0f, 0.0f);
-	optix_context_["sysCameraV"]->setFloat(0.0f, 1.0f, 0.0f);
-	optix_context_["sysCameraW"]->setFloat(0.0f, 0.0f, -1.0f);
-
-	optix_context_["sysColorBottom"]->setFloat(bottom_color_);
-	optix_context_["sysColorTop"]->setFloat(top_color_);
-
 	optix_context_->setRayGenerationProgram(0, ptx_programs_["ray_generation"]);
 	optix_context_->setExceptionProgram(0, ptx_programs_["exception"]);
 	optix_context_->setMissProgram(0, ptx_programs_["miss"]);
+
+	optix_context_["sys_output_buffer"]->set(buffer_output_);
+	optix_context_["sys_camera_position"]->setFloat(0.0f, 0.0f, 0.0f);
+	optix_context_["sys_camera_u"]->setFloat(1.0f, 0.0f, 0.0f);
+	optix_context_["sys_camera_v"]->setFloat(0.0f, 1.0f, 0.0f);
+	optix_context_["sys_camera_w"]->setFloat(0.0f, 0.0f, -1.0f);
+
+	optix_context_["sys_color_top"]->set3fv(top_color_.data_);
+	optix_context_["sys_color_bottom"]->set3fv(bottom_color_.data_);
+
 }
 
 void lift::Application::UpdateOptixVariables() {
-	optix_context_["sysColorBottom"]->setFloat(bottom_color_);
-	optix_context_["sysColorTop"]->setFloat(top_color_);
+	if (camera_.OnUpdate()) {
+		optix_context_["sys_camera_position"]->set3fv(camera_.GetPosition().data_);
+		optix_context_["sys_camera_u"]->set3fv(camera_.GetVectorU().data_);
+		optix_context_["sys_camera_v"]->set3fv(camera_.GetVectorV().data_);
+		optix_context_["sys_camera_w"]->set3fv(camera_.GetVectorW().data_);
+	}
+	optix_context_["sys_color_top"]->set3fv(top_color_.data_);
+	optix_context_["sys_color_bottom"]->set3fv(bottom_color_.data_);
 }
 
 void lift::Application::CreateRenderFrame() {
@@ -143,13 +155,55 @@ void lift::Application::CreateRenderFrame() {
 	output_shader_->SetUniform1i("u_Texture", 0);
 }
 
+void lift::Application::SetAccelerationProperties(optix::Acceleration plane_acceleration) {
+	plane_acceleration->setProperty("vertex_buffer_name", "attributes_buffer");
+	plane_acceleration->setProperty("vertex_buffer_stride", "48");
+	plane_acceleration->setProperty("indices_buffer_name", "indices_buffer");
+	plane_acceleration->setProperty("indices_buffer_stride", "12");
+}
+
 void lift::Application::CreateScene() {
-	optix::Acceleration acceleration_root = optix_context_->createAcceleration(std::string("NoAccel"));
-	optix::Group group_root = optix_context_->createGroup();
-	group_root->setAcceleration(acceleration_root);
+	camera_.SetViewport(window_->GetWidth(), window_->GetHeight());
+	InitMaterials();
+	acceleration_root_ = optix_context_->createAcceleration("Trbvh");
+	auto group_root = optix_context_->createGroup();
+	group_root->setAcceleration(acceleration_root_);
 	group_root->setChildCount(0);
 
-	optix_context_["sysTopObject"]->set(group_root);
+	optix_context_["sys_top_object"]->set(group_root);
+
+	const auto plane_geometry = Util::CreatePlane(1, 1, 1);
+	auto plane_geometry_instance = optix_context_->createGeometryInstance();
+
+	plane_geometry_instance->setGeometry(plane_geometry);
+	plane_geometry_instance->setMaterialCount(1);
+	plane_geometry_instance->setMaterial(0, opaque_material_);
+
+	const auto plane_acceleration = optix_context_->createAcceleration("Trbvh");
+	SetAccelerationProperties(plane_acceleration);
+
+	auto plane_geometry_group = optix_context_->createGeometryGroup();
+	plane_geometry_group->setAcceleration(plane_acceleration);
+	plane_geometry_group->setChildCount(1);
+	plane_geometry_group->setChild(0, plane_geometry_instance);
+
+	const auto plane_matrix = mat4::FromScaleVector({5.0f, 5.0f, 5.0f});
+	vec4_packed plane_packed_matrix[4];
+	plane_matrix.Pack(plane_packed_matrix);
+
+	auto plane_transform = optix_context_->createTransform();
+	plane_transform->setChild(plane_geometry_group);
+	plane_transform->setMatrix(false, plane_packed_matrix->data_, plane_packed_matrix->data_);
+
+	auto count = group_root->getChildCount();
+	group_root->setChildCount(count + 1);
+	group_root->setChild(count, plane_transform);
+	optix_context_["sys_top_object"]->set(group_root);
+}
+
+void lift::Application::InitMaterials() {
+	opaque_material_ = optix_context_->createMaterial();
+	opaque_material_->setClosestHitProgram(0, ptx_programs_["closest_hit"]);
 }
 
 void lift::Application::EndFrame() const {
@@ -183,11 +237,12 @@ bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
 		RenderCommand::Resize(e.GetWidth(), e.GetHeight());
 		buffer_output_->setSize(e.GetWidth(), e.GetHeight());
 		pixel_output_buffer_->Resize(buffer_output_->getElementSize() * e.GetWidth() * e.GetHeight());
+		camera_.SetViewport(window_->GetWidth(), window_->GetHeight());
 	}
 	return true;
 }
 
-bool lift::Application::OnWindowMinimize(WindowMinimizeEvent& e) {
+bool lift::Application::OnWindowMinimize(WindowMinimizeEvent& e) const {
 	LF_CORE_ERROR("window size: {0} {1}", window_->GetWidth(), window_->GetHeight());
 	return true;
 }

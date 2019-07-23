@@ -1,5 +1,5 @@
 #pragma once
 
-struct PerRayData {
+struct RayPayload {
 	optix::float3 radiance;
 };
