@@ -34,21 +34,12 @@ namespace lift {
 		}
 
 		static Application& Get() { return *instance_; }
-		Window& GetWindow() const { return *window_; }
+		[[nodiscard]] Window& GetWindow() const { return *window_; }
 		optix::Context& GetOptixContext() { return optix_context_; }
 		optix::Program& GetOptixProgram(const std::string& name) { return ptx_programs_[name]; }
 
-		void SetTopColor(const vec3& color) {
-			top_color_.x = color.x;
-			top_color_.y = color.y;
-			top_color_.z = color.z;
-		}
-
-		void SetBottomColor(const vec3& color) {
-			bottom_color_.x = color.x;
-			bottom_color_.y = color.y;
-			bottom_color_.z = color.z;
-		}
+		vec3& GetTopColor() { return top_color_; }
+		vec3& GetBottomColor() { return bottom_color_; }
 
 	private:
 		bool is_running_ = true;
@@ -68,7 +59,8 @@ namespace lift {
 		std::shared_ptr<VertexArray> vertex_array_;
 		std::shared_ptr<Shader> output_shader_;
 		optix::Buffer buffer_output_;
-		vec3 top_color_, bottom_color_;
+		vec3 top_color_{1.f, 0.f, 0.f};
+		vec3 bottom_color_{1.f, 0.f, 1.f};
 		optix::Material opaque_material_;
 		optix::Acceleration acceleration_root_;
 		// 

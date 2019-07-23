@@ -20,8 +20,6 @@ namespace lift {
 
 		bool show_demo_window_;
 		bool show_another_window_;
-		vec3 top_color_{1.f, 0.f, 0.f};
-		vec3 bottom_color_{1.f, 0.f, 1.f};
 
 	};
 

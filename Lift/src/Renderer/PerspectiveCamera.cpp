@@ -18,7 +18,7 @@ PerspectiveCamera::PerspectiveCamera()
 	  camera_w_(1.0f, 0.0f, -1.0f) {
 }
 
-void PerspectiveCamera::SetViewport(const int width, const int height) {
+void PerspectiveCamera::SetViewport(const unsigned width, const unsigned height) {
 	if (width_ == width && height_ == height)
 		return; // Never drop to zero viewport. This avoids lots of checks for zero in other routines
 	width_ = width ? width : 1;

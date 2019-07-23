@@ -70,13 +70,13 @@ namespace lift {
 			CalculateOffsetAndStride();
 		}
 
-		uint32_t GetStride() const { return stride_; }
-		const std::vector<BufferElement>& GetElements() const { return elements_; }
+		[[nodiscard]] uint32_t GetStride() const { return stride_; }
+		[[nodiscard]] const std::vector<BufferElement>& GetElements() const { return elements_; }
 
 		std::vector<BufferElement>::iterator begin() { return elements_.begin(); }
 		std::vector<BufferElement>::iterator end() { return elements_.end(); }
-		std::vector<BufferElement>::const_iterator begin() const { return elements_.begin(); }
-		std::vector<BufferElement>::const_iterator end() const { return elements_.end(); }
+		[[nodiscard]] std::vector<BufferElement>::const_iterator begin() const { return elements_.begin(); }
+		[[nodiscard]] std::vector<BufferElement>::const_iterator end() const { return elements_.end(); }
 
 	private:
 		void CalculateOffsetAndStride() {

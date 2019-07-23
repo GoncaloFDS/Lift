@@ -234,7 +234,7 @@ bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
 		// Only resize when not minimized
 		RenderCommand::Resize(e.GetWidth(), e.GetHeight());
 		buffer_output_->setSize(e.GetWidth(), e.GetHeight());
-		pixel_output_buffer_->Resize(buffer_output_->getElementSize() * e.GetWidth() * e.GetHeight());
+		pixel_output_buffer_->Resize(unsigned(buffer_output_->getElementSize()) * e.GetWidth() * e.GetHeight());
 		camera_.SetViewport(window_->GetWidth(), window_->GetHeight());
 	}
 	return true;
@@ -256,16 +256,16 @@ void lift::Application::GetOptixSystemInformation() {
 	LF_CORE_INFO("Optix Info:");
 	LF_CORE_INFO("\tVersion: {0}.{1}.{2}", major, minor, micro);
 
-	const auto number_of_devices = optix_context_.getDeviceCount();
+	const auto number_of_devices = optix::Context::getDeviceCount();
 	LF_CORE_INFO("\tNumber of Devices = {0}", number_of_devices);
 
-	for (unsigned int i = 0; i < number_of_devices; ++i) {
+	for (unsigned i = 0; i < number_of_devices; ++i) {
 		char name[256];
-		optix_context_->getDeviceAttribute(i, RT_DEVICE_ATTRIBUTE_NAME, sizeof(name), name);
+		optix_context_->getDeviceAttribute(int(i), RT_DEVICE_ATTRIBUTE_NAME, sizeof(name), name);
 		LF_CORE_INFO("\tDevice {0}: {1}", i, name);
 
 		int compute_capability[2] = {0, 0};
-		optix_context_->getDeviceAttribute(i, RT_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY, sizeof(
+		optix_context_->getDeviceAttribute(int(i), RT_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY, sizeof(
 											   compute_capability), &compute_capability);
 		LF_CORE_INFO("\t\tCompute Support: {0}.{1}", compute_capability[0], compute_capability[1]);
 	}

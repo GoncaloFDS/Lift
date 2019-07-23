@@ -4,7 +4,7 @@ class PerspectiveCamera {
 public:
 	PerspectiveCamera();
 
-	void SetViewport(int width, int height);
+	void SetViewport(unsigned width, unsigned height);
 	void SetBaseCoordinates(int x, int y);
 	void SetSpeedRatio(float speed);
 	void SetFocusDistance(float focus_distance);
@@ -34,8 +34,8 @@ private:
 	bool SetDelta(int x, int y);
 
 private:
-	int width_; // Viewport width.
-	int height_; // Viewport height.
+	unsigned width_; // Viewport width.
+	unsigned height_; // Viewport height.
 	float aspect_; // width / height
 	int base_x_;
 	int base_y_;
