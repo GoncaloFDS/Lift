@@ -10,13 +10,13 @@ PerspectiveCamera::PerspectiveCamera()
 	  aspect_(1.0f), base_x_(0),
 	  base_y_(0),
 	  speed_ratio_(10.0f),
+	  state_(CameraState::None),
 	  dx_(0), dy_(0),
 	  changed_(true),
 	  camera_position_(0.0f),
 	  camera_u_(1.0f, 0.0f, 0.0f),
 	  camera_v_(0.0f, 1.0f, 0.0f),
-	  camera_w_(1.0f, 0.0f, -1.0f),
-	  state_(CameraState::None) {
+	  camera_w_(1.0f, 0.0f, -1.0f) {
 }
 
 void PerspectiveCamera::SetViewport(const unsigned width, const unsigned height) {
@@ -28,7 +28,7 @@ void PerspectiveCamera::SetViewport(const unsigned width, const unsigned height)
 	changed_ = true;
 }
 
-void PerspectiveCamera::SetBaseCoordinates(const int x, const int y) {
+void PerspectiveCamera::SetBaseCoordinates(const float x, const float y) {
 	base_x_ = x;
 	base_y_ = y;
 }
@@ -49,7 +49,7 @@ void PerspectiveCamera::SetFocusDistance(const float focus_distance) {
 	changed_ = true;
 }
 
-void PerspectiveCamera::Orbit(const int x, const int y) {
+void PerspectiveCamera::Orbit(const float x, const float y) {
 	if (!SetDelta(x, y))
 		return;
 
@@ -63,12 +63,12 @@ void PerspectiveCamera::Orbit(const int x, const int y) {
 	theta_ = std::clamp(theta_ + float(dy_) / float(height_), 0.0f, 1.0f);
 }
 
-void PerspectiveCamera::Pan(const int x, const int y) {
+void PerspectiveCamera::Pan(const float x, const float y) {
 	if (SetDelta(x, y))
 		center_ = center_ - float(dx_) / speed_ratio_ * camera_u_ + float(dy_) / speed_ratio_ * camera_v_;
 }
 
-void PerspectiveCamera::Dolly(const int x, const int y) {
+void PerspectiveCamera::Dolly(const float x, const float y) {
 	if (SetDelta(x, y)) {
 		focus_distance_ -= float(dy_) / speed_ratio_ * length(camera_w_);
 		if (focus_distance_ < 0.001f)
@@ -76,7 +76,7 @@ void PerspectiveCamera::Dolly(const int x, const int y) {
 	}
 }
 
-void PerspectiveCamera::Focus(const int x, const int y) {
+void PerspectiveCamera::Focus(const float x, const float y) {
 	if (SetDelta(x, y)) {
 		SetFocusDistance(focus_distance_ - float(dy_) / speed_ratio_ * length(camera_w_));
 	}
@@ -87,7 +87,7 @@ void PerspectiveCamera::Zoom(const float x) {
 	changed_ = true;
 }
 
-void PerspectiveCamera::SetState(int x, int y, const CameraState& state) {
+void PerspectiveCamera::SetState(float x, float y, const CameraState& state) {
 	base_x_ = x;
 	base_y_ = y;
 	state_ = state;
@@ -121,7 +121,7 @@ float PerspectiveCamera::GetAspectRatio() const {
 	return aspect_;
 }
 
-bool PerspectiveCamera::SetDelta(const int x, const int y) {
+bool PerspectiveCamera::SetDelta(const float x, const float y) {
 	if (base_x_ != x || base_y_ != y) {
 		dx_ = x - base_x_;
 		dy_ = y - base_y_;

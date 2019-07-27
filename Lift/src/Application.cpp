@@ -228,7 +228,7 @@ void lift::Application::OnEvent(Event& e) {
 
 bool lift::Application::OnWindowClose(WindowCloseEvent& e) {
 	is_running_ = false;
-	LF_CORE_TRACE("Closing Window");
+	LF_CORE_TRACE(e.ToString());
 	return false;
 }
 

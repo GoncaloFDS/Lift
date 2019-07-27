@@ -12,17 +12,17 @@ public:
 	PerspectiveCamera();
 
 	void SetViewport(unsigned width, unsigned height);
-	void SetBaseCoordinates(int x, int y);
+	void SetBaseCoordinates(float x, float y);
 	void SetSpeedRatio(float speed);
 	void SetFocusDistance(float focus_distance);
 
-	void Orbit(int x, int y);
-	void Pan(int x, int y);
-	void Dolly(int x, int y);
-	void Focus(int x, int y);
+	void Orbit(float x, float y);
+	void Pan(float x, float y);
+	void Dolly(float x, float y);
+	void Focus(float x, float y);
 	void Zoom(float x);
 
-	void SetState(int x, int y, const CameraState& state);
+	void SetState(float x, float y, const CameraState& state);
 	void SetState(const CameraState& state) { state_ = state; }
 	CameraState& GetState() { return state_; }
 
@@ -42,20 +42,20 @@ public: // Just to be able to load and save them easily.
 	float fov_; // In degrees. Default is 60.0f
 
 private:
-	bool SetDelta(int x, int y);
+	bool SetDelta(float x, float y);
 
 private:
 	unsigned width_; // Viewport width.
 	unsigned height_; // Viewport height.
 	float aspect_; // width / height
-	int base_x_;
-	int base_y_;
+	float base_x_;
+	float base_y_;
 	float speed_ratio_;
 	CameraState state_;
 
 	// Derived values:
-	int dx_;
-	int dy_;
+	float dx_;
+	float dy_;
 	bool changed_;
 	vec3 camera_position_;
 	vec3 camera_u_;
