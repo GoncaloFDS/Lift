@@ -8,7 +8,7 @@ namespace lift {
 	public:
 		unsigned int GetKeyCode() const { return key_code_; }
 
-		EVENT_CLASS_CATEGORY(kEventCategoryKeyboard | kEventCategoryInput)
+		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
 	protected:
 		KeyEvent(const int keycode)
 			: key_code_(keycode) {
@@ -31,7 +31,7 @@ namespace lift {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(kKeyPressed)
+		EVENT_CLASS_TYPE(KeyPressed)
 	private:
 		int repeat_count_;
 	};
@@ -48,7 +48,7 @@ namespace lift {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(kKeyReleased)
+		EVENT_CLASS_TYPE(KeyReleased)
 	};
 
 	class KeyTypedEvent : public KeyEvent {
@@ -63,7 +63,7 @@ namespace lift {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(kKeyTyped)
+		EVENT_CLASS_TYPE(KeyTyped)
 	};
 
 }

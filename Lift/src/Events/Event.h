@@ -9,35 +9,35 @@ namespace lift {
 	// during the "event" part of the update stage 
 
 	enum class EventType {
-		kNone = 0,
-		kWindowClose,
-		kWindowResize,
-		kWindowMinimize,
-		kWindowFocus,
-		kWindowLostFocus,
-		kWindowMoved,
+		None = 0,
+		WindowClose,
+		WindowResize,
+		WindowMinimize,
+		WindowFocus,
+		WindowLostFocus,
+		WindowMoved,
 		// 
-		kAppTick,
-		kAppUpdate,
-		kAppRender,
+		AppTick,
+		AppUpdate,
+		AppRender,
 		// Might not used this
-		kKeyPressed,
-		kKeyReleased,
-		kKeyTyped,
-		kMouseButtonPressed,
-		kMouseButtonReleased,
-		kMouseMoved,
-		kMouseScrolled
+		KeyPressed,
+		KeyReleased,
+		KeyTyped,
+		MouseButtonPressed,
+		MouseButtonReleased,
+		MouseMoved,
+		MouseScrolled
 	};
 
 	// Used to filter Events
 	enum EventCategory {
-		kNone = 0,
-		kEventCategoryApplication = Bit(0),
-		kEventCategoryInput = Bit(1),
-		kEventCategoryKeyboard = Bit(2),
-		kEventCategoryMouse = Bit(3),
-		kEventCategoryMouseButton = Bit(4),
+		None = 0,
+		EventCategoryApplication = Bit(0),
+		EventCategoryInput = Bit(1),
+		EventCategoryKeyboard = Bit(2),
+		EventCategoryMouse = Bit(3),
+		EventCategoryMouseButton = Bit(4),
 	};
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
@@ -57,7 +57,7 @@ namespace lift {
 		[[nodiscard]] virtual int GetCategoryFlags() const = 0;
 		[[nodiscard]] virtual std::string ToString() const { return GetName(); }
 
-		bool IsInCategory(const EventCategory category) const {
+		[[nodiscard]] bool IsInCategory(const EventCategory category) const {
 			return GetCategoryFlags() & category;
 
 		}

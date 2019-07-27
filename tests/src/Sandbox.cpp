@@ -14,7 +14,7 @@ public:
 	}
 
 	void OnEvent(lift::Event& event) override {
-		if (event.GetEventType() == lift::EventType::kKeyPressed) {
+		if (event.GetEventType() == lift::EventType::KeyPressed) {
 			auto& e = dynamic_cast<lift::KeyPressedEvent&>(event);
 			if (e.GetKeyCode() == LF_KEY_TAB)
 				LF_TRACE("Tab key is pressed (event)!");

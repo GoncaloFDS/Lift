@@ -18,8 +18,8 @@ namespace lift {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(kWindowResize)
-		EVENT_CLASS_CATEGORY(kEventCategoryApplication)
+		EVENT_CLASS_TYPE(WindowResize)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
 	private:
 		unsigned int width_, height_;
@@ -29,8 +29,8 @@ namespace lift {
 	public:
 		WindowCloseEvent() = default;
 
-		EVENT_CLASS_TYPE(kWindowClose)
-		EVENT_CLASS_CATEGORY(kEventCategoryApplication)
+		EVENT_CLASS_TYPE(WindowClose)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
 	class WindowMinimizeEvent : public Event {
@@ -41,8 +41,8 @@ namespace lift {
 
 		bool GetIsMinimized() const { return is_minimized_; }
 
-		EVENT_CLASS_TYPE(kWindowMinimize)
-		EVENT_CLASS_CATEGORY(kEventCategoryApplication)
+		EVENT_CLASS_TYPE(WindowMinimize)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	private:
 		bool is_minimized_;
 	};
@@ -51,8 +51,8 @@ namespace lift {
 	public:
 		AppTickEvent() = default;
 
-		EVENT_CLASS_TYPE(kAppTick)
-		EVENT_CLASS_CATEGORY(kEventCategoryApplication)
+		EVENT_CLASS_TYPE(AppTick)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
 	};
 
@@ -60,8 +60,8 @@ namespace lift {
 	public:
 		AppUpdateEvent() = default;
 
-		EVENT_CLASS_TYPE(kAppUpdate)
-		EVENT_CLASS_CATEGORY(kEventCategoryApplication)
+		EVENT_CLASS_TYPE(AppUpdate)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
 	};
 
@@ -69,8 +69,8 @@ namespace lift {
 	public:
 		AppRenderEvent() = default;
 
-		EVENT_CLASS_TYPE(kAppRender)
-		EVENT_CLASS_CATEGORY(kEventCategoryApplication)
+		EVENT_CLASS_TYPE(AppRender)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
 	};
 }

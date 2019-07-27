@@ -15,6 +15,7 @@
 
 
 namespace lift {
+	class MouseMovedEvent;
 
 	class Application {
 	public:
@@ -82,6 +83,7 @@ namespace lift {
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 		bool OnWindowMinimize(WindowMinimizeEvent& e) const;
+		bool OnMouseMove(MouseMovedEvent& e);
 
 		void GetOptixSystemInformation();
 

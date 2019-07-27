@@ -15,7 +15,8 @@ PerspectiveCamera::PerspectiveCamera()
 	  camera_position_(0.0f),
 	  camera_u_(1.0f, 0.0f, 0.0f),
 	  camera_v_(0.0f, 1.0f, 0.0f),
-	  camera_w_(1.0f, 0.0f, -1.0f) {
+	  camera_w_(1.0f, 0.0f, -1.0f),
+	  state_(CameraState::None) {
 }
 
 void PerspectiveCamera::SetViewport(const unsigned width, const unsigned height) {
@@ -84,6 +85,12 @@ void PerspectiveCamera::Focus(const int x, const int y) {
 void PerspectiveCamera::Zoom(const float x) {
 	fov_ = std::clamp(fov_ + float(x), 1.0f, 179.0f);
 	changed_ = true;
+}
+
+void PerspectiveCamera::SetState(int x, int y, const CameraState& state) {
+	base_x_ = x;
+	base_y_ = y;
+	state_ = state;
 }
 
 bool PerspectiveCamera::OnUpdate() {

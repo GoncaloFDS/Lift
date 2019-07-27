@@ -81,6 +81,13 @@ void lift::ImGuiLayer::OnImguiRender() {
 
 }
 
+void lift::ImGuiLayer::OnEvent(Event& event) {
+	auto& io = ImGui::GetIO();
+	if(io.WantCaptureMouse)
+		event.handled_ = true;
+
+}
+
 void lift::ImGuiLayer::Begin() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -99,7 +106,7 @@ void lift::ImGuiLayer::End() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-		GLFWwindow* backup_current_context = glfwGetCurrentContext();
+		auto backup_current_context = glfwGetCurrentContext();
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 		glfwMakeContextCurrent(backup_current_context);

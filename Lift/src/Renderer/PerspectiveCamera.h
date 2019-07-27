@@ -1,5 +1,12 @@
 #pragma once
 
+enum class CameraState {
+	None,
+	Orbit,
+	Dolly,
+	Pan
+};
+
 class PerspectiveCamera {
 public:
 	PerspectiveCamera();
@@ -14,6 +21,10 @@ public:
 	void Dolly(int x, int y);
 	void Focus(int x, int y);
 	void Zoom(float x);
+
+	void SetState(int x, int y, const CameraState& state);
+	void SetState(const CameraState& state) { state_ = state; }
+	CameraState& GetState() { return state_; }
 
 	bool OnUpdate();
 	[[nodiscard]] float GetAspectRatio() const;
@@ -40,6 +51,7 @@ private:
 	int base_x_;
 	int base_y_;
 	float speed_ratio_;
+	CameraState state_;
 
 	// Derived values:
 	int dx_;

@@ -14,6 +14,7 @@ namespace lift {
 		void OnDetach() override;
 		void OnUpdate() override;
 		void OnImguiRender() override;
+		void OnEvent(Event& event) override;
 
 		static void Begin();
 		static void End();

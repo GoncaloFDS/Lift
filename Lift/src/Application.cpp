@@ -9,6 +9,8 @@
 #include "Platform/Optix/OptixErrorCodes.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
+#include "Events/MouseEvent.h"
+#include "Input.h"
 
 lift::Application* lift::Application::instance_ = nullptr;
 
@@ -211,22 +213,23 @@ void lift::Application::EndFrame() const {
 }
 
 void lift::Application::OnEvent(Event& e) {
+	for (auto it = layer_stack_.end(); it != layer_stack_.begin();) {
+		(*--it)->OnEvent(e);
+		if (e.handled_)
+			return;
+	}
+
 	EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<WindowCloseEvent>(LF_BIND_EVENT_FN(Application::OnWindowClose));
 	dispatcher.Dispatch<WindowResizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowResize));
 	dispatcher.Dispatch<WindowMinimizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowMinimize));
-
-	for (auto it = layer_stack_.end(); it != layer_stack_.begin();) {
-		(*--it)->OnEvent(e);
-		if (e.handled_)
-			break;
-	}
+	dispatcher.Dispatch<MouseMovedEvent>(LF_BIND_EVENT_FN(Application::OnMouseMove));
 }
 
 bool lift::Application::OnWindowClose(WindowCloseEvent& e) {
 	is_running_ = false;
 	LF_CORE_TRACE("Closing Window");
-	return true;
+	return false;
 }
 
 bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
@@ -237,13 +240,54 @@ bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
 		pixel_output_buffer_->Resize(unsigned(buffer_output_->getElementSize()) * e.GetWidth() * e.GetHeight());
 		camera_.SetViewport(window_->GetWidth(), window_->GetHeight());
 	}
-	return true;
+	return false;
 }
 
 bool lift::Application::OnWindowMinimize(WindowMinimizeEvent& e) const {
-	LF_CORE_ERROR("window size: {0} {1}", window_->GetWidth(), window_->GetHeight());
-	return true;
+	LF_CORE_ERROR(e.ToString());
+	return false;
 }
+
+inline bool lift::Application::OnMouseMove(MouseMovedEvent& e) {
+	switch (camera_.GetState()) {
+	case CameraState::None: {
+		if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_1))
+			camera_.SetState(e.GetX(), e.GetY(), CameraState::Orbit);
+		else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_2))
+			camera_.SetState(e.GetX(), e.GetY(), CameraState::Dolly);
+		else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_3))
+			camera_.SetState(e.GetX(), e.GetY(), CameraState::Pan);
+		break;
+	}
+	case CameraState::Orbit: {
+		if (!Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_1))
+			camera_.SetState(CameraState::None);
+		else
+			camera_.Orbit(e.GetX(), e.GetY());
+		break;
+	}
+	case CameraState::Dolly: {
+		if (!Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_2))
+			camera_.SetState(CameraState::None);
+		else
+			camera_.Dolly(e.GetX(), e.GetY());
+
+		break;
+	}
+	case CameraState::Pan: {
+		if (!Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_3))
+			camera_.SetState(CameraState::None);
+		else
+			camera_.Pan(e.GetX(), e.GetY());
+
+		break;
+	}
+	default: LF_CORE_ERROR("Invalid Camera State");
+	}
+
+	return false;
+}
+
 
 void lift::Application::GetOptixSystemInformation() {
 	unsigned int optix_version;

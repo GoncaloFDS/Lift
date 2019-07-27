@@ -6,21 +6,21 @@ namespace lift {
 
 	class MouseMovedEvent : public Event {
 	public:
-		MouseMovedEvent(float x, float y)
+		MouseMovedEvent(const float x, const float y)
 			: position_x_(x), position_y_(y) {
 		}
 
-		float GetX() const { return position_x_; }
-		float GetY() const { return position_y_; }
+		[[nodiscard]] float GetX() const { return position_x_; }
+		[[nodiscard]] float GetY() const { return position_y_; }
 
-		std::string ToString() const override {
+		[[nodiscard]] std::string ToString() const override {
 			std::stringstream ss;
 			ss << "MouseMovedEvent: " << position_x_ << ", " << position_y_;
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(kMouseMoved)
-		EVENT_CLASS_CATEGORY(kEventCategoryMouse | kEventCategoryInput)
+		EVENT_CLASS_TYPE(MouseMoved)
+		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 	private:
 		float position_x_, position_y_;
 	};
@@ -31,26 +31,26 @@ namespace lift {
 			: x_offset_(x_offset), y_offset_(y_offset) {
 		}
 
-		float GetXOffset() const { return x_offset_; }
-		float GetYOffset() const { return y_offset_; }
+		[[nodiscard]] float GetXOffset() const { return x_offset_; }
+		[[nodiscard]] float GetYOffset() const { return y_offset_; }
 
-		std::string ToString() const override {
+		[[nodiscard]] std::string ToString() const override {
 			std::stringstream ss;
 			ss << "MouseScrolledEvent: " << GetXOffset() << ", " << GetYOffset();
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(kMouseScrolled)
-		EVENT_CLASS_CATEGORY(kEventCategoryMouse | kEventCategoryInput)
+		EVENT_CLASS_TYPE(MouseScrolled)
+		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 	private:
 		float x_offset_, y_offset_;
 	};
 
 	class MouseButtonEvent : public Event {
 	public:
-		int GetMouseButton() const { return button_; }
+		[[nodiscard]] int GetMouseButton() const { return button_; }
 
-		EVENT_CLASS_CATEGORY(kEventCategoryMouse | kEventCategoryInput)
+		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 	protected:
 		MouseButtonEvent(const int button)
 			: button_(button) {
@@ -65,13 +65,13 @@ namespace lift {
 			: MouseButtonEvent(button) {
 		}
 
-		std::string ToString() const override {
+		[[nodiscard]] std::string ToString() const override {
 			std::stringstream ss;
 			ss << "MouseButtonPressedEvent: " << button_;
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(kMouseButtonPressed)
+		EVENT_CLASS_TYPE(MouseButtonPressed)
 	};
 
 	class MouseButtonReleasedEvent : public MouseButtonEvent {
@@ -80,13 +80,13 @@ namespace lift {
 			: MouseButtonEvent(button) {
 		}
 
-		std::string ToString() const override {
+		[[nodiscard]] std::string ToString() const override {
 			std::stringstream ss;
 			ss << "MouseButtonReleasedEvent: " << button_;
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(kMouseButtonReleased)
+		EVENT_CLASS_TYPE(MouseButtonReleased)
 	};
 
 }
