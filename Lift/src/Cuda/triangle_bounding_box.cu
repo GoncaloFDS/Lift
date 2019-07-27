@@ -16,8 +16,7 @@ RT_PROGRAM void triangle_bounding_box(int primitive_index, float result[6]) {
 
 	const float area = optix::length(optix::cross(v1 - v0, v2 - v0));
 
-	optix::Aabb* aabb = reinterpret_cast<optix::Aabb*>(result);
-
+	auto aabb = reinterpret_cast<optix::Aabb*>(result);
 
 	if (0.0f < area && !isinf(area)) {
 		aabb->m_min = fminf(fminf(v0, v1), v2);

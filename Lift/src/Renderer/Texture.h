@@ -4,12 +4,13 @@
 namespace lift {
 
 	enum class TextureType {
-		kNone = 0, kDiffuse
+		None = 0,
+		Diffuse
 	};
 
 	struct Texture {
 		unsigned int id{};
-		vec2 resolution;
+		vec2 resolution{};
 
 		Texture(const std::string& path);
 		Texture();

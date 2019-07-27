@@ -50,7 +50,7 @@ optix::Geometry lift::Util::CreateGeometry(const std::vector<VertexAttributes>& 
 	return geometry;
 }
 
-optix::Geometry lift::Util::CreatePlane(int tess_u, int tess_v, int up_axis) {
+optix::Geometry lift::Util::CreatePlaneGeometry(int tess_u, int tess_v, int up_axis) {
 	if (tess_u < 1 && tess_v < 1)
 		LF_CORE_WARN("Plane vectors < 1");
 
@@ -147,8 +147,8 @@ optix::Geometry lift::Util::CreatePlane(int tess_u, int tess_v, int up_axis) {
 	return CreateGeometry(vertices, indices);
 }
 
-optix::Geometry lift::Util::
-CreateSphere(const int tess_u, const int tess_v, const float radius, const float max_theta) {
+optix::Geometry lift::Util::CreateSphereGeometry(const int tess_u, const int tess_v, const float radius,
+												 const float max_theta) {
 	LF_ASSERT(tess_u >= 3 && tess_v >= 3, "Sphere tessalation too low");
 
 	std::vector<VertexAttributes> attributes;

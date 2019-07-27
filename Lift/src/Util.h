@@ -11,8 +11,8 @@ namespace lift {
 		static std::string GetPtxString(const char* file_name);
 		static optix::Geometry CreateGeometry(const std::vector<VertexAttributes>& attributes,
 											  const std::vector<unsigned>& indices);
-		static optix::Geometry CreatePlane(int tess_u, int tess_v, int up_axis);
-		static optix::Geometry CreateSphere(int tess_u, int tess_v, float radius, float max_theta);
+		static optix::Geometry CreatePlaneGeometry(int tess_u, int tess_v, int up_axis);
+		static optix::Geometry CreateSphereGeometry(int tess_u, int tess_v, float radius, float max_theta);
 
 	};
 }

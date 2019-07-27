@@ -76,6 +76,7 @@ namespace lift {
 
 		void CreateRenderFrame();
 		void SetAccelerationProperties(optix::Acceleration plane_acceleration);
+		void CreateOptixMesh(optix::Group& group_root, const optix::Geometry& geometry, const mat4& transform);
 		void CreateScene();
 		void InitMaterials();
 		void EndFrame() const;

@@ -11,6 +11,8 @@
 #include "Renderer/RenderCommand.h"
 #include "Events/MouseEvent.h"
 #include "Input.h"
+#include "Core/Timer.h"
+#include "Core/Profiler.h"
 
 lift::Application* lift::Application::instance_ = nullptr;
 
@@ -20,6 +22,7 @@ lift::Application::Application() {
 	window_ = std::unique_ptr<Window>(Window::Create({"Lift Engine", 1280, 720, 0, 28}));
 	window_->SetEventCallback(LF_BIND_EVENT_FN(Application::OnEvent));
 
+	Timer::Start();
 	InitGraphicsContext();
 	InitOptix();
 
@@ -32,11 +35,13 @@ lift::Application::~Application() {
 }
 
 void lift::Application::Run() {
+	Profiler profiler("Application Runtime");
 	SetOptixVariables();
 	CreateRenderFrame();
 	CreateScene();
 
 	while (is_running_) {
+		Timer::Tick();
 		ImGuiLayer::Begin();
 		RenderCommand::Clear();
 
@@ -62,6 +67,7 @@ void lift::Application::Run() {
 }
 
 void lift::Application::InitOptix() {
+	Profiler profiler("Optix Initialization");
 	optix_context_ = optix::Context::create();
 
 	GetOptixSystemInformation();
@@ -164,7 +170,32 @@ void lift::Application::SetAccelerationProperties(optix::Acceleration plane_acce
 	plane_acceleration->setProperty("indices_buffer_stride", "12");
 }
 
+void lift::Application::CreateOptixMesh(optix::Group& group_root, const optix::Geometry& geometry,
+										const mat4& transform) {
+	auto geometry_instance = optix_context_->createGeometryInstance();
+	geometry_instance->setGeometry(geometry);
+	geometry_instance->setMaterialCount(1);
+	geometry_instance->setMaterial(0, opaque_material_);
+
+	const auto acceleration = optix_context_->createAcceleration("Trbvh");
+	SetAccelerationProperties(acceleration);
+
+	auto geometry_group = optix_context_->createGeometryGroup();
+	geometry_group->setAcceleration(acceleration);
+	geometry_group->setChildCount(1);
+	geometry_group->setChild(0, geometry_instance);
+
+	auto sphere_transform = optix_context_->createTransform();
+	sphere_transform->setChild(geometry_group);
+	sphere_transform->setMatrix(true, value_ptr(transform), value_ptr(inverse(transform)));
+
+	const auto count = group_root->getChildCount();
+	group_root->setChildCount(count + 1);
+	group_root->setChild(count, sphere_transform);
+}
+
 void lift::Application::CreateScene() {
+	Profiler profiler{"Create Scene"};
 	camera_.SetViewport(window_->GetWidth(), window_->GetHeight());
 	InitMaterials();
 	acceleration_root_ = optix_context_->createAcceleration("Trbvh");
@@ -174,60 +205,11 @@ void lift::Application::CreateScene() {
 
 	optix_context_["sys_top_object"]->set(group_root);
 
-	const auto plane_geometry = Util::CreatePlane(1, 1, 1);
-	auto plane_geometry_instance = optix_context_->createGeometryInstance();
+	const auto plane_geometry = Util::CreatePlaneGeometry(1, 1, 1);
+	CreateOptixMesh(group_root, plane_geometry, scale(mat4(1), {5.0f, 5.0f, 5.0f}));
 
-	plane_geometry_instance->setGeometry(plane_geometry);
-	plane_geometry_instance->setMaterialCount(1);
-	plane_geometry_instance->setMaterial(0, opaque_material_);
-
-	const auto plane_acceleration = optix_context_->createAcceleration("Trbvh");
-	SetAccelerationProperties(plane_acceleration);
-
-	auto plane_geometry_group = optix_context_->createGeometryGroup();
-	plane_geometry_group->setAcceleration(plane_acceleration);
-	plane_geometry_group->setChildCount(1);
-	plane_geometry_group->setChild(0, plane_geometry_instance);
-
-	const auto plane_matrix = scale(mat4(1.0f), {5.0f, 5.0f, 5.0f});
-
-	auto plane_transform = optix_context_->createTransform();
-	plane_transform->setChild(plane_geometry_group);
-	plane_transform->setMatrix(true, value_ptr(plane_matrix), value_ptr(inverse(plane_matrix)));
-
-	auto count = group_root->getChildCount();
-	group_root->setChildCount(count + 1);
-	group_root->setChild(count, plane_transform);
-
-
-	///
-	///Sphere
-	///
-
-	const optix::Geometry sphere_geometry = Util::CreateSphere(180, 90, 1.0f, M_PIf);
-
-	const auto sphere_acceleration = optix_context_->createAcceleration("Trbvh");
-	SetAccelerationProperties(sphere_acceleration);
-
-	auto sphere_geometry_instance = optix_context_->createGeometryInstance();
-	sphere_geometry_instance->setGeometry(sphere_geometry);
-	sphere_geometry_instance->setMaterialCount(1);
-	sphere_geometry_instance->setMaterial(0, opaque_material_);
-
-	auto sphere_geometry_group = optix_context_->createGeometryGroup();
-	sphere_geometry_group->setAcceleration(sphere_acceleration);
-	sphere_geometry_group->setChildCount(1);
-	sphere_geometry_group->setChild(0, sphere_geometry_instance);
-
-	const auto sphere_matrix = translate(mat4(1.0f), {0.0f, 1.0f, 0.0f});
-	auto sphere_transform = optix_context_->createTransform();
-
-	sphere_transform->setChild(sphere_geometry_group);
-	sphere_transform->setMatrix(true, value_ptr(sphere_matrix), value_ptr(inverse(sphere_matrix)));
-
-	count = group_root->getChildCount();
-	group_root->setChildCount(count + 1);
-	group_root->setChild(count, sphere_transform);
+	const auto sphere_geometry = Util::CreateSphereGeometry(180, 90, 1.0f, M_PIf/2);
+	CreateOptixMesh(group_root, sphere_geometry, translate(mat4(1), {0.0f, 1.0f, 0.0f}));
 
 }
 
@@ -243,16 +225,17 @@ void lift::Application::EndFrame() const {
 }
 
 void lift::Application::OnEvent(Event& e) {
+	EventDispatcher dispatcher(e);
+	dispatcher.Dispatch<WindowCloseEvent>(LF_BIND_EVENT_FN(Application::OnWindowClose));
+	dispatcher.Dispatch<WindowResizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowResize));
+	dispatcher.Dispatch<WindowMinimizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowMinimize));
+
 	for (auto it = layer_stack_.end(); it != layer_stack_.begin();) {
 		(*--it)->OnEvent(e);
 		if (e.handled_)
 			return;
 	}
 
-	EventDispatcher dispatcher(e);
-	dispatcher.Dispatch<WindowCloseEvent>(LF_BIND_EVENT_FN(Application::OnWindowClose));
-	dispatcher.Dispatch<WindowResizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowResize));
-	dispatcher.Dispatch<WindowMinimizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowMinimize));
 	dispatcher.Dispatch<MouseMovedEvent>(LF_BIND_EVENT_FN(Application::OnMouseMove));
 }
 
@@ -281,35 +264,36 @@ bool lift::Application::OnWindowMinimize(WindowMinimizeEvent& e) const {
 inline bool lift::Application::OnMouseMove(MouseMovedEvent& e) {
 	switch (camera_.GetState()) {
 	case CameraState::None: {
-		if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_1))
+		if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_LEFT)) {
 			camera_.SetState(e.GetX(), e.GetY(), CameraState::Orbit);
-		else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_2))
+		}
+		else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_RIGHT)) {
 			camera_.SetState(e.GetX(), e.GetY(), CameraState::Dolly);
-		else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_3))
+		}
+		else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_MIDDLE)) {
 			camera_.SetState(e.GetX(), e.GetY(), CameraState::Pan);
+		}
 		break;
 	}
 	case CameraState::Orbit: {
-		if (!Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_1))
+		if (!Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_LEFT))
 			camera_.SetState(CameraState::None);
 		else
 			camera_.Orbit(e.GetX(), e.GetY());
 		break;
 	}
 	case CameraState::Dolly: {
-		if (!Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_2))
+		if (!Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_RIGHT))
 			camera_.SetState(CameraState::None);
 		else
 			camera_.Dolly(e.GetX(), e.GetY());
-
 		break;
 	}
 	case CameraState::Pan: {
-		if (!Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_3))
+		if (!Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_MIDDLE))
 			camera_.SetState(CameraState::None);
 		else
 			camera_.Pan(e.GetX(), e.GetY());
-
 		break;
 	}
 	default: LF_CORE_ERROR("Invalid Camera State");

@@ -37,7 +37,7 @@ lift::Texture::Texture(const std::string& path) {
 	resolution = vec2(static_cast<float>(width), static_cast<float>(height));
 }
 
-lift::Texture::Texture() {
+lift::Texture::Texture(): resolution(0, 0) {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
