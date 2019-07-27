@@ -12,6 +12,7 @@ namespace lift {
 		static optix::Geometry CreateGeometry(const std::vector<VertexAttributes>& attributes,
 											  const std::vector<unsigned>& indices);
 		static optix::Geometry CreatePlane(int tess_u, int tess_v, int up_axis);
+		static optix::Geometry CreateSphere(int tess_u, int tess_v, float radius, float max_theta);
 
 	};
 }

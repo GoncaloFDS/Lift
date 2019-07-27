@@ -193,12 +193,42 @@ void lift::Application::CreateScene() {
 
 	auto plane_transform = optix_context_->createTransform();
 	plane_transform->setChild(plane_geometry_group);
-	plane_transform->setMatrix(false, value_ptr(plane_matrix), value_ptr(inverse(plane_matrix)));
+	plane_transform->setMatrix(true, value_ptr(plane_matrix), value_ptr(inverse(plane_matrix)));
 
 	auto count = group_root->getChildCount();
 	group_root->setChildCount(count + 1);
 	group_root->setChild(count, plane_transform);
-	optix_context_["sys_top_object"]->set(group_root);
+
+
+	///
+	///Sphere
+	///
+
+	const optix::Geometry sphere_geometry = Util::CreateSphere(180, 90, 1.0f, M_PIf);
+
+	const auto sphere_acceleration = optix_context_->createAcceleration("Trbvh");
+	SetAccelerationProperties(sphere_acceleration);
+
+	auto sphere_geometry_instance = optix_context_->createGeometryInstance();
+	sphere_geometry_instance->setGeometry(sphere_geometry);
+	sphere_geometry_instance->setMaterialCount(1);
+	sphere_geometry_instance->setMaterial(0, opaque_material_);
+
+	auto sphere_geometry_group = optix_context_->createGeometryGroup();
+	sphere_geometry_group->setAcceleration(sphere_acceleration);
+	sphere_geometry_group->setChildCount(1);
+	sphere_geometry_group->setChild(0, sphere_geometry_instance);
+
+	const auto sphere_matrix = translate(mat4(1.0f), {0.0f, 1.0f, 0.0f});
+	auto sphere_transform = optix_context_->createTransform();
+
+	sphere_transform->setChild(sphere_geometry_group);
+	sphere_transform->setMatrix(true, value_ptr(sphere_matrix), value_ptr(inverse(sphere_matrix)));
+
+	count = group_root->getChildCount();
+	group_root->setChildCount(count + 1);
+	group_root->setChild(count, sphere_transform);
+
 }
 
 void lift::Application::InitMaterials() {
