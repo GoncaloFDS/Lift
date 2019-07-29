@@ -1,15 +1,16 @@
 #pragma once
 
-#include "Window.h"
+#include "Core/os/Window.h"
 
 #include <optix_world.h>
-#include "LayerStack.h"
+#include "Core/LayerStack.h"
 #include "Events/ApplicationEvent.h"
 
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Texture.h"
 #include "Renderer/PerspectiveCamera.h"
+#include "Renderer/GraphicsContext.h"
 
 #include "Platform/OpenGL/PixelBuffer.h"
 

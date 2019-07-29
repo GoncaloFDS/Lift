@@ -1,16 +1,13 @@
 #include "pch.h"
 #include "Application.h"
 
-#include "Log.h"
-
 #include "ImGui/ImguiLayer.h"
 
 #include "Platform/OpenGL/OpenGLContext.h"
-#include "Platform/Optix/OptixErrorCodes.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
 #include "Events/MouseEvent.h"
-#include "Input.h"
+#include "Core/os/Input.h"
 #include "Core/Timer.h"
 #include "Core/Profiler.h"
 
@@ -305,7 +302,7 @@ inline bool lift::Application::OnMouseMove(MouseMovedEvent& e) {
 
 void lift::Application::GetOptixSystemInformation() {
 	unsigned int optix_version;
-	OPTIX_CALL(rtGetVersion(&optix_version));
+	rtGetVersion(&optix_version);
 
 	const auto major = optix_version / 10000;
 	const auto minor = (optix_version % 10000) / 100;
