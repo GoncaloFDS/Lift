@@ -10,6 +10,7 @@
 #include "Core/os/Input.h"
 #include "Core/Timer.h"
 #include "Core/Profiler.h"
+#include "Scene/Resources/Mesh.h"
 
 lift::Application* lift::Application::instance_ = nullptr;
 
@@ -202,12 +203,18 @@ void lift::Application::CreateScene() {
 
 	optix_context_["sys_top_object"]->set(group_root);
 
+
 	const auto plane_geometry = Util::CreatePlaneGeometry(1, 1, 1);
 	CreateOptixMesh(group_root, plane_geometry, scale(mat4(1), {5.0f, 5.0f, 5.0f}));
-
+	/*
 	const auto sphere_geometry = Util::CreateSphereGeometry(180, 90, 1.0f, M_PIf/2);
 	CreateOptixMesh(group_root, sphere_geometry, translate(mat4(1), {0.0f, 1.0f, 0.0f}));
+	*/
+	Mesh helmet("res/models/Lantern/glTF-Binary/Lantern.glb");
+	CreateOptixMesh(group_root, helmet.CreateGeometry(), translate(mat4(1), {-2.0f, 3.0f, 0.0f}));
 
+	Mesh helmet2("res/models/Lantern/glTF/Lantern.gltf");
+	CreateOptixMesh(group_root, helmet2.CreateGeometry(), translate(mat4(1), {2.0f, 3.0f, 0.0f}));
 }
 
 void lift::Application::InitMaterials() {
