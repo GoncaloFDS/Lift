@@ -194,27 +194,34 @@ void lift::Application::CreateOptixMesh(optix::Group& group_root, const optix::G
 
 void lift::Application::CreateScene() {
 	Profiler profiler{"Create Scene"};
-	camera_.SetViewport(window_->GetWidth(), window_->GetHeight());
 	InitMaterials();
-	acceleration_root_ = optix_context_->createAcceleration("Trbvh");
+	camera_.SetViewport(window_->GetWidth(), window_->GetHeight());
 	auto group_root = optix_context_->createGroup();
+	acceleration_root_ = optix_context_->createAcceleration("Trbvh");
 	group_root->setAcceleration(acceleration_root_);
 	group_root->setChildCount(0);
 
 	optix_context_["sys_top_object"]->set(group_root);
 
+	Mesh plane(Geometry::Plane);
+	plane.SetMaterial(opaque_material_);
+	plane.SetTransform(scale(mat4(1), {5.0f, 5.0f, 5.0f}));
+	plane.SubmitMesh(group_root);
 
-	const auto plane_geometry = Util::CreatePlaneGeometry(1, 1, 1);
-	CreateOptixMesh(group_root, plane_geometry, scale(mat4(1), {5.0f, 5.0f, 5.0f}));
-	/*
-	const auto sphere_geometry = Util::CreateSphereGeometry(180, 90, 1.0f, M_PIf/2);
-	CreateOptixMesh(group_root, sphere_geometry, translate(mat4(1), {0.0f, 1.0f, 0.0f}));
-	*/
-	Mesh helmet("res/models/Lantern/glTF-Binary/Lantern.glb");
-	CreateOptixMesh(group_root, helmet.CreateGeometry(), translate(mat4(1), {-2.0f, 3.0f, 0.0f}));
+	Mesh sphere(Geometry::Sphere);
+	sphere.SetMaterial(opaque_material_);
+	sphere.SetTransform(translate(mat4(1), {0.0f, 1.0f, 0.0f}));
+	sphere.SubmitMesh(group_root);
 
-	Mesh helmet2("res/models/Lantern/glTF/Lantern.gltf");
-	CreateOptixMesh(group_root, helmet2.CreateGeometry(), translate(mat4(1), {2.0f, 3.0f, 0.0f}));
+	Mesh mesh1("res/models/Lantern/glTF/Lantern.gltf");
+	mesh1.SetMaterial(opaque_material_);
+	mesh1.SetTransform(translate(mat4(1), {-2.0f, 3.0f, 0.0f}));
+	mesh1.SubmitMesh(group_root);
+
+	Mesh mesh2("res/models/Lantern/glTF/Lantern.gltf");
+	mesh2.SetMaterial(opaque_material_);
+	mesh2.SetTransform(translate(mat4(1), {2.0f, 3.0f, 0.0f}));
+	mesh2.SubmitMesh(group_root);
 }
 
 void lift::Application::InitMaterials() {
