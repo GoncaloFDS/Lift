@@ -13,10 +13,10 @@ PerspectiveCamera::PerspectiveCamera()
 	  state_(CameraState::None),
 	  dx_(0), dy_(0),
 	  changed_(true),
-	  camera_position_(0.0f),
-	  camera_u_(1.0f, 0.0f, 0.0f),
-	  camera_v_(0.0f, 1.0f, 0.0f),
-	  camera_w_(1.0f, 0.0f, -1.0f) {
+	  position_(0.0f),
+	  vector_u_(1.0f, 0.0f, 0.0f),
+	  vector_v_(0.0f, 1.0f, 0.0f),
+	  vector_w_(1.0f, 0.0f, -1.0f) {
 }
 
 void PerspectiveCamera::SetViewport(const unsigned width, const unsigned height) {
@@ -45,7 +45,7 @@ void PerspectiveCamera::SetFocusDistance(const float focus_distance) {
 	if (focus_distance_ == focus_distance || 0.001f >= focus_distance)
 		return;
 	focus_distance_ = focus_distance;
-	center_ = camera_position_ + focus_distance_ * camera_w_;
+	center_ = position_ + focus_distance_ * vector_w_;
 	changed_ = true;
 }
 
@@ -65,12 +65,12 @@ void PerspectiveCamera::Orbit(const float x, const float y) {
 
 void PerspectiveCamera::Pan(const float x, const float y) {
 	if (SetDelta(x, y))
-		center_ = center_ - float(dx_) / speed_ratio_ * camera_u_ + float(dy_) / speed_ratio_ * camera_v_;
+		center_ = center_ - float(dx_) / speed_ratio_ * vector_u_ + float(dy_) / speed_ratio_ * vector_v_;
 }
 
 void PerspectiveCamera::Dolly(const float x, const float y) {
 	if (SetDelta(x, y)) {
-		focus_distance_ -= float(dy_) / speed_ratio_ * length(camera_w_);
+		focus_distance_ -= float(dy_) / speed_ratio_ * length(vector_w_);
 		if (focus_distance_ < 0.001f)
 			focus_distance_ = 0.001f;
 	}
@@ -78,7 +78,7 @@ void PerspectiveCamera::Dolly(const float x, const float y) {
 
 void PerspectiveCamera::Focus(const float x, const float y) {
 	if (SetDelta(x, y)) {
-		SetFocusDistance(focus_distance_ - float(dy_) / speed_ratio_ * length(camera_w_));
+		SetFocusDistance(focus_distance_ - float(dy_) / speed_ratio_ * length(vector_w_));
 	}
 }
 
@@ -97,6 +97,7 @@ bool PerspectiveCamera::OnUpdate() {
 	const auto changed = changed_;
 	if (changed) {
 		// Recalculate the camera parameters.
+		
 		const auto cos_phi = cosf(phi_ * 2.0f * M_PIf);
 		const auto sin_phi = sinf(phi_ * 2.0f * M_PIf);
 		const auto cos_theta = cosf(theta_ * M_PIf);
@@ -106,11 +107,11 @@ bool PerspectiveCamera::OnUpdate() {
 		// "normal", unit vector from origin to spherical coordinates (phi, theta)
 
 		const auto tan_fov = tanf((fov_ * 0.5f) * M_PIf / 180.0f); // m_fov is in the range [1.0f, 179.0f].
-		camera_position_ = center_ + focus_distance_ * normal;
+		position_ = center_ + focus_distance_ * normal;
 
-		camera_u_ = aspect_ * vec3(-sin_phi, 0.0f, -cos_phi) * tan_fov; // "tangent"
-		camera_v_ = vec3(cos_theta * cos_phi, sin_theta, cos_theta * -sin_phi) * tan_fov; // "bitangent"
-		camera_w_ = -normal; // "-normal" to look at the center.
+		vector_u_ = aspect_ * vec3(-sin_phi, 0.0f, -cos_phi) * tan_fov; // "tangent"
+		vector_v_ = vec3(cos_theta * cos_phi, sin_theta, cos_theta * -sin_phi) * tan_fov; // "bitangent"
+		vector_w_ = -normal; // "-normal" to look at the center.
 
 		changed_ = false; // Next time asking for the frustum will return false unless the camera has changed again.
 	}

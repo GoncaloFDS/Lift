@@ -63,17 +63,12 @@ void lift::ImGuiLayer::OnImguiRender() {
 
 	auto& app = Application::Get();
 	ImGui::Begin("Begin Window");
-	ImGui::Text("This is some useful text.");
-	ImGui::Checkbox("Demo Window", &show_demo_window_);
-	ImGui::Checkbox("Another Window", &show_another_window_);
 
 	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
 	ImGui::ColorEdit3("Top color", &app.GetTopColor().x);
 	ImGui::ColorEdit3("Bottom color", &app.GetBottomColor().x);
-	if (ImGui::Button("Button"))
-		counter++;
-	ImGui::SameLine();
-	ImGui::Text("counter = %d", counter);
+	if(ImGui::ColorEdit3("Albedo", &app.material_albedo_.x))
+		app.RestartAccumulation();
 
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
 				ImGui::GetIO().Framerate);

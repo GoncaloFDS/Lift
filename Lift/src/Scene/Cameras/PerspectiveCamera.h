@@ -28,12 +28,18 @@ public:
 
 	bool OnUpdate();
 	[[nodiscard]] float GetAspectRatio() const;
-	[[nodiscard]] vec3 GetPosition() const { return camera_position_; }
-	[[nodiscard]] vec3 GetVectorU() const { return camera_u_; }
-	[[nodiscard]] vec3 GetVectorV() const { return camera_v_; }
-	[[nodiscard]] vec3 GetVectorW() const { return camera_w_; }
+	[[nodiscard]] vec3 GetPosition() const { return position_; }
+	[[nodiscard]] vec3 GetVectorU() const { return vector_u_; }
+	[[nodiscard]] vec3 GetVectorV() const { return vector_v_; }
+	[[nodiscard]] vec3 GetVectorW() const { return vector_w_; }
 
-public: // Just to be able to load and save them easily.
+
+	void SetPosition(const vec3& camera_position) {
+		position_ = camera_position;
+		changed_ = true;
+	}
+
+	// Just to be able to load and save them easily.
 	vec3 center_;
 	// Center of interest point, around which is orbited (and the sharp plane of a depth of field camera).
 	float focus_distance_; // Distance of the camera from the center of interest.
@@ -57,8 +63,8 @@ private:
 	float dx_;
 	float dy_;
 	bool changed_;
-	vec3 camera_position_;
-	vec3 camera_u_;
-	vec3 camera_v_;
-	vec3 camera_w_;
+	vec3 position_;
+	vec3 vector_u_;
+	vec3 vector_v_;
+	vec3 vector_w_;
 };

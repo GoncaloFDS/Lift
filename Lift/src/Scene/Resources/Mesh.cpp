@@ -2,6 +2,7 @@
 #include "Mesh.h"
 #include "Core/Profiler.h"
 #include "Application.h"
+#include "Platform/Optix/OptixContext.h"
 
 lift::Mesh::Mesh(const std::string& path) : transform_(1) {
 	const auto name = path.substr(path.find_last_of('/') + 1, path.back());
@@ -102,7 +103,7 @@ optix::Geometry lift::Mesh::CreatePlaneGeometry(const int tess_u, const int tess
 	optix::float3 corner;
 
 	std::vector<VertexAttributes> vertices;
-	VertexAttributes vertex;
+	VertexAttributes vertex{};
 
 	switch (up_axis) {
 	case 0:

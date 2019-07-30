@@ -2,8 +2,8 @@
 #include "Application.h"
 
 #include "ImGui/ImguiLayer.h"
-
 #include "Platform/OpenGL/OpenGLContext.h"
+#include "Platform/Optix/OptixContext.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
 #include "Events/MouseEvent.h"
@@ -131,12 +131,14 @@ void lift::Application::UpdateOptixVariables() {
 	}
 	optix_context_["sys_color_top"]->set3fv(value_ptr(top_color_));
 	optix_context_["sys_color_bottom"]->set3fv(value_ptr(bottom_color_));
+	UpdateMaterialParameters(); //TODO check if necessary
 }
 
 void lift::Application::CreateScene() {
 	Profiler profiler{"Create Scene"};
 	InitMaterials();
 	camera_.SetViewport(window_->GetWidth(), window_->GetHeight());
+	camera_.Pan(0.f, 10.f);
 	auto group_root = optix_context_->createGroup();
 	acceleration_root_ = optix_context_->createAcceleration("Trbvh");
 	group_root->setAcceleration(acceleration_root_);
@@ -167,9 +169,11 @@ void lift::Application::CreateScene() {
 
 void lift::Application::UpdateMaterialParameters() {
 	auto dst = static_cast<MaterialParameter*>(material_parameters_buffer_->map(0, RT_BUFFER_MAP_WRITE_DISCARD));
-	for (size_t i = 0; i < material_parameters_gui_.size(); ++i, ++dst) {
+	for (size_t i = 0; i < material_parameters_gui_.size(); i++, dst++) {
 		auto& src = material_parameters_gui_[i];
-		dst->albedo = src.albedo;
+		dst->albedo.x = material_albedo_.x;//src.albedo;
+		dst->albedo.y = material_albedo_.y;//src.albedo;
+		dst->albedo.z = material_albedo_.z;//src.albedo;
 	}
 	material_parameters_buffer_->unmap();
 }
@@ -177,7 +181,7 @@ void lift::Application::UpdateMaterialParameters() {
 void lift::Application::InitMaterials() {
 
 	MaterialParameterGUI parameters;
-	parameters.albedo = optix::make_float3(1.0f);
+	parameters.albedo = optix::make_float3(0.2f, 0.3f, 0.0f);
 	material_parameters_gui_.push_back(parameters);
 
 	material_parameters_buffer_ = optix_context_->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_USER);

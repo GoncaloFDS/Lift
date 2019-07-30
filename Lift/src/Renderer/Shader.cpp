@@ -70,8 +70,8 @@ unsigned lift::Shader::CreateShader(const std::string& vertex_source, const std:
 }
 
 unsigned lift::Shader::CompileShader(const unsigned int type, const std::string& source) {
-	const unsigned int shader_id = glCreateShader(type);
-	const GLchar* src = source.c_str();
+	const auto shader_id = glCreateShader(type);
+	auto src = source.c_str();
 
 	OPENGL_CALL(glShaderSource(shader_id, 1, &src, 0));
 	OPENGL_CALL(glCompileShader(shader_id));
@@ -99,7 +99,6 @@ int lift::Shader::GetUniformLocation(const std::string& name) {
 		return uniform_location_cache_[name];
 
 	const int location = glGetUniformLocation(renderer_id_, name.c_str());
-	OPENGL_CALL(name);
 	if (location == -1)
 		LF_CORE_WARN("Uniform {0} is not defined on shader {1}", name, file_path_);
 	return location;

@@ -6,14 +6,9 @@
 #include "Core/LayerStack.h"
 #include "Events/ApplicationEvent.h"
 
-#include "Renderer/Shader.h"
-#include "Renderer/VertexArray.h"
-#include "Renderer/Texture.h"
-#include "Renderer/PerspectiveCamera.h"
 #include "Renderer/GraphicsContext.h"
+#include "Scene/Cameras/PerspectiveCamera.h"
 
-#include "Platform/OpenGL/PixelBuffer.h"
-#include "Platform/Optix/OptixContext.h"
 #include "Renderer/RenderFrame.h"
 
 
@@ -48,6 +43,8 @@ namespace lift {
 
 		vec3& GetTopColor() { return top_color_; }
 		vec3& GetBottomColor() { return bottom_color_; }
+		vec3 material_albedo_{.1f, .1f, .1f};
+		void RestartAccumulation() { accumulated_frames_ = 0; }
 
 	private:
 		bool is_running_ = true;
@@ -64,8 +61,8 @@ namespace lift {
 		int accumulated_frames_{0};
 
 		// Temp
-		vec3 top_color_{1.f, 0.f, 0.f};
-		vec3 bottom_color_{1.f, 0.f, 1.f};
+		vec3 top_color_{0.9f, 0.9f, 0.9f};
+		vec3 bottom_color_{0.9f, 0.9f, 0.9f};
 		optix::Material opaque_material_;
 		optix::Acceleration acceleration_root_;
 		optix::Buffer material_parameters_buffer_;
