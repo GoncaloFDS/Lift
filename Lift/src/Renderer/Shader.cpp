@@ -33,7 +33,7 @@ void lift::Shader::SetUniform1f(const std::string& name, float value) {
 	OPENGL_CALL(glUniform1f(GetUniformLocation(name), value));
 }
 
-void lift::Shader::SetTexImage2D(uint32_t width, uint32_t height) {
+void lift::Shader::SetTexImage2D(const uint32_t width, const uint32_t height) {
 	OPENGL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr));
 }
 

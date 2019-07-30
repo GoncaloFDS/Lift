@@ -35,8 +35,9 @@ lift::Application::~Application() {
 
 void lift::Application::Run() {
 	Profiler profiler("Application Runtime");
+	render_frame_.Init(window_->GetWidth(), window_->GetHeight());
 	SetOptixVariables();
-	CreateRenderFrame();
+	//CreateRenderFrame();
 	CreateScene();
 
 	while (is_running_) {
@@ -50,12 +51,9 @@ void lift::Application::Run() {
 		optix_context_["sys_iteration_index"]->setInt(accumulated_frames_);
 		optix_context_->launch(0, window_->GetWidth(), window_->GetHeight());
 		accumulated_frames_++;
-		hdr_texture_->Bind();
-		pixel_output_buffer_->Bind();
 		// Display
-		output_shader_->Bind();
-		output_shader_->SetTexImage2D(window_->GetWidth(), window_->GetHeight());
-		Renderer::Submit(vertex_array_);
+		render_frame_.Bind();
+		Renderer::Submit(render_frame_.GetVertexArray());
 
 		// Update Layers
 		for (auto& layer : layer_stack_)
@@ -63,19 +61,18 @@ void lift::Application::Run() {
 
 		for (auto& layer : layer_stack_)
 			layer->OnImguiRender();
-		EndFrame();
+		//End frame
+		ImGuiLayer::End();
+		graphics_context_->SwapBuffers();
+		window_->OnUpdate();
 	}
 }
 
 void lift::Application::InitOptix() {
 	Profiler profiler("Optix Initialization");
-	optix_context_ = optix::Context::create();
+	optix_context_ = OptixContext::Create();
 
-	GetOptixSystemInformation();
-
-	pixel_output_buffer_ = std::make_unique<PixelBuffer>(
-		static_cast<float>(window_->GetWidth()) * window_->GetHeight() * sizeof(float) * 4);
-	hdr_texture_ = std::make_unique<Texture>();
+	OptixContext::PrintInfo();
 
 	ptx_programs_["ray_generation"] = optix_context_->createProgramFromPTXString(
 		Util::GetPtxString("res/ptx/ray_generation.ptx"), "ray_generation");
@@ -96,10 +93,6 @@ void lift::Application::InitOptix() {
 	optix_context_->setMaxTraceDepth(2);
 	optix_context_->setPrintEnabled(true);
 	optix_context_->setExceptionEnabled(RT_EXCEPTION_ALL, true);
-
-	buffer_output_ = optix_context_->createBufferFromGLBO(RT_BUFFER_OUTPUT, pixel_output_buffer_->id);
-	buffer_output_->setFormat(RT_FORMAT_FLOAT4); //RGBA32F
-	buffer_output_->setSize(window_->GetWidth(), window_->GetHeight());
 }
 
 void lift::Application::InitGraphicsContext() {
@@ -113,8 +106,7 @@ void lift::Application::SetOptixVariables() {
 	optix_context_->setExceptionProgram(0, ptx_programs_["exception"]);
 	optix_context_->setMissProgram(0, ptx_programs_["miss"]);
 
-
-	optix_context_["sys_output_buffer"]->set(buffer_output_);
+	optix_context_["sys_output_buffer"]->set(render_frame_.GetBufferOutput());
 	optix_context_["sys_camera_position"]->setFloat(0.0f, 0.0f, 0.0f);
 	optix_context_["sys_camera_u"]->setFloat(1.0f, 0.0f, 0.0f);
 	optix_context_["sys_camera_v"]->setFloat(0.0f, 1.0f, 0.0f);
@@ -139,35 +131,6 @@ void lift::Application::UpdateOptixVariables() {
 	}
 	optix_context_["sys_color_top"]->set3fv(value_ptr(top_color_));
 	optix_context_["sys_color_bottom"]->set3fv(value_ptr(bottom_color_));
-}
-
-void lift::Application::CreateRenderFrame() {
-
-	float quad_vertices [4 * 5] = {
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-	};
-
-	vertex_array_.reset(VertexArray::Create());
-	std::shared_ptr<VertexBuffer> vertex_buffer{};
-	vertex_buffer.reset(VertexBuffer::Create(quad_vertices, sizeof(quad_vertices)));
-
-	vertex_buffer->SetLayout({
-		{ShaderDataType::Float3, "a_Position"},
-		{ShaderDataType::Float2, "a_Uv"}
-	});
-
-	vertex_array_->AddVertexBuffer(vertex_buffer);
-	uint32_t indices[6] = {0, 1, 2, 0, 2, 3};
-	std::shared_ptr<IndexBuffer> index_buffer;
-	index_buffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
-	vertex_array_->SetIndexBuffer(index_buffer);
-
-	output_shader_ = std::make_unique<Shader>("res/shaders/texture_quad");
-	output_shader_->Bind();
-	output_shader_->SetUniform1i("u_Texture", 0);
 }
 
 void lift::Application::CreateScene() {
@@ -203,37 +166,30 @@ void lift::Application::CreateScene() {
 }
 
 void lift::Application::UpdateMaterialParameters() {
-	auto dst = static_cast<MaterialParameter*>(buffer_material_parameters_->map(0, RT_BUFFER_MAP_WRITE_DISCARD));
-	for(size_t i = 0; i < gui_material_parameters_.size(); ++i, ++dst) {
-		MaterialParameterGUI& src = gui_material_parameters_[i];
+	auto dst = static_cast<MaterialParameter*>(material_parameters_buffer_->map(0, RT_BUFFER_MAP_WRITE_DISCARD));
+	for (size_t i = 0; i < material_parameters_gui_.size(); ++i, ++dst) {
+		auto& src = material_parameters_gui_[i];
 		dst->albedo = src.albedo;
 	}
-	buffer_material_parameters_->unmap();
+	material_parameters_buffer_->unmap();
 }
 
 void lift::Application::InitMaterials() {
 
 	MaterialParameterGUI parameters;
 	parameters.albedo = optix::make_float3(1.0f);
-	gui_material_parameters_.push_back(parameters);
+	material_parameters_gui_.push_back(parameters);
 
-	buffer_material_parameters_ = optix_context_->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_USER);
-	buffer_material_parameters_->setElementSize(sizeof(MaterialParameter));
-	buffer_material_parameters_->setSize(gui_material_parameters_.size());
-
+	material_parameters_buffer_ = optix_context_->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_USER);
+	material_parameters_buffer_->setElementSize(sizeof(MaterialParameter));
+	material_parameters_buffer_->setSize(material_parameters_gui_.size());
 
 	UpdateMaterialParameters();
 
-	optix_context_["sys_material_parameters"]->setBuffer(buffer_material_parameters_);
+	optix_context_["sys_material_parameters"]->setBuffer(material_parameters_buffer_);
 
 	opaque_material_ = optix_context_->createMaterial();
 	opaque_material_->setClosestHitProgram(0, ptx_programs_["closest_hit"]);
-}
-
-void lift::Application::EndFrame() const {
-	ImGuiLayer::End();
-	graphics_context_->SwapBuffers();
-	window_->OnUpdate();
 }
 
 void lift::Application::OnEvent(Event& e) {
@@ -261,8 +217,7 @@ bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
 	if (e.GetHeight() && e.GetWidth()) {
 		// Only resize when not minimized
 		RenderCommand::Resize(e.GetWidth(), e.GetHeight());
-		buffer_output_->setSize(e.GetWidth(), e.GetHeight());
-		pixel_output_buffer_->Resize(unsigned(buffer_output_->getElementSize()) * e.GetWidth() * e.GetHeight());
+		render_frame_.Resize(e.GetWidth(), e.GetHeight());
 		camera_.SetViewport(window_->GetWidth(), window_->GetHeight());
 	}
 	return false;
@@ -315,31 +270,4 @@ inline bool lift::Application::OnMouseMove(MouseMovedEvent& e) {
 	}
 
 	return false;
-}
-
-
-void lift::Application::GetOptixSystemInformation() {
-	unsigned int optix_version;
-	rtGetVersion(&optix_version);
-
-	const auto major = optix_version / 10000;
-	const auto minor = (optix_version % 10000) / 100;
-	const auto micro = optix_version % 100;
-	LF_CORE_INFO("");
-	LF_CORE_INFO("Optix Info:");
-	LF_CORE_INFO("\tVersion: {0}.{1}.{2}", major, minor, micro);
-
-	const auto number_of_devices = optix::Context::getDeviceCount();
-	LF_CORE_INFO("\tNumber of Devices = {0}", number_of_devices);
-
-	for (unsigned i = 0; i < number_of_devices; ++i) {
-		char name[256];
-		optix_context_->getDeviceAttribute(int(i), RT_DEVICE_ATTRIBUTE_NAME, sizeof(name), name);
-		LF_CORE_INFO("\tDevice {0}: {1}", i, name);
-
-		int compute_capability[2] = {0, 0};
-		optix_context_->getDeviceAttribute(int(i), RT_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY, sizeof(
-											   compute_capability), &compute_capability);
-		LF_CORE_INFO("\t\tCompute Support: {0}.{1}", compute_capability[0], compute_capability[1]);
-	}
 }

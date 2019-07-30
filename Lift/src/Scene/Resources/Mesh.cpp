@@ -65,7 +65,7 @@ MeshData lift::Mesh::TranslateMesh(aiMesh* mesh, const aiScene* scene) const {
 }
 
 void lift::Mesh::SubmitMesh(optix::Group& group) {
-	auto& optix_context = Application::Get().GetOptixContext();
+	auto& optix_context = OptixContext::Get();
 	auto geometry_instance = optix_context->createGeometryInstance();
 	geometry_instance->setGeometry(geometry_);
 	geometry_instance->setMaterialCount(1);
@@ -257,13 +257,13 @@ optix::Geometry lift::Mesh::CreateSphereGeometry(const int tess_u, const int tes
 optix::Geometry lift::Mesh::CreateGeometry(const std::vector<VertexAttributes>& attributes,
 										   const std::vector<unsigned>& indices) {
 	auto& app = Application::Get();
-	auto handle = app.GetOptixContext();
+	auto& optix_context = OptixContext::Get();
 
 	optix::Geometry geometry(nullptr);
 
-	geometry = handle->createGeometry();
+	geometry = optix_context->createGeometry();
 
-	optix::Buffer attributes_buffer = handle->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_USER);
+	optix::Buffer attributes_buffer = optix_context->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_USER);
 	attributes_buffer->setElementSize(sizeof(VertexAttributes));
 	attributes_buffer->setSize(attributes.size());
 
@@ -271,7 +271,7 @@ optix::Geometry lift::Mesh::CreateGeometry(const std::vector<VertexAttributes>& 
 	memcpy(dst, attributes.data(), sizeof(VertexAttributes) * attributes.size());
 	attributes_buffer->unmap();
 
-	optix::Buffer indices_buffer = handle->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_UNSIGNED_INT3, indices.size() / 3);
+	optix::Buffer indices_buffer = optix_context->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_UNSIGNED_INT3, indices.size() / 3);
 
 	dst = indices_buffer->map(0, RT_BUFFER_MAP_WRITE_DISCARD);
 	memcpy(dst, indices.data(), sizeof(optix::uint3) * indices.size() / 3);

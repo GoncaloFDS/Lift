@@ -13,6 +13,8 @@
 #include "Renderer/GraphicsContext.h"
 
 #include "Platform/OpenGL/PixelBuffer.h"
+#include "Platform/Optix/OptixContext.h"
+#include "Renderer/RenderFrame.h"
 
 
 namespace lift {
@@ -41,7 +43,7 @@ namespace lift {
 
 		static Application& Get() { return *instance_; }
 		[[nodiscard]] Window& GetWindow() const { return *window_; }
-		optix::Context& GetOptixContext() { return optix_context_; }
+		//optix::Context& GetOptixContext() { return optix_context_; }
 		optix::Program& GetOptixProgram(const std::string& name) { return ptx_programs_[name]; }
 
 		vec3& GetTopColor() { return top_color_; }
@@ -51,10 +53,9 @@ namespace lift {
 		bool is_running_ = true;
 		std::unique_ptr<Window> window_;
 		std::unique_ptr<GraphicsContext> graphics_context_;
-		std::unique_ptr<PixelBuffer> pixel_output_buffer_;
-		std::unique_ptr<Texture> hdr_texture_;
 
 		std::map<std::string, optix::Program> ptx_programs_;
+		RenderFrame render_frame_;
 
 		optix::Context optix_context_;
 		LayerStack layer_stack_;
@@ -63,15 +64,12 @@ namespace lift {
 		int accumulated_frames_{0};
 
 		// Temp
-		std::shared_ptr<VertexArray> vertex_array_;
-		std::shared_ptr<Shader> output_shader_;
-		optix::Buffer buffer_output_;
 		vec3 top_color_{1.f, 0.f, 0.f};
 		vec3 bottom_color_{1.f, 0.f, 1.f};
 		optix::Material opaque_material_;
 		optix::Acceleration acceleration_root_;
-		optix::Buffer buffer_material_parameters_;
-		std::vector<MaterialParameterGUI> gui_material_parameters_;
+		optix::Buffer material_parameters_buffer_;
+		std::vector<MaterialParameterGUI> material_parameters_gui_;
 		// 
 
 		static Application* instance_;
@@ -82,18 +80,15 @@ namespace lift {
 		void SetOptixVariables();
 		void UpdateOptixVariables();
 
-		void CreateRenderFrame();
 		void CreateScene();
 		void UpdateMaterialParameters();
 		void InitMaterials();
-		void EndFrame() const;
+
 		void OnEvent(Event& e);
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 		bool OnWindowMinimize(WindowMinimizeEvent& e) const;
 		bool OnMouseMove(MouseMovedEvent& e);
-
-		void GetOptixSystemInformation();
 
 	};
 

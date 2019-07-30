@@ -31,20 +31,19 @@ RT_FUNCTION void align_vector(float3 const& axis, float3& w) {
 	w = k * h - w;
 }
 
-RT_FUNCTION void unit_square_to_cosine_hemisphere(const float2 sample, float3 const& axis, float3& w, float& pdf)
-{
-  // Choose a point on the local hemisphere coordinates about +z.
-  const float theta = 2.0f * M_PIf * sample.x;
-  const float r = sqrtf(sample.y);
-  w.x = r * cosf(theta);
-  w.y = r * sinf(theta);
-  w.z = 1.0f - w.x * w.x - w.y * w.y;
-  w.z = (0.0f < w.z) ? sqrtf(w.z) : 0.0f;
- 
-  pdf = w.z * M_1_PIf;
+RT_FUNCTION void unit_square_to_cosine_hemisphere(const float2 sample, float3 const& axis, float3& w, float& pdf) {
+	// Choose a point on the local hemisphere coordinates about +z.
+	const float theta = 2.0f * M_PIf * sample.x;
+	const float r = sqrtf(sample.y);
+	w.x = r * cosf(theta);
+	w.y = r * sinf(theta);
+	w.z = 1.0f - w.x * w.x - w.y * w.y;
+	w.z = (0.0f < w.z) ? sqrtf(w.z) : 0.0f;
 
-  // Align with axis.
-  align_vector(axis, w);
+	pdf = w.z * M_1_PIf;
+
+	// Align with axis.
+	align_vector(axis, w);
 }
 
 RT_PROGRAM void closest_hit() {
@@ -55,7 +54,8 @@ RT_PROGRAM void closest_hit() {
 
 	the_payload.flags |= (0.0f <= optix::dot(the_payload.wo, geometry_normal)) ? FLAG_FRONTFACE : 0;
 
-	if((the_payload.flags & FLAG_FRONTFACE) == 0) { // looking at backface
+	if ((the_payload.flags & FLAG_FRONTFACE) == 0) {
+		// looking at backface
 		geometry_normal = -geometry_normal;
 		normal = -normal;
 	}
@@ -67,12 +67,11 @@ RT_PROGRAM void closest_hit() {
 
 	unit_square_to_cosine_hemisphere(rng2(the_payload.seed), normal, the_payload.wi, the_payload.pdf);
 
-	if(the_payload.pdf <= 0.0f || optix::dot(the_payload.wi, geometry_normal) <= 0.0f) {
+	if (the_payload.pdf <= 0.0f || optix::dot(the_payload.wi, geometry_normal) <= 0.0f) {
 		the_payload.flags |= FLAG_TERMINATE;
 		return;
 	}
 
 	MaterialParameter parameters = sys_material_parameters[per_material_index];
-	//the_payload.f_over_pdf = optix::make_float3(0.5f);//parameters.albedo;
 	the_payload.f_over_pdf = parameters.albedo;
 }
