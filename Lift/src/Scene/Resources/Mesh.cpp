@@ -25,7 +25,7 @@ lift::Mesh::Mesh(const Geometry geometry) : transform_(1) {
 		geometry_ = CreatePlaneGeometry(1, 1, 1);
 		break;
 	case Geometry::Sphere:
-		geometry_ = CreateSphereGeometry(180, 90, 1.0f, M_PIf);
+		geometry_ = CreateSphereGeometry(180, 90, 1.0f, M_PIf/2);
 		break;
 	default: ;
 	}
@@ -70,6 +70,7 @@ void lift::Mesh::SubmitMesh(optix::Group& group) {
 	geometry_instance->setGeometry(geometry_);
 	geometry_instance->setMaterialCount(1);
 	geometry_instance->setMaterial(0, material_);
+	geometry_instance["per_material_index"]->setInt(0);
 
 	auto acceleration = optix_context->createAcceleration("Trbvh");
 	acceleration->setProperty("vertex_buffer_name", "attributes_buffer");

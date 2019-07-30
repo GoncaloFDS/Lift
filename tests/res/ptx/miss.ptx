@@ -12,11 +12,11 @@
 
 	// .globl	_Z13miss_gradientv
 .global .align 4 .b8 the_ray[36];
-.global .align 4 .b8 the_ray_payload[12];
+.global .align 4 .b8 the_payload[72];
 .global .align 4 .b8 sys_color_top[12];
 .global .align 4 .b8 sys_color_bottom[12];
 .global .align 4 .b8 _ZN21rti_internal_typeinfo7the_rayE[8] = {82, 97, 121, 0, 36, 0, 0, 0};
-.global .align 4 .b8 _ZN21rti_internal_typeinfo15the_ray_payloadE[8] = {82, 97, 121, 0, 12, 0, 0, 0};
+.global .align 4 .b8 _ZN21rti_internal_typeinfo11the_payloadE[8] = {82, 97, 121, 0, 72, 0, 0, 0};
 .global .align 4 .b8 _ZN21rti_internal_typeinfo13sys_color_topE[8] = {82, 97, 121, 0, 12, 0, 0, 0};
 .global .align 4 .b8 _ZN21rti_internal_typeinfo16sys_color_bottomE[8] = {82, 97, 121, 0, 12, 0, 0, 0};
 .global .align 8 .u64 _ZN21rti_internal_register20reg_bitness_detectorE;
@@ -44,19 +44,19 @@
 .global .align 4 .u32 _ZN21rti_internal_register14reg_rayIndex_yE;
 .global .align 4 .u32 _ZN21rti_internal_register14reg_rayIndex_zE;
 .global .align 1 .b8 _ZN21rti_internal_typename7the_rayE[11] = {111, 112, 116, 105, 120, 58, 58, 82, 97, 121, 0};
-.global .align 1 .b8 _ZN21rti_internal_typename15the_ray_payloadE[11] = {82, 97, 121, 80, 97, 121, 108, 111, 97, 100, 0};
+.global .align 1 .b8 _ZN21rti_internal_typename11the_payloadE[11] = {82, 97, 121, 80, 97, 121, 108, 111, 97, 100, 0};
 .global .align 1 .b8 _ZN21rti_internal_typename13sys_color_topE[7] = {102, 108, 111, 97, 116, 51, 0};
 .global .align 1 .b8 _ZN21rti_internal_typename16sys_color_bottomE[7] = {102, 108, 111, 97, 116, 51, 0};
 .global .align 4 .u32 _ZN21rti_internal_typeenum7the_rayE = 4919;
-.global .align 4 .u32 _ZN21rti_internal_typeenum15the_ray_payloadE = 4919;
+.global .align 4 .u32 _ZN21rti_internal_typeenum11the_payloadE = 4919;
 .global .align 4 .u32 _ZN21rti_internal_typeenum13sys_color_topE = 4919;
 .global .align 4 .u32 _ZN21rti_internal_typeenum16sys_color_bottomE = 4919;
 .global .align 1 .b8 _ZN21rti_internal_semantic7the_rayE[13] = {114, 116, 67, 117, 114, 114, 101, 110, 116, 82, 97, 121, 0};
-.global .align 1 .b8 _ZN21rti_internal_semantic15the_ray_payloadE[10] = {114, 116, 80, 97, 121, 108, 111, 97, 100, 0};
+.global .align 1 .b8 _ZN21rti_internal_semantic11the_payloadE[10] = {114, 116, 80, 97, 121, 108, 111, 97, 100, 0};
 .global .align 1 .b8 _ZN21rti_internal_semantic13sys_color_topE[1];
 .global .align 1 .b8 _ZN21rti_internal_semantic16sys_color_bottomE[1];
 .global .align 1 .b8 _ZN23rti_internal_annotation7the_rayE[1];
-.global .align 1 .b8 _ZN23rti_internal_annotation15the_ray_payloadE[1];
+.global .align 1 .b8 _ZN23rti_internal_annotation11the_payloadE[1];
 .global .align 1 .b8 _ZN23rti_internal_annotation13sys_color_topE[1];
 .global .align 1 .b8 _ZN23rti_internal_annotation16sys_color_bottomE[1];
 
@@ -65,6 +65,7 @@
 )
 {
 	.reg .f32 	%f<15>;
+	.reg .b32 	%r<3>;
 
 
 	ld.global.f32 	%f1, [the_ray+16];
@@ -81,9 +82,12 @@
 	fma.rn.f32 	%f12, %f2, %f5, %f4;
 	fma.rn.f32 	%f13, %f2, %f8, %f7;
 	fma.rn.f32 	%f14, %f2, %f11, %f10;
-	st.global.f32 	[the_ray_payload], %f12;
-	st.global.f32 	[the_ray_payload+4], %f13;
-	st.global.f32 	[the_ray_payload+8], %f14;
+	st.global.f32 	[the_payload+36], %f12;
+	st.global.f32 	[the_payload+40], %f13;
+	st.global.f32 	[the_payload+44], %f14;
+	ld.global.u32 	%r1, [the_payload+48];
+	or.b32  	%r2, %r1, -2147483648;
+	st.global.u32 	[the_payload+48], %r2;
 	ret;
 }
 

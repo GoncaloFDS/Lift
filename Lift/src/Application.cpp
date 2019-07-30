@@ -11,6 +11,7 @@
 #include "Core/Timer.h"
 #include "Core/Profiler.h"
 #include "Scene/Resources/Mesh.h"
+#include "Cuda/material_parameter.cuh"
 
 lift::Application* lift::Application::instance_ = nullptr;
 
@@ -46,7 +47,9 @@ void lift::Application::Run() {
 		UpdateOptixVariables();
 
 		// Render
+		optix_context_["sys_iteration_index"]->setInt(accumulated_frames_);
 		optix_context_->launch(0, window_->GetWidth(), window_->GetHeight());
+		accumulated_frames_++;
 		hdr_texture_->Bind();
 		pixel_output_buffer_->Bind();
 		// Display
@@ -110,6 +113,7 @@ void lift::Application::SetOptixVariables() {
 	optix_context_->setExceptionProgram(0, ptx_programs_["exception"]);
 	optix_context_->setMissProgram(0, ptx_programs_["miss"]);
 
+
 	optix_context_["sys_output_buffer"]->set(buffer_output_);
 	optix_context_["sys_camera_position"]->setFloat(0.0f, 0.0f, 0.0f);
 	optix_context_["sys_camera_u"]->setFloat(1.0f, 0.0f, 0.0f);
@@ -118,6 +122,11 @@ void lift::Application::SetOptixVariables() {
 
 	optix_context_["sys_color_top"]->set3fv(value_ptr(top_color_));
 	optix_context_["sys_color_bottom"]->set3fv(value_ptr(bottom_color_));
+
+	optix_context_["sys_scene_epsilon"]->setFloat(500.0f * 1e-7f);
+	optix_context_["sys_path_lengths"]->setInt(2, 2);
+
+	optix_context_["sys_iteration_index"]->setInt(0);
 
 }
 
@@ -161,37 +170,6 @@ void lift::Application::CreateRenderFrame() {
 	output_shader_->SetUniform1i("u_Texture", 0);
 }
 
-void lift::Application::SetAccelerationProperties(optix::Acceleration plane_acceleration) {
-	plane_acceleration->setProperty("vertex_buffer_name", "attributes_buffer");
-	plane_acceleration->setProperty("vertex_buffer_stride", "48");
-	plane_acceleration->setProperty("indices_buffer_name", "indices_buffer");
-	plane_acceleration->setProperty("indices_buffer_stride", "12");
-}
-
-void lift::Application::CreateOptixMesh(optix::Group& group_root, const optix::Geometry& geometry,
-										const mat4& transform) {
-	auto geometry_instance = optix_context_->createGeometryInstance();
-	geometry_instance->setGeometry(geometry);
-	geometry_instance->setMaterialCount(1);
-	geometry_instance->setMaterial(0, opaque_material_);
-
-	const auto acceleration = optix_context_->createAcceleration("Trbvh");
-	SetAccelerationProperties(acceleration);
-
-	auto geometry_group = optix_context_->createGeometryGroup();
-	geometry_group->setAcceleration(acceleration);
-	geometry_group->setChildCount(1);
-	geometry_group->setChild(0, geometry_instance);
-
-	auto sphere_transform = optix_context_->createTransform();
-	sphere_transform->setChild(geometry_group);
-	sphere_transform->setMatrix(true, value_ptr(transform), value_ptr(inverse(transform)));
-
-	const auto count = group_root->getChildCount();
-	group_root->setChildCount(count + 1);
-	group_root->setChild(count, sphere_transform);
-}
-
 void lift::Application::CreateScene() {
 	Profiler profiler{"Create Scene"};
 	InitMaterials();
@@ -224,7 +202,30 @@ void lift::Application::CreateScene() {
 	mesh2.SubmitMesh(group_root);
 }
 
+void lift::Application::UpdateMaterialParameters() {
+	auto dst = static_cast<MaterialParameter*>(buffer_material_parameters_->map(0, RT_BUFFER_MAP_WRITE_DISCARD));
+	for(size_t i = 0; i < gui_material_parameters_.size(); ++i, ++dst) {
+		MaterialParameterGUI& src = gui_material_parameters_[i];
+		dst->albedo = src.albedo;
+	}
+	buffer_material_parameters_->unmap();
+}
+
 void lift::Application::InitMaterials() {
+
+	MaterialParameterGUI parameters;
+	parameters.albedo = optix::make_float3(1.0f);
+	gui_material_parameters_.push_back(parameters);
+
+	buffer_material_parameters_ = optix_context_->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_USER);
+	buffer_material_parameters_->setElementSize(sizeof(MaterialParameter));
+	buffer_material_parameters_->setSize(gui_material_parameters_.size());
+
+
+	UpdateMaterialParameters();
+
+	optix_context_["sys_material_parameters"]->setBuffer(buffer_material_parameters_);
+
 	opaque_material_ = optix_context_->createMaterial();
 	opaque_material_->setClosestHitProgram(0, ptx_programs_["closest_hit"]);
 }
@@ -268,7 +269,7 @@ bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
 }
 
 bool lift::Application::OnWindowMinimize(WindowMinimizeEvent& e) const {
-	LF_CORE_ERROR(e.ToString());
+	LF_CORE_TRACE(e.ToString());
 	return false;
 }
 
@@ -291,6 +292,7 @@ inline bool lift::Application::OnMouseMove(MouseMovedEvent& e) {
 			camera_.SetState(CameraState::None);
 		else
 			camera_.Orbit(e.GetX(), e.GetY());
+		accumulated_frames_ = 0;
 		break;
 	}
 	case CameraState::Dolly: {
@@ -298,6 +300,7 @@ inline bool lift::Application::OnMouseMove(MouseMovedEvent& e) {
 			camera_.SetState(CameraState::None);
 		else
 			camera_.Dolly(e.GetX(), e.GetY());
+		accumulated_frames_ = 0;
 		break;
 	}
 	case CameraState::Pan: {
@@ -305,6 +308,7 @@ inline bool lift::Application::OnMouseMove(MouseMovedEvent& e) {
 			camera_.SetState(CameraState::None);
 		else
 			camera_.Pan(e.GetX(), e.GetY());
+		accumulated_frames_ = 0;
 		break;
 	}
 	default: LF_CORE_ERROR("Invalid Camera State");

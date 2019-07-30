@@ -18,6 +18,10 @@
 namespace lift {
 	class MouseMovedEvent;
 
+	struct MaterialParameterGUI {
+		optix::float3 albedo = optix::make_float3(0.5f);
+	};
+
 	class Application {
 	public:
 		Application();
@@ -56,6 +60,7 @@ namespace lift {
 		LayerStack layer_stack_;
 
 		PerspectiveCamera camera_;
+		int accumulated_frames_{0};
 
 		// Temp
 		std::shared_ptr<VertexArray> vertex_array_;
@@ -65,6 +70,8 @@ namespace lift {
 		vec3 bottom_color_{1.f, 0.f, 1.f};
 		optix::Material opaque_material_;
 		optix::Acceleration acceleration_root_;
+		optix::Buffer buffer_material_parameters_;
+		std::vector<MaterialParameterGUI> gui_material_parameters_;
 		// 
 
 		static Application* instance_;
@@ -76,9 +83,8 @@ namespace lift {
 		void UpdateOptixVariables();
 
 		void CreateRenderFrame();
-		void SetAccelerationProperties(optix::Acceleration plane_acceleration);
-		void CreateOptixMesh(optix::Group& group_root, const optix::Geometry& geometry, const mat4& transform);
 		void CreateScene();
+		void UpdateMaterialParameters();
 		void InitMaterials();
 		void EndFrame() const;
 		void OnEvent(Event& e);

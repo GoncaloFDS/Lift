@@ -1,3 +1,9 @@
+#pragma once
+
+#ifndef RT_FUNCTION
+#define RT_FUNCTION __forceinline__ __device__
+#endif
+
 #include <optixu/optixu_math_namespace.h>
 
 template <unsigned int N>
@@ -35,4 +41,29 @@ static __host__ __device__ __inline__ float rnd(unsigned int& prev) {
 
 static __host__ __device__ __inline__ unsigned int rot_seed(const unsigned int seed, const unsigned int frame) {
 	return seed ^ frame;
+}
+
+// Return a random sample in the range [0, 1) with a simple Linear Congruential Generator.
+RT_FUNCTION float rng(unsigned int& previous)
+{
+  previous = previous * 1664525u + 1013904223u;
+  
+  return float(previous & 0X00FFFFFF) / float(0x01000000u); // Use the lower 24 bits.
+  // return float(previous >> 8) / float(0x01000000u);      // Use the upper 24 bits
+}
+
+// Convenience function to generate a 2D unit square sample.
+RT_FUNCTION float2 rng2(unsigned int& previous)
+{
+  float2 s;
+
+  previous = previous * 1664525u + 1013904223u;
+  s.x = float(previous & 0X00FFFFFF) / float(0x01000000u); // Use the lower 24 bits.
+  //s.x = float(previous >> 8) / float(0x01000000u);      // Use the upper 24 bits
+
+  previous = previous * 1664525u + 1013904223u;
+  s.y = float(previous & 0X00FFFFFF) / float(0x01000000u); // Use the lower 24 bits.
+  //s.y = float(previous >> 8) / float(0x01000000u);      // Use the upper 24 bits
+
+  return s;
 }
