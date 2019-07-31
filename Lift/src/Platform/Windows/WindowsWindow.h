@@ -15,6 +15,8 @@ namespace lift {
 		inline unsigned int GetWidth() const override;
 		inline unsigned int GetHeight() const override;
 
+		[[nodiscard]] std::pair<int, int> GetPosition() const override;
+
 		//Window attributes
 		inline void SetEventCallback(const EventCallbackFn& callback) override;
 		void SetVSync(bool enabled) override;
@@ -26,12 +28,13 @@ namespace lift {
 		virtual void Shutdown();
 
 	private:
-		GLFWwindow* window_handle_ {};
+		GLFWwindow* window_handle_{};
 
 		struct WindowData {
 			std::string title;
-			unsigned int width {}, height {};
-			bool v_sync {};
+			unsigned int width{}, height{};
+			unsigned int x{}, y{};
+			bool v_sync{};
 
 			EventCallbackFn event_callback;
 

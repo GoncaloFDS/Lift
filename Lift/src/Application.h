@@ -10,6 +10,7 @@
 #include "Scene/Cameras/PerspectiveCamera.h"
 
 #include "Renderer/RenderFrame.h"
+#include "Renderer/FrameBuffer.h"
 
 
 namespace lift {
@@ -43,9 +44,10 @@ namespace lift {
 
 		vec3& GetTopColor() { return top_color_; }
 		vec3& GetBottomColor() { return bottom_color_; }
-		vec3 material_albedo_{.1f, .1f, .1f};
 		void RestartAccumulation() { accumulated_frames_ = 0; }
+		unsigned GetRenderedTexture() { return render_frame_.GetTextureId(); }
 
+		vec3 material_albedo_{.1f, .1f, .1f};
 	private:
 		bool is_running_ = true;
 		std::unique_ptr<Window> window_;

@@ -20,6 +20,8 @@ namespace lift {
 
 		[[nodiscard]] optix::Buffer& GetBufferOutput() { return output_buffer; }
 
+		unsigned GetTextureId() const { return texture_->id; }
+
 	private:
 		std::shared_ptr<VertexArray> vertex_array_;
 		std::shared_ptr<Shader> shader_;

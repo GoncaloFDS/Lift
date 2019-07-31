@@ -37,6 +37,12 @@ unsigned lift::WindowsWindow::GetHeight() const {
 	return properties_.height;
 }
 
+std::pair<int, int> lift::WindowsWindow::GetPosition() const {
+	int x, y;
+	glfwGetWindowPos(window_handle_, &x, &y);
+	return {x, y};
+}
+
 void lift::WindowsWindow::SetEventCallback(const EventCallbackFn& callback) {
 	properties_.event_callback = callback;
 }
@@ -61,6 +67,8 @@ void lift::WindowsWindow::Init(const WindowProperties& props) {
 	properties_.title = props.title;
 	properties_.width = props.width;
 	properties_.height = props.height;
+	properties_.x = props.x;
+	properties_.y = props.y;
 
 	LF_CORE_INFO("Creating window {0} ({1}, {2})", props.title, props.width, props.height);
 

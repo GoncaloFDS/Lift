@@ -16,9 +16,11 @@ namespace lift {
 		void OnImguiRender() override;
 		void OnEvent(Event& event) override;
 
+		static std::pair<int, int> GetRenderWindowSize();
 		static void Begin();
 		static void End();
 
+		static std::pair<int, int> render_window_size_;
 	};
 
 }

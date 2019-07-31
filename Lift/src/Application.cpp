@@ -12,6 +12,7 @@
 #include "Core/Profiler.h"
 #include "Scene/Resources/Mesh.h"
 #include "Cuda/material_parameter.cuh"
+#include "glad/glad.h"
 
 lift::Application* lift::Application::instance_ = nullptr;
 
@@ -45,15 +46,21 @@ void lift::Application::Run() {
 		ImGuiLayer::Begin();
 		RenderCommand::Clear();
 
+		auto size = ImGuiLayer::GetRenderWindowSize();
 		UpdateOptixVariables();
-
 		// Render
 		optix_context_["sys_iteration_index"]->setInt(accumulated_frames_);
-		optix_context_->launch(0, window_->GetWidth(), window_->GetHeight());
+		if (size.first != 0) {
+			render_frame_.Resize(size.first, size.second);
+			optix_context_->launch(0, size.first, size.second);
+		}
+		else {
+			optix_context_->launch(0, window_->GetWidth(), window_->GetHeight());
+		}
 		accumulated_frames_++;
 		// Display
 		render_frame_.Bind();
-		Renderer::Submit(render_frame_.GetVertexArray());
+		//Renderer::Submit(render_frame_.GetVertexArray());
 
 		// Update Layers
 		for (auto& layer : layer_stack_)
@@ -171,9 +178,9 @@ void lift::Application::UpdateMaterialParameters() {
 	auto dst = static_cast<MaterialParameter*>(material_parameters_buffer_->map(0, RT_BUFFER_MAP_WRITE_DISCARD));
 	for (size_t i = 0; i < material_parameters_gui_.size(); i++, dst++) {
 		auto& src = material_parameters_gui_[i];
-		dst->albedo.x = material_albedo_.x;//src.albedo;
-		dst->albedo.y = material_albedo_.y;//src.albedo;
-		dst->albedo.z = material_albedo_.z;//src.albedo;
+		dst->albedo.x = material_albedo_.x; //src.albedo;
+		dst->albedo.y = material_albedo_.y; //src.albedo;
+		dst->albedo.z = material_albedo_.z; //src.albedo;
 	}
 	material_parameters_buffer_->unmap();
 }
@@ -201,6 +208,7 @@ void lift::Application::OnEvent(Event& e) {
 	dispatcher.Dispatch<WindowCloseEvent>(LF_BIND_EVENT_FN(Application::OnWindowClose));
 	dispatcher.Dispatch<WindowResizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowResize));
 	dispatcher.Dispatch<WindowMinimizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowMinimize));
+	dispatcher.Dispatch<MouseMovedEvent>(LF_BIND_EVENT_FN(Application::OnMouseMove));
 
 	for (auto it = layer_stack_.end(); it != layer_stack_.begin();) {
 		(*--it)->OnEvent(e);
@@ -208,7 +216,6 @@ void lift::Application::OnEvent(Event& e) {
 			return;
 	}
 
-	dispatcher.Dispatch<MouseMovedEvent>(LF_BIND_EVENT_FN(Application::OnMouseMove));
 }
 
 bool lift::Application::OnWindowClose(WindowCloseEvent& e) {
@@ -218,11 +225,20 @@ bool lift::Application::OnWindowClose(WindowCloseEvent& e) {
 }
 
 bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
+	RestartAccumulation();
 	if (e.GetHeight() && e.GetWidth()) {
 		// Only resize when not minimized
-		RenderCommand::Resize(e.GetWidth(), e.GetHeight());
-		render_frame_.Resize(e.GetWidth(), e.GetHeight());
-		camera_.SetViewport(window_->GetWidth(), window_->GetHeight());
+		auto size = ImGuiLayer::GetRenderWindowSize();
+		if (size.first != 0) {
+			RenderCommand::Resize(e.GetWidth(), e.GetHeight());
+			render_frame_.Resize(size.first, size.second);
+			camera_.SetViewport(size.first, size.second);
+		}
+		else {
+			RenderCommand::Resize(e.GetWidth(), e.GetHeight());
+			render_frame_.Resize(e.GetWidth(), e.GetHeight());
+			camera_.SetViewport(e.GetWidth(), e.GetHeight());
+		}
 	}
 	return false;
 }
