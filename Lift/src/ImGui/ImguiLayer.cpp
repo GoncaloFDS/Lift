@@ -9,8 +9,9 @@
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include "imgui_internal.h"
+#include <glm/common.hpp>
 
-std::pair<int, int> lift::ImGuiLayer::render_window_size_;
+vec2 lift::ImGuiLayer::render_window_size_;
 
 // TEMPORARY
 ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove;
@@ -51,41 +52,27 @@ void lift::ImGuiLayer::OnUpdate() {
 }
 
 void lift::ImGuiLayer::OnImguiRender() {
-	static bool opt_fullscreen_persistant = true;
-	bool opt_fullscreen = opt_fullscreen_persistant;
-	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResize;
 
-	// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-	// because it would be confusing to have two docking targets within each others.
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-	if (opt_fullscreen) {
-		ImGuiViewport* viewport = ImGui::GetMainViewport();
-		ImGui::SetNextWindowPos(viewport->Pos);
-		ImGui::SetNextWindowSize(viewport->Size);
-		ImGui::SetNextWindowViewport(viewport->ID);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoMove;
-		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-	}
-
-	// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse; 
+	window_flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 	if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
 		window_flags |= ImGuiWindowFlags_NoBackground;
-
-	// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-	// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive, 
-	// all active windows docked into it will lose their parent and become undocked.
-	// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise 
-	// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+	
 	static bool p_open = true;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	ImGui::Begin("DockSpace Demo", &p_open, window_flags);
 	ImGui::PopStyleVar();
 
-	if (opt_fullscreen)
-		ImGui::PopStyleVar(2);
+	ImGui::PopStyleVar(2);
 
 	// DockSpace
 	ImGuiIO& io = ImGui::GetIO();
@@ -98,10 +85,6 @@ void lift::ImGuiLayer::OnImguiRender() {
 
 	if (ImGui::BeginMenuBar()) {
 		if (ImGui::BeginMenu("Docking")) {
-			// Disabling fullscreen would allow the window to be moved to the front of other windows, 
-			// which we can't undo at the moment without finer window depth/z control.
-			//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
-
 			if (ImGui::MenuItem("Flag: NoSplit", "", (dockspace_flags & ImGuiDockNodeFlags_NoSplit) != 0))
 				dockspace_flags ^= ImGuiDockNodeFlags_NoSplit;
 			if (ImGui::MenuItem("Flag: NoResize", "", (dockspace_flags & ImGuiDockNodeFlags_NoResize) != 0))
@@ -127,7 +110,7 @@ void lift::ImGuiLayer::OnImguiRender() {
 	ImGui::End();
 
 	auto& app = Application::Get();
-	ImGui::Begin("Cenas");
+	ImGui::Begin("Editor");
 	ImGui::ColorEdit3("Top color", &app.GetTopColor().x);
 	ImGui::ColorEdit3("Bottom color", &app.GetBottomColor().x);
 	if (ImGui::ColorEdit3("Albedo", &app.material_albedo_.x))
@@ -139,10 +122,11 @@ void lift::ImGuiLayer::OnImguiRender() {
 
 	ImGui::Begin("Render");
 	auto texture = reinterpret_cast<GLuint*>(app.GetRenderedTexture());
-	//if (texture != 0)
 	auto window = ImGui::GetCurrentWindow();
 	render_window_size_ = {window->Size.x, window->Size.y};
-	ImGui::Image(texture, {(float)render_window_size_.first, (float)render_window_size_.second}, {0.f, 1.f},
+	ImGui::Image(texture,
+				 {render_window_size_.x, render_window_size_.y - 40},
+				 {0.f, 1.f},
 				 {1.f, 0.f});
 
 	ImGui::End();
@@ -152,7 +136,7 @@ void lift::ImGuiLayer::OnEvent(Event& event) {
 
 }
 
-std::pair<int, int> lift::ImGuiLayer::GetRenderWindowSize() {
+vec2 lift::ImGuiLayer::GetRenderWindowSize() {
 	return render_window_size_;
 }
 

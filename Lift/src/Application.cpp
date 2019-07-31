@@ -44,23 +44,7 @@ void lift::Application::Run() {
 	while (is_running_) {
 		Timer::Tick();
 		ImGuiLayer::Begin();
-		RenderCommand::Clear();
-
-		auto size = ImGuiLayer::GetRenderWindowSize();
-		UpdateOptixVariables();
-		// Render
-		optix_context_["sys_iteration_index"]->setInt(accumulated_frames_);
-		if (size.first != 0) {
-			render_frame_.Resize(size.first, size.second);
-			optix_context_->launch(0, size.first, size.second);
-		}
-		else {
-			optix_context_->launch(0, window_->GetWidth(), window_->GetHeight());
-		}
-		accumulated_frames_++;
-		// Display
-		render_frame_.Bind();
-		//Renderer::Submit(render_frame_.GetVertexArray());
+		//RenderCommand::Clear();
 
 		// Update Layers
 		for (auto& layer : layer_stack_)
@@ -68,6 +52,20 @@ void lift::Application::Run() {
 
 		for (auto& layer : layer_stack_)
 			layer->OnImguiRender();
+
+
+		const auto size = ImGuiLayer::GetRenderWindowSize();
+		render_frame_.Resize(static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y));
+		camera_.SetViewport(static_cast<unsigned>(size.x), static_cast<unsigned>(size.y));
+
+		// Render
+		optix_context_["sys_iteration_index"]->setInt(accumulated_frames_);
+		render_frame_.Bind();
+		UpdateOptixVariables();
+		optix_context_->launch(0, size.x, size.y);
+		accumulated_frames_++;
+
+
 		//End frame
 		ImGuiLayer::End();
 		graphics_context_->SwapBuffers();
@@ -228,18 +226,12 @@ bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
 	RestartAccumulation();
 	if (e.GetHeight() && e.GetWidth()) {
 		// Only resize when not minimized
-		auto size = ImGuiLayer::GetRenderWindowSize();
-		if (size.first != 0) {
-			RenderCommand::Resize(e.GetWidth(), e.GetHeight());
-			render_frame_.Resize(size.first, size.second);
-			camera_.SetViewport(size.first, size.second);
-		}
-		else {
-			RenderCommand::Resize(e.GetWidth(), e.GetHeight());
-			render_frame_.Resize(e.GetWidth(), e.GetHeight());
-			camera_.SetViewport(e.GetWidth(), e.GetHeight());
-		}
+		const auto size = ImGuiLayer::GetRenderWindowSize();
+		RenderCommand::Resize(e.GetWidth(), e.GetHeight());
+		render_frame_.Resize(size.x, size.y);
+		camera_.SetViewport(size.x, size.y);
 	}
+
 	return false;
 }
 
