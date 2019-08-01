@@ -206,13 +206,13 @@ void lift::Application::OnEvent(Event& e) {
 	dispatcher.Dispatch<WindowCloseEvent>(LF_BIND_EVENT_FN(Application::OnWindowClose));
 	dispatcher.Dispatch<WindowResizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowResize));
 	dispatcher.Dispatch<WindowMinimizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowMinimize));
-	dispatcher.Dispatch<MouseMovedEvent>(LF_BIND_EVENT_FN(Application::OnMouseMove));
 
 	for (auto it = layer_stack_.end(); it != layer_stack_.begin();) {
 		(*--it)->OnEvent(e);
 		if (e.handled_)
 			return;
 	}
+	dispatcher.Dispatch<MouseMovedEvent>(LF_BIND_EVENT_FN(Application::OnMouseMove));
 
 }
 

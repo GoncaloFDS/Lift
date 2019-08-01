@@ -21,6 +21,8 @@ namespace lift {
 		static void End();
 
 		static vec2 render_window_size_;
+		unsigned render_id_;
+		bool is_render_hovered_;
 	};
 
 }

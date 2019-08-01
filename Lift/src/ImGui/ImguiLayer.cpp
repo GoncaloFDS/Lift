@@ -61,12 +61,12 @@ void lift::ImGuiLayer::OnImguiRender() {
 	ImGui::SetNextWindowViewport(viewport->ID);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse; 
+	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
 	window_flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 	if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
 		window_flags |= ImGuiWindowFlags_NoBackground;
-	
+
 	static bool p_open = true;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	ImGui::Begin("DockSpace Demo", &p_open, window_flags);
@@ -121,19 +121,21 @@ void lift::ImGuiLayer::OnImguiRender() {
 	ImGui::End();
 
 	ImGui::Begin("Render");
-	auto texture = reinterpret_cast<GLuint*>(app.GetRenderedTexture());
-	auto window = ImGui::GetCurrentWindow();
+	const auto window = ImGui::GetCurrentWindow();
 	render_window_size_ = {window->Size.x, window->Size.y};
-	ImGui::Image(texture,
+	ImGui::Image(reinterpret_cast<GLuint*>(app.GetRenderedTexture()),
 				 {render_window_size_.x, render_window_size_.y - 40},
 				 {0.f, 1.f},
 				 {1.f, 0.f});
 
+	is_render_hovered_ = ImGui::IsWindowHovered();
 	ImGui::End();
 }
 
 void lift::ImGuiLayer::OnEvent(Event& event) {
-
+	const auto& io = ImGui::GetIO();
+	if (io.WantCaptureMouse && !is_render_hovered_ && event.GetEventType() == EventType::MouseMoved)
+		event.handled_ = true;
 }
 
 vec2 lift::ImGuiLayer::GetRenderWindowSize() {
