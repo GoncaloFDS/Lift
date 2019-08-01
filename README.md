@@ -4,7 +4,7 @@ Build Instructions
 ```
 git clone --recursive https://github.com/GoncaloFDS/Lift
 ```
-> Install CUDA and Optix ( Install Directories should be specified on premake5.lua file)
+> Install CUDA 10.1 and Optix 6.0 ( Install Directories should be specified on premake5.lua file)
 
 > Use vckpg to get assimp
 ```
