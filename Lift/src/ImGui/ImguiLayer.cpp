@@ -100,7 +100,7 @@ void lift::ImGuiLayer::OnImguiRender() {
 			if (ImGui::MenuItem("Flag: AutoHideTabBar", "", (dockspace_flags & ImGuiDockNodeFlags_AutoHideTabBar) != 0))
 				dockspace_flags ^= ImGuiDockNodeFlags_AutoHideTabBar;
 			ImGui::Separator();
-			if (ImGui::MenuItem("Close DockSpace", NULL, false, p_open != NULL))
+			if (ImGui::MenuItem("Close DockSpace", nullptr, false, p_open != false))
 				p_open = false;
 			ImGui::EndMenu();
 		}
@@ -124,10 +124,7 @@ void lift::ImGuiLayer::OnImguiRender() {
 	const auto window = ImGui::GetCurrentWindow();
 	render_window_size_ = {window->Size.x, window->Size.y};
 	ImGui::Image(reinterpret_cast<GLuint*>(app.GetRenderedTexture()),
-				 {render_window_size_.x, render_window_size_.y - 40},
-				 {0.f, 1.f},
-				 {1.f, 0.f});
-
+				 {render_window_size_.x, render_window_size_.y - 40}, {0.f, 1.f}, {1.f, 0.f});
 	is_render_hovered_ = ImGui::IsWindowHovered();
 	ImGui::End();
 }
@@ -160,7 +157,7 @@ void lift::ImGuiLayer::End() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-		auto backup_current_context = glfwGetCurrentContext();
+		const auto backup_current_context = glfwGetCurrentContext();
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 		glfwMakeContextCurrent(backup_current_context);
