@@ -19,25 +19,25 @@ rtBuffer<float4, 2> sys_output_buffer; // RGBA32F
 rtDeclareVariable(rtObject, sys_top_object, , );
 
 rtDeclareVariable(float, sys_scene_epsilon, , );
-rtDeclareVariable(int2, sys_path_lengths, , );
+rtDeclareVariable(optix::int2, sys_path_lengths, , );
 rtDeclareVariable(int, sys_iteration_index, , );
 
-rtDeclareVariable(uint2, the_launch_dimension, rtLaunchDim, );
-rtDeclareVariable(uint2, the_launch_index, rtLaunchIndex, );
+rtDeclareVariable(optix::uint2, the_launch_dimension, rtLaunchDim, );
+rtDeclareVariable(optix::uint2, the_launch_index, rtLaunchIndex, );
 
-rtDeclareVariable(float3, sys_camera_position, , );
-rtDeclareVariable(float3, sys_camera_u, , );
-rtDeclareVariable(float3, sys_camera_v, , );
-rtDeclareVariable(float3, sys_camera_w, , );
+rtDeclareVariable(optix::float3, sys_camera_position, , );
+rtDeclareVariable(optix::float3, sys_camera_u, , );
+rtDeclareVariable(optix::float3, sys_camera_v, , );
+rtDeclareVariable(optix::float3, sys_camera_w, , );
 
-RT_FUNCTION void integrator(RayPayload& payload, float3& radiance) {
-	radiance = make_float3(0.0f);
-	float3 throughput = make_float3(1.0f);
+RT_FUNCTION void integrator(RayPayload& payload, optix::float3& radiance) {
+	radiance = optix::make_float3(0.0f);
+	optix::float3 throughput = optix::make_float3(1.0f);
 	int depth = 0;
 
 	while (depth < sys_path_lengths.y) {
 		payload.wo = -payload.wi;
-		payload.flags = 0;
+		payload.flags &= FLAG_CLEAR_MASK;
 
 		optix::Ray ray = optix::make_Ray(payload.pos, payload.wi, 0, sys_scene_epsilon, RT_DEFAULT_MAX);
 		rtTrace(sys_top_object, ray, payload);
@@ -49,6 +49,15 @@ RT_FUNCTION void integrator(RayPayload& payload, float3& radiance) {
 		}
 
 		throughput *= payload.f_over_pdf;
+
+		if(sys_path_lengths.x <= depth) {
+			const float probability = fmaxf(throughput);
+			if(probability < rng(payload.seed)) {
+				break;
+			}
+			throughput /= probability;
+		}
+
 		++depth;
 	}
 }
@@ -59,35 +68,35 @@ RT_PROGRAM void ray_generation() {
 	payload.seed = tea<8>(the_launch_index.y * the_launch_dimension.x + the_launch_index.x, sys_iteration_index);
 	payload.radiance = make_float3(0.0f);
 
-	const float2 pixel = make_float2(the_launch_index);
-	const float2 fragment = pixel + rng2(payload.seed);
-	const float2 screen = make_float2(the_launch_dimension);
-	const float2 normalized_device_coords = (fragment / screen) * 2.0f - 1.0f;
+	const optix::float2 pixel = optix::make_float2(the_launch_index);
+	const optix::float2 fragment = pixel + rng2(payload.seed);
+	const optix::float2 screen = optix::make_float2(the_launch_dimension);
+	const optix::float2 normalized_device_coords = (fragment / screen) * 2.0f - 1.0f;
 
 	payload.pos = sys_camera_position;
 	payload.wi = optix::normalize(normalized_device_coords.x * sys_camera_u + normalized_device_coords.y * sys_camera_v + sys_camera_w);
 
-	float3 radiance;
+	optix::float3 radiance;
 
 	integrator(payload, radiance);
 
 	if(isnan(radiance.x) || isnan(radiance.y) || isnan(radiance.z)) {
-		radiance = make_float3(1000000.0f, 0.0f, 0.0f);
+		radiance = optix::make_float3(1000000.0f, 0.0f, 0.0f);
 	}
 	else if (isinf(radiance.x) || isinf(radiance.y) || isinf(radiance.z)) {
-		radiance = make_float3(0.0f, 1000000.0f, 0.0f);
+		radiance = optix::make_float3(0.0f, 1000000.0f, 0.0f);
 	}
 	else if( radiance.x < 0.0f || radiance.y < 0.0f || radiance.z < 0.0f) {
-		radiance = make_float3(0.0f, 0.0f, 1000000.0f);
+		radiance = optix::make_float3(0.0f, 0.0f, 1000000.0f);
 	}
 
 	if(!(isnan(radiance.x) || isnan(radiance.y) || isnan(radiance.z))){
-		if(0 < sys_iteration_index) {
-			float4 dst = sys_output_buffer[the_launch_index];
-			sys_output_buffer[the_launch_index] = optix::lerp(dst, make_float4(radiance, 1.0f), 1.0f/(float)(sys_iteration_index + 1));
+		if(sys_iteration_index > 0) {
+			optix::float4 dst = sys_output_buffer[the_launch_index];
+			sys_output_buffer[the_launch_index] = optix::lerp(dst, optix::make_float4(radiance, 1.0f), 1.0f/static_cast<float>(sys_iteration_index + 1));
 		}
 		else {
-			sys_output_buffer[the_launch_index] = make_float4(radiance, 1.0f);
+			sys_output_buffer[the_launch_index] = optix::make_float4(radiance, 1.0f);
 		}
 	}
 }

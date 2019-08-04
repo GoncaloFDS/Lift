@@ -12,6 +12,8 @@
 #include "Renderer/RenderFrame.h"
 #include "Renderer/FrameBuffer.h"
 
+#include "Cuda/light_definition.cuh"
+
 
 namespace lift {
 	class MouseMovedEvent;
@@ -26,6 +28,7 @@ namespace lift {
 		virtual ~Application();
 
 		void Run();
+		void CreateOptixProgram(const std::string& ptx, const std::string& program_name);
 
 		template <typename T>
 		void PushLayer() {
@@ -42,12 +45,10 @@ namespace lift {
 		//optix::Context& GetOptixContext() { return optix_context_; }
 		optix::Program& GetOptixProgram(const std::string& name) { return ptx_programs_[name]; }
 
-		vec3& GetTopColor() { return top_color_; }
-		vec3& GetBottomColor() { return bottom_color_; }
 		void RestartAccumulation() { accumulated_frames_ = 0; }
-		unsigned GetRenderedTexture() { return render_frame_.GetTextureId(); }
+		unsigned GetRenderedTexture() const { return render_frame_.GetTextureId(); }
 
-		vec3 material_albedo_{.1f, .1f, .1f};
+		vec3 material_albedo_{.3f, .7f, .9f};
 	private:
 		bool is_running_ = true;
 		std::unique_ptr<Window> window_;
@@ -63,12 +64,15 @@ namespace lift {
 		int accumulated_frames_{0};
 
 		// Temp
-		vec3 top_color_{0.9f, 0.9f, 0.9f};
-		vec3 bottom_color_{0.9f, 0.9f, 0.9f};
+		optix::Group group_root_;
 		optix::Material opaque_material_;
+		optix::Material light_material_;
 		optix::Acceleration acceleration_root_;
 		optix::Buffer material_parameters_buffer_;
+		optix::Buffer light_definitions_buffer_;
+		optix::Buffer light_sample_buffer_;
 		std::vector<MaterialParameterGUI> material_parameters_gui_;
+		std::vector<LightDefinition> light_definitions_;
 		// 
 
 		static Application* instance_;
@@ -77,9 +81,11 @@ namespace lift {
 		void InitGraphicsContext();
 
 		void SetOptixVariables();
+		void UpdateLightParameters();
 		void UpdateOptixVariables();
 
 		void CreateScene();
+		void CreateLights();
 		void UpdateMaterialParameters();
 		void InitMaterials();
 

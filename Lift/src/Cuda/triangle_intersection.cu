@@ -30,7 +30,7 @@ RT_PROGRAM void triangle_intersection(int primitive_index) {
 	float beta;
 	float gamma;
 
-	if (intersect_triangle(the_ray, v0, v1, v2, n, t, beta, gamma)) {
+	if (optix::intersect_triangle(the_ray, v0, v1, v2, n, t, beta, gamma)) {
 		if (rtPotentialIntersection(t)) {
 			// Barycentric interpolation:
 			const float alpha = 1.0f - beta - gamma;

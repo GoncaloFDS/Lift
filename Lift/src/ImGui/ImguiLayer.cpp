@@ -111,8 +111,8 @@ void lift::ImGuiLayer::OnImguiRender() {
 
 	auto& app = Application::Get();
 	ImGui::Begin("Editor");
-	ImGui::ColorEdit3("Top color", &app.GetTopColor().x);
-	ImGui::ColorEdit3("Bottom color", &app.GetBottomColor().x);
+	//ImGui::ColorEdit3("Top color", &app.GetTopColor().x);
+	//ImGui::ColorEdit3("Bottom color", &app.GetBottomColor().x);
 	if (ImGui::ColorEdit3("Albedo", &app.material_albedo_.x))
 		app.RestartAccumulation();
 
