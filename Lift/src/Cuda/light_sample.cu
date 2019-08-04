@@ -27,7 +27,8 @@ RT_CALLABLE_PROGRAM void sample_light_constant(optix::float3 const& point, const
 	light_sample.distance = RT_DEFAULT_MAX; // Environment light.
 
 	// Explicit light sample. White scaled by inverse probabilty to hit this light.
-	light_sample.emission = optix::make_float3(sys_num_lights);
+	const LightDefinition light = sys_light_definitions[light_sample.index]; // The light index is picked by the caller!
+	light_sample.emission = light.emission * float(sys_num_lights);
 }
 
 

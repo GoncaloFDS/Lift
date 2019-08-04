@@ -48,5 +48,6 @@ namespace lift {
 			geometry_ = CreateGeometry(attributes, indices);
 
 		}
+
 	};
 }

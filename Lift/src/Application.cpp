@@ -96,7 +96,7 @@ void lift::Application::InitOptix() {
 
 		CreateOptixProgram("res/ptx/ray_generation.ptx", "ray_generation");
 		CreateOptixProgram("res/ptx/exception.ptx", "exception");
-		//CreateOptixProgram("res/ptx/miss.ptx", "miss_environment_constant");
+		CreateOptixProgram("res/ptx/miss.ptx", "miss_environment_constant");
 		CreateOptixProgram("res/ptx/miss.ptx", "miss_environment_null");
 		CreateOptixProgram("res/ptx/triangle_bounding_box.ptx", "triangle_bounding_box");
 		CreateOptixProgram("res/ptx/triangle_intersection.ptx", "triangle_intersection");
@@ -127,7 +127,7 @@ void lift::Application::InitGraphicsContext() {
 void lift::Application::SetOptixVariables() {
 	optix_context_->setRayGenerationProgram(0, ptx_programs_["ray_generation"]);
 	optix_context_->setExceptionProgram(0, ptx_programs_["exception"]);
-	optix_context_->setMissProgram(0, ptx_programs_["miss"]);
+	optix_context_->setMissProgram(0, ptx_programs_["miss_environment_constant"]);
 
 	optix_context_["sys_output_buffer"]->set(render_frame_.GetBufferOutput());
 	optix_context_["sys_camera_position"]->setFloat(0.0f, 0.0f, 0.0f);
@@ -205,26 +205,40 @@ void lift::Application::CreateScene() {
 }
 
 void lift::Application::CreateLights() {
-	LightDefinition light{
+
+	const LightDefinition environment_light{
+		LIGHT_ENVIRONMENT,
+		optix::make_float3(0.0f),
+		optix::make_float3(1.0f, 0.0f, 0.0f),
+		optix::make_float3(0.0f, 1.0f, 0.0f),
+		optix::make_float3(0.0f, 0.0f, 1.0f),
+		optix::make_float3(0.0f, 0.f, 0.f),
+		100.0f //! Unused
+	};
+	light_definitions_.push_back(environment_light);
+
+	LightDefinition parallelogram_light{
 		LIGHT_PARALLELOGRAM,
 		optix::make_float3(-0.5f, 7.0f, -0.5f),
 		optix::make_float3(1.0f, 0.0f, 0.0f),
 		optix::make_float3(0.0f, 0.0f, 1.0f),
 		optix::make_float3(0.0f, 0.0f, 1.0f),
-		optix::make_float3(1.0f, 1.0f, 1.0f),
+		optix::make_float3(1.0f),
 		1.0f
 	};
-	const auto normal = optix::cross(light.vector_u, light.vector_v);
-	light.area = optix::length(normal);
-	light.normal = normal / light.area;
-	light.emission = optix::make_float3(10.0f);
+	const auto normal = optix::cross(parallelogram_light.vector_u, parallelogram_light.vector_v);
+	parallelogram_light.area = optix::length(normal);
+	parallelogram_light.normal = normal / parallelogram_light.area;
+	parallelogram_light.emission = optix::make_float3(1.0f, .3f, 0.f) * 20;
 
-	auto light_index = int(light_definitions_.size());
-	light_definitions_.push_back(light);
+	const auto light_index = int(light_definitions_.size());
+	light_definitions_.push_back(parallelogram_light);
 
-	Parallelogram light_mesh(light.position, light.vector_u, light.vector_v, light.normal);
+	Parallelogram light_mesh(parallelogram_light.position, parallelogram_light.vector_u, parallelogram_light.vector_v, parallelogram_light.normal);
 	light_mesh.SetMaterial(light_material_);
 	light_mesh.SubmitMesh(group_root_);
+
+	light_mesh.GetGeometryInstance()["per_light_index"]->setInt(light_index);
 
 	light_definitions_buffer_ = optix_context_->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_USER);
 	light_definitions_buffer_->setElementSize(sizeof(LightDefinition));

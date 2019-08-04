@@ -56,11 +56,11 @@ MeshData lift::Mesh::TranslateMesh(aiMesh* mesh, const aiScene* scene) const {
 
 void lift::Mesh::SubmitMesh(optix::Group& group) {
 	auto& optix_context = OptixContext::Get();
-	auto geometry_instance = optix_context->createGeometryInstance();
-	geometry_instance->setGeometry(geometry_);
-	geometry_instance->setMaterialCount(1);
-	geometry_instance->setMaterial(0, material_);
-	geometry_instance["per_material_index"]->setInt(0);
+	geometry_instance_ = optix_context->createGeometryInstance();
+	geometry_instance_->setGeometry(geometry_);
+	geometry_instance_->setMaterialCount(1);
+	geometry_instance_->setMaterial(0, material_);
+	geometry_instance_["per_material_index"]->setInt(0);
 
 	auto acceleration = optix_context->createAcceleration("Trbvh");
 	acceleration->setProperty("vertex_buffer_name", "attributes_buffer");
@@ -71,7 +71,7 @@ void lift::Mesh::SubmitMesh(optix::Group& group) {
 	auto geometry_group = optix_context->createGeometryGroup();
 	geometry_group->setAcceleration(acceleration);
 	geometry_group->setChildCount(1);
-	geometry_group->setChild(0, geometry_instance);
+	geometry_group->setChild(0, geometry_instance_);
 
 	auto optix_transform = optix_context->createTransform();
 	optix_transform->setChild(geometry_group);

@@ -12,7 +12,9 @@ struct MeshData {
 namespace lift {
 	class Mesh {
 	public:
-		Mesh() : transform_(1.0f){}
+		Mesh() : transform_(1.0f) {
+		}
+
 		Mesh(const std::string& path);
 
 		[[nodiscard]] const optix::Material& Material() const { return material_; }
@@ -21,12 +23,15 @@ namespace lift {
 		[[nodiscard]] const mat4& Transform() const { return transform_; }
 		void SetTransform(const mat4& transform) { transform_ = transform; }
 
+		optix::GeometryInstance& GetGeometryInstance() { return geometry_instance_; }
+
 		void SubmitMesh(optix::Group& group);
 
 	protected:
 		MeshData mesh_data_;
 		optix::Material material_;
 		optix::Geometry geometry_;
+		optix::GeometryInstance geometry_instance_;
 		mat4 transform_;
 
 		void ProcessNode(aiNode* node, const aiScene* scene);
