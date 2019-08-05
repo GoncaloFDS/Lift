@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Util.h"
-#include "Application.h"
 
 std::string lift::Util::GetPtxString(const char* file_name) {
 	std::string ptx_source;

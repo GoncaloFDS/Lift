@@ -34,7 +34,7 @@ void lift::ImGuiLayer::OnAttach() {
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
 
-	// Setup Platform/Renderer bindings
+	// Setup platform/Renderer bindings
 	auto& app = Application::Get();
 	auto* window_handle = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 	ImGui_ImplGlfw_InitForOpenGL(window_handle, true);
@@ -123,8 +123,7 @@ void lift::ImGuiLayer::OnImguiRender() {
 	ImGui::Begin("Render");
 	const auto window = ImGui::GetCurrentWindow();
 	render_window_size_ = {window->Size.x, window->Size.y};
-	ImGui::Image(reinterpret_cast<GLuint*>(app.GetRenderedTexture()),
-				 {render_window_size_.x, render_window_size_.y - 40}, {0.f, 1.f}, {1.f, 0.f});
+	ImGui::Image(nullptr, {render_window_size_.x, render_window_size_.y - 40}, {0.f, 1.f}, {1.f, 0.f});
 	is_render_hovered_ = ImGui::IsWindowHovered();
 	ImGui::End();
 }

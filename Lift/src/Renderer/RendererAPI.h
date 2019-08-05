@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "VertexArray.h"
 
 namespace lift {

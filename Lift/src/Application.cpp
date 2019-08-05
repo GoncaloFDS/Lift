@@ -1,21 +1,14 @@
 #include "pch.h"
 #include "Application.h"
 
-#include "ImGui/ImguiLayer.h"
-#include "Platform/OpenGL/OpenGLContext.h"
-#include "Platform/Optix/OptixContext.h"
-#include "Renderer/Renderer.h"
-#include "Renderer/RenderCommand.h"
-#include "Events/MouseEvent.h"
-#include "Core/os/Input.h"
-#include "Core/Timer.h"
-#include "Core/Profiler.h"
-#include "Scene/Resources/Mesh.h"
-#include "Cuda/material_parameter.cuh"
-#include "glad/glad.h"
-#include "Scene/Resources/Plane.h"
-#include "Scene/Resources/Sphere.h"
-#include "Scene/Resources/Parallelogram.h"
+#include "imgui/ImguiLayer.h"
+#include "renderer/RenderCommand.h"
+#include "events/MouseEvent.h"
+#include "core/os/Input.h"
+#include "core/Timer.h"
+#include "core/Profiler.h"
+#include "platform/windows/WindowsWindow.h"
+#include "platform/opengl/OpenGLContext.h"
 
 lift::Application* lift::Application::instance_ = nullptr;
 
@@ -39,9 +32,6 @@ lift::Application::~Application() {
 
 void lift::Application::Run() {
 	Profiler profiler("Application Runtime");
-	render_frame_.Init(window_->GetWidth(), window_->GetHeight());
-	SetOptixVariables();
-	//CreateRenderFrame();
 	CreateScene();
 
 	while (is_running_) {
@@ -50,6 +40,7 @@ void lift::Application::Run() {
 		//RenderCommand::Clear();
 
 		// Update Layers
+		window_->OnUpdate();
 		for (auto& layer : layer_stack_)
 			layer->OnUpdate();
 
@@ -58,234 +49,39 @@ void lift::Application::Run() {
 
 
 		const auto size = ImGuiLayer::GetRenderWindowSize();
-		render_frame_.Resize(static_cast<uint32_t>(size.x), static_cast<uint32_t>(size.y));
 		camera_.SetViewport(uint32_t(size.x), uint32_t(size.y));
 
 		// Render
-		optix_context_["sys_iteration_index"]->setInt(accumulated_frames_);
-		render_frame_.Bind();
 		UpdateOptixVariables();
-		try {
-			optix_context_->launch(0, RTsize(size.x), RTsize(size.y));
-		}
-		catch (optix::Exception& e) {
-			LF_ASSERT(false, e.getErrorString());
-		}
-		accumulated_frames_++;
-
 
 		//End frame
 		ImGuiLayer::End();
 		graphics_context_->SwapBuffers();
-		window_->OnUpdate();
 	}
-}
-
-void lift::Application::CreateOptixProgram(const std::string& ptx, const std::string& program_name) {
-	ptx_programs_[program_name] = optix_context_->createProgramFromPTXString(
-		Util::GetPtxString(ptx.c_str()), program_name);
 }
 
 void lift::Application::InitOptix() {
 	Profiler profiler("Optix Initialization");
-	optix_context_ = OptixContext::Create();
-
-	OptixContext::PrintInfo();
-
-	try {
-
-		CreateOptixProgram("res/ptx/ray_generation.ptx", "ray_generation");
-		CreateOptixProgram("res/ptx/exception.ptx", "exception");
-		CreateOptixProgram("res/ptx/miss.ptx", "miss_environment_constant");
-		CreateOptixProgram("res/ptx/miss.ptx", "miss_environment_null");
-		CreateOptixProgram("res/ptx/triangle_bounding_box.ptx", "triangle_bounding_box");
-		CreateOptixProgram("res/ptx/triangle_intersection.ptx", "triangle_intersection");
-		CreateOptixProgram("res/ptx/closest_hit.ptx", "closest_hit");
-		CreateOptixProgram("res/ptx/closest_hit_light.ptx", "closest_hit_light");
-		CreateOptixProgram("res/ptx/any_hit.ptx", "any_hit_shadow");
-		CreateOptixProgram("res/ptx/light_sample.ptx", "sample_light_constant");
-		CreateOptixProgram("res/ptx/light_sample.ptx", "sample_light_parallelogram");
-	}
-	catch (optix::Exception& e) {
-		LF_CORE_ERROR(e.getErrorString());
-	}
-
-	optix_context_->setRayTypeCount(2);
-	optix_context_->setEntryPointCount(1);
-	optix_context_->setStackSize(1024);
-	//optix_context_->setMaxTraceDepth(2);
-	optix_context_->setPrintEnabled(true);
-	optix_context_->setExceptionEnabled(RT_EXCEPTION_ALL, true);
 }
 
 void lift::Application::InitGraphicsContext() {
 	graphics_context_ = std::make_unique<OpenGLContext>(static_cast<GLFWwindow*>(window_->GetNativeWindow()));
 	graphics_context_->Init();
-	RenderCommand::SetClearColor({1.0f, 0.1f, 1.0f, 0.0f});
+	RenderCommand::SetClearColor({1.0f, 0.1f, 1.0f, 1.0f});
 }
 
-void lift::Application::SetOptixVariables() {
-	optix_context_->setRayGenerationProgram(0, ptx_programs_["ray_generation"]);
-	optix_context_->setExceptionProgram(0, ptx_programs_["exception"]);
-	optix_context_->setMissProgram(0, ptx_programs_["miss_environment_constant"]);
-
-	optix_context_["sys_output_buffer"]->set(render_frame_.GetBufferOutput());
-	optix_context_["sys_camera_position"]->setFloat(0.0f, 0.0f, 0.0f);
-	optix_context_["sys_camera_u"]->setFloat(1.0f, 0.0f, 0.0f);
-	optix_context_["sys_camera_v"]->setFloat(0.0f, 1.0f, 0.0f);
-	optix_context_["sys_camera_w"]->setFloat(0.0f, 0.0f, -1.0f);
-
-	optix_context_["sys_scene_epsilon"]->setFloat(500.0f * 1e-7f);
-	optix_context_["sys_path_lengths"]->setInt(2, 2);
-
-	optix_context_["sys_iteration_index"]->setInt(0);
-
-}
-
-void lift::Application::UpdateLightParameters() {
-	if (!light_definitions_.empty()) {
-		void* dst = static_cast<LightDefinition*>(light_definitions_buffer_->map(0, RT_BUFFER_MAP_WRITE_DISCARD));
-		memcpy(dst, light_definitions_.data(), sizeof(LightDefinition) * light_definitions_.size());
-		light_definitions_buffer_->unmap();
-	}
-
-	optix_context_["sys_light_definitions"]->setBuffer(light_definitions_buffer_);
-	optix_context_["sys_num_lights"]->setInt(int(light_definitions_.size()));
-}
 
 void lift::Application::UpdateOptixVariables() {
-	if (camera_.OnUpdate()) {
-		optix_context_["sys_camera_position"]->set3fv(value_ptr(camera_.GetPosition()));
-		optix_context_["sys_camera_u"]->set3fv(value_ptr(camera_.GetVectorU()));
-		optix_context_["sys_camera_v"]->set3fv(value_ptr(camera_.GetVectorV()));
-		optix_context_["sys_camera_w"]->set3fv(value_ptr(camera_.GetVectorW()));
-	}
-	//optix_context_["sys_color_top"]->set3fv(value_ptr(top_color_));
-	//optix_context_["sys_color_bottom"]->set3fv(value_ptr(bottom_color_));
-	UpdateMaterialParameters(); //TODO check if necessary
-
-	// Update Lights
-	UpdateLightParameters();
-
 }
 
 void lift::Application::CreateScene() {
 	Profiler profiler{"Create Scene"};
-	InitMaterials();
-	camera_.SetViewport(window_->GetWidth(), window_->GetHeight());
-	camera_.Pan(0.f, 10.f);
-	group_root_ = optix_context_->createGroup();
-	acceleration_root_ = optix_context_->createAcceleration("Trbvh");
-	group_root_->setAcceleration(acceleration_root_);
-	group_root_->setChildCount(0);
-
-	optix_context_["sys_top_object"]->set(group_root_);
-
-	Plane plane(1, 1, 1);
-	plane.SetMaterial(opaque_material_);
-	plane.SetTransform(scale(mat4(1), {5.0f, 5.0f, 5.0f}));
-	plane.SubmitMesh(group_root_);
-
-	Sphere sphere(180, 90, 1.0f, M_PIf);
-	sphere.SetMaterial(opaque_material_);
-	sphere.SetTransform(translate(mat4(1), {0.0f, 1.0f, 0.0f}));
-	sphere.SubmitMesh(group_root_);
-
-	Mesh mesh1("res/models/Lantern/glTF/Lantern.gltf");
-	mesh1.SetMaterial(opaque_material_);
-	mesh1.SetTransform(translate(mat4(1), {-2.0f, 3.0f, 0.0f}));
-	mesh1.SubmitMesh(group_root_);
-
-	Mesh mesh2("res/models/Lantern/glTF/Lantern.gltf");
-	mesh2.SetMaterial(opaque_material_);
-	mesh2.SetTransform(translate(mat4(1), {2.0f, 3.0f, 0.0f}));
-	mesh2.SubmitMesh(group_root_);
-
-	CreateLights();
 }
 
 void lift::Application::CreateLights() {
-
-	const LightDefinition environment_light{
-		LIGHT_ENVIRONMENT,
-		optix::make_float3(0.0f),
-		optix::make_float3(1.0f, 0.0f, 0.0f),
-		optix::make_float3(0.0f, 1.0f, 0.0f),
-		optix::make_float3(0.0f, 0.0f, 1.0f),
-		optix::make_float3(0.0f, 0.f, 0.f),
-		100.0f //! Unused
-	};
-	light_definitions_.push_back(environment_light);
-
-	LightDefinition parallelogram_light{
-		LIGHT_PARALLELOGRAM,
-		optix::make_float3(-0.5f, 7.0f, -0.5f),
-		optix::make_float3(1.0f, 0.0f, 0.0f),
-		optix::make_float3(0.0f, 0.0f, 1.0f),
-		optix::make_float3(0.0f, 0.0f, 1.0f),
-		optix::make_float3(1.0f),
-		1.0f
-	};
-	const auto normal = optix::cross(parallelogram_light.vector_u, parallelogram_light.vector_v);
-	parallelogram_light.area = optix::length(normal);
-	parallelogram_light.normal = normal / parallelogram_light.area;
-	parallelogram_light.emission = optix::make_float3(1.0f, .3f, 0.f) * 20;
-
-	const auto light_index = int(light_definitions_.size());
-	light_definitions_.push_back(parallelogram_light);
-
-	Parallelogram light_mesh(parallelogram_light.position, parallelogram_light.vector_u, parallelogram_light.vector_v, parallelogram_light.normal);
-	light_mesh.SetMaterial(light_material_);
-	light_mesh.SubmitMesh(group_root_);
-
-	light_mesh.GetGeometryInstance()["per_light_index"]->setInt(light_index);
-
-	light_definitions_buffer_ = optix_context_->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_USER);
-	light_definitions_buffer_->setElementSize(sizeof(LightDefinition));
-	light_definitions_buffer_->setSize(light_definitions_.size());
-
-	UpdateLightParameters();
-	light_sample_buffer_ = optix_context_->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_PROGRAM_ID, 2);
-	const auto light_sample = static_cast<int*>(light_sample_buffer_->map(0, RT_BUFFER_MAP_WRITE_DISCARD));
-	light_sample[LIGHT_ENVIRONMENT] = ptx_programs_["sample_light_constant"]->getId();
-	light_sample[LIGHT_PARALLELOGRAM] = ptx_programs_["sample_light_parallelogram"]->getId();
-	light_sample_buffer_->unmap();
-	optix_context_["sys_sample_light"]->setBuffer(light_sample_buffer_);
-
-}
-
-void lift::Application::UpdateMaterialParameters() {
-	auto dst = static_cast<MaterialParameter*>(material_parameters_buffer_->map(0, RT_BUFFER_MAP_WRITE_DISCARD));
-	for (size_t i = 0; i < material_parameters_gui_.size(); i++, dst++) {
-		//auto& src = material_parameters_gui_[i];
-		dst->albedo.x = material_albedo_.x; //src.albedo;
-		dst->albedo.y = material_albedo_.y; //src.albedo;
-		dst->albedo.z = material_albedo_.z; //src.albedo;
-	}
-	material_parameters_buffer_->unmap();
 }
 
 void lift::Application::InitMaterials() {
-
-	MaterialParameterGUI parameters;
-	parameters.albedo = optix::make_float3(0.2f, 0.3f, 0.0f);
-	material_parameters_gui_.push_back(parameters);
-
-	material_parameters_buffer_ = optix_context_->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_USER);
-	material_parameters_buffer_->setElementSize(sizeof(MaterialParameter));
-	material_parameters_buffer_->setSize(material_parameters_gui_.size());
-
-	UpdateMaterialParameters();
-
-	optix_context_["sys_material_parameters"]->setBuffer(material_parameters_buffer_);
-
-	opaque_material_ = optix_context_->createMaterial();
-	opaque_material_->setClosestHitProgram(0, ptx_programs_["closest_hit"]);
-	opaque_material_->setAnyHitProgram(1, ptx_programs_["any_hit_shadow"]);
-
-	light_material_ = optix_context_->createMaterial();
-	light_material_->setClosestHitProgram(0, ptx_programs_["closest_hit_light"]);
-	light_material_->setAnyHitProgram(1, ptx_programs_["any_hit_shadow"]);
 }
 
 void lift::Application::OnEvent(Event& e) {
@@ -315,7 +111,6 @@ bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
 		// Only resize when not minimized
 		const auto size = ImGuiLayer::GetRenderWindowSize();
 		RenderCommand::Resize(e.GetWidth(), e.GetHeight());
-		render_frame_.Resize(uint32_t(size.x), uint32_t(size.y));
 		camera_.SetViewport(uint32_t(size.x), uint32_t(size.y));
 	}
 

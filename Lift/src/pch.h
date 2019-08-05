@@ -27,9 +27,9 @@
 
 using namespace glm;
 
-#include "Core/io/Log.h"
-#include "Core/os/KeyCodes.h"
-#include "Core/Util.h"
+#include "core/io/Log.h"
+#include "core/os/KeyCodes.h"
+#include "core/Util.h"
 
 #ifdef LF_PLATFORM_WINDOWS
 #include <Windows.h>

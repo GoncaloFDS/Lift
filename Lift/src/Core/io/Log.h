@@ -26,15 +26,15 @@ namespace lift {
 }
 
 // Core log macros
-#define LF_CORE_TRACE(...)	::lift::Log::GetCoreLogger()->trace(__VA_ARGS__)
-#define LF_CORE_INFO(...)	::lift::Log::GetCoreLogger()->info(__VA_ARGS__)
-#define LF_CORE_WARN(...)	::lift::Log::GetCoreLogger()->warn(__VA_ARGS__)
-#define LF_CORE_ERROR(...)	::lift::Log::GetCoreLogger()->error(__VA_ARGS__)
-#define LF_CORE_FATAL(...)	::lift::Log::GetCoreLogger()->critical(__VA_ARGS__)
+#define LF_CORE_TRACE(...)	lift::Log::GetCoreLogger()->trace(__VA_ARGS__)
+#define LF_CORE_INFO(...)	lift::Log::GetCoreLogger()->info(__VA_ARGS__)
+#define LF_CORE_WARN(...)	lift::Log::GetCoreLogger()->warn(__VA_ARGS__)
+#define LF_CORE_ERROR(...)	lift::Log::GetCoreLogger()->error(__VA_ARGS__)
+#define LF_CORE_FATAL(...)	lift::Log::GetCoreLogger()->critical(__VA_ARGS__)
 
 // Client log macros
-#define LF_TRACE(...)	::lift::Log::GetClientLogger()->trace(__VA_ARGS__)
-#define LF_INFO(...)	::lift::Log::GetClientLogger()->info(__VA_ARGS__)
-#define LF_WARN(...)	::lift::Log::GetClientLogger()->warn(__VA_ARGS__)
-#define LF_ERROR(...)	::lift::Log::GetClientLogger()->error(__VA_ARGS__)
-#define LF_FATAL(...)	::lift::Log::GetClientLogger()->critical(__VA_ARGS__)
+#define LF_TRACE(...)	lift::Log::GetClientLogger()->trace(__VA_ARGS__)
+#define LF_INFO(...)	lift::Log::GetClientLogger()->info(__VA_ARGS__)
+#define LF_WARN(...)	lift::Log::GetClientLogger()->warn(__VA_ARGS__)
+#define LF_ERROR(...)	lift::Log::GetClientLogger()->error(__VA_ARGS__)
+#define LF_FATAL(...)	lift::Log::GetClientLogger()->critical(__VA_ARGS__)

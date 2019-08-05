@@ -1,5 +1,4 @@
 #pragma once
-#include <optix_world.h>
 
 namespace lift {
 

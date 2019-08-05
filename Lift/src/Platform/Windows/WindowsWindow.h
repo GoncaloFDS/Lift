@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/os/Window.h"
+#include "core/os/Window.h"
 #include "GLFW/glfw3.h"
 
 namespace lift {

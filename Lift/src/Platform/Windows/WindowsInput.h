@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/os/Input.h"
+#include "core/os/Input.h"
 
 namespace lift {
 	class WindowsInput : public Input {

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Core/Layer.h"
+#include "core/Layer.h"
 #include "Application.h"
 
 namespace lift {

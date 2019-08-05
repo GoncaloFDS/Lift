@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "Events/Event.h"
+#include "events/Event.h"
 #include "Renderer/GraphicsContext.h"
 
 namespace lift {

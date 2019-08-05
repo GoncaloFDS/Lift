@@ -21,13 +21,6 @@ constexpr T Bit(T x) {
 #define LF_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
 
-#define OPTIX_CALL(result) \
-	if((result) != RT_SUCCESS) { \
-		LF_CORE_ERROR("[Optix error] {0}", RTresultToString(result)); \
-		LF_CORE_ERROR("\tFile: {0}", __FILE__); \
-		LF_CORE_ERROR("\tLINE: {0}", __LINE__); \
-	}
-
 #ifdef LF_DEBUG
 	#define OPENGL_CALL(x) \
 		(x); \

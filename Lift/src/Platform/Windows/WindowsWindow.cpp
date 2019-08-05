@@ -2,9 +2,9 @@
 
 #include "WindowsWindow.h"
 
-#include "Events/ApplicationEvent.h"
-#include "Events/MouseEvent.h"
-#include "Events/KeyEvent.h"
+#include "events/ApplicationEvent.h"
+#include "events/MouseEvent.h"
+#include "events/KeyEvent.h"
 
 
 static bool glfw_initialized = false;

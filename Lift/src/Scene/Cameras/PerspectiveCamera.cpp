@@ -98,15 +98,15 @@ bool PerspectiveCamera::OnUpdate() {
 	if (changed) {
 		// Recalculate the camera parameters.
 		
-		const auto cos_phi = cosf(phi_ * 2.0f * M_PIf);
-		const auto sin_phi = sinf(phi_ * 2.0f * M_PIf);
-		const auto cos_theta = cosf(theta_ * M_PIf);
-		const auto sin_theta = sinf(theta_ * M_PIf);
+		const auto cos_phi = cosf(phi_ * 2.0f * pi<float>());
+		const auto sin_phi = sinf(phi_ * 2.0f * pi<float>());
+		const auto cos_theta = cosf(theta_ * pi<float>());
+		const auto sin_theta = sinf(theta_ * pi<float>());
 
 		const vec3 normal(cos_phi * sin_theta, -cos_theta, -sin_phi * sin_theta);
 		// "normal", unit vector from origin to spherical coordinates (phi, theta)
 
-		const auto tan_fov = tanf((fov_ * 0.5f) * M_PIf / 180.0f); // m_fov is in the range [1.0f, 179.0f].
+		const auto tan_fov = tanf((fov_ * 0.5f) * pi<float>() / 180.0f); // m_fov is in the range [1.0f, 179.0f].
 		position_ = center_ + focus_distance_ * normal;
 
 		vector_u_ = aspect_ * vec3(-sin_phi, 0.0f, -cos_phi) * tan_fov; // "tangent"

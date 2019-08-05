@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Application.h"
-#include "Core/Layer.h"
-#include "Core/io/Log.h"
-#include "Core/os/Input.h"
-#include "Core/os/KeyCodes.h"
-#include "ImGui/ImGuiLayer.h"
-#include "Events/ApplicationEvent.h"
-#include "Events/KeyEvent.h"
-#include "Events/MouseEvent.h"
+#include "core/Layer.h"
+#include "core/io/Log.h"
+#include "spdlog/spdlog.h"
+#include "core/os/Input.h"
+#include "core/os/KeyCodes.h"
+#include "imgui/ImGuiLayer.h"
+#include "events/ApplicationEvent.h"
+#include "events/KeyEvent.h"
+#include "events/MouseEvent.h"
 
 #include "Main.h"

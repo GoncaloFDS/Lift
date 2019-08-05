@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "VertexArray.h"
 #include "Renderer.h"
-#include "Platform/OpenGL/OpenGLVertexArray.h"
+#include "platform/opengl/OpenGLVertexArray.h"
 
 lift::VertexArray* lift::VertexArray::Create() {
 	switch (Renderer::GetAPI()) {

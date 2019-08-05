@@ -18,3 +18,5 @@ build/
 tests/res/models/
 
 lift/x64/
+
+sandbox/res/models/

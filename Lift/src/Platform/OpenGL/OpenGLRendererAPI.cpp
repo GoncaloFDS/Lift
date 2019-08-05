@@ -2,7 +2,6 @@
 #include "OpenGLRendererAPI.h"
 
 #include <glad/glad.h>
-#include <glm/common.hpp>
 
 void lift::OpenGLRendererAPI::SetClearColor(const vec4& color) {
 	glClearColor(color.x, color.y, color.z, color.w);
