@@ -10,6 +10,12 @@
 #include "platform/windows/WindowsWindow.h"
 #include "platform/opengl/OpenGLContext.h"
 
+#define OPTIX_COMPATIBILITY 7
+#include <cuda_runtime.h>
+#include <optix.h>
+#include <optix_stubs.h>
+#include <optix_function_table_definition.h>
+
 lift::Application* lift::Application::instance_ = nullptr;
 
 lift::Application::Application() {
@@ -62,6 +68,12 @@ void lift::Application::Run() {
 
 void lift::Application::InitOptix() {
 	Profiler profiler("Optix Initialization");
+	cudaFree(0);
+	int num_devices;
+	cudaGetDeviceCount(&num_devices);
+	LF_ASSERT(num_devices > 0, "No CUDA capable device found");
+	LF_CORE_INFO("Found {0} CUDA devices", num_devices);
+	OPTIX_CHECK(optixInit());
 }
 
 void lift::Application::InitGraphicsContext() {

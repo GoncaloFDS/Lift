@@ -62,6 +62,8 @@ project "Lift"
 		"GLFW",
 		"Glad",
 		"ImGui",
+		"%{IncludeDir.cuda}/lib/x64/cudart_static.lib",
+		"%{IncludeDir.cuda}/lib/x64/cuda.lib",
 	}
 	
 	postbuildcommands {
