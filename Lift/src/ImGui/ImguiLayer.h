@@ -16,11 +16,11 @@ namespace lift {
 		void OnImguiRender() override;
 		void OnEvent(Event& event) override;
 
-		static vec2 GetRenderWindowSize();
+		static ivec2 GetRenderWindowSize();
 		static void Begin();
 		static void End();
 
-		static vec2 render_window_size_;
+		static ivec2 render_window_size_;
 		unsigned render_id_;
 		bool is_render_hovered_;
 	};

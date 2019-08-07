@@ -111,7 +111,8 @@ project "Sandbox"
 
 	files {
 		"sandbox/src/**.h",
-		"sandbox/src/**.cpp"
+		"sandbox/src/**.cpp",
+		"sandbox/res/**",
 	}
 
 	includedirs {

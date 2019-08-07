@@ -56,3 +56,8 @@ void lift::Texture::Bind(unsigned int slot) const {
 void lift::Texture::Unbind() {
 	OPENGL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 }
+
+void lift::Texture::SetData() {
+	OPENGL_CALL(glBindTexture(GL_TEXTURE_2D, id));
+	OPENGL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, resolution.x, resolution.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data_.data()));
+}

@@ -11,7 +11,7 @@
 #include "imgui_internal.h"
 #include <glm/common.hpp>
 
-vec2 lift::ImGuiLayer::render_window_size_;
+ivec2 lift::ImGuiLayer::render_window_size_;
 
 // TEMPORARY
 ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove;
@@ -122,8 +122,14 @@ void lift::ImGuiLayer::OnImguiRender() {
 
 	ImGui::Begin("Render");
 	const auto window = ImGui::GetCurrentWindow();
-	render_window_size_ = {window->Size.x, window->Size.y};
-	ImGui::Image(nullptr, {render_window_size_.x, render_window_size_.y - 40}, {0.f, 1.f}, {1.f, 0.f});
+	auto size = ivec2(window->Size.x, window->Size.y);
+	if(size != render_window_size_) {
+		app.Resize(size);
+		render_window_size_ = size;
+	}
+	ImGui::Image(ImTextureID(app.GetFrameTextureId()), 
+		{static_cast<float>(size.x), static_cast<float>(size.y - 40)},
+		{0.f, 1.f}, {1.f, 0.f});
 	is_render_hovered_ = ImGui::IsWindowHovered();
 	ImGui::End();
 }
@@ -134,7 +140,7 @@ void lift::ImGuiLayer::OnEvent(Event& event) {
 		event.handled_ = true;
 }
 
-vec2 lift::ImGuiLayer::GetRenderWindowSize() {
+ivec2 lift::ImGuiLayer::GetRenderWindowSize() {
 	return render_window_size_;
 }
 

@@ -5,8 +5,10 @@
 #include "core/LayerStack.h"
 #include "events/ApplicationEvent.h"
 
-#include "Renderer/GraphicsContext.h"
-#include "Scene/Cameras/PerspectiveCamera.h"
+#include "renderer/GraphicsContext.h"
+#include "scene/cameras/PerspectiveCamera.h"
+#include "renderer/Renderer.h"
+#include "renderer/Texture.h"
 
 namespace lift {
 	class MouseMovedEvent;
@@ -24,8 +26,12 @@ namespace lift {
 		template <typename T>
 		void PushOverlay() { layer_stack_.PushOverlay<T>(); }
 
+		void Resize(const ivec2& size);
+
 		static Application& Get() { return *instance_; }
 		[[nodiscard]] Window& GetWindow() const { return *window_; }
+
+		auto GetFrameTextureId() const { return target_texture_->id; }
 
 		void RestartAccumulation() { accumulated_frames_ = 0; }
 
@@ -34,15 +40,17 @@ namespace lift {
 		bool is_running_ = true;
 		std::unique_ptr<Window> window_;
 		std::unique_ptr<GraphicsContext> graphics_context_;
+		Renderer renderer_;
 
 		LayerStack layer_stack_;
 
 		PerspectiveCamera camera_;
+
+		std::unique_ptr<Texture> target_texture_;
 		int accumulated_frames_{0};
 
 		static Application* instance_;
 
-		void InitOptix();
 		void InitGraphicsContext();
 
 		void UpdateOptixVariables();

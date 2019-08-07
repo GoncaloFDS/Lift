@@ -10,7 +10,7 @@
 #include "platform/windows/WindowsWindow.h"
 #include "platform/opengl/OpenGLContext.h"
 
-#define OPTIX_COMPATIBILITY 7
+constexpr auto OPTIX_COMPATIBILITY = 7;
 #include <cuda_runtime.h>
 #include <optix.h>
 #include <optix_stubs.h>
@@ -26,7 +26,7 @@ lift::Application::Application() {
 
 	Timer::Start();
 	InitGraphicsContext();
-	InitOptix();
+	renderer_.Init();
 
 	//window_->SetVSync(false);
 	PushOverlay<ImGuiLayer>();
@@ -39,6 +39,7 @@ lift::Application::~Application() {
 void lift::Application::Run() {
 	Profiler profiler("Application Runtime");
 	CreateScene();
+	target_texture_ = std::make_unique<Texture>();
 
 	while (is_running_) {
 		Timer::Tick();
@@ -53,9 +54,11 @@ void lift::Application::Run() {
 		for (auto& layer : layer_stack_)
 			layer->OnImguiRender();
 
+		renderer_.Render();
+		renderer_.DownloadPixels(target_texture_->Data());
+		target_texture_->SetData();
 
-		const auto size = ImGuiLayer::GetRenderWindowSize();
-		camera_.SetViewport(uint32_t(size.x), uint32_t(size.y));
+		//camera_.SetViewport(uint32_t(size.x), uint32_t(size.y));
 
 		// Render
 		UpdateOptixVariables();
@@ -66,14 +69,9 @@ void lift::Application::Run() {
 	}
 }
 
-void lift::Application::InitOptix() {
-	Profiler profiler("Optix Initialization");
-	cudaFree(0);
-	int num_devices;
-	cudaGetDeviceCount(&num_devices);
-	LF_ASSERT(num_devices > 0, "No CUDA capable device found");
-	LF_CORE_INFO("Found {0} CUDA devices", num_devices);
-	OPTIX_CHECK(optixInit());
+void lift::Application::Resize(const ivec2& size) {
+	renderer_.Resize(size);
+	target_texture_->Resize(size);
 }
 
 void lift::Application::InitGraphicsContext() {

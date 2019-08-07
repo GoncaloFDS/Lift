@@ -44,3 +44,29 @@ constexpr T Bit(T x) {
 #else
 	#define OPTIX_CHECK( call ) ( call );
 #endif
+
+#define CUDA_CHECK(call)												\
+    {																	\
+      cudaError_t rc = cuda##call;                                      \
+      if (rc != cudaSuccess) {                                          \
+		cudaError_t err = rc; \
+		LF_CORE_ERROR("CUDA Error {0} [{1}]", cudaGetErrorName(err), cudaGetErrorString(err)); \
+		__debugbreak(); \
+      }                                                                 \
+    }
+
+#define CUDA_CHECK_NOEXCEPT(call)                                        \
+    {									\
+      cuda##call;                                                       \
+    }
+
+#define CUDA_SYNC_CHECK()                                               \
+  {                                                                     \
+    cudaDeviceSynchronize();                                            \
+    cudaError_t error = cudaGetLastError();                             \
+    if( error != cudaSuccess )                                          \
+      {                                                                 \
+        LF_CORE_ERROR("error ({0}: line {1}): {2}", __FILE__, __LINE__, cudaGetErrorString( error ) ); \
+        exit( 2 );                                                      \
+      }                                                                 \
+  }
