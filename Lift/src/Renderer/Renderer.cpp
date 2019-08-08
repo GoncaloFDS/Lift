@@ -2,6 +2,8 @@
 #include "Renderer.h"
 #include "RenderCommand.h"
 #include <optix_stubs.h>
+#include <optix_function_table_definition.h>
+
 
 namespace lift {
 	/*! SBT record for a raygen program */
@@ -25,12 +27,38 @@ namespace lift {
 		__align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
 		// just a dummy value - later examples will use more interesting
 		// data here
-		int objectID;
+		int object_id;
 	};
 }
 
+void lift::TriangleMesh::AddCube(const vec3& center, const vec3& size) {
+	const int first_vertex_index = int(vertices.size());
+	vertices.emplace_back(0.0f, 0.0f, 0.0f);
+	vertices.emplace_back(1.0f, 0.0f, 0.0f);
+	vertices.emplace_back(0.0f, 1.0f, 0.0f);
+	vertices.emplace_back(1.0f, 1.0f, 0.0f);
+	vertices.emplace_back(0.0f, 0.0f, 1.0f);
+	vertices.emplace_back(1.0f, 0.0f, 1.0f);
+	vertices.emplace_back(0.0f, 1.0f, 1.0f);
+	vertices.emplace_back(1.0f, 1.0f, 1.0f);
+
+	int indices_data[] = {
+		0, 1, 3, 2, 3, 0,
+		5, 7, 6, 5, 6, 4,
+		0, 4, 5, 0, 5, 1,
+		2, 3, 7, 2, 7, 6,
+		1, 5, 6, 1, 7, 3,
+		4, 0, 2, 4, 2, 6
+	};
+	for (int i = 0; i < 12; i++) {
+		indices.push_back(ivec3(first_vertex_index) + ivec3(indices_data[3 * i + 0],
+															indices_data[3 * i + 1],
+															indices_data[3 * i + 2]));
+	}
+}
+
 void lift::Renderer::Init() {
-	
+
 	InitOptix();
 	CreateContext();
 	CreateModule();
@@ -46,20 +74,19 @@ void lift::Renderer::Init() {
 }
 
 void lift::Renderer::Render() {
-	if (launch_params_.frame_buffer_size.x == 0) {
+	if (launch_params_.frame.size.x == 0) {
 		LF_CORE_ERROR("frame buffer size is zero");
 		return;
 	}
 	launch_params_buffer_.upload(&launch_params_, 1);
-	launch_params_.frame_id++;
 
 	OPTIX_CHECK(optixLaunch(pipeline_,
 		stream_,
 		launch_params_buffer_.d_pointer(),
 		launch_params_buffer_.size_in_bytes,
 		&sbt_,
-		launch_params_.frame_buffer_size.x,
-		launch_params_.frame_buffer_size.y,
+		launch_params_.frame.size.x,
+		launch_params_.frame.size.y,
 		1
 	));
 	// sync - make sure the frame is rendered before we download and
@@ -72,12 +99,31 @@ void lift::Renderer::Render() {
 void lift::Renderer::Resize(const ivec2& size) {
 	color_buffer_.resize(size.x * size.y * sizeof(uint32_t));
 
-	launch_params_.frame_buffer_size = size;
-	launch_params_.color_buffer = static_cast<uint32_t*>(color_buffer_.d_ptr);
+	launch_params_.frame.size = size;
+	launch_params_.frame.color_buffer = static_cast<uint32_t*>(color_buffer_.d_ptr);
+
+	SetCamera(last_set_camera_);
 }
 
 void lift::Renderer::DownloadPixels(uint32_t h_pixels[]) {
-	color_buffer_.download(h_pixels, launch_params_.frame_buffer_size.x * launch_params_.frame_buffer_size.y);
+	color_buffer_.download(h_pixels, launch_params_.frame.size.x * launch_params_.frame.size.y);
+}
+
+void lift::Renderer::SetCamera(const Camera& camera) {
+	last_set_camera_ = camera;
+	launch_params_.camera.position = camera.from;
+	launch_params_.camera.direction = normalize(camera.at - camera.from);
+
+	const float cos_fov_y = 0.66f;
+	const float aspect = launch_params_.frame.size.x / float(launch_params_.frame.size.y);
+	launch_params_.camera.horizontal = cos_fov_y * aspect *
+		normalize(cross(launch_params_.camera.direction, camera.up));
+	launch_params_.camera.vertical = cos_fov_y * normalize(cross(launch_params_.camera.horizontal,
+																 launch_params_.camera.direction));
+}
+
+void lift::Renderer::AddModel(const TriangleMesh& model) {
+	launch_params_.traversable = BuildAccelerationStructure(model);
 }
 
 void lift::Renderer::InitOptix() {
@@ -261,30 +307,30 @@ void lift::Renderer::BuildShaderBindingTables() {
 	// ------------------------------------------------------------------
 	// build raygen records
 	// ------------------------------------------------------------------
-	std::vector<RaygenRecord> raygenRecords;
+	std::vector<RaygenRecord> raygen_records;
 	for (int i = 0; i < raygen_program_groups_.size(); i++) {
 		RaygenRecord rec;
 		OPTIX_CHECK(optixSbtRecordPackHeader(raygen_program_groups_[i],&rec));
 		rec.data = nullptr; /* for now ... */
-		raygenRecords.push_back(rec);
+		raygen_records.push_back(rec);
 	}
-	raygen_program_groups_buffer_.alloc_and_upload(raygenRecords);
+	raygen_program_groups_buffer_.alloc_and_upload(raygen_records);
 	sbt_.raygenRecord = raygen_program_groups_buffer_.d_pointer();
 
 	// ------------------------------------------------------------------
 	// build miss records
 	// ------------------------------------------------------------------
-	std::vector<MissRecord> missRecords;
+	std::vector<MissRecord> miss_records;
 	for (int i = 0; i < miss_program_groups_.size(); i++) {
 		MissRecord rec;
 		OPTIX_CHECK(optixSbtRecordPackHeader(miss_program_groups_[i],&rec));
 		rec.data = nullptr; /* for now ... */
-		missRecords.push_back(rec);
+		miss_records.push_back(rec);
 	}
-	miss_program_groups_buffer_.alloc_and_upload(missRecords);
+	miss_program_groups_buffer_.alloc_and_upload(miss_records);
 	sbt_.missRecordBase = miss_program_groups_buffer_.d_pointer();
 	sbt_.missRecordStrideInBytes = sizeof(MissRecord);
-	sbt_.missRecordCount = (int)missRecords.size();
+	sbt_.missRecordCount = (int)miss_records.size();
 
 	// ------------------------------------------------------------------
 	// build hitgroup records
@@ -293,19 +339,125 @@ void lift::Renderer::BuildShaderBindingTables() {
 	// we don't actually have any objects in this example, but let's
 	// create a dummy one so the SBT doesn't have any null pointers
 	// (which the sanity checks in compilation would compain about)
-	int numObjects = 1;
-	std::vector<HitgroupRecord> hitgroupRecords;
-	for (int i = 0; i < numObjects; i++) {
-		int object_type = 0;
+	const int num_objects = 1;
+	std::vector<HitgroupRecord> hitgroup_records;
+	for (int i = 0; i < num_objects; i++) {
+		const int object_type = 0;
 		HitgroupRecord rec;
 		OPTIX_CHECK(optixSbtRecordPackHeader(hit_program_groups_[object_type],&rec));
-		rec.objectID = i;
-		hitgroupRecords.push_back(rec);
+		rec.object_id = i;
+		hitgroup_records.push_back(rec);
 	}
-	hit_program_groups_buffer_.alloc_and_upload(hitgroupRecords);
+	hit_program_groups_buffer_.alloc_and_upload(hitgroup_records);
 	sbt_.hitgroupRecordBase = hit_program_groups_buffer_.d_pointer();
 	sbt_.hitgroupRecordStrideInBytes = sizeof(HitgroupRecord);
-	sbt_.hitgroupRecordCount = (int)hitgroupRecords.size();
+	sbt_.hitgroupRecordCount = (int)hitgroup_records.size();
+}
+
+OptixTraversableHandle lift::Renderer::BuildAccelerationStructure(const TriangleMesh& model) {
+	vertices_buffer_.alloc_and_upload(model.vertices);
+	indices_buffer_.alloc_and_upload(model.indices);
+
+	OptixTraversableHandle acceleration_struct{0};
+
+	// ==================================================================
+	// triangle inputs
+	// ==================================================================
+	OptixBuildInput triangle_input{};
+	triangle_input.type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
+
+	auto d_vertices = vertices_buffer_.d_pointer();
+	auto d_indices = indices_buffer_.d_pointer();
+
+	triangle_input.triangleArray.vertexFormat = OPTIX_VERTEX_FORMAT_FLOAT3;
+	triangle_input.triangleArray.vertexStrideInBytes = sizeof(vec3);
+	triangle_input.triangleArray.numVertices = int(model.vertices.size());
+	triangle_input.triangleArray.vertexBuffers = &d_vertices;
+
+	triangle_input.triangleArray.indexFormat = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
+	triangle_input.triangleArray.indexStrideInBytes = sizeof(ivec3);
+	triangle_input.triangleArray.numIndexTriplets = int(model.indices.size());
+	triangle_input.triangleArray.indexBuffer = d_indices;
+
+	uint32_t triangle_input_flags[1] = {0};
+
+	triangle_input.triangleArray.flags = triangle_input_flags;
+	triangle_input.triangleArray.numSbtRecords = 1;
+	triangle_input.triangleArray.sbtIndexOffsetBuffer = 0;
+	triangle_input.triangleArray.sbtIndexOffsetSizeInBytes = 0;
+	triangle_input.triangleArray.sbtIndexOffsetStrideInBytes = 0;
+
+	// ==================================================================
+	// BLAS setup
+	// ==================================================================
+	OptixAccelBuildOptions acceleration_options = {};
+	acceleration_options.buildFlags = OPTIX_BUILD_FLAG_NONE
+		| OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+	acceleration_options.motionOptions.numKeys = 1;
+	acceleration_options.operation = OPTIX_BUILD_OPERATION_BUILD;
+
+	OptixAccelBufferSizes blas_buffer_sizes;
+	OPTIX_CHECK(
+		optixAccelComputeMemoryUsage (optix_context_, &acceleration_options, &triangle_input, 1, &blas_buffer_sizes));
+
+	// ==================================================================
+	// prepare compaction
+	// ==================================================================	
+	CudaBuffer compacted_size_buffer;
+	compacted_size_buffer.alloc(sizeof(uint64_t));
+
+	OptixAccelEmitDesc emit_desc;
+	emit_desc.type = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE;
+	emit_desc.result = compacted_size_buffer.d_pointer();
+
+	// ==================================================================
+	// execute build (main stage)
+	// ==================================================================
+
+	CudaBuffer temp_buffer;
+	temp_buffer.alloc(blas_buffer_sizes.tempSizeInBytes);
+
+	CudaBuffer output_buffer;
+	output_buffer.alloc(blas_buffer_sizes.outputSizeInBytes);
+
+	OPTIX_CHECK(optixAccelBuild(optix_context_,
+		nullptr,
+		&acceleration_options,
+		&triangle_input,
+		1,
+		temp_buffer.d_pointer(),
+		temp_buffer.size_in_bytes,
+		output_buffer.d_pointer(),
+		output_buffer.size_in_bytes,
+		&acceleration_struct,
+		&emit_desc,1
+	));
+	CUDA_SYNC_CHECK();
+
+	// ==================================================================
+	// perform compaction
+	// ==================================================================
+	uint64_t compacted_size;
+	compacted_size_buffer.download(&compacted_size, 1);
+
+	acceleration_struct_buffer_.alloc(compacted_size);
+	OPTIX_CHECK(optixAccelCompact(optix_context_,
+		/*stream:*/nullptr,
+		acceleration_struct,
+		acceleration_struct_buffer_.d_pointer(),
+		acceleration_struct_buffer_.size_in_bytes,
+		&acceleration_struct));
+	CUDA_SYNC_CHECK();
+
+	// ==================================================================
+	// aaaaaand .... clean up
+	// ==================================================================
+	output_buffer.free(); // << the UNcompacted, temporary output buffer
+	temp_buffer.free();
+	compacted_size_buffer.free();
+
+	return acceleration_struct;
+
 }
 
 void lift::Renderer::Submit(const std::shared_ptr<VertexArray>& vertex_array) {

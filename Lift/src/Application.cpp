@@ -14,7 +14,6 @@ constexpr auto OPTIX_COMPATIBILITY = 7;
 #include <cuda_runtime.h>
 #include <optix.h>
 #include <optix_stubs.h>
-#include <optix_function_table_definition.h>
 
 lift::Application* lift::Application::instance_ = nullptr;
 
@@ -86,6 +85,14 @@ void lift::Application::UpdateOptixVariables() {
 
 void lift::Application::CreateScene() {
 	Profiler profiler{"Create Scene"};
+	model_.AddCube(vec3(1.0f), vec3(1.0f));
+	temp_camera_ = {
+		vec3(-10.f, 2.f, -12.f),
+		vec3(0.f, 0.f, 0.f),
+		vec3(0.f, 1.f, 0.f)
+	};
+	renderer_.SetCamera(temp_camera_);
+	renderer_.AddModel(model_);
 }
 
 void lift::Application::CreateLights() {

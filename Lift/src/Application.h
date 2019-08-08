@@ -49,6 +49,12 @@ namespace lift {
 		std::unique_ptr<Texture> target_texture_;
 		int accumulated_frames_{0};
 
+		//TEMP
+		TriangleMesh model_;
+		Camera temp_camera_;
+		//
+
+
 		static Application* instance_;
 
 		void InitGraphicsContext();

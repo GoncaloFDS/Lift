@@ -1,11 +1,22 @@
 #pragma once
+#include <optix.h>
 #include "glm/glm.hpp"
 using namespace glm;
 
 namespace lift {
 	struct LaunchParameters {
-		int frame_id{0};
-		uint32_t* color_buffer;
-		ivec2 frame_buffer_size;
+		struct {
+			uint32_t* color_buffer;
+			ivec2 size;
+		} frame;
+
+		struct {
+			vec3 position;
+			vec3 direction;
+			vec3 horizontal;
+			vec3 vertical;
+		} camera;
+
+		OptixTraversableHandle traversable;
 	};
 }
