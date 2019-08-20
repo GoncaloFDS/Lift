@@ -6,9 +6,9 @@
 #include "events/ApplicationEvent.h"
 
 #include "renderer/GraphicsContext.h"
-#include "scene/cameras/PerspectiveCamera.h"
 #include "renderer/Renderer.h"
 #include "renderer/Texture.h"
+#include "scene/cameras/Camera.h"
 
 namespace lift {
 	class MouseMovedEvent;
@@ -31,7 +31,7 @@ namespace lift {
 		static Application& Get() { return *instance_; }
 		[[nodiscard]] Window& GetWindow() const { return *window_; }
 
-		auto GetFrameTextureId() const { return target_texture_->id; }
+		[[nodiscard]] auto GetFrameTextureId() const { return target_texture_->id; }
 
 		void RestartAccumulation() { accumulated_frames_ = 0; }
 
@@ -44,22 +44,18 @@ namespace lift {
 
 		LayerStack layer_stack_;
 
-		PerspectiveCamera camera_;
+		std::unique_ptr<Camera> camera_;
 
 		std::unique_ptr<Texture> target_texture_;
 		int accumulated_frames_{0};
 
-		//TEMP
+		//! TEMP
 		TriangleMesh model_;
-		Camera temp_camera_;
 		//
-
 
 		static Application* instance_;
 
 		void InitGraphicsContext();
-
-		void UpdateOptixVariables();
 
 		void CreateScene();
 		void CreateLights();

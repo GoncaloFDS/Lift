@@ -24,6 +24,8 @@
 #include <glm/ext/matrix_clip_space.hpp> // glm::perspective
 #include <glm/ext/scalar_constants.hpp> // glm::pi
 #include <glm/gtc/type_ptr.hpp> // value_ptr
+#include <glm/ext.hpp> // glm::to_string
+#include <glm/gtx/string_cast.hpp> // glm::to_string
 
 using namespace glm;
 

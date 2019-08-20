@@ -6,13 +6,9 @@
 #include <optix_types.h>
 #include <cuda_runtime.h>
 
-namespace lift {
-	struct Camera {
-		vec3 from;
-		vec3 at;
-		vec3 up;
-	};
+class Camera;
 
+namespace lift {
 	struct TriangleMesh {
 		void AddCube(const vec3& center, const vec3& size);
 
@@ -22,7 +18,7 @@ namespace lift {
 
 	class Renderer {
 	public:
-		Renderer() = default;
+		Renderer();
 		void Init();
 		void Render();
 		void Resize(const ivec2& size);
@@ -98,8 +94,6 @@ namespace lift {
 		/*! @} */
 
 		CudaBuffer color_buffer_;
-
-		Camera last_set_camera_;
 
 		const TriangleMesh model_;
 		CudaBuffer vertices_buffer_;

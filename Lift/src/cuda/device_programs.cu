@@ -41,7 +41,7 @@ namespace lift {
 	}
 
 	extern "C" __global__ void __miss__radiance() {
-		vec3& payload = *(vec3*)get_payload<vec3>();
+		auto& payload = *static_cast<vec3*>(get_payload<vec3>());
 		payload = vec3(1.0f);
 	}
 

@@ -3,6 +3,7 @@
 #include "RenderCommand.h"
 #include <optix_stubs.h>
 #include <optix_function_table_definition.h>
+#include "scene/cameras/Camera.h"
 
 
 namespace lift {
@@ -47,7 +48,7 @@ void lift::TriangleMesh::AddCube(const vec3& center, const vec3& size) {
 		5, 7, 6, 5, 6, 4,
 		0, 4, 5, 0, 5, 1,
 		2, 3, 7, 2, 7, 6,
-		1, 5, 6, 1, 7, 3,
+		1, 5, 7, 1, 7, 3,
 		4, 0, 2, 4, 2, 6
 	};
 	for (int i = 0; i < 12; i++) {
@@ -55,6 +56,9 @@ void lift::TriangleMesh::AddCube(const vec3& center, const vec3& size) {
 															indices_data[3 * i + 1],
 															indices_data[3 * i + 2]));
 	}
+}
+
+lift::Renderer::Renderer() {
 }
 
 void lift::Renderer::Init() {
@@ -102,7 +106,7 @@ void lift::Renderer::Resize(const ivec2& size) {
 	launch_params_.frame.size = size;
 	launch_params_.frame.color_buffer = static_cast<uint32_t*>(color_buffer_.d_ptr);
 
-	SetCamera(last_set_camera_);
+	//SetCamera(last_set_camera_);
 }
 
 void lift::Renderer::DownloadPixels(uint32_t h_pixels[]) {
@@ -110,16 +114,25 @@ void lift::Renderer::DownloadPixels(uint32_t h_pixels[]) {
 }
 
 void lift::Renderer::SetCamera(const Camera& camera) {
-	last_set_camera_ = camera;
-	launch_params_.camera.position = camera.from;
-	launch_params_.camera.direction = normalize(camera.at - camera.from);
-
-	const float cos_fov_y = 0.66f;
-	const float aspect = launch_params_.frame.size.x / float(launch_params_.frame.size.y);
-	launch_params_.camera.horizontal = cos_fov_y * aspect *
-		normalize(cross(launch_params_.camera.direction, camera.up));
-	launch_params_.camera.vertical = cos_fov_y * normalize(cross(launch_params_.camera.horizontal,
-																 launch_params_.camera.direction));
+//	last_set_camera_ = camera;
+//	launch_params_.camera.position = camera.from;
+//	launch_params_.camera.direction = normalize(camera.at - camera.from);
+//
+//	const float cos_fov_y = 0.66f;
+//	const float aspect = launch_params_.frame.size.x / float(launch_params_.frame.size.y);
+//	launch_params_.camera.horizontal = cos_fov_y * aspect *
+//		normalize(cross(launch_params_.camera.direction, camera.up));
+//	launch_params_.camera.vertical = cos_fov_y * normalize(cross(launch_params_.camera.horizontal,
+//																 launch_params_.camera.direction));
+	launch_params_.camera.position = {-10.f, 2.f, -12.f};
+	launch_params_.camera.direction = {0.635000587f, -0.127000123f, 0.762000740f};
+	launch_params_.camera.horizontal = {-0.507026076f, 0.000000000f, 0.422521710f};
+	launch_params_.camera.vertical = {0.0536603108f, 0.654655874f, 0.0643923730f};
+	
+	launch_params_.camera.position = camera.Eye();
+	launch_params_.camera.direction = camera.VectorW();
+	launch_params_.camera.horizontal = camera.VectorU();
+	launch_params_.camera.vertical = camera.VectorV();
 }
 
 void lift::Renderer::AddModel(const TriangleMesh& model) {

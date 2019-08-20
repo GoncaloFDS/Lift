@@ -43,8 +43,16 @@ void lift::Application::Run() {
 	while (is_running_) {
 		Timer::Tick();
 		ImGuiLayer::Begin();
+		Input::OnUpdate();
 		//RenderCommand::Clear();
 
+		camera_->OnUpdate();
+
+		vec3 v{1.0f, 0, 0};
+		v = rotate(mat4(1), pi<float>() / 4, {0, 1, 0}) * vec4(v, 1);
+		//		LF_CORE_TRACE("v: {0}", to_string(v));
+
+		renderer_.SetCamera(*camera_);
 		// Update Layers
 		window_->OnUpdate();
 		for (auto& layer : layer_stack_)
@@ -57,20 +65,10 @@ void lift::Application::Run() {
 		renderer_.DownloadPixels(target_texture_->Data());
 		target_texture_->SetData();
 
-		//camera_.SetViewport(uint32_t(size.x), uint32_t(size.y));
-
-		// Render
-		UpdateOptixVariables();
-
 		//End frame
 		ImGuiLayer::End();
 		graphics_context_->SwapBuffers();
 	}
-}
-
-void lift::Application::Resize(const ivec2& size) {
-	renderer_.Resize(size);
-	target_texture_->Resize(size);
 }
 
 void lift::Application::InitGraphicsContext() {
@@ -80,18 +78,11 @@ void lift::Application::InitGraphicsContext() {
 }
 
 
-void lift::Application::UpdateOptixVariables() {
-}
-
 void lift::Application::CreateScene() {
 	Profiler profiler{"Create Scene"};
 	model_.AddCube(vec3(1.0f), vec3(1.0f));
-	temp_camera_ = {
-		vec3(-10.f, 2.f, -12.f),
-		vec3(0.f, 0.f, 0.f),
-		vec3(0.f, 1.f, 0.f)
-	};
-	renderer_.SetCamera(temp_camera_);
+	camera_ = std::make_unique<Camera>();
+	renderer_.SetCamera(*camera_);
 	renderer_.AddModel(model_);
 }
 
@@ -122,13 +113,17 @@ bool lift::Application::OnWindowClose(WindowCloseEvent& e) {
 	return false;
 }
 
+void lift::Application::Resize(const ivec2& size) {
+	renderer_.Resize(size);
+	target_texture_->Resize(size);
+	camera_->SetAspectRatio(float(size.x) / size.y);
+}
+
 bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
 	RestartAccumulation();
 	if (e.GetHeight() && e.GetWidth()) {
 		// Only resize when not minimized
-		const auto size = ImGuiLayer::GetRenderWindowSize();
 		RenderCommand::Resize(e.GetWidth(), e.GetHeight());
-		camera_.SetViewport(uint32_t(size.x), uint32_t(size.y));
 	}
 
 	return false;
@@ -140,45 +135,17 @@ bool lift::Application::OnWindowMinimize(WindowMinimizeEvent& e) const {
 }
 
 inline bool lift::Application::OnMouseMove(MouseMovedEvent& e) {
-	switch (camera_.GetState()) {
-	case CameraState::None: {
-		if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_LEFT)) {
-			camera_.SetState(e.GetX(), e.GetY(), CameraState::Orbit);
-		}
-		else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_RIGHT)) {
-			camera_.SetState(e.GetX(), e.GetY(), CameraState::Dolly);
-		}
-		else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_MIDDLE)) {
-			camera_.SetState(e.GetX(), e.GetY(), CameraState::Pan);
-		}
-		break;
+	if(Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_LEFT)) {
+		const auto delta = Input::GetMouseDelta();
+		camera_->Orbit(delta.x, delta.y);
 	}
-	case CameraState::Orbit: {
-		if (!Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_LEFT))
-			camera_.SetState(CameraState::None);
-		else
-			camera_.Orbit(e.GetX(), e.GetY());
-		accumulated_frames_ = 0;
-		break;
+	else if(Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_MIDDLE)) {
+		const auto delta = Input::GetMouseDelta();
+		camera_->Strafe(-delta.x, delta.y);
 	}
-	case CameraState::Dolly: {
-		if (!Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_RIGHT))
-			camera_.SetState(CameraState::None);
-		else
-			camera_.Dolly(e.GetX(), e.GetY());
-		accumulated_frames_ = 0;
-		break;
+	else if(Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_RIGHT)) {
+		const auto delta = Input::GetMouseDelta();
+		camera_->Zoom(delta.y);
 	}
-	case CameraState::Pan: {
-		if (!Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_MIDDLE))
-			camera_.SetState(CameraState::None);
-		else
-			camera_.Pan(e.GetX(), e.GetY());
-		accumulated_frames_ = 0;
-		break;
-	}
-	default: LF_CORE_ERROR("Invalid Camera State");
-	}
-
 	return false;
 }
