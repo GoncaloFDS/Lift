@@ -11,6 +11,7 @@
 #include "scene/cameras/Camera.h"
 
 namespace lift {
+	class MouseScrolledEvent;
 	class MouseMovedEvent;
 
 	class Application {
@@ -66,8 +67,10 @@ namespace lift {
 		bool OnWindowResize(WindowResizeEvent& e);
 		bool OnWindowMinimize(WindowMinimizeEvent& e) const;
 		bool OnMouseMove(MouseMovedEvent& e);
+		bool OnMouseScroll(MouseScrolledEvent& e);
 
 	};
+
 
 	// Defined by Sandbox
 	std::shared_ptr<Application> CreateApplication();

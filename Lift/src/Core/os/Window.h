@@ -32,8 +32,8 @@ namespace lift {
 
 		virtual void OnUpdate() = 0;
 
-		[[nodiscard]] virtual unsigned int GetWidth() const = 0;
-		[[nodiscard]] virtual unsigned int GetHeight() const = 0;
+		[[nodiscard]] virtual unsigned int Width() const = 0;
+		[[nodiscard]] virtual unsigned int Height() const = 0;
 		[[nodiscard]] virtual std::pair<int, int> GetPosition() const = 0;
 
 		// Window attributes

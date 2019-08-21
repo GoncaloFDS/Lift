@@ -24,10 +24,19 @@ void Camera::OnUpdate() {
 }
 
 void Camera::Orbit(const float dx, const float dy) {
-	eye_ = rotate(mat4(1.0f), dx * mouse_orbit_speed_, vector_v_)
+	const auto temp_eye = rotate(mat4(1.0f), dx * mouse_orbit_speed_, vector_v_)
 		* rotate(mat4(1.0f), dy * mouse_orbit_speed_, vector_u_)
 		* vec4(eye_, 1);
-	changed_ = true;
+	const auto t = look_at_ - eye_;
+	if (fabs(dot(normalize(t), vec3(0, 1, 0))) < 0.999f || t.y * dy < 0) {
+		eye_ = temp_eye;
+		changed_ = true;
+	}
+	else {
+
+		LF_CORE_TRACE("dot: {0}", dot(normalize(vector_w_), vec3(0, 1, 0)));
+		LF_CORE_TRACE("vector w: {0}", to_string(vector_w_));
+	}
 }
 
 void Camera::Strafe(const float dx, const float dy) {

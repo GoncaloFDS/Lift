@@ -48,10 +48,6 @@ void lift::Application::Run() {
 
 		camera_->OnUpdate();
 
-		vec3 v{1.0f, 0, 0};
-		v = rotate(mat4(1), pi<float>() / 4, {0, 1, 0}) * vec4(v, 1);
-		//		LF_CORE_TRACE("v: {0}", to_string(v));
-
 		renderer_.SetCamera(*camera_);
 		// Update Layers
 		window_->OnUpdate();
@@ -104,6 +100,8 @@ void lift::Application::OnEvent(Event& e) {
 			return;
 	}
 	dispatcher.Dispatch<MouseMovedEvent>(LF_BIND_EVENT_FN(Application::OnMouseMove));
+	dispatcher.Dispatch<MouseScrolledEvent>(LF_BIND_EVENT_FN(Application::OnMouseScroll));
+
 
 }
 
@@ -135,17 +133,22 @@ bool lift::Application::OnWindowMinimize(WindowMinimizeEvent& e) const {
 }
 
 inline bool lift::Application::OnMouseMove(MouseMovedEvent& e) {
-	if(Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_LEFT)) {
+	if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_LEFT)) {
 		const auto delta = Input::GetMouseDelta();
-		camera_->Orbit(delta.x, delta.y);
+		camera_->Orbit(-delta.x, -delta.y);
 	}
-	else if(Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_MIDDLE)) {
+	else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_MIDDLE)) {
 		const auto delta = Input::GetMouseDelta();
 		camera_->Strafe(-delta.x, delta.y);
 	}
-	else if(Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_RIGHT)) {
+	else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_RIGHT)) {
 		const auto delta = Input::GetMouseDelta();
 		camera_->Zoom(delta.y);
 	}
+	return false;
+}
+
+inline bool lift::Application::OnMouseScroll(MouseScrolledEvent& e) {
+	camera_->Zoom(e.GetYOffset() * -10);
 	return false;
 }

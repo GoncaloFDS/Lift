@@ -12,8 +12,8 @@ namespace lift {
 
 		void OnUpdate() override;
 
-		inline unsigned int GetWidth() const override;
-		inline unsigned int GetHeight() const override;
+		inline unsigned int Width() const override;
+		inline unsigned int Height() const override;
 
 		[[nodiscard]] std::pair<int, int> GetPosition() const override;
 

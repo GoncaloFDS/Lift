@@ -154,8 +154,8 @@ void lift::ImGuiLayer::Begin() {
 void lift::ImGuiLayer::End() {
 	auto& io = ImGui::GetIO();
 	auto& app = Application::Get();
-	io.DisplaySize = ImVec2(static_cast<float>(app.GetWindow().GetWidth()),
-							static_cast<float>(app.GetWindow().GetHeight()));
+	io.DisplaySize = ImVec2(static_cast<float>(app.GetWindow().Width()),
+							static_cast<float>(app.GetWindow().Height()));
 
 	// Rendering
 	ImGui::Render();

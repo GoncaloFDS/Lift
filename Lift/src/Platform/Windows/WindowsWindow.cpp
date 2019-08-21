@@ -29,11 +29,11 @@ void lift::WindowsWindow::OnUpdate() {
 	glfwPollEvents();
 }
 
-unsigned lift::WindowsWindow::GetWidth() const {
+unsigned lift::WindowsWindow::Width() const {
 	return properties_.width;
 }
 
-unsigned lift::WindowsWindow::GetHeight() const {
+unsigned lift::WindowsWindow::Height() const {
 	return properties_.height;
 }
 
