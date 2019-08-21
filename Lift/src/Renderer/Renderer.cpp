@@ -28,7 +28,7 @@ namespace lift {
 		__align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
 		// just a dummy value - later examples will use more interesting
 		// data here
-		int object_id;
+		TriangleMeshSbtData data;
 	};
 }
 
@@ -72,9 +72,7 @@ void lift::Renderer::Init() {
 	CreateHitgroupPrograms();
 
 	CreatePipeline();
-	BuildShaderBindingTables();
 
-	launch_params_buffer_.alloc(sizeof(launch_params_));
 }
 
 void lift::Renderer::Render() {
@@ -114,21 +112,6 @@ void lift::Renderer::DownloadPixels(uint32_t h_pixels[]) {
 }
 
 void lift::Renderer::SetCamera(const Camera& camera) {
-//	last_set_camera_ = camera;
-//	launch_params_.camera.position = camera.from;
-//	launch_params_.camera.direction = normalize(camera.at - camera.from);
-//
-//	const float cos_fov_y = 0.66f;
-//	const float aspect = launch_params_.frame.size.x / float(launch_params_.frame.size.y);
-//	launch_params_.camera.horizontal = cos_fov_y * aspect *
-//		normalize(cross(launch_params_.camera.direction, camera.up));
-//	launch_params_.camera.vertical = cos_fov_y * normalize(cross(launch_params_.camera.horizontal,
-//																 launch_params_.camera.direction));
-	launch_params_.camera.position = {-10.f, 2.f, -12.f};
-	launch_params_.camera.direction = {0.635000587f, -0.127000123f, 0.762000740f};
-	launch_params_.camera.horizontal = {-0.507026076f, 0.000000000f, 0.422521710f};
-	launch_params_.camera.vertical = {0.0536603108f, 0.654655874f, 0.0643923730f};
-	
 	launch_params_.camera.position = camera.Eye();
 	launch_params_.camera.direction = camera.VectorW();
 	launch_params_.camera.horizontal = camera.VectorU();
@@ -136,7 +119,11 @@ void lift::Renderer::SetCamera(const Camera& camera) {
 }
 
 void lift::Renderer::AddModel(const TriangleMesh& model) {
+	model_ = model;
 	launch_params_.traversable = BuildAccelerationStructure(model);
+	//! TODO: FIXME
+	BuildShaderBindingTables();
+	launch_params_buffer_.alloc(sizeof(launch_params_));
 }
 
 void lift::Renderer::InitOptix() {
@@ -358,7 +345,9 @@ void lift::Renderer::BuildShaderBindingTables() {
 		const int object_type = 0;
 		HitgroupRecord rec;
 		OPTIX_CHECK(optixSbtRecordPackHeader(hit_program_groups_[object_type],&rec));
-		rec.object_id = i;
+		rec.data.vertices = (vec3*)vertices_buffer_.d_pointer();
+		rec.data.indices =  (ivec3*)indices_buffer_.d_pointer();
+		rec.data.color  = model_.color;
 		hitgroup_records.push_back(rec);
 	}
 	hit_program_groups_buffer_.alloc_and_upload(hitgroup_records);

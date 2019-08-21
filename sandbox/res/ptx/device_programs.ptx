@@ -17,39 +17,94 @@
 
 )
 {
-	.reg .f32 	%f<7>;
-	.reg .b32 	%r<10>;
-	.reg .b64 	%rd<5>;
+	.reg .f32 	%f<49>;
+	.reg .b32 	%r<7>;
+	.reg .b64 	%rd<16>;
 
 
+	// inline asm
+	call (%rd1), _optix_get_sbt_data_ptr_64, ();
+	// inline asm
 	// inline asm
 	call (%r1), _optix_read_primitive_idx, ();
 	// inline asm
+	ld.u64 	%rd2, [%rd1+24];
+	mul.wide.s32 	%rd3, %r1, 12;
+	add.s64 	%rd4, %rd2, %rd3;
+	ld.u32 	%r4, [%rd4];
+	ld.u32 	%r5, [%rd4+4];
+	ld.u32 	%r6, [%rd4+8];
+	ld.u64 	%rd5, [%rd1+16];
+	mul.wide.s32 	%rd6, %r4, 12;
+	add.s64 	%rd7, %rd5, %rd6;
+	mul.wide.s32 	%rd8, %r5, 12;
+	add.s64 	%rd9, %rd5, %rd8;
+	mul.wide.s32 	%rd10, %r6, 12;
+	add.s64 	%rd11, %rd5, %rd10;
+	ld.f32 	%f4, [%rd9];
+	ld.f32 	%f5, [%rd7];
+	sub.f32 	%f6, %f4, %f5;
+	ld.f32 	%f7, [%rd9+4];
+	ld.f32 	%f8, [%rd7+4];
+	sub.f32 	%f9, %f7, %f8;
+	ld.f32 	%f10, [%rd9+8];
+	ld.f32 	%f11, [%rd7+8];
+	sub.f32 	%f12, %f10, %f11;
+	ld.f32 	%f13, [%rd11];
+	sub.f32 	%f14, %f13, %f5;
+	ld.f32 	%f15, [%rd11+4];
+	sub.f32 	%f16, %f15, %f8;
+	ld.f32 	%f17, [%rd11+8];
+	sub.f32 	%f18, %f17, %f11;
+	mul.f32 	%f19, %f9, %f18;
+	mul.f32 	%f20, %f12, %f16;
+	sub.f32 	%f21, %f19, %f20;
+	mul.f32 	%f22, %f12, %f14;
+	mul.f32 	%f23, %f6, %f18;
+	sub.f32 	%f24, %f22, %f23;
+	mul.f32 	%f25, %f6, %f16;
+	mul.f32 	%f26, %f9, %f14;
+	sub.f32 	%f27, %f25, %f26;
+	mul.f32 	%f28, %f24, %f24;
+	fma.rn.f32 	%f29, %f21, %f21, %f28;
+	fma.rn.f32 	%f30, %f27, %f27, %f29;
+	sqrt.rn.f32 	%f31, %f30;
+	rcp.rn.f32 	%f32, %f31;
+	mul.f32 	%f33, %f32, %f21;
+	mul.f32 	%f34, %f32, %f24;
+	mul.f32 	%f35, %f27, %f32;
+	// inline asm
+	call (%f1), _optix_get_world_ray_direction_x, ();
+	// inline asm
+	// inline asm
+	call (%f2), _optix_get_world_ray_direction_y, ();
+	// inline asm
+	// inline asm
+	call (%f3), _optix_get_world_ray_direction_z, ();
+	// inline asm
+	mul.f32 	%f36, %f34, %f2;
+	fma.rn.f32 	%f37, %f33, %f1, %f36;
+	fma.rn.f32 	%f38, %f35, %f3, %f37;
+	abs.f32 	%f39, %f38;
+	fma.rn.f32 	%f40, %f39, 0f3F4CCCCD, 0f3E4CCCCD;
 	// inline asm
 	call (%r2), _optix_get_payload_0, ();
 	// inline asm
 	// inline asm
 	call (%r3), _optix_get_payload_1, ();
 	// inline asm
-	cvt.u64.u32	%rd1, %r2;
-	shl.b64 	%rd2, %rd1, 32;
-	cvt.u64.u32	%rd3, %r3;
-	or.b64  	%rd4, %rd2, %rd3;
-	mad.lo.s32 	%r4, %r1, 221, 53;
-	mad.lo.s32 	%r5, %r1, 105, 119;
-	mad.lo.s32 	%r6, %r1, 209, 102;
-	and.b32  	%r7, %r4, 255;
-	cvt.rn.f32.s32	%f1, %r7;
-	div.rn.f32 	%f2, %f1, 0f437F0000;
-	and.b32  	%r8, %r5, 255;
-	cvt.rn.f32.s32	%f3, %r8;
-	div.rn.f32 	%f4, %f3, 0f437F0000;
-	and.b32  	%r9, %r6, 255;
-	cvt.rn.f32.s32	%f5, %r9;
-	div.rn.f32 	%f6, %f5, 0f437F0000;
-	st.f32 	[%rd4], %f2;
-	st.f32 	[%rd4+4], %f4;
-	st.f32 	[%rd4+8], %f6;
+	cvt.u64.u32	%rd12, %r2;
+	shl.b64 	%rd13, %rd12, 32;
+	cvt.u64.u32	%rd14, %r3;
+	or.b64  	%rd15, %rd13, %rd14;
+	ld.v2.f32 	{%f41, %f42}, [%rd1];
+	mul.f32 	%f44, %f40, %f41;
+	mul.f32 	%f46, %f40, %f42;
+	ld.f32 	%f47, [%rd1+8];
+	mul.f32 	%f48, %f40, %f47;
+	st.f32 	[%rd15], %f44;
+	st.f32 	[%rd15+4], %f46;
+	st.f32 	[%rd15+8], %f48;
 	ret;
 }
 

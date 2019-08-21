@@ -31,9 +31,29 @@ namespace lift {
 	}
 
 	extern "C" __global__ void __closesthit__radiance() {
+		//const int prim_id = optixGetPrimitiveIndex();
+		//vec3& payload = *(vec3*)get_payload<vec3>();
+		//payload = random_color(prim_id);
+		const TriangleMeshSbtData& sbt_data = *(const TriangleMeshSbtData*)optixGetSbtDataPointer();
+
+		// Compute normal
 		const int prim_id = optixGetPrimitiveIndex();
+		const ivec3 index = sbt_data.indices[prim_id];
+		const vec3& vx = sbt_data.vertices[index.x];
+		const vec3& vy = sbt_data.vertices[index.y];
+		const vec3& vz = sbt_data.vertices[index.z];
+		const vec3 normal = normalize(cross(vy - vx, vz - vx));
+
+		auto temp_dir = optixGetWorldRayDirection();
+		const vec3 ray_dir = {
+			temp_dir.x, temp_dir.y, temp_dir.z
+		};
+
+		const float cos_dn = 0.2f + 0.8f * fabsf(dot(ray_dir, normal));
 		vec3& payload = *(vec3*)get_payload<vec3>();
-		payload = random_color(prim_id);
+		payload = cos_dn * sbt_data.color;
+		//payload = sbt_data.color;
+
 	}
 
 	extern "C" __global__ void __anyhit__radiance() {

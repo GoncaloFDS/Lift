@@ -4,6 +4,12 @@
 using namespace glm;
 
 namespace lift {
+	struct TriangleMeshSbtData {
+		vec3 color;
+		vec3* vertices;
+		ivec3* indices;
+	};
+
 	struct LaunchParameters {
 		struct {
 			uint32_t* color_buffer;

@@ -77,6 +77,7 @@ void lift::Application::InitGraphicsContext() {
 void lift::Application::CreateScene() {
 	Profiler profiler{"Create Scene"};
 	model_.AddCube(vec3(1.0f), vec3(1.0f));
+	model_.color = vec3(1.0f, 0.7f, .3f);
 	camera_ = std::make_unique<Camera>();
 	renderer_.SetCamera(*camera_);
 	renderer_.AddModel(model_);

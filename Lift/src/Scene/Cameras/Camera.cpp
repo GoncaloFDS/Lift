@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "Camera.h"
 
-Camera::Camera(): eye_(-10.0f, 2.0f, -12.f), look_at_(1.0f, 0.0f, 0.0f), up_(0.0f, 1.0f, 0.0f), fovy_(66.0f),
+Camera::Camera(): eye_(-10.0f, 2.0f, -12.f), look_at_(1.0f, 0.0f, 0.0f), up_(0.0f, 1.0f, 0.0f), fovy_(36.0f),
 				  aspect_ratio_(1.0f) {
 }
 
@@ -24,18 +24,12 @@ void Camera::OnUpdate() {
 }
 
 void Camera::Orbit(const float dx, const float dy) {
-	const auto temp_eye = rotate(mat4(1.0f), dx * mouse_orbit_speed_, vector_v_)
-		* rotate(mat4(1.0f), dy * mouse_orbit_speed_, vector_u_)
-		* vec4(eye_, 1);
 	const auto t = look_at_ - eye_;
 	if (fabs(dot(normalize(t), vec3(0, 1, 0))) < 0.999f || t.y * dy < 0) {
-		eye_ = temp_eye;
+		eye_ = rotate(mat4(1.0f), dx * mouse_orbit_speed_, vector_v_)
+			* rotate(mat4(1.0f), dy * mouse_orbit_speed_, vector_u_)
+			* vec4(eye_, 1);
 		changed_ = true;
-	}
-	else {
-
-		LF_CORE_TRACE("dot: {0}", dot(normalize(vector_w_), vec3(0, 1, 0)));
-		LF_CORE_TRACE("vector w: {0}", to_string(vector_w_));
 	}
 }
 
@@ -49,5 +43,6 @@ void Camera::Strafe(const float dx, const float dy) {
 
 void Camera::Zoom(const float amount) {
 	fovy_ += amount * mouse_zoom_speed_;
+	fovy_ = std::clamp(fovy_, 0.001f, 180.0f);
 	changed_ = true;
 }

@@ -14,6 +14,7 @@ namespace lift {
 
 		std::vector<vec3> vertices;
 		std::vector<ivec3> indices;
+		vec3 color;
 	};
 
 	class Renderer {
@@ -95,7 +96,7 @@ namespace lift {
 
 		CudaBuffer color_buffer_;
 
-		const TriangleMesh model_;
+		TriangleMesh model_;
 		CudaBuffer vertices_buffer_;
 		CudaBuffer indices_buffer_;
 		CudaBuffer acceleration_struct_buffer_;
