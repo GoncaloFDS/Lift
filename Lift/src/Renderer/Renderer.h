@@ -30,6 +30,7 @@ namespace lift {
 
 		void SetCamera(const Camera& camera);
 		void AddModel(const TriangleMesh& model);
+		void BuildTables();
 	protected:
 		// ------------------------------------------------------------------
 		// internal helper functions
@@ -55,7 +56,7 @@ namespace lift {
 		/*! constructs the shader binding table */
 		void BuildShaderBindingTables();
 
-		OptixTraversableHandle BuildAccelerationStructure(const TriangleMesh& model);
+		OptixTraversableHandle BuildAccelerationStructure();
 	protected:
 		/*! @{ CUDA device context and stream that optix pipeline will run
 			on, as well as device properties for this device */
@@ -96,9 +97,12 @@ namespace lift {
 
 		CudaBuffer color_buffer_;
 
-		TriangleMesh model_;
-		CudaBuffer vertices_buffer_;
-		CudaBuffer indices_buffer_;
+		std::vector<TriangleMesh> meshes_;
+		/*! one buffer per input mesh */
+		std::vector<CudaBuffer> vertices_buffer_;
+		/*! one buffer per input mesh */
+		std::vector<CudaBuffer> indices_buffer_;
+		//! buffer that keeps the (final, compacted) acceleration structure
 		CudaBuffer acceleration_struct_buffer_;
 	};
 }

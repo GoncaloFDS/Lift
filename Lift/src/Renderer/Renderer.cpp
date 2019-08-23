@@ -34,14 +34,14 @@ namespace lift {
 
 void lift::TriangleMesh::AddCube(const vec3& center, const vec3& size) {
 	const int first_vertex_index = int(vertices.size());
-	vertices.emplace_back(0.0f, 0.0f, 0.0f);
-	vertices.emplace_back(1.0f, 0.0f, 0.0f);
-	vertices.emplace_back(0.0f, 1.0f, 0.0f);
-	vertices.emplace_back(1.0f, 1.0f, 0.0f);
-	vertices.emplace_back(0.0f, 0.0f, 1.0f);
-	vertices.emplace_back(1.0f, 0.0f, 1.0f);
-	vertices.emplace_back(0.0f, 1.0f, 1.0f);
-	vertices.emplace_back(1.0f, 1.0f, 1.0f);
+	vertices.push_back(vec3(0.0f, 0.0f, 0.0f) * size);
+	vertices.push_back(vec3(1.0f, 0.0f, 0.0f) * size);
+	vertices.push_back(vec3(0.0f, 1.0f, 0.0f) * size);
+	vertices.push_back(vec3(1.0f, 1.0f, 0.0f) * size);
+	vertices.push_back(vec3(0.0f, 0.0f, 1.0f) * size);
+	vertices.push_back(vec3(1.0f, 0.0f, 1.0f) * size);
+	vertices.push_back(vec3(0.0f, 1.0f, 1.0f) * size);
+	vertices.push_back(vec3(1.0f, 1.0f, 1.0f) * size);
 
 	int indices_data[] = {
 		0, 1, 3, 2, 3, 0,
@@ -119,9 +119,11 @@ void lift::Renderer::SetCamera(const Camera& camera) {
 }
 
 void lift::Renderer::AddModel(const TriangleMesh& model) {
-	model_ = model;
-	launch_params_.traversable = BuildAccelerationStructure(model);
-	//! TODO: FIXME
+	meshes_.push_back(model);
+}
+
+void lift::Renderer::BuildTables() {
+	launch_params_.traversable = BuildAccelerationStructure();
 	BuildShaderBindingTables();
 	launch_params_buffer_.alloc(sizeof(launch_params_));
 }
@@ -139,7 +141,7 @@ void lift::Renderer::InitOptix() {
 }
 
 static void context_log_cb(unsigned int level, const char* tag, const char* message, void*) {
-	//fprintf(stderr, "[%2d][%12s]: %s\n", level, tag, message);
+	// fprintf(stderr, "[%2d][%12s]: %s\n", level, tag, message);
 }
 
 void lift::Renderer::CreateContext() {
@@ -308,9 +310,9 @@ void lift::Renderer::BuildShaderBindingTables() {
 	// build raygen records
 	// ------------------------------------------------------------------
 	std::vector<RaygenRecord> raygen_records;
-	for (int i = 0; i < raygen_program_groups_.size(); i++) {
-		RaygenRecord rec;
-		OPTIX_CHECK(optixSbtRecordPackHeader(raygen_program_groups_[i],&rec));
+	for (auto& raygen_program_group : raygen_program_groups_) {
+		RaygenRecord rec{};
+		OPTIX_CHECK(optixSbtRecordPackHeader(raygen_program_group, &rec));
 		rec.data = nullptr; /* for now ... */
 		raygen_records.push_back(rec);
 	}
@@ -321,73 +323,81 @@ void lift::Renderer::BuildShaderBindingTables() {
 	// build miss records
 	// ------------------------------------------------------------------
 	std::vector<MissRecord> miss_records;
-	for (int i = 0; i < miss_program_groups_.size(); i++) {
-		MissRecord rec;
-		OPTIX_CHECK(optixSbtRecordPackHeader(miss_program_groups_[i],&rec));
+	for (auto& miss_program_group : miss_program_groups_) {
+		MissRecord rec{};
+		OPTIX_CHECK(optixSbtRecordPackHeader(miss_program_group, &rec));
 		rec.data = nullptr; /* for now ... */
 		miss_records.push_back(rec);
 	}
 	miss_program_groups_buffer_.alloc_and_upload(miss_records);
 	sbt_.missRecordBase = miss_program_groups_buffer_.d_pointer();
 	sbt_.missRecordStrideInBytes = sizeof(MissRecord);
-	sbt_.missRecordCount = (int)miss_records.size();
+	sbt_.missRecordCount = int(miss_records.size());
 
 	// ------------------------------------------------------------------
 	// build hitgroup records
 	// ------------------------------------------------------------------
 
-	// we don't actually have any objects in this example, but let's
-	// create a dummy one so the SBT doesn't have any null pointers
-	// (which the sanity checks in compilation would compain about)
-	const int num_objects = 1;
 	std::vector<HitgroupRecord> hitgroup_records;
-	for (int i = 0; i < num_objects; i++) {
+	for (int mesh_id = 0; mesh_id < int(meshes_.size()); mesh_id++) {
 		const int object_type = 0;
-		HitgroupRecord rec;
+		HitgroupRecord rec{};
 		OPTIX_CHECK(optixSbtRecordPackHeader(hit_program_groups_[object_type],&rec));
-		rec.data.vertices = (vec3*)vertices_buffer_.d_pointer();
-		rec.data.indices =  (ivec3*)indices_buffer_.d_pointer();
-		rec.data.color  = model_.color;
+		rec.data.vertices = reinterpret_cast<vec3*>(vertices_buffer_[mesh_id].d_pointer());
+		rec.data.indices = reinterpret_cast<ivec3*>(indices_buffer_[mesh_id].d_pointer());
+		rec.data.color = meshes_[mesh_id].color;
 		hitgroup_records.push_back(rec);
 	}
 	hit_program_groups_buffer_.alloc_and_upload(hitgroup_records);
 	sbt_.hitgroupRecordBase = hit_program_groups_buffer_.d_pointer();
 	sbt_.hitgroupRecordStrideInBytes = sizeof(HitgroupRecord);
-	sbt_.hitgroupRecordCount = (int)hitgroup_records.size();
+	sbt_.hitgroupRecordCount = int(hitgroup_records.size());
 }
 
-OptixTraversableHandle lift::Renderer::BuildAccelerationStructure(const TriangleMesh& model) {
-	vertices_buffer_.alloc_and_upload(model.vertices);
-	indices_buffer_.alloc_and_upload(model.indices);
+OptixTraversableHandle lift::Renderer::BuildAccelerationStructure() {
+	vertices_buffer_.resize(meshes_.size());
+	indices_buffer_.resize(meshes_.size());
 
 	OptixTraversableHandle acceleration_struct{0};
 
 	// ==================================================================
 	// triangle inputs
 	// ==================================================================
-	OptixBuildInput triangle_input{};
-	triangle_input.type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
+	std::vector<OptixBuildInput> triangle_input(meshes_.size());
+	std::vector<CUdeviceptr> d_vertices(meshes_.size());
+	std::vector<CUdeviceptr> d_indices(meshes_.size());
+	std::vector<uint32_t> triangle_input_flags(meshes_.size());
 
-	auto d_vertices = vertices_buffer_.d_pointer();
-	auto d_indices = indices_buffer_.d_pointer();
+	for (int mesh_id = 0; mesh_id < int(meshes_.size()); mesh_id++) {
+		TriangleMesh& model = meshes_[mesh_id];
+		vertices_buffer_[mesh_id].alloc_and_upload(model.vertices);
+		indices_buffer_[mesh_id].alloc_and_upload(model.indices);
 
-	triangle_input.triangleArray.vertexFormat = OPTIX_VERTEX_FORMAT_FLOAT3;
-	triangle_input.triangleArray.vertexStrideInBytes = sizeof(vec3);
-	triangle_input.triangleArray.numVertices = int(model.vertices.size());
-	triangle_input.triangleArray.vertexBuffers = &d_vertices;
+		triangle_input[mesh_id] = {};
+		triangle_input[mesh_id].type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
 
-	triangle_input.triangleArray.indexFormat = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
-	triangle_input.triangleArray.indexStrideInBytes = sizeof(ivec3);
-	triangle_input.triangleArray.numIndexTriplets = int(model.indices.size());
-	triangle_input.triangleArray.indexBuffer = d_indices;
+		d_vertices[mesh_id] = vertices_buffer_[mesh_id].d_pointer();
+		d_indices[mesh_id] = indices_buffer_[mesh_id].d_pointer();
 
-	uint32_t triangle_input_flags[1] = {0};
+		triangle_input[mesh_id].triangleArray.vertexFormat = OPTIX_VERTEX_FORMAT_FLOAT3;
+		triangle_input[mesh_id].triangleArray.vertexStrideInBytes = sizeof(vec3);
+		triangle_input[mesh_id].triangleArray.numVertices = int(model.vertices.size());
+		triangle_input[mesh_id].triangleArray.vertexBuffers = &d_vertices[mesh_id];
 
-	triangle_input.triangleArray.flags = triangle_input_flags;
-	triangle_input.triangleArray.numSbtRecords = 1;
-	triangle_input.triangleArray.sbtIndexOffsetBuffer = 0;
-	triangle_input.triangleArray.sbtIndexOffsetSizeInBytes = 0;
-	triangle_input.triangleArray.sbtIndexOffsetStrideInBytes = 0;
+		triangle_input[mesh_id].triangleArray.indexFormat = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
+		triangle_input[mesh_id].triangleArray.indexStrideInBytes = sizeof(ivec3);
+		triangle_input[mesh_id].triangleArray.numIndexTriplets = int(model.indices.size());
+		triangle_input[mesh_id].triangleArray.indexBuffer = d_indices[mesh_id];
+
+		triangle_input_flags[mesh_id] = {0};
+
+		triangle_input[mesh_id].triangleArray.flags = &triangle_input_flags[mesh_id];
+		triangle_input[mesh_id].triangleArray.numSbtRecords = 1;
+		triangle_input[mesh_id].triangleArray.sbtIndexOffsetBuffer = 0;
+		triangle_input[mesh_id].triangleArray.sbtIndexOffsetSizeInBytes = 0;
+		triangle_input[mesh_id].triangleArray.sbtIndexOffsetStrideInBytes = 0;
+
+	}
 
 	// ==================================================================
 	// BLAS setup
@@ -400,7 +410,7 @@ OptixTraversableHandle lift::Renderer::BuildAccelerationStructure(const Triangle
 
 	OptixAccelBufferSizes blas_buffer_sizes;
 	OPTIX_CHECK(
-		optixAccelComputeMemoryUsage (optix_context_, &acceleration_options, &triangle_input, 1, &blas_buffer_sizes));
+		optixAccelComputeMemoryUsage (optix_context_, &acceleration_options, triangle_input.data(), int(meshes_.size()), &blas_buffer_sizes));
 
 	// ==================================================================
 	// prepare compaction
@@ -425,8 +435,8 @@ OptixTraversableHandle lift::Renderer::BuildAccelerationStructure(const Triangle
 	OPTIX_CHECK(optixAccelBuild(optix_context_,
 		nullptr,
 		&acceleration_options,
-		&triangle_input,
-		1,
+		triangle_input.data(),
+		int(meshes_.size()),
 		temp_buffer.d_pointer(),
 		temp_buffer.size_in_bytes,
 		output_buffer.d_pointer(),
@@ -452,7 +462,7 @@ OptixTraversableHandle lift::Renderer::BuildAccelerationStructure(const Triangle
 	CUDA_SYNC_CHECK();
 
 	// ==================================================================
-	// aaaaaand .... clean up
+	// clean up
 	// ==================================================================
 	output_buffer.free(); // << the UNcompacted, temporary output buffer
 	temp_buffer.free();

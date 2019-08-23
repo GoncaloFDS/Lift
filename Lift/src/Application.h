@@ -51,7 +51,7 @@ namespace lift {
 		int accumulated_frames_{0};
 
 		//! TEMP
-		TriangleMesh model_;
+		std::vector<TriangleMesh> meshes_;
 		//
 
 		static Application* instance_;

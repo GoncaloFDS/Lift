@@ -76,11 +76,19 @@ void lift::Application::InitGraphicsContext() {
 
 void lift::Application::CreateScene() {
 	Profiler profiler{"Create Scene"};
-	model_.AddCube(vec3(1.0f), vec3(1.0f));
-	model_.color = vec3(1.0f, 0.7f, .3f);
+
+	meshes_.resize(2);
+	meshes_[0].AddCube(vec3(1.0f), vec3(1.0f));
+	meshes_[0].color = material_albedo_;
+	renderer_.AddModel(meshes_[0]);
+	meshes_[1].AddCube(vec3(1.0f), vec3(2.0f));
+	meshes_[1].color = vec3(1.0f, 0.1f, 0.1f);
+	renderer_.AddModel(meshes_[1]);
+
+	renderer_.BuildTables();
+
 	camera_ = std::make_unique<Camera>();
 	renderer_.SetCamera(*camera_);
-	renderer_.AddModel(model_);
 }
 
 void lift::Application::CreateLights() {
