@@ -21,6 +21,15 @@ void lift::Mesh::ProcessNode(aiNode* node, const aiScene* scene) {
 	for (unsigned i = 0; i < node->mNumMeshes; i++) {
 		auto* mesh = scene->mMeshes[node->mMeshes[i]];
 		//TODO deal with multiple meshes
+		vertices.reserve(mesh->mNumVertices);
+		indices.reserve(mesh->mNumFaces);
+		for (int i = 0; i < mesh->mNumVertices; i++) {
+			vertices.emplace_back(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+		}
+		for (int i = 0; i < mesh->mNumFaces; i++) {
+			indices.emplace_back(mesh->mFaces[i].mIndices[0], mesh->mFaces[i].mIndices[1], mesh->mFaces[i].mIndices[2]);
+		}
+		
 	}
 
 	for (unsigned i = 0; i < node->mNumChildren; i++) {

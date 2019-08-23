@@ -9,11 +9,8 @@
 #include "core/Profiler.h"
 #include "platform/windows/WindowsWindow.h"
 #include "platform/opengl/OpenGLContext.h"
+#include "scene/Mesh.h"
 
-constexpr auto OPTIX_COMPATIBILITY = 7;
-#include <cuda_runtime.h>
-#include <optix.h>
-#include <optix_stubs.h>
 
 lift::Application* lift::Application::instance_ = nullptr;
 
@@ -77,17 +74,21 @@ void lift::Application::InitGraphicsContext() {
 void lift::Application::CreateScene() {
 	Profiler profiler{"Create Scene"};
 
-	meshes_.resize(2);
-	meshes_[0].AddCube(vec3(1.0f), vec3(1.0f));
-	meshes_[0].color = material_albedo_;
-	renderer_.AddModel(meshes_[0]);
-	meshes_[1].AddCube(vec3(1.0f), vec3(2.0f));
-	meshes_[1].color = vec3(1.0f, 0.1f, 0.1f);
-	renderer_.AddModel(meshes_[1]);
+	Mesh model("res/models/WaterBottle/glTF/WaterBottle.gltf");
+	model.color = vec3(0.4f, 0.6f, 0.7f);
+	renderer_.AddModel(model);
+
+	Mesh model2("res/models/SciFiHelmet/glTF/SciFiHelmet.gltf");
+	model2.color = vec3(0.9f, 0.6f, 0.1f);
+	renderer_.AddModel(model2);
 
 	renderer_.BuildTables();
 
-	camera_ = std::make_unique<Camera>();
+	camera_ = std::make_unique<Camera>(
+		vec3(0.0f, 2.0f, 12.f), 
+		vec3(0.0f), 
+		vec3(0.0f, 1.0f, 0.0f),
+		36.0f, 1.0f);
 	renderer_.SetCamera(*camera_);
 }
 

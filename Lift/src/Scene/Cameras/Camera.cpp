@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "Camera.h"
 
-Camera::Camera(): eye_(-10.0f, 2.0f, -12.f), look_at_(1.0f, 0.0f, 0.0f), up_(0.0f, 1.0f, 0.0f), fovy_(36.0f),
+Camera::Camera(): eye_(0.0f, 0.0f, -12.f), look_at_(0.0f, 0.0f, 0.0f), up_(0.0f, 1.0f, 0.0f), fovy_(36.0f),
 				  aspect_ratio_(1.0f) {
 }
 
