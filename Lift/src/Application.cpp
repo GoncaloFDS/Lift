@@ -74,13 +74,13 @@ void lift::Application::InitGraphicsContext() {
 void lift::Application::CreateScene() {
 	Profiler profiler{"Create Scene"};
 
-	Mesh model("res/models/WaterBottle/glTF/WaterBottle.gltf");
-	model.color = vec3(0.4f, 0.6f, 0.7f);
+	Mesh model("res/models/FlightHelmet/glTF/FlightHelmet.gltf");
+	model.diffuse = vec3(0.4f, 0.6f, 0.7f);
 	renderer_.AddModel(model);
 
 	Mesh model2("res/models/SciFiHelmet/glTF/SciFiHelmet.gltf");
-	model2.color = vec3(0.9f, 0.6f, 0.1f);
-	renderer_.AddModel(model2);
+	model2.diffuse = vec3(0.9f, 0.6f, 0.1f);
+	//renderer_.AddModel(model2);
 
 	renderer_.BuildTables();
 

@@ -10,9 +10,10 @@ workspace "Lift"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
--- Set $(SolutionDir)tests\res\ptx\%(Filename).ptx  as CUDA compiler output
+-- Set $(SolutionDir)sandbox\res\ptx\%(Filename).ptx  as CUDA compiler output
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
+IncludeDir["tinygltf"] = "external/tinygltf"
 IncludeDir["spdlog"] = "external/spdlog"
 IncludeDir["stbi"] = "external/stb_image"
 IncludeDir["GLFW"] = "external/glfw/include"
@@ -50,6 +51,7 @@ project "Lift"
 		"lift/src",
 		"%{IncludeDir.spdlog}/include",
 		"%{IncludeDir.stbi}",
+		"%{IncludeDir.tinygltf}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.glm}",

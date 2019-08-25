@@ -6,16 +6,10 @@
 #include <optix_types.h>
 #include <cuda_runtime.h>
 
-class Camera;
 
 namespace lift {
-	struct TriangleMesh {
-		void AddCube(const vec3& center, const vec3& size);
-
-		std::vector<vec3> vertices;
-		std::vector<ivec3> indices;
-		vec3 color;
-	};
+	class Camera;
+	struct Mesh;
 
 	class Renderer {
 	public:
@@ -29,7 +23,7 @@ namespace lift {
 		static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 
 		void SetCamera(const Camera& camera);
-		void AddModel(const TriangleMesh& model);
+		void AddModel(const Mesh& model);
 		void BuildTables();
 	protected:
 		// ------------------------------------------------------------------
@@ -97,12 +91,36 @@ namespace lift {
 
 		CudaBuffer color_buffer_;
 
-		std::vector<TriangleMesh> meshes_;
+		std::vector<Mesh> meshes_;
 		/*! one buffer per input mesh */
 		std::vector<CudaBuffer> vertices_buffer_;
 		/*! one buffer per input mesh */
 		std::vector<CudaBuffer> indices_buffer_;
 		//! buffer that keeps the (final, compacted) acceleration structure
 		CudaBuffer acceleration_struct_buffer_;
+	};
+
+	/*! SBT record for a raygen program */
+	struct __align__(OPTIX_SBT_RECORD_ALIGNMENT) RaygenRecord {
+		__align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
+		// just a dummy value - later examples will use more interesting
+		// data here
+		void* data;
+	};
+
+	/*! SBT record for a miss program */
+	struct __align__(OPTIX_SBT_RECORD_ALIGNMENT) MissRecord {
+		__align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
+		// just a dummy value - later examples will use more interesting
+		// data here
+		void* data;
+	};
+
+	/*! SBT record for a hitgroup program */
+	struct __align__(OPTIX_SBT_RECORD_ALIGNMENT) HitgroupRecord {
+		__align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
+		// just a dummy value - later examples will use more interesting
+		// data here
+		TriangleMeshSbtData data;
 	};
 }

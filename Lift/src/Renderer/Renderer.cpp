@@ -4,59 +4,7 @@
 #include <optix_stubs.h>
 #include <optix_function_table_definition.h>
 #include "scene/cameras/Camera.h"
-
-
-namespace lift {
-	/*! SBT record for a raygen program */
-	struct __align__(OPTIX_SBT_RECORD_ALIGNMENT) RaygenRecord {
-		__align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-		// just a dummy value - later examples will use more interesting
-		// data here
-		void* data;
-	};
-
-	/*! SBT record for a miss program */
-	struct __align__(OPTIX_SBT_RECORD_ALIGNMENT) MissRecord {
-		__align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-		// just a dummy value - later examples will use more interesting
-		// data here
-		void* data;
-	};
-
-	/*! SBT record for a hitgroup program */
-	struct __align__(OPTIX_SBT_RECORD_ALIGNMENT) HitgroupRecord {
-		__align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-		// just a dummy value - later examples will use more interesting
-		// data here
-		TriangleMeshSbtData data;
-	};
-}
-
-void lift::TriangleMesh::AddCube(const vec3& center, const vec3& size) {
-	const int first_vertex_index = int(vertices.size());
-	vertices.push_back(vec3(0.0f, 0.0f, 0.0f) * size);
-	vertices.push_back(vec3(1.0f, 0.0f, 0.0f) * size);
-	vertices.push_back(vec3(0.0f, 1.0f, 0.0f) * size);
-	vertices.push_back(vec3(1.0f, 1.0f, 0.0f) * size);
-	vertices.push_back(vec3(0.0f, 0.0f, 1.0f) * size);
-	vertices.push_back(vec3(1.0f, 0.0f, 1.0f) * size);
-	vertices.push_back(vec3(0.0f, 1.0f, 1.0f) * size);
-	vertices.push_back(vec3(1.0f, 1.0f, 1.0f) * size);
-
-	int indices_data[] = {
-		0, 1, 3, 2, 3, 0,
-		5, 7, 6, 5, 6, 4,
-		0, 4, 5, 0, 5, 1,
-		2, 3, 7, 2, 7, 6,
-		1, 5, 7, 1, 7, 3,
-		4, 0, 2, 4, 2, 6
-	};
-	for (int i = 0; i < 12; i++) {
-		indices.push_back(ivec3(first_vertex_index) + ivec3(indices_data[3 * i + 0],
-															indices_data[3 * i + 1],
-															indices_data[3 * i + 2]));
-	}
-}
+#include "scene/Mesh.h"
 
 lift::Renderer::Renderer() {
 }
@@ -118,7 +66,7 @@ void lift::Renderer::SetCamera(const Camera& camera) {
 	launch_params_.camera.vertical = camera.VectorV();
 }
 
-void lift::Renderer::AddModel(const TriangleMesh& model) {
+void lift::Renderer::AddModel(const Mesh& model) {
 	meshes_.push_back(model);
 }
 
@@ -345,7 +293,7 @@ void lift::Renderer::BuildShaderBindingTables() {
 		OPTIX_CHECK(optixSbtRecordPackHeader(hit_program_groups_[object_type],&rec));
 		rec.data.vertices = reinterpret_cast<vec3*>(vertices_buffer_[mesh_id].d_pointer());
 		rec.data.indices = reinterpret_cast<ivec3*>(indices_buffer_[mesh_id].d_pointer());
-		rec.data.color = meshes_[mesh_id].color;
+		rec.data.color = meshes_[mesh_id].diffuse;
 		hitgroup_records.push_back(rec);
 	}
 	hit_program_groups_buffer_.alloc_and_upload(hitgroup_records);
@@ -369,7 +317,7 @@ OptixTraversableHandle lift::Renderer::BuildAccelerationStructure() {
 	std::vector<uint32_t> triangle_input_flags(meshes_.size());
 
 	for (int mesh_id = 0; mesh_id < int(meshes_.size()); mesh_id++) {
-		TriangleMesh& model = meshes_[mesh_id];
+		Mesh& model = meshes_[mesh_id];
 		vertices_buffer_[mesh_id].alloc_and_upload(model.vertices);
 		indices_buffer_[mesh_id].alloc_and_upload(model.indices);
 
@@ -475,4 +423,5 @@ OptixTraversableHandle lift::Renderer::BuildAccelerationStructure() {
 void lift::Renderer::Submit(const std::shared_ptr<VertexArray>& vertex_array) {
 	vertex_array->Bind();
 	RenderCommand::DrawIndexed(vertex_array);
+	
 }
