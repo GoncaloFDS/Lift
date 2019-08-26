@@ -1,10 +1,5 @@
 #pragma once
 
-#include <type_traits>
-#include <crt/host_defines.h>
-#include <glm/glm.hpp>
-#include <glm/vec3.hpp> // glm::vec3
-
 inline __device__ vec3 random_color(int i) {
 	int r = unsigned(i)*13*17 + 0x234235;
     int g = unsigned(i)*7*3*5 + 0x773477;

@@ -37,7 +37,7 @@ constexpr T Bit(T x) {
 #define OPTIX_CHECK( call ) {                                                                   \
     OptixResult res = call;                                                                     \
     if( res != OPTIX_SUCCESS ) {                                                                \
-        LF_CORE_ERROR("Optix call {0} failed with code {1} (line {2})", #call, res, __LINE__ ); \
+        LF_CORE_FATAL("Optix call {0} failed with code {1} (line {2})", #call, res, __LINE__ ); \
         exit( 2 );                                                                              \
     }																							\
 }
@@ -45,15 +45,16 @@ constexpr T Bit(T x) {
 	#define OPTIX_CHECK( call ) ( call );
 #endif
 
-#define CUDA_CHECK(call)												\
-    {																	\
-      cudaError_t rc = cuda##call;                                      \
-      if (rc != cudaSuccess) {                                          \
-		cudaError_t err = rc; \
-		LF_CORE_ERROR("CUDA Error {0} [{1}]", cudaGetErrorName(err), cudaGetErrorString(err)); \
-		__debugbreak(); \
-      }                                                                 \
-    }
+#define CUDA_CHECK( call )															\
+    do																				\
+    {																				\
+        cudaError_t error = call;													\
+        if( error != cudaSuccess )													\
+        {																			\
+			LF_CORE_FATAL("CUDA call {0} failed with code {1} (file {2} line {3})",	\
+							#call, cudaGetErrorString(error), __FILE__, __LINE__);  \
+        }																			\
+    } while( 0 )
 
 #define CUDA_CHECK_NOEXCEPT(call)                                        \
     {									\
@@ -70,3 +71,9 @@ constexpr T Bit(T x) {
         exit( 2 );                                                      \
       }                                                                 \
   }
+
+template <typename IntegerType>
+inline IntegerType roundUp(IntegerType x, IntegerType y)
+{
+    return ( ( x + y - 1 ) / y ) * y;
+}

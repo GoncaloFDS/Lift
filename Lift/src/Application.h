@@ -9,6 +9,8 @@
 #include "renderer/Renderer.h"
 #include "renderer/Texture.h"
 #include "scene/cameras/Camera.h"
+#include "cuda/launch_parameters.cuh"
+#include "scene/Scene.h"
 
 namespace lift {
 	class MouseScrolledEvent;
@@ -32,7 +34,7 @@ namespace lift {
 		static Application& Get() { return *instance_; }
 		[[nodiscard]] Window& GetWindow() const { return *window_; }
 
-		[[nodiscard]] auto GetFrameTextureId() const { return target_texture_->id; }
+		[[nodiscard]] auto GetFrameTextureId() const { return output_texture_->id; }
 
 		void RestartAccumulation() { accumulated_frames_ = 0; }
 
@@ -46,14 +48,16 @@ namespace lift {
 		LayerStack layer_stack_;
 
 		std::unique_ptr<Camera> camera_;
+		Scene scene_;
 
-		std::unique_ptr<Texture> target_texture_;
+		std::unique_ptr<Texture> output_texture_;
 		int accumulated_frames_{0};
 
-		//! TEMP
-		std::vector<Mesh> meshes_;
+		//! Temp
+		LaunchParameters launch_parameters_;		
+		CudaBuffer<uint32_t> color_buffer_;
 		//
-
+		
 		static Application* instance_;
 
 		void InitGraphicsContext();

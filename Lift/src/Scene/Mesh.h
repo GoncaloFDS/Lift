@@ -1,30 +1,25 @@
 ﻿#pragma once
 
-#include "assimp/Importer.hpp"
-#include "assimp/scene.h"
-#include "assimp/postprocess.h"
-#include "renderer/Renderer.h"
+#include "Aabb.h"
+#include <optix.h>
+#include "renderer/BufferView.h"
 
 namespace lift {
 	struct Mesh {
-	public:
-		Mesh() : transform_(1.0f) { }
+		std::string name;
+		mat4 transform;
 
-		Mesh(const std::string& path);
+		std::vector<BufferView<glm::ivec3>> indices;
+		std::vector<BufferView<glm::vec3>> positions;
+		std::vector<BufferView<glm::vec3>> normals;
+		std::vector<BufferView<glm::vec2>> tex_coords;
 
-		[[nodiscard]] const mat4& Transform() const { return transform_; }
-		void SetTransform(const mat4& transform) { transform_ = transform; }
+		std::vector<int32_t> material_idx;
 
-		std::vector<vec3> vertices;
-		std::vector<vec3> normals;
-		std::vector<vec2> tex_coords;
-		std::vector<ivec3> indices;
-		vec3 diffuse{};
-		
-	protected:
-		mat4 transform_;
+		OptixTraversableHandle gas_handle = 0;
+		CUdeviceptr d_gas_output = 0;
 
-		void ProcessNode(aiNode* node, const aiScene* scene);
-
+		Aabb object_aabb;
+		Aabb world_aabb;
 	};
 }

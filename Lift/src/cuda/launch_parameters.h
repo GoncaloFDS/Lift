@@ -2,6 +2,7 @@
 #include <optix.h>
 #include "scene/GeometryData.h"
 #include "scene/MaterialData.h"
+using namespace glm;
 
 namespace lift {
 

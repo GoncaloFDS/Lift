@@ -10,6 +10,7 @@
 #include "platform/windows/WindowsWindow.h"
 #include "platform/opengl/OpenGLContext.h"
 #include "scene/Mesh.h"
+#include "scene/Scene.h"
 
 
 lift::Application* lift::Application::instance_ = nullptr;
@@ -22,7 +23,7 @@ lift::Application::Application() {
 
 	Timer::Start();
 	InitGraphicsContext();
-	renderer_.Init();
+	//renderer_.Init();
 
 	//window_->SetVSync(false);
 	PushOverlay<ImGuiLayer>();
@@ -35,17 +36,20 @@ lift::Application::~Application() {
 void lift::Application::Run() {
 	Profiler profiler("Application Runtime");
 	CreateScene();
-	target_texture_ = std::make_unique<Texture>();
+	output_texture_ = std::make_unique<Texture>();
 
 	while (is_running_) {
 		Timer::Tick();
 		ImGuiLayer::Begin();
 		Input::OnUpdate();
-		//RenderCommand::Clear();
 
 		camera_->OnUpdate();
+		launch_parameters_.camera.position = camera_->Eye();
+		launch_parameters_.camera.direction = camera_->VectorW();
+		launch_parameters_.camera.horizontal = camera_->VectorU();
+		launch_parameters_.camera.vertical = camera_->VectorV();
+		launch_parameters_.traversable = scene_.GetTraversableHandle();
 
-		renderer_.SetCamera(*camera_);
 		// Update Layers
 		window_->OnUpdate();
 		for (auto& layer : layer_stack_)
@@ -54,9 +58,12 @@ void lift::Application::Run() {
 		for (auto& layer : layer_stack_)
 			layer->OnImguiRender();
 
-		renderer_.Render();
-		renderer_.DownloadPixels(target_texture_->Data());
-		target_texture_->SetData();
+		
+
+		//renderer_.Render();
+		renderer_.LaunchSubframe(scene_, launch_parameters_);
+		color_buffer_.download(output_texture_->Data());
+		output_texture_->SetData();
 
 		//End frame
 		ImGuiLayer::End();
@@ -73,23 +80,14 @@ void lift::Application::InitGraphicsContext() {
 
 void lift::Application::CreateScene() {
 	Profiler profiler{"Create Scene"};
-
-	Mesh model("res/models/FlightHelmet/glTF/FlightHelmet.gltf");
-	model.diffuse = vec3(0.4f, 0.6f, 0.7f);
-	renderer_.AddModel(model);
-
-	Mesh model2("res/models/SciFiHelmet/glTF/SciFiHelmet.gltf");
-	model2.diffuse = vec3(0.9f, 0.6f, 0.1f);
-	//renderer_.AddModel(model2);
-
-	renderer_.BuildTables();
+	scene_.LoadFromFile("res/models/FlightHelmet/glTF/FlightHelmet.gltf");
+	scene_.Finalize();
 
 	camera_ = std::make_unique<Camera>(
 		vec3(0.0f, 2.0f, 12.f), 
 		vec3(0.0f), 
 		vec3(0.0f, 1.0f, 0.0f),
 		36.0f, 1.0f);
-	renderer_.SetCamera(*camera_);
 }
 
 void lift::Application::CreateLights() {
@@ -122,8 +120,11 @@ bool lift::Application::OnWindowClose(WindowCloseEvent& e) {
 }
 
 void lift::Application::Resize(const ivec2& size) {
-	renderer_.Resize(size);
-	target_texture_->Resize(size);
+	//renderer_.Resize(size);
+	color_buffer_.alloc(size.x * size.y);
+	launch_parameters_.frame.size = size;
+	launch_parameters_.frame.color_buffer = (uint32_t*)color_buffer_.get();
+	output_texture_->Resize(size);
 	camera_->SetAspectRatio(float(size.x) / size.y);
 }
 

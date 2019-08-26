@@ -6,8 +6,11 @@ namespace lift {
 	class RendererAPI {
 	public:
 		enum class API {
-			None = 0, OpenGL
+			None = 0,
+			OpenGL
 		};
+
+		virtual ~RendererAPI() = default;
 
 		virtual void SetClearColor(const vec4& color) = 0;
 		virtual void Clear() = 0;
@@ -15,7 +18,7 @@ namespace lift {
 
 		virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertex_array) = 0;
 
-		inline static API GetAPI() {return renderer_api_;}
+		inline static API GetAPI() { return renderer_api_; }
 	private:
 		static API renderer_api_;
 	};

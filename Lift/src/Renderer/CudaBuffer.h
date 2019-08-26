@@ -6,51 +6,65 @@
 
 
 namespace lift {
+	template <typename T = char>
 	struct CudaBuffer {
-		[[nodiscard]] CUdeviceptr d_pointer() const { return CUdeviceptr(d_ptr); }
-		//! re-size buffer to given number of bytes
-		void resize(const size_t size) {
-			if (d_ptr) free();
-			alloc(size);
+		CudaBuffer(const size_t count = 0) { alloc(count); }
+		~CudaBuffer() { free(); }
+
+		void alloc(const size_t count) {
+			free();
+			alloc_count_ = count_ = count;
+			if (count_) {
+				CUDA_CHECK(cudaMalloc( &ptr_, alloc_count_ * sizeof( T ) ));
+			}
 		}
 
-		//! allocate to given number of bytes
-		void alloc(size_t size) {
-			LF_CORE_ASSERT(d_ptr == nullptr, " ");
-			this->size_in_bytes = size;
-			CUDA_CHECK(Malloc(static_cast<void**>(&d_ptr), size_in_bytes));
+		void allocIfRequired(size_t count) {
+			if (count <= count_) {
+				count_ = count;
+				return;
+			}
+			alloc(count);
 		}
 
-		//! free allocated memory
+		[[nodiscard]] CUdeviceptr get() const { return reinterpret_cast<CUdeviceptr>(ptr_); }
+		[[nodiscard]] CUdeviceptr get(size_t index) const { return reinterpret_cast<CUdeviceptr>(ptr_ + index); }
+
 		void free() {
-			CUDA_CHECK(Free(d_ptr));
-			d_ptr = nullptr;
-			size_in_bytes = 0;
+			count_ = 0;
+			alloc_count_ = 0;
+			CUDA_CHECK(cudaFree( ptr_ ));
+			ptr_ = nullptr;
 		}
 
-		template <typename T>
-		void alloc_and_upload(const std::vector<T>& vt) {
-			alloc(vt.size() * sizeof(T));
-			upload(static_cast<const T*>(vt.data()), vt.size());
+		CUdeviceptr release() {
+			const auto current = reinterpret_cast<CUdeviceptr>(ptr_);
+			count_ = 0;
+			alloc_count_ = 0;
+			ptr_ = nullptr;
+			return current;
 		}
 
-		template <typename T>
-		void upload(const T* t, size_t count) {
-			LF_CORE_ASSERT(d_ptr != nullptr, " ");
-			LF_CORE_ASSERT(size_in_bytes == count*sizeof(T), " ");
-			CUDA_CHECK(Memcpy(d_ptr, (void *)t,
-							  count * sizeof(T), cudaMemcpyHostToDevice));
+		void upload(const T* data) {
+			CUDA_CHECK(cudaMemcpy( ptr_, data, count_ * sizeof( T ), cudaMemcpyHostToDevice ));
 		}
 
-		template <typename T>
-		void download(T* t, size_t count) {
-			LF_CORE_ASSERT(d_ptr != nullptr, " ");
-			LF_CORE_ASSERT(size_in_bytes == count*sizeof(T), " ");
-			CUDA_CHECK(Memcpy((void *)t, d_ptr,
-							  count * sizeof(T), cudaMemcpyDeviceToHost));
+		void download(T* data) const {
+			CUDA_CHECK(cudaMemcpy( data, ptr_, count_ * sizeof( T ), cudaMemcpyDeviceToHost ));
 		}
 
-		size_t size_in_bytes{0};
-		void* d_ptr{nullptr};
+		void downloadSub(size_t count, size_t offset, T* data) const {
+			assert(count + offset < alloc_count_);
+			CUDA_CHECK(cudaMemcpy( data, ptr_ + offset, count * sizeof( T ), cudaMemcpyDeviceToHost ));
+		}
+
+		[[nodiscard]] size_t count() const { return count_; }
+		[[nodiscard]] size_t reservedCount() const { return alloc_count_; }
+		[[nodiscard]] size_t byteSize() const { return alloc_count_ * sizeof(T); }
+
+	private:
+		size_t count_ = 0;
+		size_t alloc_count_ = 0;
+		T* ptr_ = nullptr;
 	};
 }
