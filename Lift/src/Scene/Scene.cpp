@@ -14,6 +14,7 @@
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#define TINYGLTF_NOEXCEPTION
 #include "tiny_gltf.h"
 #include "core/Profiler.h"
 
@@ -61,6 +62,7 @@ void lift::Scene::AddBuffer(const uint64_t buf_size, const void* data) {
 
 void lift::Scene::AddImage(const int32_t width, const int32_t height, const int32_t bits_per_component,
 						   const int32_t num_components, const void* data) {
+	Profiler profiler("addImage");
 	// Allocate CUDA array in device memory
 	int32_t pitch = 0;
 	cudaChannelFormatDesc channel_desc{};
@@ -178,69 +180,7 @@ void lift::Scene::CreateContext() {
 }
 
 void lift::Scene::BuildMeshAccels() {
-	// Problem:
-	// The memory requirements of a compacted GAS are unknown prior to building the GAS.
-	// Hence, compaction of a GAS requires to build the GAS first and allocating memory for the compacted GAS afterwards.
-	// This causes a device-host synchronization point, potentially harming performance.
-	// This is most likely the case for small GASes where the actual building and compaction of the GAS is very fast.
-	// A naive algorithm processes one GAS at a time with the following steps:
-	// 1. compute memory sizes for the build process (temporary buffer size and build buffer size)
-	// 2. allocate temporary and build buffer
-	// 3. build the GAS (with temporary and build buffer) and compute the compacted size
-	// If compacted size is smaller than build buffer size (i.e., compaction is worth it):
-	// 4. allocate compacted buffer (final output buffer)
-	// 5. compact GAS from build buffer into compact buffer
-	//
-	// Idea of the algorithm:
-	// Batch process the building and compaction of multiple GASes to avoid host-device synchronization.
-	// Ideally, the number of synchronization points would be linear with the number of batches rather than the number of GASes.
-	// The main constraints for selecting batches of GASes are:
-	// a) the peak memory consumption when batch processing GASes, and
-	// b) the amount of memory for the output buffer(s), containing the compacted GASes. This is also part of a), but is also important after the build process.
-	// For the latter we try to keep it as minimal as possible, i.e., the total memory requirements for the output should equal the sum of the compacted sizes of the GASes.
-	// Hence, it should be avoided to waste memory by allocating buffers that are bigger than what is required for a compacted GAS.
-	//
-	// The peak memory consumption effectively defines the efficiency of the algorithm.
-	// If memory was unlimited, compaction isn't needed at all.
-	// A lower bound for the peak memory consumption during the build is the output of the process, the size of the compacted GASes.
-	// Peak memory consumption effectively defines the memory pool available during the batch building and compaction of GASes.
-	//
-	// The algorithm estimates the size of the compacted GASes by a give compaction ratio as well as the computed build size of each GAS.
-	// The compaction ratio is defined as: size of compacted GAS / size of build output of GAS.
-	// The validity of this estimate therefore depends on the assumed compaction ratio.
-	// The current algorithm assumes a fixed compaction ratio.
-	// Other strategies could be:
-	// - update the compaction ration on the fly by do statistics on the already processed GASes to have a better guess for the remaining batches
-	// - multiple compaction rations by type of GAS (e.g., motion vs static), since the type of GAS impacts the compaction ratio
-	// Further, compaction may be skipped for GASes that do not benefit from compaction (compaction ratio of 1.0).
-	//
-	// Before selecting GASes for a batch, all GASes are sorted by size (their build size).
-	// Big GASes are handled before smaller GASes as this will increase the likelihood of the peak memory consumption staying close to the minimal memory consumption.
-	// This also increase the benefit of batching since small GASes that benefit most from avoiding synchronizations are built "together".
-	// The minimum batch size is one GAS to ensure forward process.
-	//
-	// Goal:
-	// Estimate the required output size (the minimal peak memory consumption) and work within these bounds.
-	// Batch process GASes as long as they are expected to fit into the memory bounds (non strict).
-	//
-	// Assumptions:
-	// The inputs to each GAS are already in device memory and are needed afterwards.
-	// Otherwise this could be factored into the peak memory consumption.
-	// E.g., by uploading the input data to the device only just before building the GAS and releasing it right afterwards.
-	//
-	// Further, the peak memory consumption of the application / system is influenced by many factors unknown to this algorithm.
-	// E.g., if it is known that a big pool of memory is needed after GAS building anyways (e.g., textures that need to be present on the device),
-	// peak memory consumption will be higher eventually and the GAS build process could already make use of a bigger memory pool.
-	//
-	// TODOs:
-	// - compaction ratio estimation / updating
-	// - handling of non-compactable GASes
-	// - integration of GAS input data upload / freeing
-	// - add optional hard limits / check for hard memory limits (shrink batch size / abort, ...)
-	//////////////////////////////////////////////////////////////////////////
-
-	// Magic constants:
-
+	Profiler profiler("BuildMeshAccels");
 	// see explanation above
 	constexpr double initial_compaction_ratio = 0.5;
 
@@ -457,6 +397,7 @@ void lift::Scene::BuildMeshAccels() {
 }
 
 void lift::Scene::BuildInstanceAccel(int ray_type_count) {
+	Profiler profiler("BuildInstanceAccel");
 	const size_t num_instances = meshes_.size();
 
 	std::vector<OptixInstance> optix_instances(num_instances);
@@ -540,12 +481,16 @@ void lift::Scene::BuildInstanceAccel(int ray_type_count) {
 
 void lift::Scene::LoadFromFile(const std::string& file_name) {
 	Profiler profiler("Load Scene");
+	LF_CORE_INFO("Loading Scene");
 	tinygltf::Model model;
 	tinygltf::TinyGLTF loader;
 	std::string err;
 	std::string warn;
-
-	bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, file_name);
+	bool ret;
+	{
+		Profiler profiler("LoadACIIFromFile");
+		ret = loader.LoadASCIIFromFile(&model, &err, &warn, file_name);
+	}
 	if (!warn.empty())
 		LF_CORE_ERROR("glTF Warning: {0}", warn);
 
@@ -556,10 +501,6 @@ void lift::Scene::LoadFromFile(const std::string& file_name) {
 	//
 	for (const auto& gltf_buffer : model.buffers) {
 		const uint64_t buf_size = gltf_buffer.data.size();
-		std::cerr << "Processing glTF buffer '" << gltf_buffer.name << "'\n"
-			<< "\tbyte size: " << buf_size << "\n"
-			<< "\turi      : " << gltf_buffer.uri << std::endl;
-
 		AddBuffer(buf_size, gltf_buffer.data.data());
 	}
 
@@ -567,10 +508,6 @@ void lift::Scene::LoadFromFile(const std::string& file_name) {
 	// Images -- just load all up front for simplicity
 	//
 	for (const auto& gltf_image : model.images) {
-		std::cerr << "Processing image '" << gltf_image.name << "'\n"
-			<< "\t(" << gltf_image.width << "x" << gltf_image.height << ")x" << gltf_image.component << "\n"
-			<< "\tbits: " << gltf_image.bits << std::endl;
-
 		assert(gltf_image.component == 4);
 		assert(gltf_image.bits == 8 || gltf_image.bits == 16);
 
@@ -614,69 +551,32 @@ void lift::Scene::LoadFromFile(const std::string& file_name) {
 	// Materials
 	//
 	for (auto& gltf_material : model.materials) {
-		std::cerr << "Processing glTF material: '" << gltf_material.name << "'\n";
 		MaterialData mtl;
 
-		{
-			const auto base_color_it = gltf_material.values.find("baseColorFactor");
-			if (base_color_it != gltf_material.values.end()) {
-				const tinygltf::ColorValue c = base_color_it->second.ColorFactor();
-				mtl.base_color = vec4(c[0], c[1], c[2], c[3]);
-			}
-			else {
-				LF_CORE_WARN("\tUsing default base color factor");
-			}
+		const auto base_color_it = gltf_material.values.find("baseColorFactor");
+		if (base_color_it != gltf_material.values.end()) {
+			const tinygltf::ColorValue c = base_color_it->second.ColorFactor();
+			mtl.base_color = vec4(c[0], c[1], c[2], c[3]);
 		}
-
-		{
-			const auto base_color_it = gltf_material.values.find("baseColorTexture");
-			if (base_color_it != gltf_material.values.end()) {
-				LF_CORE_TRACE("\tFound base color tex: {0}", base_color_it->second.TextureIndex());
-				mtl.base_color_tex = GetSampler(base_color_it->second.TextureIndex());
-			}
-			else {
-				std::cerr << "\tNo base color tex\n";
-			}
+		const auto base_color_t_it = gltf_material.values.find("baseColorTexture");
+		if (base_color_t_it != gltf_material.values.end()) {
+			mtl.base_color_tex = GetSampler(base_color_t_it->second.TextureIndex());
 		}
-
-		{
-			const auto roughness_it = gltf_material.values.find("roughnessFactor");
-			if (roughness_it != gltf_material.values.end()) {
-				mtl.roughness = static_cast<float>(roughness_it->second.Factor());
-			}
+		const auto roughness_it = gltf_material.values.find("roughnessFactor");
+		if (roughness_it != gltf_material.values.end()) {
+			mtl.roughness = static_cast<float>(roughness_it->second.Factor());
 		}
-
-		{
-			const auto metallic_it = gltf_material.values.find("metallicFactor");
-			if (metallic_it != gltf_material.values.end()) {
-				mtl.metallic = static_cast<float>(metallic_it->second.Factor());
-				std::cerr << "\tMetallic:  " << mtl.metallic << "\n";
-			}
-			else {
-				std::cerr << "\tUsing default metallic factor\n";
-			}
+		const auto metallic_it = gltf_material.values.find("metallicFactor");
+		if (metallic_it != gltf_material.values.end()) {
+			mtl.metallic = static_cast<float>(metallic_it->second.Factor());
 		}
-
-		{
-			const auto metallic_roughness_it = gltf_material.values.find("metallicRoughnessTexture");
-			if (metallic_roughness_it != gltf_material.values.end()) {
-				std::cerr << "\tFound metallic roughness tex: " << metallic_roughness_it->second.TextureIndex() << "\n";
-				mtl.metallic_roughness_tex = GetSampler(metallic_roughness_it->second.TextureIndex());
-			}
-			else {
-				std::cerr << "\tNo metallic roughness tex\n";
-			}
+		const auto metallic_roughness_it = gltf_material.values.find("metallicRoughnessTexture");
+		if (metallic_roughness_it != gltf_material.values.end()) {
+			mtl.metallic_roughness_tex = GetSampler(metallic_roughness_it->second.TextureIndex());
 		}
-
-		{
-			const auto normal_it = gltf_material.additionalValues.find("normalTexture");
-			if (normal_it != gltf_material.additionalValues.end()) {
-				std::cerr << "\tFound normal color tex: " << normal_it->second.TextureIndex() << "\n";
-				mtl.normal_tex = GetSampler(normal_it->second.TextureIndex());
-			}
-			else {
-				std::cerr << "\tNo normal tex\n";
-			}
+		const auto normal_it = gltf_material.additionalValues.find("normalTexture");
+		if (normal_it != gltf_material.additionalValues.end()) {
+			mtl.normal_tex = GetSampler(normal_it->second.TextureIndex());
 		}
 
 		AddMaterial(mtl);
@@ -738,10 +638,7 @@ void lift::Scene::ProcessGltfNode(const tinygltf::Model& model, const tinygltf::
 
 	if (gltf_node.camera != -1) {
 		const auto& gltf_camera = model.cameras[gltf_node.camera];
-		std::cerr << "Processing camera '" << gltf_camera.name << "'\n"
-			<< "\ttype: " << gltf_camera.type << "\n";
 		if (gltf_camera.type != "perspective") {
-			std::cerr << "\tskipping non-perpective camera\n";
 			return;
 		}
 
@@ -763,8 +660,6 @@ void lift::Scene::ProcessGltfNode(const tinygltf::Model& model, const tinygltf::
 	}
 	else if (gltf_node.mesh != -1) {
 		const auto& gltf_mesh = model.meshes[gltf_node.mesh];
-		std::cerr << "Processing glTF mesh: '" << gltf_mesh.name << "'\n";
-		std::cerr << "\tNum mesh primitive groups: " << gltf_mesh.primitives.size() << std::endl;
 		for (auto& gltf_primitive : gltf_mesh.primitives) {
 			if (gltf_primitive.mode != TINYGLTF_MODE_TRIANGLES) // Ignore non-triangle meshes
 			{
@@ -780,7 +675,6 @@ void lift::Scene::ProcessGltfNode(const tinygltf::Model& model, const tinygltf::
 			mesh->indices.push_back(BufferViewFromGltf<ivec3>(model, this, gltf_primitive.indices));
 			mesh->material_idx.push_back(gltf_primitive.material);
 			mesh->transform = node_xform;
-			std::cerr << "\t\tNum triangles: " << mesh->indices.back().count / 3 << std::endl;
 
 			assert(gltf_primitive.attributes.find( "POSITION" ) != gltf_primitive.attributes.end());
 			const int32_t pos_accessor_idx = gltf_primitive.attributes.at("POSITION");
@@ -803,21 +697,17 @@ void lift::Scene::ProcessGltfNode(const tinygltf::Model& model, const tinygltf::
 
 			auto normal_accessor_iter = gltf_primitive.attributes.find("NORMAL");
 			if (normal_accessor_iter != gltf_primitive.attributes.end()) {
-				std::cerr << "\t\tHas vertex normals: true\n";
 				mesh->normals.push_back(BufferViewFromGltf<vec3>(model, this, normal_accessor_iter->second));
 			}
 			else {
-				std::cerr << "\t\tHas vertex normals: false\n";
 				mesh->normals.push_back(BufferViewFromGltf<vec3>(model, this, -1));
 			}
 
 			auto texcoord_accessor_iter = gltf_primitive.attributes.find("TEXCOORD_0");
 			if (texcoord_accessor_iter != gltf_primitive.attributes.end()) {
-				std::cerr << "\t\tHas texcoords: true\n";
 				mesh->tex_coords.push_back(BufferViewFromGltf<vec2>(model, this, texcoord_accessor_iter->second));
 			}
 			else {
-				std::cerr << "\t\tHas texcoords: false\n";
 				mesh->tex_coords.push_back(BufferViewFromGltf<vec2>(model, this, -1));
 			}
 		}

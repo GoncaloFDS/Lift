@@ -11,6 +11,7 @@
 #include "platform/opengl/OpenGLContext.h"
 #include "scene/Mesh.h"
 #include "scene/Scene.h"
+#include <optix_stubs.h>
 
 
 lift::Application* lift::Application::instance_ = nullptr;
@@ -58,9 +59,6 @@ void lift::Application::Run() {
 		for (auto& layer : layer_stack_)
 			layer->OnImguiRender();
 
-		
-
-		//renderer_.Render();
 		renderer_.LaunchSubframe(scene_, launch_parameters_);
 		color_buffer_.download(output_texture_->Data());
 		output_texture_->SetData();
@@ -82,6 +80,8 @@ void lift::Application::CreateScene() {
 	Profiler profiler{"Create Scene"};
 	scene_.LoadFromFile("res/models/FlightHelmet/glTF/FlightHelmet.gltf");
 	scene_.Finalize();
+
+	OPTIX_CHECK(optixInit());
 
 	camera_ = std::make_unique<Camera>(
 		vec3(0.0f, 2.0f, 12.f), 

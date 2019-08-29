@@ -1,7 +1,7 @@
 #pragma once
 #include "RendererAPI.h"
 #include "CudaBuffer.h"
-#include <cuda/launch_parameters.cuh>
+#include <cuda/launch_parameters.h>
 
 
 namespace lift {
@@ -20,6 +20,5 @@ namespace lift {
 	private:
 		
 		CudaBuffer<LaunchParameters> d_params_;
-		LaunchParameters params_;
 	};
 }

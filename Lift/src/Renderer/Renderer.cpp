@@ -5,16 +5,14 @@
 #include <optix.h>
 #include <optix_stubs.h>
 #include "scene/Scene.h"
-#include "cuda/launch_parameters.cuh"
+#include "cuda/launch_parameters.h"
 
 lift::Renderer::Renderer() {
-	d_params_.alloc(sizeof(LaunchParameters));
+	d_params_.alloc(1);
 }
 
 
 void lift::Renderer::LaunchSubframe(const Scene& scene, LaunchParameters& params) {
-	params_ = params;
-	
 	CUDA_CHECK(cudaMemcpyAsync(reinterpret_cast<void*>(d_params_.get()),
 		&params,
 		sizeof(LaunchParameters),

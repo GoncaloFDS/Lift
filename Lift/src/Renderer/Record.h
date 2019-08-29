@@ -1,7 +1,5 @@
 ﻿#pragma once
-#include <optix.h>
-#include <crt/host_defines.h>
-#include "cuda/launch_parameters.cuh"
+#include "cuda/launch_parameters.h"
 
 namespace lift {
 	template <typename T>

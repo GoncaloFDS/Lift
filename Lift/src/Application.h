@@ -9,7 +9,7 @@
 #include "renderer/Renderer.h"
 #include "renderer/Texture.h"
 #include "scene/cameras/Camera.h"
-#include "cuda/launch_parameters.cuh"
+#include "cuda/launch_parameters.h"
 #include "scene/Scene.h"
 
 namespace lift {

@@ -1,6 +1,6 @@
 #include <optix_device.h>
 
-#include "launch_parameters.cuh"
+#include "launch_parameters.h"
 #include "vector_functions.hpp"
 #include "random.cuh"
 
@@ -34,13 +34,13 @@ namespace lift {
 		//const int prim_id = optixGetPrimitiveIndex();
 		//vec3& payload = *(vec3*)get_payload<vec3>();
 		//payload = random_color(prim_id);
-		const HitGroupData& sbt_data = *(const HitGroupData*)optixGetSbtDataPointer();
+		const HitGroupData* sbt_data = reinterpret_cast<HitGroupData*>(optixGetSbtDataPointer());
 
 		// Compute normal
-		const int prim_id = optixGetPrimitiveIndex();
-		const ivec3* indices = reinterpret_cast<ivec3*>(sbt_data.geometry_data.triangle_mesh.indices.data);
+		const uint32_t prim_id = optixGetPrimitiveIndex();
+		const ivec3* indices = reinterpret_cast<ivec3*>(sbt_data->geometry_data.triangle_mesh.indices.data);
 		const ivec3 index = indices[prim_id];
-		const vec3* positions = reinterpret_cast<vec3*>(sbt_data.geometry_data.triangle_mesh.positions.data);
+		const vec3* positions = reinterpret_cast<vec3*>(sbt_data->geometry_data.triangle_mesh.positions.data);
 		const vec3& vx = positions[index.x];
 		const vec3& vy = positions[index.y];
 		const vec3& vz = positions[index.z];
@@ -53,7 +53,7 @@ namespace lift {
 
 		const float cos_dn = 0.2f + 0.8f * fabsf(dot(ray_dir, normal));
 		vec3& payload = *(vec3*)get_payload<vec3>();
-		//payload = cos_dn * vec3(sbt_data.material_data.base_color);
+		//payload = float(index.x) * ray_dir * vec3(0.7f, 0.3f, 0.4f);
 		payload = vec3(1.0f, 0.4f, 0.4f);
 
 	}
