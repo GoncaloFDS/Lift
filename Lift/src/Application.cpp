@@ -81,7 +81,7 @@ void lift::Application::CreateScene() {
 	scene_.LoadFromFile("res/models/FlightHelmet/glTF/FlightHelmet.gltf");
 	scene_.Finalize();
 
-	OPTIX_CHECK(optixInit());
+	OPTIX_CHECK(optixInit())
 
 	camera_ = std::make_unique<Camera>(
 		vec3(0.0f, 2.0f, 12.f), 

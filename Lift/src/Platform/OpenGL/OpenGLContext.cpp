@@ -1,9 +1,8 @@
 #include "pch.h"
 #include "OpenGLContext.h"
 
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
-#include <GL/GL.h>
+#include <GLFW/glfw3.h>
 
 lift::OpenGLContext::OpenGLContext(GLFWwindow* window_handle)
 	: window_handle_(window_handle) {

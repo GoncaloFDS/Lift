@@ -1,7 +1,5 @@
 #include <Lift.h>
 
-#include "imgui/imgui.h"
-#include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"
 
 class ExampleLayer : public lift::Layer {
