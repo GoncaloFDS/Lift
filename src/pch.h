@@ -36,6 +36,6 @@ using namespace glm;
 
 #ifdef LF_PLATFORM_WINDOWS
 #include <Windows.h>
-#include "Windowsx.h"
+#include "windowsx.h"
 #endif
 

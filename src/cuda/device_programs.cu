@@ -208,8 +208,7 @@ extern "C" __global__ void __miss__radiance() {
 }
 
 extern "C" __global__ void __closesthit__occlusion() {
-	/*! for this simple example, this will remain empty */
-
+	setPayloadOcclusion(true);
 }
 
 //------------------------------------------------------------------------------

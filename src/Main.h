@@ -3,7 +3,7 @@
 
 #ifdef LF_PLATFORM_WINDOWS
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	lift::Log::Init();
@@ -12,6 +12,7 @@ int main(int argc, char* argv[]) {
 	std::shared_ptr<lift::Application> app = lift::CreateApplication();
 
 	app->Run();
+	int *a = new int(1);
 
 	return 0;
 }

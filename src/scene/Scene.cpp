@@ -854,7 +854,7 @@ void lift::Scene::CreatePipeline() {
 	};
 
 	OptixPipelineLinkOptions pipeline_link_options = {};
-	pipeline_link_options.maxTraceDepth = 2;
+	pipeline_link_options.maxTraceDepth = MAX_TRACE_DEPTH;
 	pipeline_link_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
 	pipeline_link_options.overrideUsesMotionBlur = false;
 

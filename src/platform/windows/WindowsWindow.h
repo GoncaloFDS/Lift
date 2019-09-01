@@ -12,8 +12,8 @@ namespace lift {
 
 		void OnUpdate() override;
 
-		inline unsigned int Width() const override;
-		inline unsigned int Height() const override;
+		[[nodiscard]] inline unsigned int Width() const override;
+		[[nodiscard]] inline unsigned int Height() const override;
 
 		[[nodiscard]] std::pair<int, int> GetPosition() const override;
 
@@ -22,7 +22,7 @@ namespace lift {
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
 
-		inline void* GetNativeWindow() const override;
+		[[nodiscard]] inline void* GetNativeWindow() const override;
 	private:
 		virtual void Init(const WindowProperties& props);
 		virtual void Shutdown();
