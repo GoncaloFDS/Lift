@@ -1,5 +1,23 @@
 cmake_minimum_required(VERSION 3.14)
 
+add_library(CudaPtxObjects OBJECT
+        src/cuda/device_programs.cu
+        src/cuda/local_geometry.h
+        src/cuda/random.cuh
+        )
+
+set_property(TARGET CudaPtxObjects PROPERTY CUDA_PTX_COMPILATION ON)
+set_target_properties(CudaPtxObjects
+        PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test/
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test/
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test/
+        )
+target_compile_definitions(CudaPtxObjects PUBLIC "PTX_FILES")
+target_include_directories(CudaPtxObjects PRIVATE ../external/spdlog/include)
+target_include_directories(CudaPtxObjects PRIVATE ../external/glm)
+target_include_directories(CudaPtxObjects PRIVATE src)
+
 add_executable(Lift
         src/sandbox.cpp
         src/core/io/Log.cpp
@@ -18,9 +36,8 @@ add_executable(Lift
         src/core/Timer.h
         src/core/Util.cpp
         src/core/Util.h
-        #src/cuda/device_programs.cu
         src/cuda/launch_parameters.h
-        src/cuda/random.cuh
+        src/cuda/vec_math.h
         src/events/ApplicationEvent.h
         src/events/Event.h
         src/events/KeyEvent.h
@@ -46,8 +63,6 @@ add_executable(Lift
         src/renderer/Buffer.h
         src/renderer/BufferView.h
         src/renderer/CudaBuffer.h
-        src/renderer/CudaOutputBuffer.cpp
-        src/renderer/CudaOutputBuffer.h
         src/renderer/FrameBuffer.cpp
         src/renderer/FrameBuffer.h
         src/renderer/GraphicsContext.h
@@ -79,7 +94,8 @@ add_executable(Lift
         src/Lift.h
         src/Main.h
         src/pch.cpp
-        src/pch.h)
+        src/pch.h
+        src/scene/Light.h src/cuda/preprocessor.h src/cuda/math_constructors.h)
 
 find_package(OptiX REQUIRED)
 message("OptiX include dir: " ${OptiX_INCLUDE})
@@ -136,10 +152,11 @@ add_compile_definitions(LF_BUILD_DLL)
 add_compile_definitions(LF_DEBUG)
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 
-add_definitions(-D__CUDA_INCLUDE_COMPILER_INTERNAL_HEADERS__=1)
-cuda_include_directories(src)
-cuda_compile_ptx(ptx_files {cuda_file})
-
-#nvcc -ptx -I"C:\ProgramData\NVIDIA Corporation\OptiX SDK 7.0.0\include, C:\Users\gfds\Desktop\Lift\lift\
-#src, C:\Users\gfds\Desktop\Lift\external\glm, C:\Users\gfds\Desktop\Lift\external\spdlog\include" --use_fast_math "C:\Users\gfds\De
-#sktop\Lift\lift\src\cuda\device_programs.cu" -o "C:\Users\gfds\Desktop\Lift\lift\src\cuda\device_programs.ptx"
+add_dependencies(Lift CudaPtxObjects)
+add_custom_command(
+        TARGET Lift
+        PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/lift/res/ptx
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_OBJECTS:CudaPtxObjects> ${PROJECT_SOURCE_DIR}/lift/res/ptx/.
+        COMMENT "Copying ptx file"
+)

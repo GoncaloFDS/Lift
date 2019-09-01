@@ -9,7 +9,7 @@ namespace tinygltf {
 }
 
 constexpr int RAY_TYPE_COUNT = 2;
-constexpr int NUM_PAYLOAD_VALUES = 2;
+constexpr int NUM_PAYLOAD_VALUES = 4;
 
 namespace lift {
 	class Camera;
@@ -18,7 +18,7 @@ namespace lift {
 	public:
 
 		void AddCamera(const Camera& camera) { cameras_.push_back(camera); }
-		void AddMesh(const std::shared_ptr<Mesh> mesh) { meshes_.push_back(mesh); }
+		void AddMesh(const std::shared_ptr<Mesh>& mesh) { meshes_.push_back(mesh); }
 		void AddMaterial(const MaterialData& material) { materials_.push_back(material); }
 		void AddBuffer(uint64_t buf_size, const void* data);
 		void AddImage(int32_t width, int32_t height, int32_t bits_per_component,
@@ -51,7 +51,7 @@ namespace lift {
 		void CreateProgramGroups();
 		void CreatePipeline();
 		void CreateSBT();
-		void ProcessGltfNode(const tinygltf::Model& model, const tinygltf::Node& gltf_node, const mat4 parent_matrix);
+		void ProcessGltfNode(const tinygltf::Model& model, const tinygltf::Node& gltf_node, mat4 parent_matrix);
 
 		std::vector<Camera> cameras_;
 		std::vector<std::shared_ptr<Mesh>> meshes_;

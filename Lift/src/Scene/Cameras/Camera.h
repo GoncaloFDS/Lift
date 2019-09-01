@@ -27,9 +27,9 @@ namespace lift {
 		[[nodiscard]] const vec3& VectorW() const { return vector_w_; }
 		void OnUpdate();
 
-		void Orbit(const float dx, const float dy);
-		void Strafe(const float dx, const float dy);
-		void Zoom(const float amount);
+		void Orbit(float dx, float dy);
+		void Strafe(float dx, float dy);
+		void Zoom(float amount);
 	private:
 
 		vec3 eye_;

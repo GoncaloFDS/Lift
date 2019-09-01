@@ -1,12 +1,11 @@
 ﻿#pragma once
 
-#include "pch.h"
 #include <cuda_runtime.h>
 
 namespace lift {
 
 	struct MaterialData {
-		glm::vec4 base_color = { 1.0f , 1.0f, 1.0f, 1.0f};
+		float4 base_color = { 1.0f , 1.0f, 1.0f, 1.0f};
 		float metallic = 1.0f;
 		float roughness = 1.0f;
 

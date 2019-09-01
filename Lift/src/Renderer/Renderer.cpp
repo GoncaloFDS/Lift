@@ -12,7 +12,7 @@ lift::Renderer::Renderer() {
 }
 
 
-void lift::Renderer::LaunchSubframe(const Scene& scene, LaunchParameters& params) {
+void lift::Renderer::LaunchSubframe(const Scene& scene, LaunchParameters& params, const ivec2& size) {
 	CUDA_CHECK(cudaMemcpyAsync(reinterpret_cast<void*>(d_params_.get()),
 		&params,
 		sizeof(LaunchParameters),
@@ -25,15 +25,11 @@ void lift::Renderer::LaunchSubframe(const Scene& scene, LaunchParameters& params
 		d_params_.get(),
 		sizeof(LaunchParameters),
 		scene.GetSbt(),
-		params.frame.size.x,
-		params.frame.size.y,
+		size.x,
+		size.y,
 		1));
 	
 	CUDA_SYNC_CHECK();
-}
-
-void lift::Renderer::DownloadFrame(uint32_t pixels[], CudaBuffer<uint32_t> buffer) {
-	buffer.download(pixels);
 }
 
 void lift::Renderer::Submit(const std::shared_ptr<VertexArray>& vertex_array) {

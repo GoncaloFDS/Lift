@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector_types.h>
 namespace lift {
 
 	enum class TextureType {
@@ -24,6 +25,6 @@ namespace lift {
 		}
 
 	private:
-		std::vector<uint32_t> data_;
+		std::vector<uchar4> data_;
 	};
 }

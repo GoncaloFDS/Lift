@@ -13,69 +13,68 @@
 #include "scene/Scene.h"
 
 namespace lift {
-	class MouseScrolledEvent;
-	class MouseMovedEvent;
+class MouseScrolledEvent;
+class MouseMovedEvent;
 
-	class Application {
-	public:
-		Application();
-		virtual ~Application();
+class Application {
+public:
+	Application();
+	virtual ~Application();
 
-		void Run();
+	void Run();
 
-		template <typename T>
-		void PushLayer() { layer_stack_.PushLayer<T>(); }
+	template<typename T>
+	void PushLayer() { layer_stack_.PushLayer<T>(); }
 
-		template <typename T>
-		void PushOverlay() { layer_stack_.PushOverlay<T>(); }
+	template<typename T>
+	void PushOverlay() { layer_stack_.PushOverlay<T>(); }
 
-		void Resize(const ivec2& size);
+	void Resize(const ivec2 &size);
 
-		static Application& Get() { return *instance_; }
-		[[nodiscard]] Window& GetWindow() const { return *window_; }
+	static Application &Get() { return *instance_; }
+	[[nodiscard]] Window &GetWindow() const { return *window_; }
 
-		[[nodiscard]] auto GetFrameTextureId() const { return output_texture_->id; }
+	[[nodiscard]] auto GetFrameTextureId() const { return output_texture_->id; }
 
-		void RestartAccumulation() { accumulated_frames_ = 0; }
+	void RestartAccumulation() {}
 
-		vec3 material_albedo_{.3f, .7f, .9f};
-	private:
-		bool is_running_ = true;
-		std::unique_ptr<Window> window_;
-		std::unique_ptr<GraphicsContext> graphics_context_;
-		Renderer renderer_;
+	vec3 material_albedo_{.3f, .7f, .9f};
+private:
+	bool is_running_ = true;
+	std::unique_ptr<Window> window_;
+	std::unique_ptr<GraphicsContext> graphics_context_;
+	Renderer renderer_;
 
-		LayerStack layer_stack_;
+	LayerStack layer_stack_;
 
-		std::unique_ptr<Camera> camera_;
-		Scene scene_;
+	std::unique_ptr<Camera> camera_;
+	Scene scene_;
 
-		std::unique_ptr<Texture> output_texture_;
-		int accumulated_frames_{0};
+	std::unique_ptr<Texture> output_texture_;
 
-		//! Temp
-		LaunchParameters launch_parameters_;		
-		CudaBuffer<uint32_t> color_buffer_;
-		//
-		
-		static Application* instance_;
+	//! Temp
+	LaunchParameters launch_parameters_;
+	CudaBuffer<float4> accum_buffer_;
+	CudaBuffer<uchar4> color_buffer_;
+	ivec2 f_size_{1000, 1000};
+	std::vector<Light::Point> lights_;
+	//
 
-		void InitGraphicsContext();
+	static Application *instance_;
 
-		void CreateScene();
-		void CreateLights();
-		void InitMaterials();
+	void InitGraphicsContext();
 
-		void OnEvent(Event& e);
-		bool OnWindowClose(WindowCloseEvent& e);
-		bool OnWindowResize(WindowResizeEvent& e);
-		bool OnWindowMinimize(WindowMinimizeEvent& e) const;
-		bool OnMouseMove(MouseMovedEvent& e);
-		bool OnMouseScroll(MouseScrolledEvent& e);
+	void CreateScene();
 
-	};
+	void OnEvent(Event &e);
+	bool OnWindowClose(WindowCloseEvent &e);
+	bool OnWindowResize(WindowResizeEvent &e);
+	bool OnWindowMinimize(WindowMinimizeEvent &e) const;
+	bool OnMouseMove(MouseMovedEvent &e);
+	bool OnMouseScroll(MouseScrolledEvent &e);
 
+};
 
-	// Defined by Sandbox
-	std::shared_ptr<Application> CreateApplication();
+// Defined by Sandbox
+std::shared_ptr<Application> CreateApplication();
 }

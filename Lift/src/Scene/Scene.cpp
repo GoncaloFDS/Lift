@@ -17,21 +17,22 @@
 #define TINYGLTF_NOEXCEPTION
 #include "tiny_gltf.h"
 #include "core/Profiler.h"
+#include "cuda/vec_math.h"
 
-template <typename T>
-lift::BufferView<T> BufferViewFromGltf(const tinygltf::Model& model, lift::Scene* scene, const int32_t accessor_idx) {
+template<typename T>
+lift::BufferView<T> BufferViewFromGltf(const tinygltf::Model &model, lift::Scene *scene, const int32_t accessor_idx) {
 	if (accessor_idx == -1)
 		return lift::BufferView<T>();
 
-	const auto& gltf_accessor = model.accessors[accessor_idx];
-	const auto& gltf_buffer_view = model.bufferViews[gltf_accessor.bufferView];
+	const auto &gltf_accessor = model.accessors[accessor_idx];
+	const auto &gltf_buffer_view = model.bufferViews[gltf_accessor.bufferView];
 
 	const int32_t elmt_byte_size =
 		gltf_accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT
-			? 2
-			: gltf_accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT
-			? 4
-			: gltf_accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT
+		? 2
+		: gltf_accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT
+		  ? 4
+		  : gltf_accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT
 			? 4
 			: 0;
 	LF_ASSERT(elmt_byte_size, "gltf accessor component type not supported");
@@ -46,22 +47,22 @@ lift::BufferView<T> BufferViewFromGltf(const tinygltf::Model& model, lift::Scene
 	return buffer_view;
 }
 
-void context_log_cb(unsigned int level, const char* tag, const char* message, void* /*cbdata */) {
+void context_log_cb(unsigned int level, const char *tag, const char *message, void * /*cbdata */) {
 	LF_CORE_INFO("[Optix Log] {0}", message);
 }
 
-void lift::Scene::AddBuffer(const uint64_t buf_size, const void* data) {
+void lift::Scene::AddBuffer(const uint64_t buf_size, const void *data) {
 	CUdeviceptr buffer = 0;
-	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&buffer), buf_size));
-	CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(buffer),
-		data,
-		buf_size,
-		cudaMemcpyHostToDevice));
+	CUDA_CHECK(cudaMalloc(reinterpret_cast<void **>(&buffer), buf_size));
+	CUDA_CHECK(cudaMemcpy(reinterpret_cast<void *>(buffer),
+						  data,
+						  buf_size,
+						  cudaMemcpyHostToDevice));
 	buffers_.push_back(buffer);
 }
 
 void lift::Scene::AddImage(const int32_t width, const int32_t height, const int32_t bits_per_component,
-						   const int32_t num_components, const void* data) {
+						   const int32_t num_components, const void *data) {
 	Profiler profiler("addImage");
 	// Allocate CUDA array in device memory
 	int32_t pitch = 0;
@@ -69,12 +70,10 @@ void lift::Scene::AddImage(const int32_t width, const int32_t height, const int3
 	if (bits_per_component == 8) {
 		pitch = width * num_components * sizeof(uint8_t);
 		channel_desc = cudaCreateChannelDesc<uchar4>();
-	}
-	else if (bits_per_component == 16) {
+	} else if (bits_per_component == 16) {
 		pitch = width * num_components * sizeof(uint16_t);
 		channel_desc = cudaCreateChannelDesc<uchar4>();
-	}
-	else {
+	} else {
 		LF_ASSERT(false, "Unsupported bits/component in glTF image");
 	}
 
@@ -106,15 +105,15 @@ void lift::Scene::AddSampler(cudaTextureAddressMode address_s, cudaTextureAddres
 
 	cudaTextureDesc tex_desc = {};
 	tex_desc.addressMode[0] = address_s == GL_CLAMP_TO_EDGE
-								  ? cudaAddressModeClamp
-								  : address_s == GL_MIRRORED_REPEAT
-								  ? cudaAddressModeMirror
-								  : cudaAddressModeWrap;
+							  ? cudaAddressModeClamp
+							  : address_s == GL_MIRRORED_REPEAT
+								? cudaAddressModeMirror
+								: cudaAddressModeWrap;
 	tex_desc.addressMode[1] = address_t == GL_CLAMP_TO_EDGE
-								  ? cudaAddressModeClamp
-								  : address_t == GL_MIRRORED_REPEAT
-								  ? cudaAddressModeMirror
-								  : cudaAddressModeWrap;
+							  ? cudaAddressModeClamp
+							  : address_t == GL_MIRRORED_REPEAT
+								? cudaAddressModeMirror
+								: cudaAddressModeWrap;
 	tex_desc.filterMode = filter_mode == GL_NEAREST ? cudaFilterModePoint : cudaFilterModeLinear;
 	tex_desc.readMode = cudaReadModeNormalizedFloat;
 	tex_desc.normalizedCoords = 1;
@@ -127,7 +126,7 @@ void lift::Scene::AddSampler(cudaTextureAddressMode address_s, cudaTextureAddres
 
 	// Create texture object
 	cudaTextureObject_t cuda_tex = 0;
-	CUDA_CHECK(cudaCreateTextureObject(&cuda_tex, &res_desc, &tex_desc, nullptr ));
+	CUDA_CHECK(cudaCreateTextureObject(&cuda_tex, &res_desc, &tex_desc, nullptr));
 	samplers_.push_back(cuda_tex);
 }
 
@@ -141,7 +140,7 @@ void lift::Scene::Finalize() {
 	CreateSBT();
 
 	scene_aabb_.invalidate();
-	for (const auto& mesh : meshes_)
+	for (const auto &mesh : meshes_)
 		scene_aabb_.include(mesh->world_aabb);
 
 	if (!cameras_.empty())
@@ -169,14 +168,14 @@ lift::Camera lift::Scene::GetCamera() const {
 
 void lift::Scene::CreateContext() {
 	// Initialize CUDA
-	CUDA_CHECK(cudaFree( nullptr ));
+	CUDA_CHECK(cudaFree(nullptr));
 
 	CUcontext cu_context = nullptr; // zero means take the current context
 	OPTIX_CHECK(optixInit());
 	OptixDeviceContextOptions options = {};
 	options.logCallbackFunction = &context_log_cb;
 	options.logCallbackLevel = 4;
-	OPTIX_CHECK(optixDeviceContextCreate( cu_context, &options, &context_ ));
+	OPTIX_CHECK(optixDeviceContextCreate(cu_context, &options, &context_));
 }
 
 void lift::Scene::BuildMeshAccels() {
@@ -205,16 +204,16 @@ void lift::Scene::BuildMeshAccels() {
 	/*const*/
 	uint32_t triangle_input_flags = OPTIX_GEOMETRY_FLAG_DISABLE_ANYHIT;
 
-	for (auto& mesh : meshes_) {
+	for (auto &mesh : meshes_) {
 		const size_t num_sub_meshes = mesh->indices.size();
 		std::vector<OptixBuildInput> build_inputs(num_sub_meshes);
 
 		LF_ASSERT(mesh->positions.size() == num_sub_meshes &&
-				  mesh->normals.size() == num_sub_meshes &&
-				  mesh->tex_coords.size() == num_sub_meshes, "Mesh components size mismatch");
+			mesh->normals.size() == num_sub_meshes &&
+			mesh->tex_coords.size() == num_sub_meshes, "Mesh components size mismatch");
 
 		for (size_t i = 0; i < num_sub_meshes; ++i) {
-			OptixBuildInput& triangle_input = build_inputs[i];
+			OptixBuildInput &triangle_input = build_inputs[i];
 			memset(&triangle_input, 0, sizeof(OptixBuildInput));
 			triangle_input.type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
 			triangle_input.triangleArray.vertexFormat = OPTIX_VERTEX_FORMAT_FLOAT3;
@@ -224,8 +223,8 @@ void lift::Scene::BuildMeshAccels() {
 			triangle_input.triangleArray.vertexBuffers = &(mesh->positions[i].data);
 			triangle_input.triangleArray.indexFormat =
 				mesh->indices[i].elmt_byte_size == 2
-					? OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3
-					: OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
+				? OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3
+				: OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
 			triangle_input.triangleArray.indexStrideInBytes =
 				mesh->indices[i].byte_stride ? mesh->indices[i].byte_stride : mesh->indices[i].elmt_byte_size * 3;
 			triangle_input.triangleArray.numIndexTriplets = mesh->indices[i].count / 3;
@@ -235,8 +234,8 @@ void lift::Scene::BuildMeshAccels() {
 		}
 
 		OptixAccelBufferSizes gas_buffer_sizes;
-		OPTIX_CHECK(optixAccelComputeMemoryUsage( context_, &accel_options, build_inputs.data(),
-			static_cast<unsigned int>( num_sub_meshes ), &gas_buffer_sizes ));
+		OPTIX_CHECK(optixAccelComputeMemoryUsage(context_, &accel_options, build_inputs.data(),
+												 static_cast<unsigned int>( num_sub_meshes ), &gas_buffer_sizes));
 
 		total_temp_output_size += gas_buffer_sizes.outputSizeInBytes;
 		GASInfo g = {std::move(build_inputs), gas_buffer_sizes, mesh};
@@ -273,7 +272,7 @@ void lift::Scene::BuildMeshAccels() {
 		size_t batch_build_compacted_requirement = 0;
 		for (auto it = gases.rbegin(); it != gases.rend(); it++) {
 			batch_build_output_requirement += it->second.gas_buffer_sizes.outputSizeInBytes;
-			batch_build_compacted_requirement += (size_t)(it->second.gas_buffer_sizes.outputSizeInBytes *
+			batch_build_compacted_requirement += (size_t) (it->second.gas_buffer_sizes.outputSizeInBytes *
 				compaction_ratio);
 			// roughly account for the storage of the compacted size, although that goes into a separate buffer
 			batch_build_output_requirement += 8ull;
@@ -285,7 +284,7 @@ void lift::Scene::BuildMeshAccels() {
 			batch_nga_ses++;
 			if ((batch_build_output_requirement + batch_build_max_temp_requirement + batch_build_compacted_requirement)
 				>
-				available_mem_pool_size)
+					available_mem_pool_size)
 				break;
 		}
 
@@ -302,7 +301,7 @@ void lift::Scene::BuildMeshAccels() {
 		// trash d_temp_compactedSizes if it is at least 20MB in size and at least double the size than required for the next run
 		if (d_temp_compacted_sizes.reservedCount() > batch_nga_ses * 2 && d_temp_compacted_sizes.byteSize() > 20 * 1024
 			*
-			1024)
+				1024)
 			d_temp_compacted_sizes.free();
 		d_temp_compacted_sizes.allocIfRequired(batch_nga_ses);
 
@@ -314,19 +313,19 @@ void lift::Scene::BuildMeshAccels() {
 		auto it = gases.rbegin();
 		for (size_t i = 0, temp_output_alignment_offset = 0; i < batch_nga_ses; ++i) {
 			emitProperty.result = d_temp_compacted_sizes.get(i);
-			GASInfo& info = it->second;
+			GASInfo &info = it->second;
 
-			OPTIX_CHECK(optixAccelBuild( context_, nullptr, // CUDA stream
-				&accel_options,
-				info.buildInputs.data(),
-				static_cast<unsigned int>( info.buildInputs.size() ),
-				d_temp.get(),
-				d_temp.byteSize(),
-				d_temp_output.get( temp_output_alignment_offset ),
-				info.gas_buffer_sizes.outputSizeInBytes,
-				&info.mesh->gas_handle,
-				&emitProperty, // emitted property list
-				1 // num emitted properties
+			OPTIX_CHECK(optixAccelBuild(context_, nullptr, // CUDA stream
+										&accel_options,
+										info.buildInputs.data(),
+										static_cast<unsigned int>( info.buildInputs.size()),
+										d_temp.get(),
+										d_temp.byteSize(),
+										d_temp_output.get(temp_output_alignment_offset),
+										info.gas_buffer_sizes.outputSizeInBytes,
+										&info.mesh->gas_handle,
+										&emitProperty, // emitted property list
+										1 // num emitted properties
 			));
 
 			temp_output_alignment_offset += roundUp<size_t>(info.gas_buffer_sizes.outputSizeInBytes, 256ull);
@@ -348,7 +347,7 @@ void lift::Scene::BuildMeshAccels() {
 		bool can_compact = false;
 		it = gases.rbegin();
 		for (size_t i = 0; i < batch_nga_ses; ++i) {
-			GASInfo& info = it->second;
+			GASInfo &info = it->second;
 			if (info.gas_buffer_sizes.outputSizeInBytes > h_compacted_sizes[i]) {
 				can_compact = true;
 				break;
@@ -361,25 +360,24 @@ void lift::Scene::BuildMeshAccels() {
 			// "batch allocate" the compacted buffers
 			it = gases.rbegin();
 			for (size_t i = 0; i < batch_nga_ses; ++i) {
-				GASInfo& info = it->second;
+				GASInfo &info = it->second;
 				batch_compacted_size += h_compacted_sizes[i];
-				CUDA_CHECK(cudaMalloc( reinterpret_cast<void**>( &info.mesh->d_gas_output ), h_compacted_sizes[i] ));
+				CUDA_CHECK(cudaMalloc(reinterpret_cast<void **>( &info.mesh->d_gas_output ), h_compacted_sizes[i]));
 				total_temp_output_processed_size += info.gas_buffer_sizes.outputSizeInBytes;
 				it++;
 			}
 
 			it = gases.rbegin();
 			for (size_t i = 0; i < batch_nga_ses; ++i) {
-				GASInfo& info = it->second;
-				OPTIX_CHECK(optixAccelCompact( context_, nullptr, info.mesh->gas_handle, info.mesh->d_gas_output,
-					h_compacted_sizes[i], &info.mesh->gas_handle ));
+				GASInfo &info = it->second;
+				OPTIX_CHECK(optixAccelCompact(context_, nullptr, info.mesh->gas_handle, info.mesh->d_gas_output,
+											  h_compacted_sizes[i], &info.mesh->gas_handle));
 				it++;
 			}
-		}
-		else {
+		} else {
 			it = gases.rbegin();
 			for (size_t i = 0, tempOutputAlignmentOffset = 0; i < batch_nga_ses; ++i) {
-				GASInfo& info = it->second;
+				GASInfo &info = it->second;
 				info.mesh->d_gas_output = d_temp_output.get(tempOutputAlignmentOffset);
 				batch_compacted_size += h_compacted_sizes[i];
 				total_temp_output_processed_size += info.gas_buffer_sizes.outputSizeInBytes;
@@ -405,7 +403,7 @@ void lift::Scene::BuildInstanceAccel(int ray_type_count) {
 	unsigned int sbt_offset = 0;
 	for (size_t i = 0; i < meshes_.size(); ++i) {
 		auto mesh = meshes_[i];
-		auto& optix_instance = optix_instances[i];
+		auto &optix_instance = optix_instances[i];
 		memset(&optix_instance, 0, sizeof(OptixInstance));
 
 		optix_instance.flags = OPTIX_INSTANCE_FLAG_NONE;
@@ -423,9 +421,9 @@ void lift::Scene::BuildInstanceAccel(int ray_type_count) {
 
 	const size_t instances_size_in_bytes = sizeof(OptixInstance) * num_instances;
 	CUdeviceptr d_instances;
-	CUDA_CHECK(cudaMalloc( reinterpret_cast<void**>( &d_instances ), instances_size_in_bytes ));
+	CUDA_CHECK(cudaMalloc(reinterpret_cast<void **>( &d_instances ), instances_size_in_bytes));
 	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>( d_instances ),
+		reinterpret_cast<void *>( d_instances ),
 		optix_instances.data(),
 		instances_size_in_bytes,
 		cudaMemcpyHostToDevice
@@ -451,11 +449,11 @@ void lift::Scene::BuildInstanceAccel(int ray_type_count) {
 
 	CUdeviceptr d_temp_buffer;
 	CUDA_CHECK(cudaMalloc(
-		reinterpret_cast<void**>( &d_temp_buffer ),
+		reinterpret_cast<void **>( &d_temp_buffer ),
 		ias_buffer_sizes.tempSizeInBytes
 	));
 	CUDA_CHECK(cudaMalloc(
-		reinterpret_cast<void**>( &d_ias_output_buffer_ ),
+		reinterpret_cast<void **>( &d_ias_output_buffer_ ),
 		ias_buffer_sizes.outputSizeInBytes
 	));
 
@@ -474,12 +472,11 @@ void lift::Scene::BuildInstanceAccel(int ray_type_count) {
 		0 // num emitted properties
 	));
 
-	CUDA_CHECK(cudaFree( reinterpret_cast<void*>( d_temp_buffer ) ));
-	CUDA_CHECK(cudaFree( reinterpret_cast<void*>( d_instances ) ));
+	CUDA_CHECK(cudaFree(reinterpret_cast<void *>( d_temp_buffer )));
+	CUDA_CHECK(cudaFree(reinterpret_cast<void *>( d_instances )));
 }
 
-
-void lift::Scene::LoadFromFile(const std::string& file_name) {
+void lift::Scene::LoadFromFile(const std::string &file_name) {
 	Profiler profiler("Load Scene");
 	LF_CORE_INFO("Loading Scene");
 	tinygltf::Model model;
@@ -488,18 +485,18 @@ void lift::Scene::LoadFromFile(const std::string& file_name) {
 	std::string warn;
 	bool ret;
 	{
-		Profiler profiler("LoadACIIFromFile");
+		Profiler profiler1("LoadACIIFromFile");
 		ret = loader.LoadASCIIFromFile(&model, &err, &warn, file_name);
 	}
 	if (!warn.empty())
 		LF_CORE_ERROR("glTF Warning: {0}", warn);
 
-	LF_ASSERT(ret, "Failed to load GLTF Scene '{0}': {1}", file_name, err);
+	LF_ASSERT(ret, "Failed to load GLTF Scene {0}: {1}", file_name, err);
 
 	//
 	// Process buffer data first -- buffer views will reference this list
 	//
-	for (const auto& gltf_buffer : model.buffers) {
+	for (const auto &gltf_buffer : model.buffers) {
 		const uint64_t buf_size = gltf_buffer.data.size();
 		AddBuffer(buf_size, gltf_buffer.data.data());
 	}
@@ -507,7 +504,7 @@ void lift::Scene::LoadFromFile(const std::string& file_name) {
 	//
 	// Images -- just load all up front for simplicity
 	//
-	for (const auto& gltf_image : model.images) {
+	for (const auto &gltf_image : model.images) {
 		assert(gltf_image.component == 4);
 		assert(gltf_image.bits == 8 || gltf_image.bits == 16);
 
@@ -523,40 +520,40 @@ void lift::Scene::LoadFromFile(const std::string& file_name) {
 	//
 	// Textures -- refer to previously loaded images
 	//
-	for (const auto& gltf_texture : model.textures) {
+	for (const auto &gltf_texture : model.textures) {
 		if (gltf_texture.sampler == -1) {
 			AddSampler(cudaAddressModeWrap, cudaAddressModeWrap, cudaFilterModeLinear, gltf_texture.source);
 			continue;
 		}
 
-		const auto& gltf_sampler = model.samplers[gltf_texture.sampler];
+		const auto &gltf_sampler = model.samplers[gltf_texture.sampler];
 
 		const cudaTextureAddressMode address_s = gltf_sampler.wrapS == GL_CLAMP_TO_EDGE
-													 ? cudaAddressModeClamp
-													 : gltf_sampler.wrapS == GL_MIRRORED_REPEAT
-													 ? cudaAddressModeMirror
-													 : cudaAddressModeWrap;
+												 ? cudaAddressModeClamp
+												 : gltf_sampler.wrapS == GL_MIRRORED_REPEAT
+												   ? cudaAddressModeMirror
+												   : cudaAddressModeWrap;
 		const cudaTextureAddressMode address_t = gltf_sampler.wrapT == GL_CLAMP_TO_EDGE
-													 ? cudaAddressModeClamp
-													 : gltf_sampler.wrapT == GL_MIRRORED_REPEAT
-													 ? cudaAddressModeMirror
-													 : cudaAddressModeWrap;
+												 ? cudaAddressModeClamp
+												 : gltf_sampler.wrapT == GL_MIRRORED_REPEAT
+												   ? cudaAddressModeMirror
+												   : cudaAddressModeWrap;
 		const cudaTextureFilterMode filter = gltf_sampler.minFilter == GL_NEAREST
-												 ? cudaFilterModePoint
-												 : cudaFilterModeLinear;
+											 ? cudaFilterModePoint
+											 : cudaFilterModeLinear;
 		AddSampler(address_s, address_t, filter, gltf_texture.source);
 	}
 
 	//
 	// Materials
 	//
-	for (auto& gltf_material : model.materials) {
+	for (auto &gltf_material : model.materials) {
 		MaterialData mtl;
 
 		const auto base_color_it = gltf_material.values.find("baseColorFactor");
 		if (base_color_it != gltf_material.values.end()) {
 			const tinygltf::ColorValue c = base_color_it->second.ColorFactor();
-			mtl.base_color = vec4(c[0], c[1], c[2], c[3]);
+			mtl.base_color = make_float4(float(c[0]), float(c[1]), float(c[2]), float(c[3]));
 		}
 		const auto base_color_t_it = gltf_material.values.find("baseColorTexture");
 		if (base_color_t_it != gltf_material.values.end()) {
@@ -586,58 +583,58 @@ void lift::Scene::LoadFromFile(const std::string& file_name) {
 	// Process nodes
 	//
 	std::vector<int32_t> root_nodes(model.nodes.size(), 1);
-	for (auto& gltf_node : model.nodes)
+	for (auto &gltf_node : model.nodes)
 		for (int32_t child : gltf_node.children)
 			root_nodes[child] = 0;
 
 	for (size_t i = 0; i < root_nodes.size(); ++i) {
 		if (!root_nodes[i])
 			continue;
-		auto& gltf_node = model.nodes[i];
+		auto &gltf_node = model.nodes[i];
 
 		ProcessGltfNode(model, gltf_node, mat4(1.0f));
 	}
 
 }
 
-void lift::Scene::ProcessGltfNode(const tinygltf::Model& model, const tinygltf::Node& gltf_node,
+void lift::Scene::ProcessGltfNode(const tinygltf::Model &model, const tinygltf::Node &gltf_node,
 								  const mat4 parent_matrix) {
 	const mat4 translation = gltf_node.translation.empty()
-								 ? mat4(1.0f)
-								 : translate(mat4(1.0f), vec3(
-												 gltf_node.translation[0],
-												 gltf_node.translation[1],
-												 gltf_node.translation[2]
-											 ));
+							 ? mat4(1.0f)
+							 : translate(mat4(1.0f), vec3(
+			gltf_node.translation[0],
+			gltf_node.translation[1],
+			gltf_node.translation[2]
+		));
 
 	const mat4 rotation = gltf_node.rotation.empty()
-							  ? mat4(1.0f)
-							  : toMat4(quat(
-								  static_cast<float>(gltf_node.rotation[3]),
-								  static_cast<float>(gltf_node.rotation[0]),
-								  static_cast<float>(gltf_node.rotation[1]),
-								  static_cast<float>(gltf_node.rotation[2])
-							  ));
+						  ? mat4(1.0f)
+						  : toMat4(quat(
+			static_cast<float>(gltf_node.rotation[3]),
+			static_cast<float>(gltf_node.rotation[0]),
+			static_cast<float>(gltf_node.rotation[1]),
+			static_cast<float>(gltf_node.rotation[2])
+		));
 
 	const mat4 scale = gltf_node.scale.empty()
-						   ? mat4(1.0f)
-						   : glm::scale(mat4(1.0f), vec3(
-											gltf_node.scale[0],
-											gltf_node.scale[1],
-											gltf_node.scale[2]
-										));
+					   ? mat4(1.0f)
+					   : glm::scale(mat4(1.0f), vec3(
+			gltf_node.scale[0],
+			gltf_node.scale[1],
+			gltf_node.scale[2]
+		));
 
 	std::vector<float> gltf_matrix;
 	for (double x : gltf_node.matrix)
 		gltf_matrix.push_back(static_cast<float>(x));
 	const mat4 matrix = gltf_node.matrix.empty()
-							? mat4(1.0f)
-							: transpose(make_mat4(reinterpret_cast<float*>(gltf_matrix.data())));
+						? mat4(1.0f)
+						: transpose(make_mat4(reinterpret_cast<float *>(gltf_matrix.data())));
 
 	const mat4 node_xform = parent_matrix * matrix * translation * rotation * scale;
 
 	if (gltf_node.camera != -1) {
-		const auto& gltf_camera = model.cameras[gltf_node.camera];
+		const auto &gltf_camera = model.cameras[gltf_node.camera];
 		if (gltf_camera.type != "perspective") {
 			return;
 		}
@@ -657,10 +654,9 @@ void lift::Scene::ProcessGltfNode(const tinygltf::Model& model, const tinygltf::
 		camera.SetEye(eye);
 		camera.SetUp(up);
 		AddCamera(camera);
-	}
-	else if (gltf_node.mesh != -1) {
-		const auto& gltf_mesh = model.meshes[gltf_node.mesh];
-		for (auto& gltf_primitive : gltf_mesh.primitives) {
+	} else if (gltf_node.mesh != -1) {
+		const auto &gltf_mesh = model.meshes[gltf_node.mesh];
+		for (auto &gltf_primitive : gltf_mesh.primitives) {
 			if (gltf_primitive.mode != TINYGLTF_MODE_TRIANGLES) // Ignore non-triangle meshes
 			{
 				std::cerr << "\tNon-triangle primitive: skipping\n";
@@ -670,17 +666,16 @@ void lift::Scene::ProcessGltfNode(const tinygltf::Model& model, const tinygltf::
 			auto mesh = std::make_shared<Mesh>();
 			AddMesh(mesh);
 
-
 			mesh->name = gltf_mesh.name;
-			mesh->indices.push_back(BufferViewFromGltf<ivec3>(model, this, gltf_primitive.indices));
+			mesh->indices.push_back(BufferViewFromGltf<uint32_t>(model, this, gltf_primitive.indices));
 			mesh->material_idx.push_back(gltf_primitive.material);
 			mesh->transform = node_xform;
 
-			assert(gltf_primitive.attributes.find( "POSITION" ) != gltf_primitive.attributes.end());
+			assert(gltf_primitive.attributes.find("POSITION") != gltf_primitive.attributes.end());
 			const int32_t pos_accessor_idx = gltf_primitive.attributes.at("POSITION");
-			mesh->positions.push_back(BufferViewFromGltf<vec3>(model, this, pos_accessor_idx));
+			mesh->positions.push_back(BufferViewFromGltf<float3>(model, this, pos_accessor_idx));
 
-			const auto& pos_gltf_accessor = model.accessors[pos_accessor_idx];
+			const auto &pos_gltf_accessor = model.accessors[pos_accessor_idx];
 			mesh->object_aabb = Aabb(
 				vec3(
 					pos_gltf_accessor.minValues[0],
@@ -697,22 +692,19 @@ void lift::Scene::ProcessGltfNode(const tinygltf::Model& model, const tinygltf::
 
 			auto normal_accessor_iter = gltf_primitive.attributes.find("NORMAL");
 			if (normal_accessor_iter != gltf_primitive.attributes.end()) {
-				mesh->normals.push_back(BufferViewFromGltf<vec3>(model, this, normal_accessor_iter->second));
-			}
-			else {
-				mesh->normals.push_back(BufferViewFromGltf<vec3>(model, this, -1));
+				mesh->normals.push_back(BufferViewFromGltf<float3>(model, this, normal_accessor_iter->second));
+			} else {
+				mesh->normals.push_back(BufferViewFromGltf<float3>(model, this, -1));
 			}
 
 			auto texcoord_accessor_iter = gltf_primitive.attributes.find("TEXCOORD_0");
 			if (texcoord_accessor_iter != gltf_primitive.attributes.end()) {
-				mesh->tex_coords.push_back(BufferViewFromGltf<vec2>(model, this, texcoord_accessor_iter->second));
-			}
-			else {
-				mesh->tex_coords.push_back(BufferViewFromGltf<vec2>(model, this, -1));
+				mesh->tex_coords.push_back(BufferViewFromGltf<float2>(model, this, texcoord_accessor_iter->second));
+			} else {
+				mesh->tex_coords.push_back(BufferViewFromGltf<float2>(model, this, -1));
 			}
 		}
-	}
-	else if (!gltf_node.children.empty()) {
+	} else if (!gltf_node.children.empty()) {
 		for (int32_t child : gltf_node.children) {
 			ProcessGltfNode(model, model.nodes[child], node_xform);
 		}
@@ -730,9 +722,8 @@ void lift::Scene::CreatePtxModule() {
 	pipeline_compile_options_.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
 	pipeline_compile_options_.numPayloadValues = NUM_PAYLOAD_VALUES;
 	pipeline_compile_options_.numAttributeValues = 2; // TODO
-	pipeline_compile_options_.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
-	// should be OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
-	pipeline_compile_options_.pipelineLaunchParamsVariableName = "optix_launch_parameters";
+	pipeline_compile_options_.exceptionFlags = OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+	pipeline_compile_options_.pipelineLaunchParamsVariableName = "params";
 
 	const auto ptx = Util::GetPtxString("res/ptx/device_programs.ptx");
 
@@ -767,14 +758,14 @@ void lift::Scene::CreateProgramGroups() {
 		raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__render_frame";
 
 		OPTIX_CHECK(optixProgramGroupCreate(
-				context_,
-				&raygen_prog_group_desc,
-				1, // num program groups
-				&program_group_options,
-				log,
-				&sizeof_log,
-				&raygen_prog_group_
-			)
+			context_,
+			&raygen_prog_group_desc,
+			1, // num program groups
+			&program_group_options,
+			log,
+			&sizeof_log,
+			&raygen_prog_group_
+		)
 		);
 	}
 
@@ -788,14 +779,14 @@ void lift::Scene::CreateProgramGroups() {
 		miss_prog_group_desc.miss.entryFunctionName = "__miss__radiance";
 		sizeof_log = sizeof(log);
 		OPTIX_CHECK(optixProgramGroupCreate(
-				context_,
-				&miss_prog_group_desc,
-				1, // num program groups
-				&program_group_options,
-				log,
-				&sizeof_log,
-				&radiance_miss_group_
-			)
+			context_,
+			&miss_prog_group_desc,
+			1, // num program groups
+			&program_group_options,
+			log,
+			&sizeof_log,
+			&radiance_miss_group_
+		)
 		);
 
 		memset(&miss_prog_group_desc, 0, sizeof(OptixProgramGroupDesc));
@@ -804,14 +795,14 @@ void lift::Scene::CreateProgramGroups() {
 		miss_prog_group_desc.miss.entryFunctionName = nullptr;
 		sizeof_log = sizeof(log);
 		OPTIX_CHECK(optixProgramGroupCreate(
-				context_,
-				&miss_prog_group_desc,
-				1, // num program groups
-				&program_group_options,
-				log,
-				&sizeof_log,
-				&occlusion_miss_group_
-			)
+			context_,
+			&miss_prog_group_desc,
+			1, // num program groups
+			&program_group_options,
+			log,
+			&sizeof_log,
+			&occlusion_miss_group_
+		)
 		);
 	}
 
@@ -825,14 +816,14 @@ void lift::Scene::CreateProgramGroups() {
 		hit_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__radiance";
 		sizeof_log = sizeof(log);
 		OPTIX_CHECK(optixProgramGroupCreate(
-				context_,
-				&hit_prog_group_desc,
-				1, // num program groups
-				&program_group_options,
-				log,
-				&sizeof_log,
-				&radiance_hit_group_
-			)
+			context_,
+			&hit_prog_group_desc,
+			1, // num program groups
+			&program_group_options,
+			log,
+			&sizeof_log,
+			&radiance_hit_group_
+		)
 		);
 
 		memset(&hit_prog_group_desc, 0, sizeof(OptixProgramGroupDesc));
@@ -841,14 +832,14 @@ void lift::Scene::CreateProgramGroups() {
 		hit_prog_group_desc.hitgroup.entryFunctionNameCH = nullptr;
 		sizeof_log = sizeof(log);
 		OPTIX_CHECK(optixProgramGroupCreate(
-				context_,
-				&hit_prog_group_desc,
-				1, // num program groups
-				&program_group_options,
-				log,
-				&sizeof_log,
-				&occlusion_hit_group_
-			)
+			context_,
+			&hit_prog_group_desc,
+			1, // num program groups
+			&program_group_options,
+			log,
+			&sizeof_log,
+			&occlusion_hit_group_
+		)
 		);
 	}
 }
@@ -884,12 +875,12 @@ void lift::Scene::CreatePipeline() {
 void lift::Scene::CreateSBT() {
 	{
 		const size_t raygen_record_size = sizeof(EmptyRecord);
-		CUDA_CHECK(cudaMalloc( reinterpret_cast<void**>( &sbt_.raygenRecord ), raygen_record_size ));
+		CUDA_CHECK(cudaMalloc(reinterpret_cast<void **>( &sbt_.raygenRecord ), raygen_record_size));
 
 		EmptyRecord rg_sbt;
-		OPTIX_CHECK(optixSbtRecordPackHeader( raygen_prog_group_, &rg_sbt ));
+		OPTIX_CHECK(optixSbtRecordPackHeader(raygen_prog_group_, &rg_sbt));
 		CUDA_CHECK(cudaMemcpy(
-			reinterpret_cast<void*>( sbt_.raygenRecord ),
+			reinterpret_cast<void *>( sbt_.raygenRecord ),
 			&rg_sbt,
 			raygen_record_size,
 			cudaMemcpyHostToDevice
@@ -899,16 +890,16 @@ void lift::Scene::CreateSBT() {
 	{
 		const size_t miss_record_size = sizeof(EmptyRecord);
 		CUDA_CHECK(cudaMalloc(
-			reinterpret_cast<void**>( &sbt_.missRecordBase ),
+			reinterpret_cast<void **>( &sbt_.missRecordBase ),
 			miss_record_size * RAY_TYPE_COUNT
 		));
 
-		EmptyRecord ms_sbt[ RAY_TYPE_COUNT ];
-		OPTIX_CHECK(optixSbtRecordPackHeader( radiance_miss_group_, &ms_sbt[0] ));
-		OPTIX_CHECK(optixSbtRecordPackHeader( occlusion_miss_group_, &ms_sbt[1] ));
+		EmptyRecord ms_sbt[RAY_TYPE_COUNT];
+		OPTIX_CHECK(optixSbtRecordPackHeader(radiance_miss_group_, &ms_sbt[0]));
+		OPTIX_CHECK(optixSbtRecordPackHeader(occlusion_miss_group_, &ms_sbt[1]));
 
 		CUDA_CHECK(cudaMemcpy(
-			reinterpret_cast<void*>( sbt_.missRecordBase ),
+			reinterpret_cast<void *>( sbt_.missRecordBase ),
 			ms_sbt,
 			miss_record_size * RAY_TYPE_COUNT,
 			cudaMemcpyHostToDevice
@@ -919,10 +910,10 @@ void lift::Scene::CreateSBT() {
 
 	{
 		std::vector<HitGroupRecord> hitgroup_records;
-		for (const auto& mesh : meshes_) {
+		for (const auto &mesh : meshes_) {
 			for (size_t i = 0; i < mesh->material_idx.size(); ++i) {
 				HitGroupRecord rec = {};
-				OPTIX_CHECK(optixSbtRecordPackHeader( radiance_hit_group_, &rec ));
+				OPTIX_CHECK(optixSbtRecordPackHeader(radiance_hit_group_, &rec));
 				rec.data.geometry_data.type = GeometryData::TRIANGLE_MESH;
 				rec.data.geometry_data.triangle_mesh.positions = mesh->positions[i];
 				rec.data.geometry_data.triangle_mesh.normals = mesh->normals[i];
@@ -936,26 +927,25 @@ void lift::Scene::CreateSBT() {
 					rec.data.material_data = MaterialData();
 				hitgroup_records.push_back(rec);
 
-				OPTIX_CHECK(optixSbtRecordPackHeader( occlusion_hit_group_, &rec ));
+				OPTIX_CHECK(optixSbtRecordPackHeader(occlusion_hit_group_, &rec));
 				hitgroup_records.push_back(rec);
 			}
 		}
 
 		const size_t hitgroup_record_size = sizeof(HitGroupRecord);
 		CUDA_CHECK(cudaMalloc(
-			reinterpret_cast<void**>( &sbt_.hitgroupRecordBase ),
-			hitgroup_record_size*hitgroup_records.size()
+			reinterpret_cast<void **>( &sbt_.hitgroupRecordBase ),
+			hitgroup_record_size * hitgroup_records.size()
 		));
 		CUDA_CHECK(cudaMemcpy(
-			reinterpret_cast<void*>( sbt_.hitgroupRecordBase ),
+			reinterpret_cast<void *>( sbt_.hitgroupRecordBase ),
 			hitgroup_records.data(),
-			hitgroup_record_size*hitgroup_records.size(),
+			hitgroup_record_size * hitgroup_records.size(),
 			cudaMemcpyHostToDevice
 		));
 
 		sbt_.hitgroupRecordStrideInBytes = static_cast<unsigned int>(hitgroup_record_size);
 		sbt_.hitgroupRecordCount = static_cast<unsigned int>(hitgroup_records.size());
 	}
-
 
 }

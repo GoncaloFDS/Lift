@@ -1,7 +1,5 @@
 ﻿#pragma once
 #include "renderer/BufferView.h"
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
 
 namespace lift {
 	struct GeometryData {
@@ -11,14 +9,14 @@ namespace lift {
 		};
 
 		struct TriangleMesh {
-			BufferView<glm::ivec3> indices;
-			BufferView<glm::vec3> positions;
-			BufferView<glm::vec3> normals;
-			BufferView<glm::vec2> tex_coords;
+			BufferView<uint32_t> indices;
+			BufferView<float3> positions;
+			BufferView<float3> normals;
+			BufferView<float2> tex_coords;
 		};
 
 		struct Sphere {
-			glm::vec3 center;
+			float3 center;
 			float radius;
 		};
 

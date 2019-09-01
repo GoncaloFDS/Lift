@@ -9,12 +9,12 @@
 #include "core/Profiler.h"
 #include "platform/windows/WindowsWindow.h"
 #include "platform/opengl/OpenGLContext.h"
-#include "scene/Mesh.h"
 #include "scene/Scene.h"
 #include <optix_stubs.h>
+#include "cuda/math_constructors.h"
+#include "cuda/vec_math.h"
 
-
-lift::Application* lift::Application::instance_ = nullptr;
+lift::Application *lift::Application::instance_ = nullptr;
 
 lift::Application::Application() {
 	LF_CORE_ASSERT(!instance_, "Application already exists");
@@ -45,21 +45,21 @@ void lift::Application::Run() {
 		Input::OnUpdate();
 
 		camera_->OnUpdate();
-		launch_parameters_.camera.position = camera_->Eye();
-		launch_parameters_.camera.direction = camera_->VectorW();
-		launch_parameters_.camera.horizontal = camera_->VectorU();
-		launch_parameters_.camera.vertical = camera_->VectorV();
-		launch_parameters_.traversable = scene_.GetTraversableHandle();
+		launch_parameters_.camera.eye = make_float3(camera_->Eye());
+		launch_parameters_.camera.U = make_float3(camera_->VectorU());
+		launch_parameters_.camera.V = make_float3(camera_->VectorV());
+		launch_parameters_.camera.W = make_float3(camera_->VectorW());
+		launch_parameters_.handle = scene_.GetTraversableHandle();
 
 		// Update Layers
 		window_->OnUpdate();
-		for (auto& layer : layer_stack_)
+		for (auto &layer : layer_stack_)
 			layer->OnUpdate();
 
-		for (auto& layer : layer_stack_)
+		for (auto &layer : layer_stack_)
 			layer->OnImguiRender();
 
-		renderer_.LaunchSubframe(scene_, launch_parameters_);
+		renderer_.LaunchSubframe(scene_, launch_parameters_, f_size_);
 		color_buffer_.download(output_texture_->Data());
 		output_texture_->SetData();
 
@@ -70,33 +70,62 @@ void lift::Application::Run() {
 }
 
 void lift::Application::InitGraphicsContext() {
-	graphics_context_ = std::make_unique<OpenGLContext>(static_cast<GLFWwindow*>(window_->GetNativeWindow()));
+	graphics_context_ = std::make_unique<OpenGLContext>(static_cast<GLFWwindow *>(window_->GetNativeWindow()));
 	graphics_context_->Init();
 	RenderCommand::SetClearColor({1.0f, 0.1f, 1.0f, 1.0f});
 }
 
-
 void lift::Application::CreateScene() {
 	Profiler profiler{"Create Scene"};
-	scene_.LoadFromFile("res/models/FlightHelmet/glTF/FlightHelmet.gltf");
+	scene_.LoadFromFile("res/models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+	//scene_.LoadFromFile("res/models/Sponza/glTF/Sponza.gltf");
 	scene_.Finalize();
 
 	OPTIX_CHECK(optixInit())
 
 	camera_ = std::make_unique<Camera>(
-		vec3(0.0f, 2.0f, 12.f), 
-		vec3(0.0f), 
-		vec3(0.0f, 1.0f, 0.0f),
+		vec3(0.0f, 2.0f, -12.f),
+		vec3(0.0f),
+		vec3(0.0f, -1.0f, 0.0f),
 		36.0f, 1.0f);
+
+	Light::Point l1{
+		{1.0f, 1.0f, 0.8f},
+		5.0f,
+		{10.0f, 1.0f, 1.0f},
+		Light::Falloff::QUADRATIC
+	};
+	lights_.push_back(l1);
+	Light::Point l2{
+		{0.8f, 0.8f, 0.8f},
+		3.0f,
+		{-10.0f, -5.0f, 1.0f},
+		Light::Falloff::QUADRATIC
+	};
+	lights_.push_back(l2);
+	Light::Point l3{
+		{0.8f, 0.8f, 0.8f},
+		3.0f,
+		{0.0f, 40.0f, 0.0f},
+		Light::Falloff::NONE
+	};
+	lights_.push_back(l3);
+	launch_parameters_.lights.count = uint32_t(lights_.size());
+	CUDA_CHECK(cudaMalloc(
+		reinterpret_cast<void **>( &launch_parameters_.lights.data ),
+		lights_.size() * sizeof(Light::Point)
+	));
+	CUDA_CHECK(cudaMemcpy(
+		reinterpret_cast<void *>( launch_parameters_.lights.data ),
+		lights_.data(),
+		lights_.size() * sizeof(Light::Point),
+		cudaMemcpyHostToDevice
+	));
+
+	launch_parameters_.miss_color = make_float3(0.1f);
 }
 
-void lift::Application::CreateLights() {
-}
-
-void lift::Application::InitMaterials() {
-}
-
-void lift::Application::OnEvent(Event& e) {
+void lift::Application::OnEvent(Event &e) {
 	EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<WindowCloseEvent>(LF_BIND_EVENT_FN(Application::OnWindowClose));
 	dispatcher.Dispatch<WindowResizeEvent>(LF_BIND_EVENT_FN(Application::OnWindowResize));
@@ -110,25 +139,25 @@ void lift::Application::OnEvent(Event& e) {
 	dispatcher.Dispatch<MouseMovedEvent>(LF_BIND_EVENT_FN(Application::OnMouseMove));
 	dispatcher.Dispatch<MouseScrolledEvent>(LF_BIND_EVENT_FN(Application::OnMouseScroll));
 
-
 }
 
-bool lift::Application::OnWindowClose(WindowCloseEvent& e) {
+bool lift::Application::OnWindowClose(WindowCloseEvent &e) {
 	is_running_ = false;
 	LF_CORE_TRACE(e.ToString());
 	return false;
 }
 
-void lift::Application::Resize(const ivec2& size) {
-	//renderer_.Resize(size);
+void lift::Application::Resize(const ivec2 &size) {
+	f_size_ = size;
 	color_buffer_.alloc(size.x * size.y);
-	launch_parameters_.frame.size = size;
-	launch_parameters_.frame.color_buffer = (uint32_t*)color_buffer_.get();
+	accum_buffer_.alloc(size.x * size.y);
+	launch_parameters_.frame_buffer = (uchar4 *) color_buffer_.get();
+	launch_parameters_.accum_buffer = (float4 *) accum_buffer_.get();
 	output_texture_->Resize(size);
 	camera_->SetAspectRatio(float(size.x) / size.y);
 }
 
-bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
+bool lift::Application::OnWindowResize(WindowResizeEvent &e) {
 	RestartAccumulation();
 	if (e.GetHeight() && e.GetWidth()) {
 		// Only resize when not minimized
@@ -138,28 +167,26 @@ bool lift::Application::OnWindowResize(WindowResizeEvent& e) {
 	return false;
 }
 
-bool lift::Application::OnWindowMinimize(WindowMinimizeEvent& e) const {
+bool lift::Application::OnWindowMinimize(WindowMinimizeEvent &e) const {
 	LF_CORE_TRACE(e.ToString());
 	return false;
 }
 
-inline bool lift::Application::OnMouseMove(MouseMovedEvent& e) {
+inline bool lift::Application::OnMouseMove(MouseMovedEvent &e) {
 	if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_LEFT)) {
 		const auto delta = Input::GetMouseDelta();
 		camera_->Orbit(-delta.x, -delta.y);
-	}
-	else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_MIDDLE)) {
+	} else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_MIDDLE)) {
 		const auto delta = Input::GetMouseDelta();
 		camera_->Strafe(-delta.x, delta.y);
-	}
-	else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_RIGHT)) {
+	} else if (Input::IsMouseButtonPressed(LF_MOUSE_BUTTON_RIGHT)) {
 		const auto delta = Input::GetMouseDelta();
 		camera_->Zoom(delta.y);
 	}
 	return false;
 }
 
-inline bool lift::Application::OnMouseScroll(MouseScrolledEvent& e) {
+inline bool lift::Application::OnMouseScroll(MouseScrolledEvent &e) {
 	camera_->Zoom(e.GetYOffset() * -10);
 	return false;
 }

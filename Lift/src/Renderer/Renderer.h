@@ -11,9 +11,7 @@ namespace lift {
 	public:
 		Renderer();
 
-		void LaunchSubframe(const Scene& scene, LaunchParameters& params);
-		void DownloadFrame(uint32_t pixels[], CudaBuffer<uint32_t> buffer);
-
+		void LaunchSubframe(const Scene &scene, LaunchParameters &params, const ivec2 &size);
 		static void Submit(const std::shared_ptr<VertexArray>& vertex_array);
 		static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 
