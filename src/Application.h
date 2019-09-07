@@ -4,6 +4,8 @@
 
 #include "core/LayerStack.h"
 #include "events/ApplicationEvent.h"
+#include "events/KeyEvent.h"
+#include "events/MouseEvent.h"
 
 #include "renderer/GraphicsContext.h"
 #include "renderer/Renderer.h"
@@ -13,8 +15,6 @@
 #include "scene/Scene.h"
 
 namespace lift {
-class MouseScrolledEvent;
-class MouseMovedEvent;
 
 class Application {
 public:
@@ -29,10 +29,10 @@ public:
 	template<typename T>
 	void PushOverlay() { layer_stack_.PushOverlay<T>(); }
 
-	void Resize(const ivec2 &size);
+	void Resize(const ivec2& size);
 
-	static Application &Get() { return *instance_; }
-	[[nodiscard]] Window &GetWindow() const { return *window_; }
+	static Application& Get() { return *instance_; }
+	[[nodiscard]] Window& GetWindow() const { return *window_; }
 
 	[[nodiscard]] auto GetFrameTextureId() const { return output_texture_->id; }
 
@@ -60,18 +60,20 @@ private:
 	std::vector<Light::Point> lights_;
 	//
 
-	static Application *instance_;
+	static Application* instance_;
 
 	void InitGraphicsContext();
 
 	void CreateScene();
 
-	void OnEvent(Event &e);
-	bool OnWindowClose(WindowCloseEvent &e);
-	bool OnWindowResize(WindowResizeEvent &e);
-	bool OnWindowMinimize(WindowMinimizeEvent &e) const;
-	bool OnMouseMove(MouseMovedEvent &e);
-	bool OnMouseScroll(MouseScrolledEvent &e);
+	void OnEvent(Event& e);
+	bool OnWindowClose(WindowCloseEvent& e);
+	bool OnWindowResize(WindowResizeEvent& e);
+	bool OnWindowMinimize(WindowMinimizeEvent& e) const;
+	bool OnMouseMove(MouseMovedEvent& e);
+	bool OnMouseScroll(MouseScrolledEvent& e);
+	bool OnKeyPress(KeyPressedEvent& e);
+	bool OnKeyRelease(KeyReleasedEvent& e);
 
 };
 

@@ -72,3 +72,6 @@ constexpr T Bit(T x) {
       }                                                                 \
   }
 
+#define LF_FORWARD glm::vec3(0.0f, 0.0f, -1.0f)
+#define LF_RIGHT glm::vec3(1.0f, 0.0f, 0.0f)
+#define LF_UP glm::vec3(0.0f, 1.0f, 0.0f)
