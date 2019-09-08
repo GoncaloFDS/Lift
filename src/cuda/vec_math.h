@@ -82,7 +82,7 @@ SUTIL_INLINE SUTIL_HOSTDEVICE unsigned long long min(unsigned long long a, unsig
 
 /** lerp */
 SUTIL_INLINE SUTIL_HOSTDEVICE float lerp(const float a, const float b, const float t) {
-    return a + t*(b - a);
+    return a + t * (b - a);
 }
 
 /** bilerp */
@@ -93,7 +93,7 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float bilerp(const float x_00, const float x_10, c
 
 template<typename IntegerType>
 SUTIL_INLINE SUTIL_HOSTDEVICE IntegerType roundUp(IntegerType x, IntegerType y) {
-    return ((x + y - 1)/y)*y;
+    return ((x + y - 1) / y) * y;
 }
 
 #endif
@@ -198,15 +198,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(float2 &a, const float2 &b) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE float2 operator*(const float2 &a, const float2 &b) {
-    return make_float2(a.x*b.x, a.y*b.y);
+    return make_float2(a.x * b.x, a.y * b.y);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE float2 operator*(const float2 &a, const float s) {
-    return make_float2(a.x*s, a.y*s);
+    return make_float2(a.x * s, a.y * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE float2 operator*(const float s, const float2 &a) {
-    return make_float2(a.x*s, a.y*s);
+    return make_float2(a.x * s, a.y * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(float2 &a, const float2 &s) {
@@ -224,27 +224,27 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(float2 &a, const float s) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE float2 operator/(const float2 &a, const float2 &b) {
-    return make_float2(a.x/b.x, a.y/b.y);
+    return make_float2(a.x / b.x, a.y / b.y);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE float2 operator/(const float2 &a, const float s) {
-    float inv = 1.0f/s;
-    return a*inv;
+    float inv = 1.0f / s;
+    return a * inv;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE float2 operator/(const float s, const float2 &a) {
-    return make_float2(s/a.x, s/a.y);
+    return make_float2(s / a.x, s / a.y);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator/=(float2 &a, const float s) {
-    float inv = 1.0f/s;
+    float inv = 1.0f / s;
     a *= inv;
 }
 /** @} */
 
 /** lerp */
 SUTIL_INLINE SUTIL_HOSTDEVICE float2 lerp(const float2 &a, const float2 &b, const float t) {
-    return a + t*(b - a);
+    return a + t * (b - a);
 }
 
 /** bilerp */
@@ -271,7 +271,7 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float2 clamp(const float2 &v, const float2 &a, con
 
 /** dot product */
 SUTIL_INLINE SUTIL_HOSTDEVICE float dot(const float2 &a, const float2 &b) {
-    return a.x*b.x + a.y*b.y;
+    return a.x * b.x + a.y * b.y;
 }
 
 /** length */
@@ -281,8 +281,8 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float length(const float2 &v) {
 
 /** normalize */
 SUTIL_INLINE SUTIL_HOSTDEVICE float2 normalize(const float2 &v) {
-    float inv_len = 1.0f/sqrtf(dot(v, v));
-    return v*inv_len;
+    float inv_len = 1.0f / sqrtf(dot(v, v));
+    return v * inv_len;
 }
 
 /** floor */
@@ -292,7 +292,7 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float2 floor(const float2 &v) {
 
 /** reflect */
 SUTIL_INLINE SUTIL_HOSTDEVICE float2 reflect(const float2 &i, const float2 &n) {
-    return i - 2.0f*n*dot(n, i);
+    return i - 2.0f * n * dot(n, i);
 }
 
 /** Faceforward
@@ -300,7 +300,7 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float2 reflect(const float2 &i, const float2 &n) {
 * Typical usage is N = faceforward(N, -ray.dir, N);
 * Note that this is opposite of what faceforward does in Cg and GLSL */
 SUTIL_INLINE SUTIL_HOSTDEVICE float2 faceforward(const float2 &n, const float2 &i, const float2 &nref) {
-    return n*copysignf(1.0f, dot(i, nref));
+    return n * copysignf(1.0f, dot(i, nref));
 }
 
 /** exp */
@@ -420,15 +420,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(float3 &a, const float3 &b) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE float3 operator*(const float3 &a, const float3 &b) {
-    return make_float3(a.x*b.x, a.y*b.y, a.z*b.z);
+    return make_float3(a.x * b.x, a.y * b.y, a.z * b.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE float3 operator*(const float3 &a, const float s) {
-    return make_float3(a.x*s, a.y*s, a.z*s);
+    return make_float3(a.x * s, a.y * s, a.z * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE float3 operator*(const float s, const float3 &a) {
-    return make_float3(a.x*s, a.y*s, a.z*s);
+    return make_float3(a.x * s, a.y * s, a.z * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(float3 &a, const float3 &s) {
@@ -448,27 +448,27 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(float3 &a, const float s) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE float3 operator/(const float3 &a, const float3 &b) {
-    return make_float3(a.x/b.x, a.y/b.y, a.z/b.z);
+    return make_float3(a.x / b.x, a.y / b.y, a.z / b.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE float3 operator/(const float3 &a, const float s) {
-    float inv = 1.0f/s;
-    return a*inv;
+    float inv = 1.0f / s;
+    return a * inv;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE float3 operator/(const float s, const float3 &a) {
-    return make_float3(s/a.x, s/a.y, s/a.z);
+    return make_float3(s / a.x, s / a.y, s / a.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator/=(float3 &a, const float s) {
-    float inv = 1.0f/s;
+    float inv = 1.0f / s;
     a *= inv;
 }
 /** @} */
 
 /** lerp */
 SUTIL_INLINE SUTIL_HOSTDEVICE float3 lerp(const float3 &a, const float3 &b, const float t) {
-    return a + t*(b - a);
+    return a + t * (b - a);
 }
 
 /** bilerp */
@@ -495,12 +495,12 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float3 clamp(const float3 &v, const float3 &a, con
 
 /** dot product */
 SUTIL_INLINE SUTIL_HOSTDEVICE float dot(const float3 &a, const float3 &b) {
-    return a.x*b.x + a.y*b.y + a.z*b.z;
+    return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
 /** cross product */
 SUTIL_INLINE SUTIL_HOSTDEVICE float3 cross(const float3 &a, const float3 &b) {
-    return make_float3(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
+    return make_float3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 }
 
 /** length */
@@ -510,8 +510,8 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float length(const float3 &v) {
 
 /** normalize */
 SUTIL_INLINE SUTIL_HOSTDEVICE float3 normalize(const float3 &v) {
-    float inv_len = 1.0f/sqrtf(dot(v, v));
-    return v*inv_len;
+    float inv_len = 1.0f / sqrtf(dot(v, v));
+    return v * inv_len;
 }
 
 /** floor */
@@ -521,7 +521,7 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float3 floor(const float3 &v) {
 
 /** reflect */
 SUTIL_INLINE SUTIL_HOSTDEVICE float3 reflect(const float3 &i, const float3 &n) {
-    return i - 2.0f*n*dot(n, i);
+    return i - 2.0f * n * dot(n, i);
 }
 
 /** Faceforward
@@ -529,7 +529,7 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float3 reflect(const float3 &i, const float3 &n) {
 * Typical usage is N = faceforward(N, -ray.dir, N);
 * Note that this is opposite of what faceforward does in Cg and GLSL */
 SUTIL_INLINE SUTIL_HOSTDEVICE float3 faceforward(const float3 &n, const float3 &i, const float3 &nref) {
-    return n*copysignf(1.0f, dot(i, nref));
+    return n * copysignf(1.0f, dot(i, nref));
 }
 
 /** exp */
@@ -649,15 +649,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(float4 &a, const float4 &b) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE float4 operator*(const float4 &a, const float4 &s) {
-    return make_float4(a.x*s.x, a.y*s.y, a.z*s.z, a.w*s.w);
+    return make_float4(a.x * s.x, a.y * s.y, a.z * s.z, a.w * s.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE float4 operator*(const float4 &a, const float s) {
-    return make_float4(a.x*s, a.y*s, a.z*s, a.w*s);
+    return make_float4(a.x * s, a.y * s, a.z * s, a.w * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE float4 operator*(const float s, const float4 &a) {
-    return make_float4(a.x*s, a.y*s, a.z*s, a.w*s);
+    return make_float4(a.x * s, a.y * s, a.z * s, a.w * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(float4 &a, const float4 &s) {
@@ -679,27 +679,27 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(float4 &a, const float s) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE float4 operator/(const float4 &a, const float4 &b) {
-    return make_float4(a.x/b.x, a.y/b.y, a.z/b.z, a.w/b.w);
+    return make_float4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE float4 operator/(const float4 &a, const float s) {
-    float inv = 1.0f/s;
-    return a*inv;
+    float inv = 1.0f / s;
+    return a * inv;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE float4 operator/(const float s, const float4 &a) {
-    return make_float4(s/a.x, s/a.y, s/a.z, s/a.w);
+    return make_float4(s / a.x, s / a.y, s / a.z, s / a.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator/=(float4 &a, const float s) {
-    float inv = 1.0f/s;
+    float inv = 1.0f / s;
     a *= inv;
 }
 /** @} */
 
 /** lerp */
 SUTIL_INLINE SUTIL_HOSTDEVICE float4 lerp(const float4 &a, const float4 &b, const float t) {
-    return a + t*(b - a);
+    return a + t * (b - a);
 }
 
 /** bilerp */
@@ -726,7 +726,7 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float4 clamp(const float4 &v, const float4 &a, con
 
 /** dot product */
 SUTIL_INLINE SUTIL_HOSTDEVICE float dot(const float4 &a, const float4 &b) {
-    return a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w;
+    return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
 
 /** length */
@@ -736,8 +736,8 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float length(const float4 &r) {
 
 /** normalize */
 SUTIL_INLINE SUTIL_HOSTDEVICE float4 normalize(const float4 &v) {
-    float inv_len = 1.0f/sqrtf(dot(v, v));
-    return v*inv_len;
+    float inv_len = 1.0f / sqrtf(dot(v, v));
+    return v * inv_len;
 }
 
 /** floor */
@@ -747,7 +747,7 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float4 floor(const float4 &v) {
 
 /** reflect */
 SUTIL_INLINE SUTIL_HOSTDEVICE float4 reflect(const float4 &i, const float4 &n) {
-    return i - 2.0f*n*dot(n, i);
+    return i - 2.0f * n * dot(n, i);
 }
 
 /** 
@@ -757,7 +757,7 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float4 reflect(const float4 &i, const float4 &n) {
 * Note that this is opposite of what faceforward does in Cg and GLSL 
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE float4 faceforward(const float4 &n, const float4 &i, const float4 &nref) {
-    return n*copysignf(1.0f, dot(i, nref));
+    return n * copysignf(1.0f, dot(i, nref));
 }
 
 /** exp */
@@ -859,15 +859,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(int2 &a, const int2 &b) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE int2 operator*(const int2 &a, const int2 &b) {
-    return make_int2(a.x*b.x, a.y*b.y);
+    return make_int2(a.x * b.x, a.y * b.y);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE int2 operator*(const int2 &a, const int s) {
-    return make_int2(a.x*s, a.y*s);
+    return make_int2(a.x * s, a.y * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE int2 operator*(const int s, const int2 &a) {
-    return make_int2(a.x*s, a.y*s);
+    return make_int2(a.x * s, a.y * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(int2 &a, const int s) {
@@ -892,11 +892,11 @@ SUTIL_INLINE SUTIL_HOSTDEVICE int2 clamp(const int2 &v, const int2 &a, const int
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator==(const int2 &a, const int2 &b) {
-    return a.x==b.x && a.y==b.y;
+    return a.x == b.x && a.y == b.y;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator!=(const int2 &a, const int2 &b) {
-    return a.x!=b.x || a.y!=b.y;
+    return a.x != b.x || a.y != b.y;
 }
 /** @} */
 
@@ -973,15 +973,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(int3 &a, const int3 &b) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE int3 operator*(const int3 &a, const int3 &b) {
-    return make_int3(a.x*b.x, a.y*b.y, a.z*b.z);
+    return make_int3(a.x * b.x, a.y * b.y, a.z * b.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE int3 operator*(const int3 &a, const int s) {
-    return make_int3(a.x*s, a.y*s, a.z*s);
+    return make_int3(a.x * s, a.y * s, a.z * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE int3 operator*(const int s, const int3 &a) {
-    return make_int3(a.x*s, a.y*s, a.z*s);
+    return make_int3(a.x * s, a.y * s, a.z * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(int3 &a, const int s) {
@@ -995,15 +995,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(int3 &a, const int s) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE int3 operator/(const int3 &a, const int3 &b) {
-    return make_int3(a.x/b.x, a.y/b.y, a.z/b.z);
+    return make_int3(a.x / b.x, a.y / b.y, a.z / b.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE int3 operator/(const int3 &a, const int s) {
-    return make_int3(a.x/s, a.y/s, a.z/s);
+    return make_int3(a.x / s, a.y / s, a.z / s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE int3 operator/(const int s, const int3 &a) {
-    return make_int3(s/a.x, s/a.y, s/a.z);
+    return make_int3(s / a.x, s / a.y, s / a.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator/=(int3 &a, const int s) {
@@ -1029,11 +1029,11 @@ SUTIL_INLINE SUTIL_HOSTDEVICE int3 clamp(const int3 &v, const int3 &a, const int
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator==(const int3 &a, const int3 &b) {
-    return a.x==b.x && a.y==b.y && a.z==b.z;
+    return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator!=(const int3 &a, const int3 &b) {
-    return a.x!=b.x || a.y!=b.y || a.z!=b.z;
+    return a.x != b.x || a.y != b.y || a.z != b.z;
 }
 /** @} */
 
@@ -1112,15 +1112,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(int4 &a, const int4 &b) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE int4 operator*(const int4 &a, const int4 &b) {
-    return make_int4(a.x*b.x, a.y*b.y, a.z*b.z, a.w*b.w);
+    return make_int4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE int4 operator*(const int4 &a, const int s) {
-    return make_int4(a.x*s, a.y*s, a.z*s, a.w*s);
+    return make_int4(a.x * s, a.y * s, a.z * s, a.w * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE int4 operator*(const int s, const int4 &a) {
-    return make_int4(a.x*s, a.y*s, a.z*s, a.w*s);
+    return make_int4(a.x * s, a.y * s, a.z * s, a.w * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(int4 &a, const int s) {
@@ -1135,15 +1135,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(int4 &a, const int s) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE int4 operator/(const int4 &a, const int4 &b) {
-    return make_int4(a.x/b.x, a.y/b.y, a.z/b.z, a.w/b.w);
+    return make_int4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE int4 operator/(const int4 &a, const int s) {
-    return make_int4(a.x/s, a.y/s, a.z/s, a.w/s);
+    return make_int4(a.x / s, a.y / s, a.z / s, a.w / s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE int4 operator/(const int s, const int4 &a) {
-    return make_int4(s/a.x, s/a.y, s/a.z, s/a.w);
+    return make_int4(s / a.x, s / a.y, s / a.z, s / a.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator/=(int4 &a, const int s) {
@@ -1170,11 +1170,11 @@ SUTIL_INLINE SUTIL_HOSTDEVICE int4 clamp(const int4 &v, const int4 &a, const int
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator==(const int4 &a, const int4 &b) {
-    return a.x==b.x && a.y==b.y && a.z==b.z && a.w==b.w;
+    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator!=(const int4 &a, const int4 &b) {
-    return a.x!=b.x || a.y!=b.y || a.z!=b.z || a.w!=b.w;
+    return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
 }
 /** @} */
 
@@ -1267,15 +1267,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(uint2 &a, const uint2 &b) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE uint2 operator*(const uint2 &a, const uint2 &b) {
-    return make_uint2(a.x*b.x, a.y*b.y);
+    return make_uint2(a.x * b.x, a.y * b.y);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE uint2 operator*(const uint2 &a, const unsigned int s) {
-    return make_uint2(a.x*s, a.y*s);
+    return make_uint2(a.x * s, a.y * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE uint2 operator*(const unsigned int s, const uint2 &a) {
-    return make_uint2(a.x*s, a.y*s);
+    return make_uint2(a.x * s, a.y * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(uint2 &a, const unsigned int s) {
@@ -1300,11 +1300,11 @@ SUTIL_INLINE SUTIL_HOSTDEVICE uint2 clamp(const uint2 &v, const uint2 &a, const 
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator==(const uint2 &a, const uint2 &b) {
-    return a.x==b.x && a.y==b.y;
+    return a.x == b.x && a.y == b.y;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator!=(const uint2 &a, const uint2 &b) {
-    return a.x!=b.x || a.y!=b.y;
+    return a.x != b.x || a.y != b.y;
 }
 /** @} */
 
@@ -1376,15 +1376,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(uint3 &a, const uint3 &b) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE uint3 operator*(const uint3 &a, const uint3 &b) {
-    return make_uint3(a.x*b.x, a.y*b.y, a.z*b.z);
+    return make_uint3(a.x * b.x, a.y * b.y, a.z * b.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE uint3 operator*(const uint3 &a, const unsigned int s) {
-    return make_uint3(a.x*s, a.y*s, a.z*s);
+    return make_uint3(a.x * s, a.y * s, a.z * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE uint3 operator*(const unsigned int s, const uint3 &a) {
-    return make_uint3(a.x*s, a.y*s, a.z*s);
+    return make_uint3(a.x * s, a.y * s, a.z * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(uint3 &a, const unsigned int s) {
@@ -1398,15 +1398,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(uint3 &a, const unsigned int s) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE uint3 operator/(const uint3 &a, const uint3 &b) {
-    return make_uint3(a.x/b.x, a.y/b.y, a.z/b.z);
+    return make_uint3(a.x / b.x, a.y / b.y, a.z / b.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE uint3 operator/(const uint3 &a, const unsigned int s) {
-    return make_uint3(a.x/s, a.y/s, a.z/s);
+    return make_uint3(a.x / s, a.y / s, a.z / s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE uint3 operator/(const unsigned int s, const uint3 &a) {
-    return make_uint3(s/a.x, s/a.y, s/a.z);
+    return make_uint3(s / a.x, s / a.y, s / a.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator/=(uint3 &a, const unsigned int s) {
@@ -1432,11 +1432,11 @@ SUTIL_INLINE SUTIL_HOSTDEVICE uint3 clamp(const uint3 &v, const uint3 &a, const 
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator==(const uint3 &a, const uint3 &b) {
-    return a.x==b.x && a.y==b.y && a.z==b.z;
+    return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator!=(const uint3 &a, const uint3 &b) {
-    return a.x!=b.x || a.y!=b.y || a.z!=b.z;
+    return a.x != b.x || a.y != b.y || a.z != b.z;
 }
 /** @} */
 
@@ -1518,15 +1518,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(uint4 &a, const uint4 &b) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE uint4 operator*(const uint4 &a, const uint4 &b) {
-    return make_uint4(a.x*b.x, a.y*b.y, a.z*b.z, a.w*b.w);
+    return make_uint4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE uint4 operator*(const uint4 &a, const unsigned int s) {
-    return make_uint4(a.x*s, a.y*s, a.z*s, a.w*s);
+    return make_uint4(a.x * s, a.y * s, a.z * s, a.w * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE uint4 operator*(const unsigned int s, const uint4 &a) {
-    return make_uint4(a.x*s, a.y*s, a.z*s, a.w*s);
+    return make_uint4(a.x * s, a.y * s, a.z * s, a.w * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(uint4 &a, const unsigned int s) {
@@ -1541,15 +1541,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(uint4 &a, const unsigned int s) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE uint4 operator/(const uint4 &a, const uint4 &b) {
-    return make_uint4(a.x/b.x, a.y/b.y, a.z/b.z, a.w/b.w);
+    return make_uint4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE uint4 operator/(const uint4 &a, const unsigned int s) {
-    return make_uint4(a.x/s, a.y/s, a.z/s, a.w/s);
+    return make_uint4(a.x / s, a.y / s, a.z / s, a.w / s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE uint4 operator/(const unsigned int s, const uint4 &a) {
-    return make_uint4(s/a.x, s/a.y, s/a.z, s/a.w);
+    return make_uint4(s / a.x, s / a.y, s / a.z, s / a.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator/=(uint4 &a, const unsigned int s) {
@@ -1576,11 +1576,11 @@ SUTIL_INLINE SUTIL_HOSTDEVICE uint4 clamp(const uint4 &v, const uint4 &a, const 
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator==(const uint4 &a, const uint4 &b) {
-    return a.x==b.x && a.y==b.y && a.z==b.z && a.w==b.w;
+    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator!=(const uint4 &a, const uint4 &b) {
-    return a.x!=b.x || a.y!=b.y || a.z!=b.z || a.w!=b.w;
+    return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
 }
 /** @} */
 
@@ -1679,15 +1679,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(longlong2 &a, const longlong2 &b) 
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong2 operator*(const longlong2 &a, const longlong2 &b) {
-    return make_longlong2(a.x*b.x, a.y*b.y);
+    return make_longlong2(a.x * b.x, a.y * b.y);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong2 operator*(const longlong2 &a, const long long s) {
-    return make_longlong2(a.x*s, a.y*s);
+    return make_longlong2(a.x * s, a.y * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong2 operator*(const long long s, const longlong2 &a) {
-    return make_longlong2(a.x*s, a.y*s);
+    return make_longlong2(a.x * s, a.y * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(longlong2 &a, const long long s) {
@@ -1712,11 +1712,11 @@ SUTIL_INLINE SUTIL_HOSTDEVICE longlong2 clamp(const longlong2 &v, const longlong
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator==(const longlong2 &a, const longlong2 &b) {
-    return a.x==b.x && a.y==b.y;
+    return a.x == b.x && a.y == b.y;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator!=(const longlong2 &a, const longlong2 &b) {
-    return a.x!=b.x || a.y!=b.y;
+    return a.x != b.x || a.y != b.y;
 }
 /** @} */
 
@@ -1793,15 +1793,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(longlong3 &a, const longlong3 &b) 
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong3 operator*(const longlong3 &a, const longlong3 &b) {
-    return make_longlong3(a.x*b.x, a.y*b.y, a.z*b.z);
+    return make_longlong3(a.x * b.x, a.y * b.y, a.z * b.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong3 operator*(const longlong3 &a, const long long s) {
-    return make_longlong3(a.x*s, a.y*s, a.z*s);
+    return make_longlong3(a.x * s, a.y * s, a.z * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong3 operator*(const long long s, const longlong3 &a) {
-    return make_longlong3(a.x*s, a.y*s, a.z*s);
+    return make_longlong3(a.x * s, a.y * s, a.z * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(longlong3 &a, const long long s) {
@@ -1815,15 +1815,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(longlong3 &a, const long long s) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong3 operator/(const longlong3 &a, const longlong3 &b) {
-    return make_longlong3(a.x/b.x, a.y/b.y, a.z/b.z);
+    return make_longlong3(a.x / b.x, a.y / b.y, a.z / b.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong3 operator/(const longlong3 &a, const long long s) {
-    return make_longlong3(a.x/s, a.y/s, a.z/s);
+    return make_longlong3(a.x / s, a.y / s, a.z / s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong3 operator/(const long long s, const longlong3 &a) {
-    return make_longlong3(s/a.x, s/a.y, s/a.z);
+    return make_longlong3(s / a.x, s / a.y, s / a.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator/=(longlong3 &a, const long long s) {
@@ -1849,11 +1849,11 @@ SUTIL_INLINE SUTIL_HOSTDEVICE longlong3 clamp(const longlong3 &v, const longlong
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator==(const longlong3 &a, const longlong3 &b) {
-    return a.x==b.x && a.y==b.y && a.z==b.z;
+    return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator!=(const longlong3 &a, const longlong3 &b) {
-    return a.x!=b.x || a.y!=b.y || a.z!=b.z;
+    return a.x != b.x || a.y != b.y || a.z != b.z;
 }
 /** @} */
 
@@ -1932,15 +1932,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(longlong4 &a, const longlong4 &b) 
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong4 operator*(const longlong4 &a, const longlong4 &b) {
-    return make_longlong4(a.x*b.x, a.y*b.y, a.z*b.z, a.w*b.w);
+    return make_longlong4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong4 operator*(const longlong4 &a, const long long s) {
-    return make_longlong4(a.x*s, a.y*s, a.z*s, a.w*s);
+    return make_longlong4(a.x * s, a.y * s, a.z * s, a.w * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong4 operator*(const long long s, const longlong4 &a) {
-    return make_longlong4(a.x*s, a.y*s, a.z*s, a.w*s);
+    return make_longlong4(a.x * s, a.y * s, a.z * s, a.w * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(longlong4 &a, const long long s) {
@@ -1955,15 +1955,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(longlong4 &a, const long long s) {
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong4 operator/(const longlong4 &a, const longlong4 &b) {
-    return make_longlong4(a.x/b.x, a.y/b.y, a.z/b.z, a.w/b.w);
+    return make_longlong4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong4 operator/(const longlong4 &a, const long long s) {
-    return make_longlong4(a.x/s, a.y/s, a.z/s, a.w/s);
+    return make_longlong4(a.x / s, a.y / s, a.z / s, a.w / s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE longlong4 operator/(const long long s, const longlong4 &a) {
-    return make_longlong4(s/a.x, s/a.y, s/a.z, s/a.w);
+    return make_longlong4(s / a.x, s / a.y, s / a.z, s / a.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator/=(longlong4 &a, const long long s) {
@@ -1990,11 +1990,11 @@ SUTIL_INLINE SUTIL_HOSTDEVICE longlong4 clamp(const longlong4 &v, const longlong
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator==(const longlong4 &a, const longlong4 &b) {
-    return a.x==b.x && a.y==b.y && a.z==b.z && a.w==b.w;
+    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator!=(const longlong4 &a, const longlong4 &b) {
-    return a.x!=b.x || a.y!=b.y || a.z!=b.z || a.w!=b.w;
+    return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
 }
 /** @} */
 
@@ -2087,15 +2087,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(ulonglong2 &a, const ulonglong2 &b
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong2 operator*(const ulonglong2 &a, const ulonglong2 &b) {
-    return make_ulonglong2(a.x*b.x, a.y*b.y);
+    return make_ulonglong2(a.x * b.x, a.y * b.y);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong2 operator*(const ulonglong2 &a, const unsigned long long s) {
-    return make_ulonglong2(a.x*s, a.y*s);
+    return make_ulonglong2(a.x * s, a.y * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong2 operator*(const unsigned long long s, const ulonglong2 &a) {
-    return make_ulonglong2(a.x*s, a.y*s);
+    return make_ulonglong2(a.x * s, a.y * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(ulonglong2 &a, const unsigned long long s) {
@@ -2121,11 +2121,11 @@ SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong2 clamp(const ulonglong2 &v, const ulongl
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator==(const ulonglong2 &a, const ulonglong2 &b) {
-    return a.x==b.x && a.y==b.y;
+    return a.x == b.x && a.y == b.y;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator!=(const ulonglong2 &a, const ulonglong2 &b) {
-    return a.x!=b.x || a.y!=b.y;
+    return a.x != b.x || a.y != b.y;
 }
 /** @} */
 
@@ -2197,15 +2197,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(ulonglong3 &a, const ulonglong3 &b
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong3 operator*(const ulonglong3 &a, const ulonglong3 &b) {
-    return make_ulonglong3(a.x*b.x, a.y*b.y, a.z*b.z);
+    return make_ulonglong3(a.x * b.x, a.y * b.y, a.z * b.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong3 operator*(const ulonglong3 &a, const unsigned long long s) {
-    return make_ulonglong3(a.x*s, a.y*s, a.z*s);
+    return make_ulonglong3(a.x * s, a.y * s, a.z * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong3 operator*(const unsigned long long s, const ulonglong3 &a) {
-    return make_ulonglong3(a.x*s, a.y*s, a.z*s);
+    return make_ulonglong3(a.x * s, a.y * s, a.z * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(ulonglong3 &a, const unsigned long long s) {
@@ -2219,15 +2219,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(ulonglong3 &a, const unsigned long
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong3 operator/(const ulonglong3 &a, const ulonglong3 &b) {
-    return make_ulonglong3(a.x/b.x, a.y/b.y, a.z/b.z);
+    return make_ulonglong3(a.x / b.x, a.y / b.y, a.z / b.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong3 operator/(const ulonglong3 &a, const unsigned long long s) {
-    return make_ulonglong3(a.x/s, a.y/s, a.z/s);
+    return make_ulonglong3(a.x / s, a.y / s, a.z / s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong3 operator/(const unsigned long long s, const ulonglong3 &a) {
-    return make_ulonglong3(s/a.x, s/a.y, s/a.z);
+    return make_ulonglong3(s / a.x, s / a.y, s / a.z);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator/=(ulonglong3 &a, const unsigned long long s) {
@@ -2254,11 +2254,11 @@ SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong3 clamp(const ulonglong3 &v, const ulongl
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator==(const ulonglong3 &a, const ulonglong3 &b) {
-    return a.x==b.x && a.y==b.y && a.z==b.z;
+    return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator!=(const ulonglong3 &a, const ulonglong3 &b) {
-    return a.x!=b.x || a.y!=b.y || a.z!=b.z;
+    return a.x != b.x || a.y != b.y || a.z != b.z;
 }
 /** @} */
 
@@ -2341,15 +2341,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator-=(ulonglong4 &a, const ulonglong4 &b
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong4 operator*(const ulonglong4 &a, const ulonglong4 &b) {
-    return make_ulonglong4(a.x*b.x, a.y*b.y, a.z*b.z, a.w*b.w);
+    return make_ulonglong4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong4 operator*(const ulonglong4 &a, const unsigned long long s) {
-    return make_ulonglong4(a.x*s, a.y*s, a.z*s, a.w*s);
+    return make_ulonglong4(a.x * s, a.y * s, a.z * s, a.w * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong4 operator*(const unsigned long long s, const ulonglong4 &a) {
-    return make_ulonglong4(a.x*s, a.y*s, a.z*s, a.w*s);
+    return make_ulonglong4(a.x * s, a.y * s, a.z * s, a.w * s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(ulonglong4 &a, const unsigned long long s) {
@@ -2364,15 +2364,15 @@ SUTIL_INLINE SUTIL_HOSTDEVICE void operator*=(ulonglong4 &a, const unsigned long
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong4 operator/(const ulonglong4 &a, const ulonglong4 &b) {
-    return make_ulonglong4(a.x/b.x, a.y/b.y, a.z/b.z, a.w/b.w);
+    return make_ulonglong4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong4 operator/(const ulonglong4 &a, const unsigned long long s) {
-    return make_ulonglong4(a.x/s, a.y/s, a.z/s, a.w/s);
+    return make_ulonglong4(a.x / s, a.y / s, a.z / s, a.w / s);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong4 operator/(const unsigned long long s, const ulonglong4 &a) {
-    return make_ulonglong4(s/a.x, s/a.y, s/a.z, s/a.w);
+    return make_ulonglong4(s / a.x, s / a.y, s / a.z, s / a.w);
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE void operator/=(ulonglong4 &a, const unsigned long long s) {
@@ -2400,11 +2400,11 @@ SUTIL_INLINE SUTIL_HOSTDEVICE ulonglong4 clamp(const ulonglong4 &v, const ulongl
 * @{
 */
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator==(const ulonglong4 &a, const ulonglong4 &b) {
-    return a.x==b.x && a.y==b.y && a.z==b.z && a.w==b.w;
+    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
 }
 
 SUTIL_INLINE SUTIL_HOSTDEVICE bool operator!=(const ulonglong4 &a, const ulonglong4 &b) {
-    return a.x!=b.x || a.y!=b.y || a.z!=b.z || a.w!=b.w;
+    return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
 }
 /** @} */
 
@@ -2651,9 +2651,9 @@ SUTIL_INLINE SUTIL_HOSTDEVICE float4 makeFloat4(const float2 &v_0, const float2 
 __forceinline__ __device__ uchar4 makeColor(const float3 &c) {
     const float gamma = 2.2f;
     return make_uchar4(
-        static_cast<uint8_t>( powf(clamp(c.x, 0.0f, 1.0f), 1.0f/gamma)*255.0f ),
-        static_cast<uint8_t>( powf(clamp(c.y, 0.0f, 1.0f), 1.0f/gamma)*255.0f ),
-        static_cast<uint8_t>( powf(clamp(c.z, 0.0f, 1.0f), 1.0f/gamma)*255.0f ),
+        static_cast<uint8_t>( powf(clamp(c.x, 0.0f, 1.0f), 1.0f / gamma) * 255.0f ),
+        static_cast<uint8_t>( powf(clamp(c.y, 0.0f, 1.0f), 1.0f / gamma) * 255.0f ),
+        static_cast<uint8_t>( powf(clamp(c.z, 0.0f, 1.0f), 1.0f / gamma) * 255.0f ),
         255u
     );
 }

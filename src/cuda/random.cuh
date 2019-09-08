@@ -51,20 +51,20 @@ static __host__ __device__
 __inline__ unsigned int lcg(unsigned int &prev) {
     const unsigned int lcg_a = 1664525u;
     const unsigned int lcg_c = 1013904223u;
-    prev = (lcg_a*prev + lcg_c);
+    prev = (lcg_a * prev + lcg_c);
     return prev & 0x00FFFFFF;
 }
 
 static __host__ __device__
 __inline__ unsigned int lcg2(unsigned int &prev) {
-    prev = (prev*8121 + 28411)%134456;
+    prev = (prev * 8121 + 28411) % 134456;
     return prev;
 }
 
 // Generate random float in [0, 1)
 static __host__ __device__
 __inline__ float rnd(unsigned int &prev) {
-    return ((float) lcg(prev)/(float) 0x01000000);
+    return ((float) lcg(prev) / (float) 0x01000000);
 }
 
 static __host__ __device__

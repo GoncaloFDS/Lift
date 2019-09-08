@@ -30,9 +30,9 @@
 
 using namespace glm;
 
-#include "core/io/Log.h"
-#include "core/os/KeyCodes.h"
-#include "core/Util.h"
+#include "core/io/log.h"
+#include "core/os/key_codes.h"
+#include "core/util.h"
 
 #ifdef LF_PLATFORM_WINDOWS
 #include <Windows.h>

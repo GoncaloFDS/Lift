@@ -7,7 +7,7 @@
 #include "local_geometry.h"
 
 namespace lift {
-extern "C" __constant__ LaunchParameters k_Params;
+extern "C" __constant__ LaunchParameters params;
 
 //------------------------------------------------------------------------------
 //
@@ -17,23 +17,23 @@ extern "C" __constant__ LaunchParameters k_Params;
 //------------------------------------------------------------------------------
 
 __device__ float3 schlick(const float3 spec_color, const float v_dot_h) {
-    return spec_color + (makeFloat3(1.0f) - spec_color)*powf(1.0f - v_dot_h, 5.0f);
+    return spec_color + (makeFloat3(1.0f) - spec_color) * powf(1.0f - v_dot_h, 5.0f);
 }
 
 __device__ float vis(const float n_dot_l, const float n_dot_v, const float alpha) {
-    const float alpha_sq = alpha*alpha;
+    const float alpha_sq = alpha * alpha;
 
-    const float ggx_0 = n_dot_l*sqrtf(n_dot_v*n_dot_v*(1.0f - alpha_sq) + alpha_sq);
-    const float ggx_1 = n_dot_v*sqrtf(n_dot_l*n_dot_l*(1.0f - alpha_sq) + alpha_sq);
+    const float ggx_0 = n_dot_l * sqrtf(n_dot_v * n_dot_v * (1.0f - alpha_sq) + alpha_sq);
+    const float ggx_1 = n_dot_v * sqrtf(n_dot_l * n_dot_l * (1.0f - alpha_sq) + alpha_sq);
 
-    return 2.0f*n_dot_l*n_dot_v/(ggx_0 + ggx_1);
+    return 2.0f * n_dot_l * n_dot_v / (ggx_0 + ggx_1);
 }
 
 __device__ float ggxNormal(const float n_dot_h, const float alpha) {
-    const float alpha_sq = alpha*alpha;
-    const float n_dot_h_sq = n_dot_h*n_dot_h;
-    const float x = n_dot_h_sq*(alpha_sq - 1.0f) + 1.0f;
-    return alpha_sq/(M_PIf*x*x);
+    const float alpha_sq = alpha * alpha;
+    const float n_dot_h_sq = n_dot_h * n_dot_h;
+    const float x = n_dot_h_sq * (alpha_sq - 1.0f) + 1.0f;
+    return alpha_sq / (M_PIf * x * x);
 }
 
 __device__ float3 linearize(float3 c) {
@@ -138,9 +138,9 @@ extern "C" __global__ void closesthitRadiance() {
     // Convert to material params
     //
     const float f_0 = 0.04f;
-    const float3 diff_color = base_color*(1.0f - f_0)*(1.0f - metallic);
+    const float3 diff_color = base_color * (1.0f - f_0) * (1.0f - metallic);
     const float3 spec_color = lerp(makeFloat3(f_0), base_color, metallic);
-    const float alpha = roughness*roughness;
+    const float alpha = roughness * roughness;
 
     //
     // compute direct lighting
@@ -148,19 +148,19 @@ extern "C" __global__ void closesthitRadiance() {
 
     float3 n = geom.n;
     if (hit_group_data->material_data.normal_tex) {
-        const float4 nn = 2.0f*tex2D<float4>(hit_group_data->material_data.normal_tex, geom.uv.x, geom.uv.y)
+        const float4 nn = 2.0f * tex2D<float4>(hit_group_data->material_data.normal_tex, geom.uv.x, geom.uv.y)
             - makeFloat4(1.0f);
-        n = normalize(nn.x*normalize(geom.dpdu) + nn.y*normalize(geom.dpdv) + nn.z*geom.n);
+        n = normalize(nn.x * normalize(geom.dpdu) + nn.y * normalize(geom.dpdv) + nn.z * geom.n);
     }
 
     float3 result = makeFloat3(0.0f);
 
-    for (int i = 0; i < k_Params.lights.count; ++i) {
-        Light::Point light = k_Params.lights[i];
+    for (int i = 0; i < params.lights.count; ++i) {
+        Light::Point light = params.lights[i];
 
         // TODO: optimize
         const float l_dist = length(light.position - geom.p);
-        const float3 l = (light.position - geom.p)/l_dist;
+        const float3 l = (light.position - geom.p) / l_dist;
         const float3 v = -normalize(optixGetWorldRayDirection());
         const float3 h = normalize(l + v);
         const float n_dot_l = dot(n, l);
@@ -171,16 +171,16 @@ extern "C" __global__ void closesthitRadiance() {
         if (n_dot_l > 0.0f && n_dot_v > 0.0f) {
             const float tmin = 0.001f;          // TODO
             const float tmax = l_dist - 0.001f; // TODO
-            const bool occluded = traceOcclusion(k_Params.handle, geom.p, l, tmin, tmax);
+            const bool occluded = traceOcclusion(params.handle, geom.p, l, tmin, tmax);
             if (!occluded) {
                 const float3 f = schlick(spec_color, v_dot_h);
                 const float g_vis = vis(n_dot_l, n_dot_v, alpha);
                 const float d = ggxNormal(n_dot_h, alpha);
 
-                const float3 diff = (1.0f - f)*diff_color/M_PIf;
-                const float3 spec = f*g_vis*d;
+                const float3 diff = (1.0f - f) * diff_color / M_PIf;
+                const float3 spec = f * g_vis * d;
 
-                result += light.color*light.intensity*n_dot_l*(diff + spec);
+                result += light.color * light.intensity * n_dot_l * (diff + spec);
             }
         }
     }
@@ -191,43 +191,39 @@ extern "C" __global__ void closesthitRadiance() {
     setPayloadResult(result);
 }
 
-extern "C" __global__ void anyhitRadiance() {
-    /*! for this simple example, this will remain empty */
+extern "C" __global__ void __miss__radiance() {
+    setPayloadResult(params.miss_color);
 }
 
-extern "C" __global__ void missRadiance() {
-    setPayloadResult(k_Params.miss_color);
-}
-
-extern "C" __global__ void closesthitOcclusion() {
+extern "C" __global__ void __clossesthit__radiance() {
     setPayloadOcclusion(true);
 }
 
 //------------------------------------------------------------------------------
 // ray gen program - the actual rendering happens in here
 //------------------------------------------------------------------------------
-extern "C" __global__ void raygenRenderFrame() {
+extern "C" __global__ void __raygen__render_frame() {
     const uint3 launch_idx = optixGetLaunchIndex();
     const uint3 launch_dims = optixGetLaunchDimensions();
-    const float3 eye = k_Params.camera.eye;
-    const float3 u = k_Params.camera.u;
-    const float3 v = k_Params.camera.v;
-    const float3 w = k_Params.camera.w;
-    const int subframe_index = k_Params.subframe_index;
+    const float3 eye = params.camera.eye;
+    const float3 u = params.camera.u;
+    const float3 v = params.camera.v;
+    const float3 w = params.camera.w;
+    const int subframe_index = params.subframe_index;
 
     //
     // Generate camera ray
     //
-    uint32_t seed = tea<4>(launch_idx.y*launch_dims.x + launch_idx.x, subframe_index);
-    const float2 subpixel_jitter = subframe_index==0 ?
+    uint32_t seed = tea<4>(launch_idx.y * launch_dims.x + launch_idx.x, subframe_index);
+    const float2 subpixel_jitter = subframe_index == 0 ?
                                    make_float2(0.0f, 0.0f) :
                                    make_float2(rnd(seed) - 0.5f, rnd(seed) - 0.5f);
 
-    const float2 d = 2.0f*make_float2(
-        (static_cast<float>( launch_idx.x ) + subpixel_jitter.x)/static_cast<float>( launch_dims.x ),
-        (static_cast<float>( launch_idx.y ) + subpixel_jitter.y)/static_cast<float>( launch_dims.y )
+    const float2 d = 2.0f * make_float2(
+        (static_cast<float>( launch_idx.x ) + subpixel_jitter.x) / static_cast<float>( launch_dims.x ),
+        (static_cast<float>( launch_idx.y ) + subpixel_jitter.y) / static_cast<float>( launch_dims.y )
     ) - 1.0f;
-    const float3 ray_direction = normalize(d.x*u + d.y*v + w);
+    const float3 ray_direction = normalize(d.x * u + d.y * v + w);
     const float3 ray_origin = eye;
 
     //
@@ -240,7 +236,7 @@ extern "C" __global__ void raygenRenderFrame() {
     };
 
     traceRadiance(
-        k_Params.handle,
+        params.handle,
         ray_origin,
         ray_direction,
         0.01f,
@@ -251,16 +247,16 @@ extern "C" __global__ void raygenRenderFrame() {
     //
     // Update results
     //
-    const uint32_t image_index = launch_idx.y*launch_dims.x + launch_idx.x;
+    const uint32_t image_index = launch_idx.y * launch_dims.x + launch_idx.x;
     float3 accum_color = payload.result;
 
     if (subframe_index > 0) {
-        const float a = 1.0f/static_cast<float>( subframe_index + 1 );
-        const float3 accum_color_prev = makeFloat3(k_Params.accum_buffer[image_index]);
+        const float a = 1.0f / static_cast<float>( subframe_index + 1 );
+        const float3 accum_color_prev = makeFloat3(params.accum_buffer[image_index]);
         accum_color = lerp(accum_color_prev, accum_color, a);
     }
-    k_Params.accum_buffer[image_index] = makeFloat4(accum_color, 1.0f);
-    k_Params.frame_buffer[image_index] = makeColor(accum_color);
+    params.accum_buffer[image_index] = makeFloat4(accum_color, 1.0f);
+    params.frame_buffer[image_index] = makeColor(accum_color);
 
 }
 

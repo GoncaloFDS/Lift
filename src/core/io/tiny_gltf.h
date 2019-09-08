@@ -3,8 +3,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "tiny_gltf.h"
-#include "renderer/BufferView.h"
-#include "scene/Scene.h"
+#include "renderer/buffer_view.h"
+#include "scene/scene.h"
 
 template<typename T>
 lift::BufferView<T> bufferViewFromGltf(const tinygltf::Model &model, lift::Scene *scene, const int32_t accessor_idx) {
