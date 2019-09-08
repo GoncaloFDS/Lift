@@ -1,91 +1,84 @@
 #pragma once
 
 #include "pch.h"
-#include  "Core.h"
+#include "Core.h"
 
 namespace lift {
-	// Events are immediately dispatched
-	// TODO buffer events in an event bus and process them 
-	// during the "event" part of the update stage 
+// Events are immediately dispatched
+// TODO buffer events in an event bus and process them
+// during the "event" part of the update stage
 
-	enum class EventType {
-		None = 0,
-		WindowClose,
-		WindowResize,
-		WindowMinimize,
-		WindowFocus,
-		WindowLostFocus,
-		WindowMoved,
-		// 
-		AppTick,
-		AppUpdate,
-		AppRender,
-		// Might not used this
-		KeyPressed,
-		KeyReleased,
-		KeyTyped,
-		MouseButtonPressed,
-		MouseButtonReleased,
-		MouseMoved,
-		MouseScrolled
-	};
+enum class EventType {
+    NONE = 0,
+    WINDOW_CLOSE,
+    WINDOW_RESIZE,
+    WINDOW_MINIMIZE,
+    WINDOW_FOCUS,
+    WINDOW_LOST_FOCUS,
+    WINDOW_MOVED,
+    //
+        APP_TICK,
+    APP_UPDATE,
+    APP_RENDER,
+    // Might not used this
+        KEY_PRESSED,
+    KEY_RELEASED,
+    KEY_TYPED,
+    MOUSE_BUTTON_PRESSED,
+    MOUSE_BUTTON_RELEASED,
+    MOUSE_MOVE,
+    MOUSE_SCROLLED
+};
 
-	// Used to filter Events
-	enum EventCategory {
-		None = 0,
-		EventCategoryApplication = Bit(0),
-		EventCategoryInput = Bit(1),
-		EventCategoryKeyboard = Bit(2),
-		EventCategoryMouse = Bit(3),
-		EventCategoryMouseButton = Bit(4),
-	};
+// Used to filter Events
+enum EventCategory {
+    NONE = 0,
+    EVENT_CATEGORY_APPLICATION = bit(0),
+    EVENT_CATEGORY_INPUT = bit(1),
+    EVENT_CATEGORY_KEYBOARD = bit(2),
+    EVENT_CATEGORY_MOUSE = bit(3),
+    EVENT_CATEGORY_MOUSE_BUTTON = bit(4),
+};
 
-#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
-							virtual EventType GetEventType() const override { return GetStaticType(); }\
-							virtual const char* GetName() const override { return #type; }
+class Event {
+public:
+    bool handled = false;
+public:
+    virtual ~Event() = default;
 
-#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
+    [[nodiscard]] virtual EventType getEventType() const = 0;
+    [[nodiscard]] virtual const char *getName() const = 0;
+    [[nodiscard]] virtual int getCategoryFlags() const = 0;
+    [[nodiscard]] virtual std::string toString() const { return getName(); }
 
-	class Event {
-	public:
-		bool handled_ = false;
-	public:
-		virtual ~Event() = default;
+    [[nodiscard]] bool isInCategory(const EventCategory category) const {
+        return getCategoryFlags() & category;
+    }
+};
 
-		[[nodiscard]] virtual EventType GetEventType() const = 0;
-		[[nodiscard]] virtual const char* GetName() const = 0;
-		[[nodiscard]] virtual int GetCategoryFlags() const = 0;
-		[[nodiscard]] virtual std::string ToString() const { return GetName(); }
+class EventDispatcher {
+    template<typename T>
+    using EventFn = std::function<bool(T &)>;
+public:
+    EventDispatcher(Event &event)
+        : event_(event) {
+    }
 
-		[[nodiscard]] bool IsInCategory(const EventCategory category) const {
-			return GetCategoryFlags() & category;
+    template<typename T>
+    bool dispatch(EventFn<T> func) {
+        if (event_.getEventType()==T::getStaticType()) {
+            event_.handled = func(*static_cast<T *>(&event_));
+            return true;
+        }
+        return false;
+    }
 
-		}
-	};
+private:
+    Event &event_;
+};
 
-	class EventDispatcher {
-		template <typename T>
-		using EventFn = std::function<bool(T&)>;
-	public:
-		EventDispatcher(Event& event)
-			: event_(event) {
-		}
-
-		template <typename T>
-		bool Dispatch(EventFn<T> func) {
-			if (event_.GetEventType() == T::GetStaticType()) {
-				event_.handled_ = func(*static_cast<T*>(&event_));
-				return true;
-			}
-			return false;
-		}
-
-	private:
-		Event& event_;
-	};
-
-	inline std::ostream& operator<<(std::ostream& os, const Event& e) {
-		return os << e.ToString();
-	}
+inline std::ostream &operator<<(std::ostream &os, const Event &e) {
+    return os << e.toString();
+}
 
 }

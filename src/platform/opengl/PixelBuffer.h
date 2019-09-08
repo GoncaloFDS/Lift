@@ -2,15 +2,15 @@
 
 namespace lift {
 
-	struct  PixelBuffer {
-		PixelBuffer(float size);
-		virtual ~PixelBuffer() = default;
+struct PixelBuffer {
+    PixelBuffer(float size);
+    virtual ~PixelBuffer() = default;
 
-		virtual void Bind() const;
-		virtual void Unbind() const;
+    virtual void bind() const;
+    virtual void unbind() const;
 
-		virtual void Resize(const unsigned size);
+    virtual void resize(const unsigned size);
 
-		unsigned id{};
-	};
+    unsigned id{};
+};
 }

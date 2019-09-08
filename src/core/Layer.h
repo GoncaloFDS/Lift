@@ -5,29 +5,29 @@
 
 namespace lift {
 
-	class Layer {
-	public:
-		Layer(std::string name = "Layer");
-		virtual ~Layer();
+class Layer {
+public:
+    Layer(std::string name = "Layer");
+    virtual ~Layer();
 
-		virtual void OnAttach() {
-		}
+    virtual void onAttach() {
+    }
 
-		virtual void OnDetach() {
-		}
+    virtual void onDetach() {
+    }
 
-		virtual void OnUpdate() {
-		}
+    virtual void onUpdate() {
+    }
 
-		virtual void OnImguiRender() {
-		}
+    virtual void onImguiRender() {
+    }
 
-		virtual void OnEvent(Event& event) {
-		}
+    virtual void onEvent(Event &event) {
+    }
 
-		inline const std::string& GetName() const;
+    inline const std::string &getName() const;
 
-	protected:
-		std::string name_;
-	};
+protected:
+    std::string name_;
+};
 }

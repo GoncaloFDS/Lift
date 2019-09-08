@@ -10,10 +10,10 @@
 .target sm_30
 .address_size 64
 
-	// .globl	__closesthit__radiance
-.const .align 8 .b8 params[120];
+	// .globl	closesthitRadiance
+.const .align 8 .b8 k_Params[120];
 
-.visible .entry __closesthit__radiance(
+.visible .entry closesthitRadiance(
 
 )
 {
@@ -2672,7 +2672,7 @@ BB0_108:
 	mul.f32 	%f1948, %f1584, %f1579;
 
 BB0_110:
-	ld.const.u64 	%rd35, [params+88];
+	ld.const.u64 	%rd35, [k_Params+88];
 	cvt.u32.u64	%r22, %rd35;
 	setp.eq.s32	%p91, %r22, 0;
 	mov.f32 	%f1988, 0f00000000;
@@ -2683,11 +2683,11 @@ BB0_110:
 	mul.f32 	%f1591, %f551, %f551;
 	shr.u64 	%rd437, %rd35, 32;
 	cvt.u16.u64	%rs14, %rd437;
-	ld.const.u64 	%rd36, [params+80];
+	ld.const.u64 	%rd36, [k_Params+80];
 	setp.eq.s16	%p92, %rs14, 0;
 	bfe.u64 	%rd438, %rd35, 32, 16;
 	selp.b64	%rd37, 32, %rd438, %p92;
-	ld.const.u64 	%rd38, [params+112];
+	ld.const.u64 	%rd38, [k_Params+112];
 	mov.f32 	%f1592, 0f3F800000;
 	sub.f32 	%f558, %f1592, %f548;
 	sub.f32 	%f559, %f1592, %f549;
@@ -2996,8 +2996,8 @@ BB0_127:
 	ret;
 }
 
-	// .globl	__anyhit__radiance
-.visible .entry __anyhit__radiance(
+	// .globl	anyhitRadiance
+.visible .entry anyhitRadiance(
 
 )
 {
@@ -3007,8 +3007,8 @@ BB0_127:
 	ret;
 }
 
-	// .globl	__miss__radiance
-.visible .entry __miss__radiance(
+	// .globl	missRadiance
+.visible .entry missRadiance(
 
 )
 {
@@ -3016,7 +3016,7 @@ BB0_127:
 	.reg .b32 	%r<4>;
 
 
-	ld.const.v2.f32 	{%f1, %f2}, [params+96];
+	ld.const.v2.f32 	{%f1, %f2}, [k_Params+96];
 	mov.b32 	 %r1, %f1;
 	// inline asm
 	call _optix_set_payload_0, (%r1);
@@ -3025,15 +3025,15 @@ BB0_127:
 	// inline asm
 	call _optix_set_payload_1, (%r2);
 	// inline asm
-	ld.const.u32 	%r3, [params+104];
+	ld.const.u32 	%r3, [k_Params+104];
 	// inline asm
 	call _optix_set_payload_2, (%r3);
 	// inline asm
 	ret;
 }
 
-	// .globl	__closesthit__occlusion
-.visible .entry __closesthit__occlusion(
+	// .globl	closesthitOcclusion
+.visible .entry closesthitOcclusion(
 
 )
 {
@@ -3047,8 +3047,8 @@ BB0_127:
 	ret;
 }
 
-	// .globl	__raygen__render_frame
-.visible .entry __raygen__render_frame(
+	// .globl	raygenRenderFrame
+.visible .entry raygenRenderFrame(
 
 )
 {
@@ -3071,11 +3071,11 @@ BB0_127:
 	// inline asm
 	call (%r10), _optix_get_launch_dimension_y, ();
 	// inline asm
-	ld.const.v2.f32 	{%f68, %f69}, [params+40];
-	ld.const.v2.f32 	{%f70, %f71}, [params+48];
-	ld.const.v2.f32 	{%f72, %f73}, [params+56];
-	ld.const.v2.f32 	{%f74, %f75}, [params+64];
-	ld.const.u32 	%r5, [params];
+	ld.const.v2.f32 	{%f68, %f69}, [k_Params+40];
+	ld.const.v2.f32 	{%f70, %f71}, [k_Params+48];
+	ld.const.v2.f32 	{%f72, %f73}, [k_Params+56];
+	ld.const.v2.f32 	{%f74, %f75}, [k_Params+64];
+	ld.const.u32 	%r5, [k_Params];
 	setp.eq.s32	%p4, %r5, 0;
 	mov.f32 	%f67, 0f00000000;
 	mov.f32 	%f410, %f67;
@@ -3149,9 +3149,9 @@ BB0_127:
 	fma.rn.f32 	%f411, %f77, 0f33800000, 0fBF000000;
 
 BB4_2:
-	ld.const.f32 	%f78, [params+28];
-	ld.const.v2.f32 	{%f87, %f88}, [params+32];
-	ld.const.f32 	%f89, [params+72];
+	ld.const.f32 	%f78, [k_Params+28];
+	ld.const.v2.f32 	{%f87, %f88}, [k_Params+32];
+	ld.const.f32 	%f89, [k_Params+72];
 	cvt.rn.f32.u32	%f90, %r6;
 	add.f32 	%f91, %f90, %f410;
 	cvt.rn.f32.u32	%f92, %r9;
@@ -3181,7 +3181,7 @@ BB4_2:
 	mul.f32 	%f81, %f113, %f106;
 	mul.f32 	%f82, %f113, %f107;
 	mul.f32 	%f83, %f113, %f108;
-	ld.const.u64 	%rd6, [params+112];
+	ld.const.u64 	%rd6, [k_Params+112];
 	mov.u32 	%r80, 2;
 	mov.f32 	%f84, 0f3C23D70A;
 	mov.f32 	%f85, 0f5A0E1BCA;
@@ -3201,7 +3201,7 @@ BB4_4:
 	add.s32 	%r87, %r5, 1;
 	cvt.rn.f32.s32	%f114, %r87;
 	rcp.rn.f32 	%f115, %f114;
-	ld.const.u64 	%rd18, [params+8];
+	ld.const.u64 	%rd18, [k_Params+8];
 	cvta.to.global.u64 	%rd7, %rd18;
 	shl.b64 	%rd8, %rd1, 4;
 	add.s64 	%rd9, %rd7, %rd8;
@@ -3215,7 +3215,7 @@ BB4_4:
 	bra.uni 	BB4_5;
 
 BB4_3:
-	ld.const.u64 	%rd18, [params+8];
+	ld.const.u64 	%rd18, [k_Params+8];
 
 BB4_5:
 	cvta.to.global.u64 	%rd10, %rd18;
@@ -3727,7 +3727,7 @@ BB4_40:
 	mov.b32 	 %f423, %r127;
 
 BB4_44:
-	ld.const.u64 	%rd17, [params+16];
+	ld.const.u64 	%rd17, [k_Params+16];
 	cvta.to.global.u64 	%rd16, %rd17;
 	setp.eq.f32	%p71, %f52, 0f3F800000;
 	mul.f32 	%f377, %f423, 0f437F0000;

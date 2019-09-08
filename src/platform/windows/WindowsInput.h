@@ -3,13 +3,13 @@
 #include "core/os/Input.h"
 
 namespace lift {
-	class WindowsInput : public Input {
-	protected:
-		bool IsKeyPressedImpl(int key_code) override;
-		bool IsMouseButtonPressedImpl(int button) override;
-		std::pair<float, float> GetMousePosImpl() override;
-		float GetMouseXImpl() override;
-		float GetMouseYImpl() override;
-	};
+class WindowsInput : public Input {
+protected:
+    bool isKeyPressedImpl(int key_code) override;
+    bool isMouseButtonPressedImpl(int button) override;
+    std::pair<float, float> getMousePosImpl() override;
+    float getMouseXImpl() override;
+    float getMouseYImpl() override;
+};
 
 }

@@ -3,13 +3,13 @@
 #include <utility>
 
 lift::Layer::Layer(std::string name)
-	: name_(std::move(name)) {
+    : name_(std::move(name)) {
 }
 
 lift::Layer::~Layer() {
-	Layer::OnDetach();
+    Layer::onDetach();
 }
 
-const std::string& lift::Layer::GetName() const {
-	return name_;
+const std::string &lift::Layer::getName() const {
+    return name_;
 }

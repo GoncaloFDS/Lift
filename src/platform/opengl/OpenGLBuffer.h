@@ -4,34 +4,34 @@
 
 namespace lift {
 
-	class OpenGLVertexBuffer : public VertexBuffer {
-	public:
-		OpenGLVertexBuffer(float* vertices, uint32_t size);
-		virtual ~OpenGLVertexBuffer();
+class OpenGLVertexBuffer : public VertexBuffer {
+public:
+    OpenGLVertexBuffer(float *vertices, uint32_t size);
+    virtual ~OpenGLVertexBuffer();
 
-		void Bind() const override;
-		void Unbind() const override;
+    void bind() const override;
+    void unbind() const override;
 
-		const BufferLayout& GetLayout() const override { return layout_; }
-		void SetLayout(const BufferLayout& layout) override;
+    const BufferLayout &getLayout() const override { return layout_; }
+    void setLayout(const BufferLayout &layout) override;
 
-	private:
-		uint32_t renderer_id_ {};
-		BufferLayout layout_;
-	};
+private:
+    uint32_t renderer_id_{};
+    BufferLayout layout_;
+};
 
-	class OpenGLIndexBuffer : public IndexBuffer {
-	public:
-		OpenGLIndexBuffer(uint32_t* indices, uint32_t count);
-		virtual ~OpenGLIndexBuffer();
+class OpenGLIndexBuffer : public IndexBuffer {
+public:
+    OpenGLIndexBuffer(uint32_t *indices, uint32_t count);
+    virtual ~OpenGLIndexBuffer();
 
-		void Bind() const override;
-		void Unbind() const override;
+    void bind() const override;
+    void unbind() const override;
 
-		uint32_t GetCount() const override;
-	private:
-		uint32_t renderer_id_ {};
-		uint32_t count_;
-	};
+    uint32_t getCount() const override;
+private:
+    uint32_t renderer_id_{};
+    uint32_t count_;
+};
 
 }

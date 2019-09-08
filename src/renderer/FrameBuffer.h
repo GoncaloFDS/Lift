@@ -1,17 +1,17 @@
 ﻿#pragma once
 namespace lift {
-	struct Texture;
+struct Texture;
 
-	class FrameBuffer {
-	public:
-		FrameBuffer();
-		~FrameBuffer();
+class FrameBuffer {
+public:
+    FrameBuffer();
+    ~FrameBuffer();
 
-		void Bind() const;
-		void Unbind();
-		void BindTexture(Texture texture);
+    void bind() const;
+    void unbind();
+    void bindTexture(const Texture texture);
 
-	private:
-		unsigned renderer_id_;
-	};
+private:
+    unsigned renderer_id_;
+};
 }

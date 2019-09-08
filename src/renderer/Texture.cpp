@@ -4,7 +4,7 @@
 
 //#include "stb_image.h"
 
-lift::Texture::Texture(const std::string& path) {
+lift::Texture::Texture(const std::string &path) {
 //	stbi_set_flip_vertically_on_load(1);
 //
 //	OPENGL_CALL(glGenTextures(1, &id));
@@ -31,33 +31,41 @@ lift::Texture::Texture(const std::string& path) {
 //
 //	}
 //	else {
-//		LF_CORE_ERROR("Texture {0} failed to load", path);
+//		LF_ERROR("Texture {0} failed to load", path);
 //	}
 //	stbi_image_free(data);
 //	resolution = vec2(static_cast<float>(width), static_cast<float>(height));
 }
 
-lift::Texture::Texture(): resolution(0, 0) {
-	glGenTextures(1, &id);
-	glBindTexture(GL_TEXTURE_2D, id);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glBindTexture(GL_TEXTURE_2D, 0);
+lift::Texture::Texture() : resolution(0, 0) {
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
 }
 
-void lift::Texture::Bind(unsigned int slot) const {
-	OPENGL_CALL(glActiveTexture(GL_TEXTURE0 + slot));
-	OPENGL_CALL(glBindTexture(GL_TEXTURE_2D, id));
+void lift::Texture::bind(unsigned int slot) const {
+    OPENGL_CALL(glActiveTexture(GL_TEXTURE0 + slot));
+    OPENGL_CALL(glBindTexture(GL_TEXTURE_2D, id));
 }
 
-void lift::Texture::Unbind() {
-	OPENGL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+void lift::Texture::unbind() {
+    OPENGL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
-void lift::Texture::SetData() {
-	OPENGL_CALL(glBindTexture(GL_TEXTURE_2D, id));
-	OPENGL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, resolution.x, resolution.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data_.data()));
+void lift::Texture::setData() {
+    OPENGL_CALL(glBindTexture(GL_TEXTURE_2D, id));
+    OPENGL_CALL(glTexImage2D(GL_TEXTURE_2D,
+                             0,
+                             GL_RGBA8,
+                             resolution.x,
+                             resolution.y,
+                             0,
+                             GL_RGBA,
+                             GL_UNSIGNED_BYTE,
+                             data_.data()));
 }

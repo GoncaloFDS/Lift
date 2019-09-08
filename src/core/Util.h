@@ -1,8 +1,8 @@
 #pragma once
 namespace lift {
 
-	class Util {
-	public:
-		static std::string GetPtxString(const char* file_name);
-	};
+class Util {
+public:
+    static std::string getPtxString(const char *file_name);
+};
 }

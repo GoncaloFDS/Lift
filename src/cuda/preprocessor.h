@@ -7,5 +7,5 @@
 #else
 #    define SUTIL_HOSTDEVICE
 #    define SUTIL_INLINE inline
-#    define CONST_STATIC_INIT( ... ) = __VA_ARGS__
+#    define CONST_STATIC_INIT(...) = __VA_ARGS__
 #endif

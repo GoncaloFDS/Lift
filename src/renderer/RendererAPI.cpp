@@ -1,4 +1,4 @@
 #include "pch.h"
 #include "RendererAPI.h"
 
-lift::RendererAPI::API lift::RendererAPI::renderer_api_ = RendererAPI::API::OpenGL;
+lift::RendererApi::API lift::RendererApi::renderer_api_ = RendererApi::API::OPEN_GL;

@@ -5,14 +5,14 @@
 struct GLFWwindow;
 
 namespace lift {
-	class OpenGLContext : public GraphicsContext {
-	public:
-		OpenGLContext(GLFWwindow* window_handle);
+class OpenGLContext : public GraphicsContext {
+public:
+    OpenGLContext(GLFWwindow *window_handle);
 
-		void Init() override;
-		void SwapBuffers() override;
+    void init() override;
+    void swapBuffers() override;
 
-	private:
-		GLFWwindow* window_handle_;
-	};
+private:
+    GLFWwindow *window_handle_;
+};
 }

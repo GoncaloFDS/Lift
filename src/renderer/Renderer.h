@@ -3,20 +3,19 @@
 #include "CudaBuffer.h"
 #include <cuda/launch_parameters.h>
 
-
 namespace lift {
-	class Scene;
+class Scene;
 
-	class Renderer {
-	public:
-		Renderer();
+class Renderer {
+public:
+    Renderer();
 
-		void LaunchSubframe(const Scene &scene, LaunchParameters &params, const ivec2 &size);
-		static void Submit(const std::shared_ptr<VertexArray>& vertex_array);
-		static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+    void launchSubframe(const Scene &scene, LaunchParameters &params, const ivec2 &size);
+    static void submit(const std::shared_ptr<VertexArray> &vertex_array);
+    static RendererApi::API getApi() { return RendererApi::getApi(); }
 
-	private:
-		
-		CudaBuffer<LaunchParameters> d_params_;
-	};
+private:
+
+    CudaBuffer<LaunchParameters> d_params_;
+};
 }

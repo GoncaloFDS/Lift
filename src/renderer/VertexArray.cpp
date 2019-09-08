@@ -3,14 +3,12 @@
 #include "Renderer.h"
 #include "platform/opengl/OpenGLVertexArray.h"
 
-lift::VertexArray* lift::VertexArray::Create() {
-	switch (Renderer::GetAPI()) {
-	case RendererAPI::API::None:
-	LF_CORE_ASSERT(false, "RendererAPI::API::kNone is set");
-		return nullptr;
-	case RendererAPI::API::OpenGL:
-		return new OpenGLVertexArray();
-	}
-	LF_CORE_ASSERT(false, "Unkown RendererAPI");
-	return nullptr;
+lift::VertexArray *lift::VertexArray::create() {
+    switch (Renderer::getApi()) {
+        case RendererApi::API::NONE: LF_ASSERT(false, "RendererAPI::API::kNone is set");
+            return nullptr;
+        case RendererApi::API::OPEN_GL: return new OpenGLVertexArray();
+    }
+    LF_ASSERT(false, "Unkown RendererAPI");
+    return nullptr;
 }

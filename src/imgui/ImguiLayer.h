@@ -5,24 +5,24 @@
 
 namespace lift {
 
-	class ImGuiLayer : public Layer {
-	public:
-		ImGuiLayer();
-		~ImGuiLayer();
+class ImGuiLayer : public Layer {
+public:
+    ImGuiLayer();
+    ~ImGuiLayer();
 
-		void OnAttach() override;
-		void OnDetach() override;
-		void OnUpdate() override;
-		void OnImguiRender() override;
-		void OnEvent(Event& event) override;
+    void onAttach() override;
+    void onDetach() override;
+    void onUpdate() override;
+    void onImguiRender() override;
+    void onEvent(Event &event) override;
 
-		static ivec2 GetRenderWindowSize();
-		static void Begin();
-		static void End();
+    static ivec2 getRenderWindowSize();
+    static void begin();
+    static void end();
 
-		static ivec2 render_window_size_;
-		unsigned render_id_;
-		bool is_render_hovered_;
-	};
+    static ivec2 render_window_size;
+    unsigned render_id;
+    bool is_render_hovered;
+};
 
 }

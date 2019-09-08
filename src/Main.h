@@ -4,17 +4,17 @@
 //#ifdef LF_PLATFORM_WINDOWS
 
 int main(int argc, char *argv[]) {
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	lift::Log::Init();
-	LF_CORE_INFO("Initialized Log!");
+    lift::Log::init();
+    LF_INFO("Initialized Log!");
 
-	std::shared_ptr<lift::Application> app = lift::CreateApplication();
+    std::shared_ptr<lift::Application> app = lift::createApplication();
 
-	app->Run();
-	int *a = new int(1);
+    app->run();
+    int *a = new int(1);
 
-	return 0;
+    return 0;
 }
 
 //#endif
