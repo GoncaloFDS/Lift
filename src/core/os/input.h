@@ -13,7 +13,7 @@ public:
     inline static std::pair<float, float> getMousePos();
     inline static float getMouseX();
     inline static float getMouseY();
-    inline static const vec2 &getMouseDelta() { return mouse_delta_; };
+    inline static const vec2& getMouseDelta() { return mouse_delta_; };
 
 protected:
     virtual bool isKeyPressedImpl(int key_code) = 0;

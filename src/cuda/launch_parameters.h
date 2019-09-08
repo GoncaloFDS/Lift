@@ -13,8 +13,8 @@ struct HitGroupData {
 
 struct LaunchParameters {
     uint32_t subframe_index;
-    float4 *accum_buffer;
-    uchar4 *frame_buffer;
+    float4* accum_buffer;
+    uchar4* frame_buffer;
     int32_t max_depth;
 
     struct {

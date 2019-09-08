@@ -15,8 +15,8 @@ struct BufferView {
 
     SUTIL_HOSTDEVICE explicit operator bool() const { return isValid(); }
 
-    SUTIL_HOSTDEVICE const T &operator[](uint32_t idx) const {
-        return *reinterpret_cast<T *>(data + idx * (byte_stride ? byte_stride : sizeof(T)));
+    SUTIL_HOSTDEVICE const T& operator[](uint32_t idx) const {
+        return *reinterpret_cast<T*>(data + idx * (byte_stride ? byte_stride : sizeof(T)));
     }
 };
 

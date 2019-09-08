@@ -44,15 +44,15 @@ struct CudaBuffer {
         return current;
     }
 
-    void upload(const T *data) {
+    void upload(const T* data) {
         CUDA_CHECK(cudaMemcpy(ptr_, data, count_ * sizeof(T), cudaMemcpyHostToDevice));
     }
 
-    void download(T *data) const {
+    void download(T* data) const {
         CUDA_CHECK(cudaMemcpy(data, ptr_, count_ * sizeof(T), cudaMemcpyDeviceToHost));
     }
 
-    void downloadSub(size_t count, size_t offset, T *data) const {
+    void downloadSub(size_t count, size_t offset, T* data) const {
         assert(count + offset < alloc_count_);
         CUDA_CHECK(cudaMemcpy(data, ptr_ + offset, count * sizeof(T), cudaMemcpyDeviceToHost));
     }
@@ -64,6 +64,6 @@ struct CudaBuffer {
 private:
     size_t count_ = 0;
     size_t alloc_count_ = 0;
-    T *ptr_ = nullptr;
+    T* ptr_ = nullptr;
 };
 }

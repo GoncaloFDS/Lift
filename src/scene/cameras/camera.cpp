@@ -9,7 +9,7 @@ lift::Camera::Camera() :
     fovy_(36.0f) {
 }
 
-lift::Camera::Camera(const vec3 &eye, const vec3 &look_at, const vec3 &up, const float fovy, const float aspect_ratio) :
+lift::Camera::Camera(const vec3& eye, const vec3& look_at, const vec3& up, const float fovy, const float aspect_ratio) :
     eye_(eye),
     look_at_(look_at),
     up_(up),
@@ -39,9 +39,9 @@ void lift::Camera::onUpdate() {
 void lift::Camera::orbit(const float dx, const float dy) {
     const auto t = look_at_ - eye_;
     if (fabs(dot(normalize(t), vec3(0, 1, 0))) < 0.999f || t.y * dy < 0) {
-        eye_ = rotate(mat4(1.0f), dx * mouse_orbit_speed_, norm_vector_v_)
+        look_at_ = rotate(mat4(1.0f), dx * mouse_orbit_speed_, norm_vector_v_)
             * rotate(mat4(1.0f), dy * mouse_orbit_speed_, norm_vector_u_)
-            * vec4(eye_, 1);
+            * vec4(look_at_, 1);
         changed_ = true;
     }
 }

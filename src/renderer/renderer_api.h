@@ -12,11 +12,11 @@ public:
 
     virtual ~RendererApi() = default;
 
-    virtual void setClearColor(const vec4 &color) = 0;
+    virtual void setClearColor(const vec4& color) = 0;
     virtual void clear() = 0;
     virtual void resize(uint32_t width, uint32_t height) = 0;
 
-    virtual void drawIndexed(const std::shared_ptr<VertexArray> &vertex_array) = 0;
+    virtual void drawIndexed(const std::shared_ptr<VertexArray>& vertex_array) = 0;
 
     inline static API getApi() { return renderer_api_; }
 private:

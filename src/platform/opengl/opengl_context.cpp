@@ -4,7 +4,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-lift::OpenGLContext::OpenGLContext(GLFWwindow *window_handle)
+lift::OpenGLContext::OpenGLContext(GLFWwindow* window_handle)
     : window_handle_(window_handle) {
     LF_ASSERT(window_handle_, "Window handle is null");
 }

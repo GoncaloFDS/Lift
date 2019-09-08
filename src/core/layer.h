@@ -22,10 +22,10 @@ public:
     virtual void onImguiRender() {
     }
 
-    virtual void onEvent(Event &event) {
+    virtual void onEvent(Event& event) {
     }
 
-    inline const std::string &getName() const;
+    inline const std::string& getName() const;
 
 protected:
     std::string name_;

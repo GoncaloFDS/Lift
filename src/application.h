@@ -29,10 +29,10 @@ public:
     template<typename T>
     void pushOverlay() { layer_stack_.pushOverlay<T>(); }
 
-    void resize(const ivec2 &size);
+    void resize(const ivec2& size);
 
-    static Application &get() { return *k_Instance; }
-    [[nodiscard]] Window &getWindow() const { return *window_; }
+    static Application& get() { return *k_Instance; }
+    [[nodiscard]] Window& getWindow() const { return *window_; }
 
     [[nodiscard]] auto getFrameTextureId() const { return output_texture_->id; }
 
@@ -60,20 +60,20 @@ private:
     std::vector<Light::Point> lights_;
     //
 
-    static Application *k_Instance;
+    static Application* k_Instance;
 
     void initGraphicsContext();
 
     void createScene();
 
-    void onEvent(Event &e);
-    bool onWindowClose(WindowCloseEvent &e);
-    bool onWindowResize(WindowResizeEvent &e);
-    bool onWindowMinimize(WindowMinimizeEvent &e) const;
-    bool onMouseMove(MouseMovedEvent &e);
-    bool onMouseScroll(MouseScrolledEvent &e);
-    bool onKeyPress(KeyPressedEvent &e);
-    bool onKeyRelease(KeyReleasedEvent &e);
+    void onEvent(Event& e);
+    bool onWindowClose(WindowCloseEvent& e);
+    bool onWindowResize(WindowResizeEvent& e);
+    bool onWindowMinimize(WindowMinimizeEvent& e) const;
+    bool onMouseMove(MouseMovedEvent& e);
+    bool onMouseScroll(MouseScrolledEvent& e);
+    bool onKeyPress(KeyPressedEvent& e);
+    bool onKeyRelease(KeyReleasedEvent& e);
 
 };
 

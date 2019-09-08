@@ -16,12 +16,10 @@ enum class EventType {
     WINDOW_FOCUS,
     WINDOW_LOST_FOCUS,
     WINDOW_MOVED,
-    //
-        APP_TICK,
+    APP_TICK,
     APP_UPDATE,
     APP_RENDER,
-    // Might not used this
-        KEY_PRESSED,
+    KEY_PRESSED,
     KEY_RELEASED,
     KEY_TYPED,
     MOUSE_BUTTON_PRESSED,
@@ -47,7 +45,7 @@ public:
     virtual ~Event() = default;
 
     [[nodiscard]] virtual EventType getEventType() const = 0;
-    [[nodiscard]] virtual const char *getName() const = 0;
+    [[nodiscard]] virtual const char* getName() const = 0;
     [[nodiscard]] virtual int getCategoryFlags() const = 0;
     [[nodiscard]] virtual std::string toString() const { return getName(); }
 
@@ -58,26 +56,26 @@ public:
 
 class EventDispatcher {
     template<typename T>
-    using EventFn = std::function<bool(T &)>;
+    using EventFn = std::function<bool(T&)>;
 public:
-    EventDispatcher(Event &event)
+    EventDispatcher(Event& event)
         : event_(event) {
     }
 
     template<typename T>
     bool dispatch(EventFn<T> func) {
-        if (event_.getEventType()==T::getStaticType()) {
-            event_.handled = func(*static_cast<T *>(&event_));
+        if (event_.getEventType() == T::getStaticType()) {
+            event_.handled = func(*static_cast<T*>(&event_));
             return true;
         }
         return false;
     }
 
 private:
-    Event &event_;
+    Event& event_;
 };
 
-inline std::ostream &operator<<(std::ostream &os, const Event &e) {
+inline std::ostream& operator<<(std::ostream& os, const Event& e) {
     return os << e.toString();
 }
 

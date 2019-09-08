@@ -3,7 +3,7 @@
 #include "renderer.h"
 #include "platform/opengl/opengl_vertex_array.h"
 
-lift::VertexArray *lift::VertexArray::create() {
+lift::VertexArray* lift::VertexArray::create() {
     switch (Renderer::getApi()) {
         case RendererApi::API::NONE: LF_ASSERT(false, "RendererAPI::API::kNone is set");
             return nullptr;

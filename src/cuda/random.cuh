@@ -48,7 +48,7 @@ __inline__ unsigned int tea(unsigned int val_0, unsigned int val_1) {
 
 // Generate random unsigned int in [0, 2^24)
 static __host__ __device__
-__inline__ unsigned int lcg(unsigned int &prev) {
+__inline__ unsigned int lcg(unsigned int& prev) {
     const unsigned int lcg_a = 1664525u;
     const unsigned int lcg_c = 1013904223u;
     prev = (lcg_a * prev + lcg_c);
@@ -56,14 +56,14 @@ __inline__ unsigned int lcg(unsigned int &prev) {
 }
 
 static __host__ __device__
-__inline__ unsigned int lcg2(unsigned int &prev) {
+__inline__ unsigned int lcg2(unsigned int& prev) {
     prev = (prev * 8121 + 28411) % 134456;
     return prev;
 }
 
 // Generate random float in [0, 1)
 static __host__ __device__
-__inline__ float rnd(unsigned int &prev) {
+__inline__ float rnd(unsigned int& prev) {
     return ((float) lcg(prev) / (float) 0x01000000);
 }
 

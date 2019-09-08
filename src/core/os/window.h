@@ -26,7 +26,7 @@ struct WindowProperties {
 // Window Interface to be implemented for each platform
 class Window {
 public:
-    using EventCallbackFn = std::function<void(Event &)>;
+    using EventCallbackFn = std::function<void(Event&)>;
 
     virtual ~Window() = default;
 
@@ -37,13 +37,13 @@ public:
     [[nodiscard]] virtual std::pair<int, int> getPosition() const = 0;
 
     // Window attributes
-    virtual void setEventCallback(const EventCallbackFn &callback) = 0;
+    virtual void setEventCallback(const EventCallbackFn& callback) = 0;
     virtual void setVSync(bool enabled) = 0;
     virtual bool isVSync() const = 0;
 
-    virtual void *getNativeWindow() const = 0;
+    virtual void* getNativeWindow() const = 0;
 
-    static Window *create(const WindowProperties &props = WindowProperties());
+    static Window* create(const WindowProperties& props = WindowProperties());
 
 };
 }

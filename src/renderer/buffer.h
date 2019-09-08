@@ -48,7 +48,7 @@ struct BufferElement {
 
     BufferElement() = default;
 
-    BufferElement(const ShaderDataType type, const std::string &name, const bool normalized = false)
+    BufferElement(const ShaderDataType type, const std::string& name, const bool normalized = false)
         : type{type}, name{std::move(name)}, size{shaderDataTypeSize(type)}, offset{0},
           normalized{normalized} {
     }
@@ -88,13 +88,13 @@ class BufferLayout {
 public:
     BufferLayout() = default;
 
-    BufferLayout(const std::initializer_list<BufferElement> &elements)
+    BufferLayout(const std::initializer_list<BufferElement>& elements)
         : elements_{elements} {
         calculateOffsetAndStride();
     }
 
     [[nodiscard]] uint32_t getStride() const { return stride_; }
-    [[nodiscard]] const std::vector<BufferElement> &getElements() const { return elements_; }
+    [[nodiscard]] const std::vector<BufferElement>& getElements() const { return elements_; }
 
     std::vector<BufferElement>::iterator begin() { return elements_.begin(); }
     std::vector<BufferElement>::iterator end() { return elements_.end(); }
@@ -105,7 +105,7 @@ private:
     void calculateOffsetAndStride() {
         uint32_t offset = 0;
         stride_ = 0;
-        for (auto &element : elements_) {
+        for (auto& element : elements_) {
             element.offset = offset;
             offset += element.size;
             stride_ += element.size;
@@ -124,10 +124,10 @@ public:
     virtual void bind() const = 0;
     virtual void unbind() const = 0;
 
-    virtual const BufferLayout &getLayout() const = 0;
-    virtual void setLayout(const BufferLayout &layout) = 0;
+    virtual const BufferLayout& getLayout() const = 0;
+    virtual void setLayout(const BufferLayout& layout) = 0;
 
-    static VertexBuffer *create(float *vertices, const uint32_t size);
+    static VertexBuffer* create(float* vertices, const uint32_t size);
 };
 
 class IndexBuffer {
@@ -139,7 +139,7 @@ public:
 
     virtual uint32_t getCount() const = 0;
 
-    static IndexBuffer *create(uint32_t *indices, const uint32_t count);
+    static IndexBuffer* create(uint32_t* indices, const uint32_t count);
 };
 
 }

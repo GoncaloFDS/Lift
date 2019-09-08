@@ -7,7 +7,7 @@
 #include <glm/vec3.hpp>
 #include "preprocessor.h"
 
-SUTIL_INLINE SUTIL_HOSTDEVICE float3 makeFloat3(const glm::vec3 &vec) {
+SUTIL_INLINE SUTIL_HOSTDEVICE float3 makeFloat3(const glm::vec3& vec) {
     return make_float3(vec.x, vec.y, vec.z);
 }
 

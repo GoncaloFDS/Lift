@@ -10,7 +10,7 @@ class Log {
 public:
     static void init();
 
-    static std::shared_ptr<spdlog::logger> &getCoreLogger() {
+    static std::shared_ptr<spdlog::logger>& getCoreLogger() {
         return k_CoreLogger;
     }
 private:

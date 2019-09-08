@@ -56,7 +56,7 @@ static __forceinline__ __device__ void traceRadiance(
     float3 ray_direction,
     float tmin,
     float tmax,
-    PayloadRadiance *payload
+    PayloadRadiance* payload
 ) {
     uint32_t u_0 = 0, u_1 = 0, u_2 = 0, u_3 = 0;
     optixTrace(
@@ -112,7 +112,7 @@ __forceinline__ __device__ void setPayloadOcclusion(bool occluded) {
 }
 
 extern "C" __global__ void closesthitRadiance() {
-    const HitGroupData *hit_group_data = reinterpret_cast<HitGroupData *>(optixGetSbtDataPointer());
+    const HitGroupData* hit_group_data = reinterpret_cast<HitGroupData*>(optixGetSbtDataPointer());
     const LocalGeometry geom = getLocalGeometry(hit_group_data->geometry_data);
 
     ////

@@ -18,12 +18,12 @@ class Camera;
 class Scene {
 public:
 
-    void addCamera(const Camera &camera) { cameras_.push_back(camera); }
-    void addMesh(const std::shared_ptr<Mesh> &mesh) { meshes_.push_back(mesh); }
-    void addMaterial(const MaterialData &material) { materials_.push_back(material); }
-    void addBuffer(const uint64_t buf_size, const void *data);
+    void addCamera(const Camera& camera) { cameras_.push_back(camera); }
+    void addMesh(const std::shared_ptr<Mesh>& mesh) { meshes_.push_back(mesh); }
+    void addMaterial(const MaterialData& material) { materials_.push_back(material); }
+    void addBuffer(const uint64_t buf_size, const void* data);
     void addImage(const int32_t width, const int32_t height, const int32_t bits_per_component,
-                  const int32_t num_components, const void *data);
+                  const int32_t num_components, const void* data);
     void addSampler(cudaTextureAddressMode address_s, cudaTextureAddressMode address_t,
                     cudaTextureFilterMode filter_mode, const int32_t image_idx);
 
@@ -36,23 +36,23 @@ public:
 
     [[nodiscard]] Camera getCamera() const;
     [[nodiscard]] OptixPipeline getPipeline() const { return pipeline_; }
-    [[nodiscard]] const OptixShaderBindingTable *getSbt() const { return &sbt_; }
+    [[nodiscard]] const OptixShaderBindingTable* getSbt() const { return &sbt_; }
     [[nodiscard]] OptixTraversableHandle getTraversableHandle() const { return ias_handle_; }
     [[nodiscard]] Aabb getAabb() const { return scene_aabb_; }
     [[nodiscard]] OptixDeviceContext getContext() const { return context_; }
-    [[nodiscard]] const std::vector<MaterialData> &materials() const { return materials_; }
-    [[nodiscard]] const std::vector<std::shared_ptr<Mesh>> &getMeshes() const { return meshes_; }
+    [[nodiscard]] const std::vector<MaterialData>& materials() const { return materials_; }
+    [[nodiscard]] const std::vector<std::shared_ptr<Mesh>>& getMeshes() const { return meshes_; }
 
     void createContext();
     void buildMeshAccels();
     void buildInstanceAccel(int ray_type_count = k_RayTypeCount);
-    void loadFromFile(const std::string &file_name);
+    void loadFromFile(const std::string& file_name);
 private:
     void createPtxModule();
     void createProgramGroups();
     void createPipeline();
     void createSbt();
-    void processGltfNode(const tinygltf::Model &model, const tinygltf::Node &gltf_node, const mat4 parent_matrix);
+    void processGltfNode(const tinygltf::Model& model, const tinygltf::Node& gltf_node, const mat4& parent_matrix);
 
     std::vector<Camera> cameras_;
     std::vector<std::shared_ptr<Mesh>> meshes_;

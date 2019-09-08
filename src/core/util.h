@@ -3,6 +3,6 @@ namespace lift {
 
 class Util {
 public:
-    static std::string getPtxString(const char *file_name);
+    static std::string getPtxString(const char* file_name);
 };
 }

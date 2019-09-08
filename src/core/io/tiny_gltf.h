@@ -7,19 +7,19 @@
 #include "scene/scene.h"
 
 template<typename T>
-lift::BufferView<T> bufferViewFromGltf(const tinygltf::Model &model, lift::Scene *scene, const int32_t accessor_idx) {
-    if (accessor_idx==-1)
+lift::BufferView<T> bufferViewFromGltf(const tinygltf::Model& model, lift::Scene* scene, const int32_t accessor_idx) {
+    if (accessor_idx == -1)
         return lift::BufferView<T>();
 
-    const auto &gltf_accessor = model.accessors[accessor_idx];
-    const auto &gltf_buffer_view = model.bufferViews[gltf_accessor.bufferView];
+    const auto& gltf_accessor = model.accessors[accessor_idx];
+    const auto& gltf_buffer_view = model.bufferViews[gltf_accessor.bufferView];
 
     const int32_t elmt_byte_size =
-        gltf_accessor.componentType==TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT
+        gltf_accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT
         ? 2
-        : gltf_accessor.componentType==TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT
+        : gltf_accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT
           ? 4
-          : gltf_accessor.componentType==TINYGLTF_COMPONENT_TYPE_FLOAT
+          : gltf_accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT
             ? 4
             : 0;
     LF_ASSERT(elmt_byte_size, "gltf accessor component type not supported");

@@ -6,10 +6,10 @@
 namespace lift {
 class OpenGLRendererAPI : public RendererApi {
 public:
-    void setClearColor(const vec4 &color) override;
+    void setClearColor(const vec4& color) override;
     void clear() override;
 
-    void drawIndexed(const std::shared_ptr<VertexArray> &vertex_array) override;
+    void drawIndexed(const std::shared_ptr<VertexArray>& vertex_array) override;
     void resize(uint32_t width, uint32_t height) override;
 };
 }

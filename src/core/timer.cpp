@@ -32,7 +32,7 @@ void Timer::restart() {
 void Timer::tick() {
     if (k_IsRunning) {
         const auto now = std::chrono::system_clock::now();
-        k_DeltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - k_LastTimePoint).count()/1000000.0f;
+        k_DeltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - k_LastTimePoint).count() / 1000000.0f;
         k_LastTimePoint = now;
         k_ElapsedTime += k_DeltaTime;
     } else {

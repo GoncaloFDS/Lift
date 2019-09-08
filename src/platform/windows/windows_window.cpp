@@ -8,15 +8,15 @@
 
 static bool k_GlfwInitialized = false;
 
-static void glfwErrorCallback(const int error, const char *description) {
+static void glfwErrorCallback(const int error, const char* description) {
     LF_ERROR("GLFW Error ({0}): {1}", error, description);
 }
 
-lift::Window *lift::Window::create(const WindowProperties &props) {
+lift::Window* lift::Window::create(const WindowProperties& props) {
     return new WindowsWindow(props);
 }
 
-lift::WindowsWindow::WindowsWindow(const WindowProperties &props) {
+lift::WindowsWindow::WindowsWindow(const WindowProperties& props) {
     WindowsWindow::init(props);
 }
 
@@ -42,7 +42,7 @@ std::pair<int, int> lift::WindowsWindow::getPosition() const {
     return {x, y};
 }
 
-void lift::WindowsWindow::setEventCallback(const EventCallbackFn &callback) {
+void lift::WindowsWindow::setEventCallback(const EventCallbackFn& callback) {
     properties_.event_callback = callback;
 }
 
@@ -58,11 +58,11 @@ bool lift::WindowsWindow::isVSync() const {
     return properties_.v_sync;
 }
 
-void *lift::WindowsWindow::getNativeWindow() const {
+void* lift::WindowsWindow::getNativeWindow() const {
     return window_handle_;
 }
 
-void lift::WindowsWindow::init(const WindowProperties &props) {
+void lift::WindowsWindow::init(const WindowProperties& props) {
     properties_.title = props.title;
     properties_.width = props.width;
     properties_.height = props.height;
@@ -89,8 +89,8 @@ void lift::WindowsWindow::init(const WindowProperties &props) {
     glfwSetWindowUserPointer(window_handle_, &properties_);
 
     // Set GLFW callbacks
-    glfwSetWindowSizeCallback(window_handle_, [](GLFWwindow *window, int width, int height) {
-        WindowData &data = *static_cast<WindowData *>(glfwGetWindowUserPointer(window));
+    glfwSetWindowSizeCallback(window_handle_, [](GLFWwindow* window, int width, int height) {
+        WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
         data.width = width;
         data.height = height;
 
@@ -98,21 +98,21 @@ void lift::WindowsWindow::init(const WindowProperties &props) {
         data.event_callback(event);
     });
 
-    glfwSetWindowCloseCallback(window_handle_, [](GLFWwindow *window) {
-        WindowData &data = *static_cast<WindowData *>(glfwGetWindowUserPointer(window));
+    glfwSetWindowCloseCallback(window_handle_, [](GLFWwindow* window) {
+        WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
         WindowCloseEvent event;
         data.event_callback(event);
     });
 
-    glfwSetWindowIconifyCallback(window_handle_, [](GLFWwindow *window, int iconified) {
-        WindowData &data = *static_cast<WindowData *>(glfwGetWindowUserPointer(window));
+    glfwSetWindowIconifyCallback(window_handle_, [](GLFWwindow* window, int iconified) {
+        WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
         WindowMinimizeEvent event(iconified);
         data.event_callback(event);
     });
 
-    glfwSetKeyCallback(window_handle_, [](GLFWwindow *window, int key, int scan_code, const int action, int mods) {
-        WindowData &data = *static_cast<WindowData *>(glfwGetWindowUserPointer(window));
+    glfwSetKeyCallback(window_handle_, [](GLFWwindow* window, int key, int scan_code, const int action, int mods) {
+        WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
         switch (action) {
             case GLFW_PRESS: {
@@ -134,15 +134,15 @@ void lift::WindowsWindow::init(const WindowProperties &props) {
         }
     });
 
-    glfwSetCharCallback(window_handle_, [](GLFWwindow *window, const unsigned int keycode) {
-        WindowData &data = *static_cast<WindowData *>(glfwGetWindowUserPointer(window));
+    glfwSetCharCallback(window_handle_, [](GLFWwindow* window, const unsigned int keycode) {
+        WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
         KeyTypedEvent event(keycode);
         data.event_callback(event);
     });
 
-    glfwSetMouseButtonCallback(window_handle_, [](GLFWwindow *window, int button, int action, int mods) {
-        WindowData &data = *static_cast<WindowData *>(glfwGetWindowUserPointer(window));
+    glfwSetMouseButtonCallback(window_handle_, [](GLFWwindow* window, int button, int action, int mods) {
+        WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
         switch (action) {
             case GLFW_PRESS: {
@@ -158,15 +158,15 @@ void lift::WindowsWindow::init(const WindowProperties &props) {
         }
     });
 
-    glfwSetScrollCallback(window_handle_, [](GLFWwindow *window, const double x_offset, const double y_offset) {
-        WindowData &data = *static_cast<WindowData *>(glfwGetWindowUserPointer(window));
+    glfwSetScrollCallback(window_handle_, [](GLFWwindow* window, const double x_offset, const double y_offset) {
+        WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
         MouseScrolledEvent event(static_cast<float>(x_offset), static_cast<float>(y_offset));
         data.event_callback(event);
     });
 
-    glfwSetCursorPosCallback(window_handle_, [](GLFWwindow *window, const double x_pos, const double y_pos) {
-        WindowData &data = *static_cast<WindowData *>(glfwGetWindowUserPointer(window));
+    glfwSetCursorPosCallback(window_handle_, [](GLFWwindow* window, const double x_pos, const double y_pos) {
+        WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
         MouseMovedEvent event(static_cast<float>(x_pos), static_cast<float>(y_pos));
         data.event_callback(event);

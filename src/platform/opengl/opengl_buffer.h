@@ -6,14 +6,14 @@ namespace lift {
 
 class OpenGLVertexBuffer : public VertexBuffer {
 public:
-    OpenGLVertexBuffer(float *vertices, uint32_t size);
+    OpenGLVertexBuffer(float* vertices, uint32_t size);
     virtual ~OpenGLVertexBuffer();
 
     void bind() const override;
     void unbind() const override;
 
-    const BufferLayout &getLayout() const override { return layout_; }
-    void setLayout(const BufferLayout &layout) override;
+    const BufferLayout& getLayout() const override { return layout_; }
+    void setLayout(const BufferLayout& layout) override;
 
 private:
     uint32_t renderer_id_{};
@@ -22,7 +22,7 @@ private:
 
 class OpenGLIndexBuffer : public IndexBuffer {
 public:
-    OpenGLIndexBuffer(uint32_t *indices, uint32_t count);
+    OpenGLIndexBuffer(uint32_t* indices, uint32_t count);
     virtual ~OpenGLIndexBuffer();
 
     void bind() const override;

@@ -27,14 +27,14 @@ void lift::ImGuiLayer::onAttach() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    auto &io = ImGui::GetIO();
+    auto& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
 
     // Setup platform/Renderer bindings
-    auto &app = Application::get();
-    auto *window_handle = static_cast<GLFWwindow *>(app.getWindow().getNativeWindow());
+    auto& app = Application::get();
+    auto* window_handle = static_cast<GLFWwindow*>(app.getWindow().getNativeWindow());
     ImGui_ImplGlfw_InitForOpenGL(window_handle, true);
     ImGui_ImplOpenGL3_Init("#version 410");
 
@@ -53,7 +53,7 @@ void lift::ImGuiLayer::onImguiRender() {
     static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResize;
 
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-    ImGuiViewport *viewport = ImGui::GetMainViewport();
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->Pos);
     ImGui::SetNextWindowSize(viewport->Size);
     ImGui::SetNextWindowViewport(viewport->ID);
@@ -73,7 +73,7 @@ void lift::ImGuiLayer::onImguiRender() {
     ImGui::PopStyleVar(2);
 
     // DockSpace
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
         ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
@@ -82,22 +82,22 @@ void lift::ImGuiLayer::onImguiRender() {
 
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("Docking")) {
-            if (ImGui::MenuItem("Flag: NoSplit", "", (dockspace_flags & ImGuiDockNodeFlags_NoSplit)!=0))
+            if (ImGui::MenuItem("Flag: NoSplit", "", (dockspace_flags & ImGuiDockNodeFlags_NoSplit) != 0))
                 dockspace_flags ^= ImGuiDockNodeFlags_NoSplit;
-            if (ImGui::MenuItem("Flag: NoResize", "", (dockspace_flags & ImGuiDockNodeFlags_NoResize)!=0))
+            if (ImGui::MenuItem("Flag: NoResize", "", (dockspace_flags & ImGuiDockNodeFlags_NoResize) != 0))
                 dockspace_flags ^= ImGuiDockNodeFlags_NoResize;
             if (ImGui::MenuItem("Flag: NoDockingInCentralNode", "",
-                                (dockspace_flags & ImGuiDockNodeFlags_NoDockingInCentralNode)!=0))
+                                (dockspace_flags & ImGuiDockNodeFlags_NoDockingInCentralNode) != 0))
                 dockspace_flags ^=
                     ImGuiDockNodeFlags_NoDockingInCentralNode;
             if (ImGui::MenuItem("Flag: PassthruCentralNode", "",
-                                (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)!=0))
+                                (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) != 0))
                 dockspace_flags ^=
                     ImGuiDockNodeFlags_PassthruCentralNode;
-            if (ImGui::MenuItem("Flag: AutoHideTabBar", "", (dockspace_flags & ImGuiDockNodeFlags_AutoHideTabBar)!=0))
+            if (ImGui::MenuItem("Flag: AutoHideTabBar", "", (dockspace_flags & ImGuiDockNodeFlags_AutoHideTabBar) != 0))
                 dockspace_flags ^= ImGuiDockNodeFlags_AutoHideTabBar;
             ImGui::Separator();
-            if (ImGui::MenuItem("Close DockSpace", nullptr, false, p_open!=false))
+            if (ImGui::MenuItem("Close DockSpace", nullptr, false, p_open != false))
                 p_open = false;
             ImGui::EndMenu();
         }
@@ -106,21 +106,21 @@ void lift::ImGuiLayer::onImguiRender() {
 
     ImGui::End();
 
-    auto &app = Application::get();
+    auto& app = Application::get();
     ImGui::Begin("Editor");
     //ImGui::ColorEdit3("Top color", &app.GetTopColor().x);
     //ImGui::ColorEdit3("Bottom color", &app.GetBottomColor().x);
     if (ImGui::ColorEdit3("Albedo", &app.material_albedo.x))
         app.restartAccumulation();
 
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f/ImGui::GetIO().Framerate,
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
                 ImGui::GetIO().Framerate);
     ImGui::End();
 
     ImGui::Begin("Render");
     const auto window = ImGui::GetCurrentWindow();
     auto size = ivec2(window->Size.x, window->Size.y);
-    if (size!=render_window_size) {
+    if (size != render_window_size) {
         app.resize(size);
         render_window_size = size;
     }
@@ -131,9 +131,9 @@ void lift::ImGuiLayer::onImguiRender() {
     ImGui::End();
 }
 
-void lift::ImGuiLayer::onEvent(Event &event) {
-    const auto &io = ImGui::GetIO();
-    if (io.WantCaptureMouse && !is_render_hovered && event.getEventType()==EventType::MOUSE_MOVE)
+void lift::ImGuiLayer::onEvent(Event& event) {
+    const auto& io = ImGui::GetIO();
+    if (io.WantCaptureMouse && !is_render_hovered && event.getEventType() == EventType::MOUSE_MOVE)
         event.handled = true;
 }
 
@@ -149,8 +149,8 @@ void lift::ImGuiLayer::begin() {
 }
 
 void lift::ImGuiLayer::end() {
-    auto &io = ImGui::GetIO();
-    auto &app = Application::get();
+    auto& io = ImGui::GetIO();
+    auto& app = Application::get();
     io.DisplaySize = ImVec2(static_cast<float>(app.getWindow().width()),
                             static_cast<float>(app.getWindow().height()));
 

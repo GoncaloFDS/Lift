@@ -10,6 +10,6 @@ lift::Layer::~Layer() {
     Layer::onDetach();
 }
 
-const std::string &lift::Layer::getName() const {
+const std::string& lift::Layer::getName() const {
     return name_;
 }

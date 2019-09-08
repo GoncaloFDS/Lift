@@ -7,12 +7,12 @@ struct GLFWwindow;
 namespace lift {
 class OpenGLContext : public GraphicsContext {
 public:
-    OpenGLContext(GLFWwindow *window_handle);
+    OpenGLContext(GLFWwindow* window_handle);
 
     void init() override;
     void swapBuffers() override;
 
 private:
-    GLFWwindow *window_handle_;
+    GLFWwindow* window_handle_;
 };
 }

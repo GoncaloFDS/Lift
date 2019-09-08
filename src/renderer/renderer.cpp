@@ -11,8 +11,8 @@ lift::Renderer::Renderer() {
     d_params_.alloc(1);
 }
 
-void lift::Renderer::launchSubframe(const Scene &scene, LaunchParameters &params, const ivec2 &size) {
-    CUDA_CHECK(cudaMemcpyAsync(reinterpret_cast<void *>(d_params_.get()),
+void lift::Renderer::launchSubframe(const Scene& scene, LaunchParameters& params, const ivec2& size) {
+    CUDA_CHECK(cudaMemcpyAsync(reinterpret_cast<void*>(d_params_.get()),
                                &params,
                                sizeof(LaunchParameters),
                                cudaMemcpyHostToDevice,
@@ -31,7 +31,7 @@ void lift::Renderer::launchSubframe(const Scene &scene, LaunchParameters &params
     CUDA_SYNC_CHECK();
 }
 
-void lift::Renderer::submit(const std::shared_ptr<VertexArray> &vertex_array) {
+void lift::Renderer::submit(const std::shared_ptr<VertexArray>& vertex_array) {
     vertex_array->bind();
     RenderCommand::drawIndexed(vertex_array);
 

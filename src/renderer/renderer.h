@@ -10,8 +10,8 @@ class Renderer {
 public:
     Renderer();
 
-    void launchSubframe(const Scene &scene, LaunchParameters &params, const ivec2 &size);
-    static void submit(const std::shared_ptr<VertexArray> &vertex_array);
+    void launchSubframe(const Scene& scene, LaunchParameters& params, const ivec2& size);
+    static void submit(const std::shared_ptr<VertexArray>& vertex_array);
     static RendererApi::API getApi() { return RendererApi::getApi(); }
 
 private:

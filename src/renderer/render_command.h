@@ -5,7 +5,7 @@
 namespace lift {
 class RenderCommand {
 public:
-    static void setClearColor(const vec4 &color) {
+    static void setClearColor(const vec4& color) {
         renderer_api_->setClearColor(color);
     }
 
@@ -17,7 +17,7 @@ public:
         renderer_api_->resize(width, height);
     }
 
-    static void drawIndexed(const std::shared_ptr<VertexArray> &vertex_array) {
+    static void drawIndexed(const std::shared_ptr<VertexArray>& vertex_array) {
         renderer_api_->drawIndexed(vertex_array);
     }
 
@@ -26,7 +26,7 @@ public:
     }
 
 private:
-    static RendererApi *renderer_api_;
+    static RendererApi* renderer_api_;
 };
 
 }

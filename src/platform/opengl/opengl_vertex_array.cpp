@@ -43,29 +43,29 @@ void lift::OpenGLVertexArray::unbind() const {
     OPENGL_CALL(glBindVertexArray(0));
 }
 
-void lift::OpenGLVertexArray::addVertexBuffer(const std::shared_ptr<VertexBuffer> &vertex_buffer) {
+void lift::OpenGLVertexArray::addVertexBuffer(const std::shared_ptr<VertexBuffer>& vertex_buffer) {
     LF_ASSERT(vertex_buffer->getLayout().getElements().size(), "Vertex Buffer has no layout");
 
     OPENGL_CALL(glBindVertexArray(renderer_id_));
     vertex_buffer->bind();
 
-    const auto &layout = vertex_buffer->getLayout();
+    const auto& layout = vertex_buffer->getLayout();
     uint32_t index = 0;
-    for (const auto &element : layout) {
+    for (const auto& element : layout) {
         glEnableVertexAttribArray(index);
         glVertexAttribPointer(index,
                               element.getComponentCount(),
                               ShaderDataTypeToOpenGLBaseType(element.type),
                               element.normalized ? GL_TRUE : GL_FALSE,
                               layout.getStride(),
-                              reinterpret_cast<const void *>(element.offset));
+                              reinterpret_cast<const void*>(element.offset));
         index++;
     }
 
     vertex_buffers_.push_back(vertex_buffer);
 }
 
-void lift::OpenGLVertexArray::setIndexBuffer(const std::shared_ptr<IndexBuffer> &index_buffer) {
+void lift::OpenGLVertexArray::setIndexBuffer(const std::shared_ptr<IndexBuffer>& index_buffer) {
     OPENGL_CALL(glBindVertexArray(renderer_id_));
     index_buffer->bind();
 

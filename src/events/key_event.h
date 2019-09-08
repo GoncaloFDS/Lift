@@ -33,7 +33,7 @@ public:
 
     [[nodiscard]]static EventType getStaticType() { return EventType::KEY_PRESSED; }
     [[nodiscard]]EventType getEventType() const override { return getStaticType(); }
-    [[nodiscard]]const char *getName() const override { return "KEY_PRESSED"; }
+    [[nodiscard]]const char* getName() const override { return "KEY_PRESSED"; }
 private:
     int repeat_count_;
 };
@@ -52,7 +52,7 @@ public:
 
     [[nodiscard]]static EventType getStaticType() { return EventType::KEY_RELEASED; }
     [[nodiscard]]EventType getEventType() const override { return getStaticType(); }
-    [[nodiscard]]const char *getName() const override { return "KEY_RELEASED"; }
+    [[nodiscard]]const char* getName() const override { return "KEY_RELEASED"; }
 };
 
 class KeyTypedEvent : public KeyEvent {
@@ -69,7 +69,7 @@ public:
 
     [[nodiscard]]static EventType getStaticType() { return EventType::KEY_TYPED; }
     [[nodiscard]]EventType getEventType() const override { return getStaticType(); }
-    [[nodiscard]]const char *getName() const override { return "KEY_TYPED"; }
+    [[nodiscard]]const char* getName() const override { return "KEY_TYPED"; }
 };
 
 }

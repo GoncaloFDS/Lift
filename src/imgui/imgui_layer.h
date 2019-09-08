@@ -14,7 +14,7 @@ public:
     void onDetach() override;
     void onUpdate() override;
     void onImguiRender() override;
-    void onEvent(Event &event) override;
+    void onEvent(Event& event) override;
 
     static ivec2 getRenderWindowSize();
     static void begin();

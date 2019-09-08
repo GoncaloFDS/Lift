@@ -13,7 +13,7 @@
 #include "cuda/math_constructors.h"
 #include "cuda/vec_math.h"
 
-lift::Application *lift::Application::k_Instance = nullptr;
+lift::Application* lift::Application::k_Instance = nullptr;
 
 lift::Application::Application() {
     LF_ASSERT(!k_Instance, "Application already exists");
@@ -52,10 +52,10 @@ void lift::Application::run() {
 
         // Update Layers
         window_->onUpdate();
-        for (auto &layer : layer_stack_)
+        for (auto& layer : layer_stack_)
             layer->onUpdate();
 
-        for (auto &layer : layer_stack_)
+        for (auto& layer : layer_stack_)
             layer->onImguiRender();
 
         renderer_.launchSubframe(scene_, launch_parameters_, f_size_);
@@ -69,23 +69,24 @@ void lift::Application::run() {
 }
 
 void lift::Application::initGraphicsContext() {
-    graphics_context_ = std::make_unique<OpenGLContext>(static_cast<GLFWwindow *>(window_->getNativeWindow()));
+    graphics_context_ = std::make_unique<OpenGLContext>(static_cast<GLFWwindow*>(window_->getNativeWindow()));
     graphics_context_->init();
     RenderCommand::setClearColor({1.0f, 0.1f, 1.0f, 1.0f});
 }
 
 void lift::Application::createScene() {
     Profiler profiler{"Create Scene"};
-    scene_.loadFromFile("res/models/DamagedHelmet/glTF/DamagedHelmet.gltf");
-    //scene_.LoadFromFile("res/models/Sponza/glTF/Sponza.gltf");
+    //scene_.loadFromFile("res/models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+    //scene_.loadFromFile("res/models/FlightHelmet/glTF/FlightHelmet.gltf");
+    scene_.loadFromFile("res/models/Sponza/glTF/Sponza.gltf");
     scene_.finalize();
 
     OPTIX_CHECK(optixInit())
 
     camera_ = std::make_unique<Camera>(
-        vec3(0.0f, 2.0f, -12.f),
+        vec3(0.0f, 2.0f, 12.f),
         vec3(0.0f),
-        vec3(0.0f, -1.0f, 0.0f),
+        vec3(0.0f, 1.0f, 0.0f),
         36.0f, 1.0f);
 
     Light::Point l_1{
@@ -111,26 +112,26 @@ void lift::Application::createScene() {
     lights_.push_back(l_3);
     launch_parameters_.lights.count = uint32_t(lights_.size());
     CUDA_CHECK(cudaMalloc(
-        reinterpret_cast<void **>( &launch_parameters_.lights.data ),
-        lights_.size()*sizeof(Light::Point)
+        reinterpret_cast<void**>( &launch_parameters_.lights.data ),
+        lights_.size() * sizeof(Light::Point)
     ));
     CUDA_CHECK(cudaMemcpy(
-        reinterpret_cast<void *>( launch_parameters_.lights.data ),
+        reinterpret_cast<void*>( launch_parameters_.lights.data ),
         lights_.data(),
-        lights_.size()*sizeof(Light::Point),
+        lights_.size() * sizeof(Light::Point),
         cudaMemcpyHostToDevice
     ));
 
     launch_parameters_.miss_color = makeFloat3(0.1f);
 }
 
-void lift::Application::onEvent(Event &e) {
+void lift::Application::onEvent(Event& e) {
     EventDispatcher dispatcher(e);
     dispatcher.dispatch<WindowCloseEvent>(LF_BIND_EVENT_FN(Application::onWindowClose));
     dispatcher.dispatch<WindowResizeEvent>(LF_BIND_EVENT_FN(Application::onWindowResize));
     dispatcher.dispatch<WindowMinimizeEvent>(LF_BIND_EVENT_FN(Application::onWindowMinimize));
 
-    for (auto it = layer_stack_.end(); it!=layer_stack_.begin();) {
+    for (auto it = layer_stack_.end(); it != layer_stack_.begin();) {
         (*--it)->onEvent(e);
         if (e.handled)
             return;
@@ -142,23 +143,23 @@ void lift::Application::onEvent(Event &e) {
 
 }
 
-bool lift::Application::onWindowClose(WindowCloseEvent &e) {
+bool lift::Application::onWindowClose(WindowCloseEvent& e) {
     is_running_ = false;
     LF_TRACE(e.toString());
     return false;
 }
 
-void lift::Application::resize(const ivec2 &size) {
+void lift::Application::resize(const ivec2& size) {
     f_size_ = size;
-    color_buffer_.alloc(size.x*size.y);
-    accum_buffer_.alloc(size.x*size.y);
-    launch_parameters_.frame_buffer = (uchar4 *) color_buffer_.get();
-    launch_parameters_.accum_buffer = (float4 *) accum_buffer_.get();
+    color_buffer_.alloc(size.x * size.y);
+    accum_buffer_.alloc(size.x * size.y);
+    launch_parameters_.frame_buffer = (uchar4*) color_buffer_.get();
+    launch_parameters_.accum_buffer = (float4*) accum_buffer_.get();
     output_texture_->resize(size);
-    camera_->setAspectRatio(float(size.x)/size.y);
+    camera_->setAspectRatio(float(size.x) / size.y);
 }
 
-bool lift::Application::onWindowResize(WindowResizeEvent &e) {
+bool lift::Application::onWindowResize(WindowResizeEvent& e) {
     restartAccumulation();
     if (e.getHeight() && e.getWidth()) {
         // Only resize when not minimized
@@ -168,12 +169,12 @@ bool lift::Application::onWindowResize(WindowResizeEvent &e) {
     return false;
 }
 
-bool lift::Application::onWindowMinimize(WindowMinimizeEvent &e) const {
+bool lift::Application::onWindowMinimize(WindowMinimizeEvent& e) const {
     LF_TRACE(e.toString());
     return false;
 }
 
-inline bool lift::Application::onMouseMove(MouseMovedEvent &e) {
+inline bool lift::Application::onMouseMove(MouseMovedEvent& e) {
     if (Input::isMouseButtonPressed(LF_MOUSE_BUTTON_LEFT)) {
         const auto delta = Input::getMouseDelta();
         camera_->orbit(-delta.x, -delta.y);
@@ -187,50 +188,50 @@ inline bool lift::Application::onMouseMove(MouseMovedEvent &e) {
     return false;
 }
 
-inline bool lift::Application::onMouseScroll(MouseScrolledEvent &e) {
-    camera_->zoom(e.getYOffset()*-10);
+inline bool lift::Application::onMouseScroll(MouseScrolledEvent& e) {
+    camera_->zoom(e.getYOffset() * -10);
     return false;
 }
 
-bool lift::Application::onKeyPress(lift::KeyPressedEvent &e) {
-    if (e.getKeyCode()==LF_KEY_W) {
+bool lift::Application::onKeyPress(lift::KeyPressedEvent& e) {
+    if (e.getKeyCode() == LF_KEY_W) {
         camera_->setMoveDirection(Direction::FORWARD);
     }
-    if (e.getKeyCode()==LF_KEY_S) {
+    if (e.getKeyCode() == LF_KEY_S) {
         camera_->setMoveDirection(Direction::BACK);
     }
-    if (e.getKeyCode()==LF_KEY_D) {
+    if (e.getKeyCode() == LF_KEY_D) {
         camera_->setMoveDirection(Direction::RIGHT);
     }
-    if (e.getKeyCode()==LF_KEY_A) {
+    if (e.getKeyCode() == LF_KEY_A) {
         camera_->setMoveDirection(Direction::LEFT);
     }
-    if (e.getKeyCode()==LF_KEY_E) {
+    if (e.getKeyCode() == LF_KEY_E) {
         camera_->setMoveDirection(Direction::UP);
     }
-    if (e.getKeyCode()==LF_KEY_Q) {
+    if (e.getKeyCode() == LF_KEY_Q) {
         camera_->setMoveDirection(Direction::DOWN);
     }
 
     return false;
 }
-bool lift::Application::onKeyRelease(lift::KeyReleasedEvent &e) {
-    if (e.getKeyCode()==LF_KEY_W) {
+bool lift::Application::onKeyRelease(lift::KeyReleasedEvent& e) {
+    if (e.getKeyCode() == LF_KEY_W) {
         camera_->setMoveDirection(Direction::FORWARD, -1.0f);
     }
-    if (e.getKeyCode()==LF_KEY_S) {
+    if (e.getKeyCode() == LF_KEY_S) {
         camera_->setMoveDirection(Direction::BACK, -1.0f);
     }
-    if (e.getKeyCode()==LF_KEY_D) {
+    if (e.getKeyCode() == LF_KEY_D) {
         camera_->setMoveDirection(Direction::RIGHT, -1.0f);
     }
-    if (e.getKeyCode()==LF_KEY_A) {
+    if (e.getKeyCode() == LF_KEY_A) {
         camera_->setMoveDirection(Direction::LEFT, -1.0f);
     }
-    if (e.getKeyCode()==LF_KEY_E) {
+    if (e.getKeyCode() == LF_KEY_E) {
         camera_->setMoveDirection(Direction::UP, -1.0f);
     }
-    if (e.getKeyCode()==LF_KEY_Q) {
+    if (e.getKeyCode() == LF_KEY_Q) {
         camera_->setMoveDirection(Direction::DOWN, -1.0f);
     }
     return false;

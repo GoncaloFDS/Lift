@@ -3,4 +3,4 @@
 
 #include "platform/opengl/opengl_renderer_api.h"
 
-lift::RendererApi *lift::RenderCommand::renderer_api_ = new lift::OpenGLRendererAPI();
+lift::RendererApi* lift::RenderCommand::renderer_api_ = new lift::OpenGLRendererAPI();
