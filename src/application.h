@@ -29,16 +29,9 @@ public:
     template<typename T>
     void pushOverlay() { layer_stack_.pushOverlay<T>(); }
 
-    void resize(const ivec2& size);
-
-    static Application& get() { return *k_Instance; }
+    static Application& get() { return *s_instance; }
     [[nodiscard]] Window& getWindow() const { return *window_; }
 
-    [[nodiscard]] auto getFrameTextureId() const { return output_texture_->id; }
-
-    void restartAccumulation() {}
-
-    vec3 material_albedo{.3f, .7f, .9f};
 private:
     bool is_running_ = true;
     std::unique_ptr<Window> window_;
@@ -47,24 +40,19 @@ private:
 
     LayerStack layer_stack_;
 
-    std::unique_ptr<Camera> camera_;
-    Scene scene_;
-
-    std::unique_ptr<Texture> output_texture_;
+    Camera camera_;
 
     //! Temp
     LaunchParameters launch_parameters_;
-    CudaBuffer<float4> accum_buffer_;
-    CudaBuffer<uchar4> color_buffer_;
-    ivec2 f_size_{1000, 1000};
-    std::vector<Light::Point> lights_;
+    LaunchParameters* d_params_;
+
     //
 
-    static Application* k_Instance;
+    static Application* s_instance;
 
     void initGraphicsContext();
+    void initLaunchParameters(const Scene& scene);
 
-    void createScene();
 
     void onEvent(Event& e);
     bool onWindowClose(WindowCloseEvent& e);
@@ -75,6 +63,9 @@ private:
     bool onKeyPress(KeyPressedEvent& e);
     bool onKeyRelease(KeyReleasedEvent& e);
 
+    void updateState(const Scene& scene);
+    void updateLaunchParameters(const Scene& scene);
+    void endFrame();
 };
 
 // Defined by Sandbox

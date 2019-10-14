@@ -4,8 +4,17 @@
 #include <glm/common.hpp>
 
 namespace lift {
+
+enum class BufferImageFormat {
+    UNSIGNED_BYTE_4,
+    FLOAT_4,
+    FLOAT_3
+};
+
+size_t pixelFormatSize(BufferImageFormat format);
+
 class OpenGLRendererAPI : public RendererApi {
-public:
+ public:
     void setClearColor(const vec4& color) override;
     void clear() override;
 

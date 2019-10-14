@@ -24,7 +24,7 @@ struct Texture {
         data_.resize(size.x * size.y);
     }
 
-private:
+ private:
     std::vector<uchar4> data_;
 };
 }

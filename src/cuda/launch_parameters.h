@@ -1,8 +1,8 @@
 #pragma once
 #include <optix.h>
-#include "scene/geometry_data.h"
-#include "scene/material_data.h"
-#include "scene/light.h"
+#include "geometry_data.h"
+#include "material_data.h"
+#include "light.h"
 
 namespace lift {
 

@@ -2,7 +2,7 @@
 
 #include "aabb.h"
 #include <optix.h>
-#include "renderer/buffer_view.h"
+#include "cuda/buffer_view.h"
 #include "vector_types.h"
 
 namespace lift {

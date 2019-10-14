@@ -2,14 +2,15 @@
 #include <optix.h>
 #include <optix_stubs.h>
 #include <optix_function_table_definition.h>
+#include <renderer/cuda_buffer.h>
 #include "glad/glad.h"
 #include "scene.h"
 #include "scene/cameras/camera.h"
 #include "mesh.h"
 #include "aabb.h"
 #include "renderer/record.h"
-#include "geometry_data.h"
-#include "renderer/cuda_buffer.h"
+#include "cuda/geometry_data.h"
+#include "renderer/cuda_output_buffer.h"
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -19,6 +20,8 @@
 #include "core/profiler.h"
 #include "cuda/vec_math.h"
 
+extern "C" char embedded_ptx_code[];
+
 template<typename T>
 lift::BufferView<T> bufferViewFromGltf(const tinygltf::Model& model, lift::Scene* scene, const int32_t accessor_idx) {
     if (accessor_idx == -1)
@@ -27,17 +30,20 @@ lift::BufferView<T> bufferViewFromGltf(const tinygltf::Model& model, lift::Scene
     const auto& gltf_accessor = model.accessors[accessor_idx];
     const auto& gltf_buffer_view = model.bufferViews[gltf_accessor.bufferView];
 
-    const int32_t elmt_byte_size =
-        gltf_accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT
-        ? 2
-        : gltf_accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT
-          ? 4
-          : gltf_accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT
-            ? 4
-            : 0;
+    int32_t elmt_byte_size;
+    switch (gltf_accessor.componentType) {
+        case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
+            elmt_byte_size = 2;
+            break;
+        case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
+        case TINYGLTF_COMPONENT_TYPE_FLOAT:
+            elmt_byte_size = 4;
+            break;
+        default:
+            elmt_byte_size = 0;
+    }
     LF_ASSERT(elmt_byte_size, "gltf accessor component type not supported");
-
-    const CUdeviceptr buffer_base = scene->getBuffer(gltf_buffer_view.buffer);
+    const CUdeviceptr buffer_base = scene->buffer(gltf_buffer_view.buffer);
     lift::BufferView<T> buffer_view;
     buffer_view.data = buffer_base + gltf_buffer_view.byteOffset + gltf_accessor.byteOffset;
     buffer_view.byte_stride = static_cast<uint16_t>(gltf_buffer_view.byteStride);
@@ -47,7 +53,7 @@ lift::BufferView<T> bufferViewFromGltf(const tinygltf::Model& model, lift::Scene
     return buffer_view;
 }
 
-void contextLogCb(unsigned int level, const char* tag, const char* message, void* /*cbdata */) {
+void contextLogCallback(unsigned int level, const char* tag, const char* message, void* /*cbdata */) {
     LF_INFO("[OptiX Log] {0}", message);
 }
 
@@ -63,7 +69,6 @@ void lift::Scene::addBuffer(const uint64_t buf_size, const void* data) {
 
 void lift::Scene::addImage(const int32_t width, const int32_t height, const int32_t bits_per_component,
                            const int32_t num_components, const void* data) {
-    Profiler profiler("addImage");
     // Allocate CUDA array in device memory
     int32_t pitch = 0;
     cudaChannelFormatDesc channel_desc{};
@@ -101,7 +106,7 @@ void lift::Scene::addSampler(cudaTextureAddressMode address_s, cudaTextureAddres
                              cudaTextureFilterMode filter_mode, const int32_t image_idx) {
     cudaResourceDesc res_desc = {};
     res_desc.resType = cudaResourceTypeArray;
-    res_desc.res.array.array = getImage(image_idx);
+    res_desc.res.array.array = image(image_idx);
 
     cudaTextureDesc tex_desc = {};
     tex_desc.addressMode[0] = address_s == GL_CLAMP_TO_EDGE
@@ -151,7 +156,7 @@ void lift::Scene::cleanup() {
     // TODO
 }
 
-lift::Camera lift::Scene::getCamera() const {
+lift::Camera lift::Scene::camera() const {
     // TODO return set camera
     if (!cameras_.empty()) {
         LF_ERROR("Returning first camera");
@@ -161,9 +166,8 @@ lift::Camera lift::Scene::getCamera() const {
     Camera camera;
     camera.setFovy(45.0f);
     camera.setLookAt(scene_aabb_.center());
-    camera.setEye(scene_aabb_.center() * vec3(0.0f, 0.0f, scene_aabb_.maxExtent()));
+    camera.setEye(scene_aabb_.center() + vec3(1.0f, 1.0f, 1.0f));
     return camera;
-
 }
 
 void lift::Scene::createContext() {
@@ -173,13 +177,12 @@ void lift::Scene::createContext() {
     CUcontext cu_context = nullptr; // zero means take the current context
     OPTIX_CHECK(optixInit());
     OptixDeviceContextOptions options = {};
-    options.logCallbackFunction = &contextLogCb;
+    options.logCallbackFunction = &contextLogCallback;
     options.logCallbackLevel = 4;
     OPTIX_CHECK(optixDeviceContextCreate(cu_context, &options, &context_));
 }
 
 void lift::Scene::buildMeshAccels() {
-    Profiler profiler("BuildMeshAccels");
     // see explanation above
     constexpr double initial_compaction_ratio = 0.5;
 
@@ -222,9 +225,8 @@ void lift::Scene::buildMeshAccels() {
                 triangle_input.triangleArray.numVertices = mesh->positions[i].count;
             triangle_input.triangleArray.vertexBuffers = &(mesh->positions[i].data);
             triangle_input.triangleArray.indexFormat =
-                mesh->indices[i].elmt_byte_size == 2
-                ? OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3
-                : OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
+                mesh->indices[i].elmt_byte_size == 2 ? OPTIX_INDICES_FORMAT_UNSIGNED_SHORT3
+                                                     : OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
             triangle_input.triangleArray.indexStrideInBytes =
                 mesh->indices[i].byte_stride ? mesh->indices[i].byte_stride : mesh->indices[i].elmt_byte_size * 3;
             triangle_input.triangleArray.numIndexTriplets = mesh->indices[i].count / 3;
@@ -395,7 +397,6 @@ void lift::Scene::buildMeshAccels() {
 }
 
 void lift::Scene::buildInstanceAccel(int ray_type_count) {
-    Profiler profiler("BuildInstanceAccel");
     const size_t num_instances = meshes_.size();
 
     std::vector<OptixInstance> optix_instances(num_instances);
@@ -482,11 +483,7 @@ void lift::Scene::loadFromFile(const std::string& file_name) {
     tinygltf::TinyGLTF loader;
     std::string err;
     std::string warn;
-    bool ret;
-    {
-        Profiler profiler_1("LoadACIIFromFile");
-        ret = loader.LoadASCIIFromFile(&model, &err, &warn, file_name);
-    }
+    bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, file_name);
     if (!warn.empty())
         LF_ERROR("glTF Warning: {0}", warn);
 
@@ -556,7 +553,7 @@ void lift::Scene::loadFromFile(const std::string& file_name) {
         }
         const auto base_color_t_it = gltf_material.values.find("baseColorTexture");
         if (base_color_t_it != gltf_material.values.end()) {
-            mtl.base_color_tex = getSampler(base_color_t_it->second.TextureIndex());
+            mtl.base_color_tex = sampler(base_color_t_it->second.TextureIndex());
         }
         const auto roughness_it = gltf_material.values.find("roughnessFactor");
         if (roughness_it != gltf_material.values.end()) {
@@ -568,11 +565,11 @@ void lift::Scene::loadFromFile(const std::string& file_name) {
         }
         const auto metallic_roughness_it = gltf_material.values.find("metallicRoughnessTexture");
         if (metallic_roughness_it != gltf_material.values.end()) {
-            mtl.metallic_roughness_tex = getSampler(metallic_roughness_it->second.TextureIndex());
+            mtl.metallic_roughness_tex = sampler(metallic_roughness_it->second.TextureIndex());
         }
         const auto normal_it = gltf_material.additionalValues.find("normalTexture");
         if (normal_it != gltf_material.additionalValues.end()) {
-            mtl.normal_tex = getSampler(normal_it->second.TextureIndex());
+            mtl.normal_tex = sampler(normal_it->second.TextureIndex());
         }
 
         addMaterial(mtl);
@@ -724,7 +721,7 @@ void lift::Scene::createPtxModule() {
     pipeline_compile_options_.exceptionFlags = OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
     pipeline_compile_options_.pipelineLaunchParamsVariableName = "params";
 
-    const auto ptx = Util::getPtxString("res/ptx/device_programs.ptx");
+    const std::string ptx = embedded_ptx_code;
 
     ptx_module_ = {};
     char log[2048];

@@ -1,5 +1,7 @@
-#include <utility>
 #pragma once
+
+#include "pch.h"
+#include <utility>
 
 namespace lift {
 
@@ -35,7 +37,6 @@ static uint32_t shaderDataTypeSize(const ShaderDataType type) {
             return 1;
     }
 
-    LF_ASSERT(false, "Unknown ShaderDataype");
     return 0;
 }
 
@@ -79,7 +80,6 @@ struct BufferElement {
                 return 1;
         }
 
-        LF_ASSERT(false, "Unknown ShaderDataType");
         return 0;
     }
 };

@@ -79,13 +79,11 @@ void lift::WindowsWindow::init(const WindowProperties& props) {
     LF_ASSERT(success, "Could not intialize GLFW!");
     glfwSetErrorCallback(glfwErrorCallback);
     k_GlfwInitialized = true;
-    //glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
 
     window_handle_ = glfwCreateWindow(static_cast<int>(props.width), static_cast<int>(props.height),
                                       properties_.title.c_str(), nullptr, nullptr);
 
-    glfwSetWindowPos(window_handle_, props.x, props.y);
+    glfwSetWindowPos(window_handle_, int(props.x), int(props.y));
     glfwSetWindowUserPointer(window_handle_, &properties_);
 
     // Set GLFW callbacks

@@ -20,7 +20,7 @@ constexpr T bit(T x) {
 #define LF_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
 #ifdef LF_DEBUG
-#define OPENGL_CALL(x) \
+#define GL_CHECK(x) \
         (x); \
         while (GLenum error = glGetError()) { \
             LF_ERROR("[OpenGL Error] {0}", error);    \
@@ -28,7 +28,7 @@ constexpr T bit(T x) {
             LF_ERROR("\tLine: {0}", __LINE__);    \
         }
 #else
-#define OPENGL_CALL(x) (x);
+#define GL_CHECK(x) (x);
 #endif
 
 #ifdef LF_DEBUG

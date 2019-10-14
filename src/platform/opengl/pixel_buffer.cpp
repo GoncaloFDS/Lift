@@ -3,22 +3,22 @@
 #include "glad/glad.h"
 
 lift::PixelBuffer::PixelBuffer(const float size) {
-    OPENGL_CALL(glGenBuffers(1, &id));
-    OPENGL_CALL(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, id));
-    OPENGL_CALL(glBufferData(GL_PIXEL_UNPACK_BUFFER, GLsizeiptr(size), nullptr, GL_STREAM_READ));
-    OPENGL_CALL(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
+    GL_CHECK(glGenBuffers(1, &id));
+    GL_CHECK(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, id));
+    GL_CHECK(glBufferData(GL_PIXEL_UNPACK_BUFFER, GLsizeiptr(size), nullptr, GL_STREAM_READ));
+    GL_CHECK(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
 }
 
 void lift::PixelBuffer::bind() const {
-    OPENGL_CALL(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, id));
+    GL_CHECK(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, id));
 }
 
 void lift::PixelBuffer::unbind() const {
-    OPENGL_CALL(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
+    GL_CHECK(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
 }
 
 void lift::PixelBuffer::resize(const unsigned size) {
-    OPENGL_CALL(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, id));
-    OPENGL_CALL(glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STREAM_DRAW));
-    OPENGL_CALL(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
+    GL_CHECK(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, id));
+    GL_CHECK(glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STREAM_DRAW));
+    GL_CHECK(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
 }

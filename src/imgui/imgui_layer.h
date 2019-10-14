@@ -16,13 +16,12 @@ public:
     void onImguiRender() override;
     void onEvent(Event& event) override;
 
-    static ivec2 getRenderWindowSize();
     static void begin();
     static void end();
-
-    static ivec2 render_window_size;
-    unsigned render_id;
-    bool is_render_hovered;
+private:
+    static ivec2 s_render_window_size;
+    bool is_render_hovered_;
+    bool show_render_window_ = true;
 };
 
 }

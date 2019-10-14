@@ -2,7 +2,13 @@
 #include "profiler.h"
 #include <utility>
 
-Profiler::Profiler(std::string message) : duration_(0), message_(std::move(message)) {
+std::map<Profiler::Id, float> Profiler::s_map;
+
+Profiler::Profiler(Id id) : duration_(0), id_(id) {
+    start_ = std::chrono::high_resolution_clock::now();
+}
+
+Profiler::Profiler(std::string  message) : duration_(0), message_(std::move(message)), id_(Id::Other) {
     start_ = std::chrono::high_resolution_clock::now();
 }
 
@@ -11,8 +17,12 @@ Profiler::~Profiler() {
     duration_ = end_ - start_;
 
     const auto s = duration_.count();
-    if (message_.empty())
-        LF_WARN("Function took {0}s", s);
-    else
-        LF_WARN("{0} -> {1}s", message_, s);
+    if(!message_.empty()){
+        LF_WARN("{0} -> {1}", message_, s);
+    }
+    s_map[id_] = s;
+}
+
+float Profiler::getDuration(Id id) {
+    return s_map[id];
 }

@@ -6,7 +6,7 @@
 #include "vec_math.h"
 #include "local_geometry.h"
 
-namespace lift {
+using namespace lift;
 extern "C" __constant__ LaunchParameters params;
 
 //------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ __forceinline__ __device__ void setPayloadOcclusion(bool occluded) {
     optixSetPayload_0(static_cast<uint32_t>( occluded ));
 }
 
-extern "C" __global__ void closesthitRadiance() {
+extern "C" __global__ void __closesthit__radiance() {
     const HitGroupData* hit_group_data = reinterpret_cast<HitGroupData*>(optixGetSbtDataPointer());
     const LocalGeometry geom = getLocalGeometry(hit_group_data->geometry_data);
 
@@ -195,10 +195,6 @@ extern "C" __global__ void __miss__radiance() {
     setPayloadResult(params.miss_color);
 }
 
-extern "C" __global__ void __clossesthit__radiance() {
-    setPayloadOcclusion(true);
-}
-
 //------------------------------------------------------------------------------
 // ray gen program - the actual rendering happens in here
 //------------------------------------------------------------------------------
@@ -257,7 +253,5 @@ extern "C" __global__ void __raygen__render_frame() {
     }
     params.accum_buffer[image_index] = makeFloat4(accum_color, 1.0f);
     params.frame_buffer[image_index] = makeColor(accum_color);
-
-}
 
 }

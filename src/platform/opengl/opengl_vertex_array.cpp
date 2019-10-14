@@ -32,21 +32,21 @@ static GLenum ShaderDataTypeToOpenGLBaseType(const lift::ShaderDataType type) {
 }
 
 lift::OpenGLVertexArray::OpenGLVertexArray() {
-    OPENGL_CALL(glCreateVertexArrays(1, &renderer_id_));
+    GL_CHECK(glCreateVertexArrays(1, &renderer_id_));
 }
 
 void lift::OpenGLVertexArray::bind() const {
-    OPENGL_CALL(glBindVertexArray(renderer_id_));
+    GL_CHECK(glBindVertexArray(renderer_id_));
 }
 
 void lift::OpenGLVertexArray::unbind() const {
-    OPENGL_CALL(glBindVertexArray(0));
+    GL_CHECK(glBindVertexArray(0));
 }
 
 void lift::OpenGLVertexArray::addVertexBuffer(const std::shared_ptr<VertexBuffer>& vertex_buffer) {
     LF_ASSERT(vertex_buffer->getLayout().getElements().size(), "Vertex Buffer has no layout");
 
-    OPENGL_CALL(glBindVertexArray(renderer_id_));
+    GL_CHECK(glBindVertexArray(renderer_id_));
     vertex_buffer->bind();
 
     const auto& layout = vertex_buffer->getLayout();
@@ -66,7 +66,7 @@ void lift::OpenGLVertexArray::addVertexBuffer(const std::shared_ptr<VertexBuffer
 }
 
 void lift::OpenGLVertexArray::setIndexBuffer(const std::shared_ptr<IndexBuffer>& index_buffer) {
-    OPENGL_CALL(glBindVertexArray(renderer_id_));
+    GL_CHECK(glBindVertexArray(renderer_id_));
     index_buffer->bind();
 
     index_buffer_ = index_buffer;

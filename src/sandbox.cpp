@@ -1,7 +1,5 @@
 #include "lift.h"
 
-#include "spdlog/fmt/ostr.h"
-
 class ExampleLayer : public lift::Layer {
 public:
     ExampleLayer()
@@ -18,7 +16,7 @@ public:
             auto& e = dynamic_cast<lift::KeyPressedEvent&>(event);
             if (e.getKeyCode() == LF_KEY_TAB)
                 LF_TRACE("Tab key is pressed (event)!");
-            LF_TRACE("{0}", static_cast<char>(e.getKeyCode()));
+            //LF_TRACE("{0}", static_cast<char>(e.getKeyCode()));
         }
     }
 

@@ -3,8 +3,8 @@
 #include "optix.h"
 
 #include "vec_math.h"
-#include "renderer/buffer_view.h"
-#include "scene/geometry_data.h"
+#include "buffer_view.h"
+#include "geometry_data.h"
 
 namespace lift {
 

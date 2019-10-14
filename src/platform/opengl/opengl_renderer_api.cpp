@@ -18,3 +18,15 @@ void lift::OpenGLRendererAPI::drawIndexed(const std::shared_ptr<VertexArray>& ve
 void lift::OpenGLRendererAPI::resize(uint32_t width, uint32_t height) {
     glViewport(0, 0, width, height);
 }
+
+size_t lift::pixelFormatSize(lift::BufferImageFormat format) {
+    switch (format) {
+        case BufferImageFormat::UNSIGNED_BYTE_4:
+            return sizeof(char) * 4;
+        case BufferImageFormat::FLOAT_3:
+            return sizeof(float) * 3;
+        case BufferImageFormat::FLOAT_4:
+            return sizeof(float) * 4;
+    }
+    return -1;
+}

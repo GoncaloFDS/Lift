@@ -1,24 +1,9 @@
 cmake_minimum_required(VERSION 3.14)
 
-add_library(CudaPtxObjects OBJECT
-        cuda/device_programs.cu
-        cuda/local_geometry.h
-        cuda/random.cuh
-        )
-
-set_property(TARGET CudaPtxObjects PROPERTY CUDA_PTX_COMPILATION ON)
-set_target_properties(CudaPtxObjects
-        PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test/
-        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test/
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test/
-        )
-target_compile_definitions(CudaPtxObjects PUBLIC "PTX_FILES")
-target_include_directories(CudaPtxObjects PRIVATE ../external/spdlog/include)
-target_include_directories(CudaPtxObjects PRIVATE ../external/glm)
-target_include_directories(CudaPtxObjects PRIVATE ./)
+cuda_compile_and_embed(embedded_ptx_code cuda/device_programs.cu)
 
 add_executable(Lift
+        ${embedded_ptx_code}
         sandbox.cpp
         core/io/log.cpp
         core/io/log.h
@@ -61,10 +46,8 @@ add_executable(Lift
         platform/windows/windows_window.h
         renderer/buffer.cpp
         renderer/buffer.h
-        renderer/buffer_view.h
-        renderer/cuda_buffer.h
-        renderer/frame_buffer.cpp
-        renderer/frame_buffer.h
+        cuda/buffer_view.h
+        renderer/cuda_output_buffer.h
         renderer/graphics_context.h
         renderer/record.h
         renderer/render_command.cpp
@@ -83,8 +66,8 @@ add_executable(Lift
         scene/cameras/camera.h
         scene/aabb.cpp
         scene/aabb.h
-        scene/geometry_data.h
-        scene/material_data.h
+        cuda/geometry_data.h
+        cuda/material_data.h
         scene/mesh.h
         scene/scene.cpp
         scene/scene.h
@@ -95,13 +78,12 @@ add_executable(Lift
         main.h
         pch.cpp
         pch.h
-        scene/light.h
+        cuda/light.h
         cuda/preprocessor.h
-        cuda/math_constructors.h)
+        cuda/math_constructors.h platform/opengl/opengl_display.cpp platform/opengl/opengl_display.h renderer/cuda_buffer.h)
 
 
 find_package(OptiX REQUIRED)
-message("OptiX include dir: " ${OptiX_INCLUDE})
 target_include_directories(Lift PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ../external/glm
@@ -118,7 +100,6 @@ target_link_libraries(Lift
         ${CUDA_CUDA_LIBRARIES})
 
 #Cuda
-message("CUDA include dir: " ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 target_include_directories(Lift PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
 #GLAD
@@ -155,10 +136,3 @@ add_compile_definitions(LF_BUILD_DLL)
 add_compile_definitions(LF_DEBUG)
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 
-add_dependencies(Lift CudaPtxObjects)
-add_custom_command(
-        TARGET Lift PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/lift/res/ptx
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_OBJECTS:CudaPtxObjects> ${PROJECT_SOURCE_DIR}/lift/res/ptx/.
-        COMMENT "Copying ptx file"
-)

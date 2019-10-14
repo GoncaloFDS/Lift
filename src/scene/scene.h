@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "mesh.h"
-#include "material_data.h"
+#include "cuda/material_data.h"
 #include "scene/cameras/camera.h"
 
 namespace tinygltf {
@@ -27,21 +27,21 @@ public:
     void addSampler(cudaTextureAddressMode address_s, cudaTextureAddressMode address_t,
                     cudaTextureFilterMode filter_mode, const int32_t image_idx);
 
-    [[nodiscard]] CUdeviceptr getBuffer(int32_t buffer_index) const { return buffers_[buffer_index]; }
-    [[nodiscard]] cudaArray_t getImage(int32_t image_index) const { return images_[image_index]; }
-    [[nodiscard]] cudaTextureObject_t getSampler(int32_t sampler_index) const { return samplers_[sampler_index]; }
+    [[nodiscard]] CUdeviceptr buffer(int32_t buffer_index) const { return buffers_[buffer_index]; }
+    [[nodiscard]] cudaArray_t image(int32_t image_index) const { return images_[image_index]; }
+    [[nodiscard]] cudaTextureObject_t sampler(int32_t sampler_index) const { return samplers_[sampler_index]; }
 
     void finalize();
     void cleanup();
 
-    [[nodiscard]] Camera getCamera() const;
-    [[nodiscard]] OptixPipeline getPipeline() const { return pipeline_; }
-    [[nodiscard]] const OptixShaderBindingTable* getSbt() const { return &sbt_; }
-    [[nodiscard]] OptixTraversableHandle getTraversableHandle() const { return ias_handle_; }
-    [[nodiscard]] Aabb getAabb() const { return scene_aabb_; }
-    [[nodiscard]] OptixDeviceContext getContext() const { return context_; }
+    [[nodiscard]] Camera camera() const;
+    [[nodiscard]] OptixPipeline pipeline() const { return pipeline_; }
+    [[nodiscard]] const OptixShaderBindingTable* sbt() const { return &sbt_; }
+    [[nodiscard]] OptixTraversableHandle traversableHandle() const { return ias_handle_; }
+    [[nodiscard]] Aabb aabb() const { return scene_aabb_; }
+    [[nodiscard]] OptixDeviceContext context() const { return context_; }
     [[nodiscard]] const std::vector<MaterialData>& materials() const { return materials_; }
-    [[nodiscard]] const std::vector<std::shared_ptr<Mesh>>& getMeshes() const { return meshes_; }
+    [[nodiscard]] const std::vector<std::shared_ptr<Mesh>>& meshes() const { return meshes_; }
 
     void createContext();
     void buildMeshAccels();

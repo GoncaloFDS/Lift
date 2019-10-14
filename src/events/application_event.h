@@ -9,8 +9,8 @@ public:
         : width_(width), height_(height) {
     }
 
-    [[nodiscard]] unsigned int getWidth() const { return width_; }
-    [[nodiscard]] unsigned int getHeight() const { return height_; }
+    [[nodiscard]] unsigned int width() const { return width_; }
+    [[nodiscard]] unsigned int height() const { return height_; }
 
     [[nodiscard]]  std::string toString() const override {
         std::stringstream ss;
