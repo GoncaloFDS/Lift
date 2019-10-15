@@ -40,19 +40,12 @@ private:
 
     LayerStack layer_stack_;
 
-    Camera camera_;
-
-    //! Temp
-    LaunchParameters launch_parameters_;
-    LaunchParameters* d_params_;
-
-    //
+    std::shared_ptr<Camera> camera_;
 
     static Application* s_instance;
 
     void initGraphicsContext();
-    void initLaunchParameters(Scene& scene);
-
+    void hardcodeSceneEntities(Scene& scene);
 
     void onEvent(Event& e);
     bool onWindowClose(WindowCloseEvent& e);
@@ -63,8 +56,7 @@ private:
     bool onKeyPress(KeyPressedEvent& e);
     bool onKeyRelease(KeyReleasedEvent& e);
 
-    void updateState(const Scene& scene);
-    void updateLaunchParameters(const Scene& scene);
+    void onUpdate(const Scene& scene);
     void endFrame();
 };
 

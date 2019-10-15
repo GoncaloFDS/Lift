@@ -41,19 +41,20 @@ void lift::Application::run() {
     scene.finalize();
 
     camera_ = scene.camera();
-    camera_.setAspectRatio((float) window_->width() / (float) window_->height());
-    initLaunchParameters(scene);
+    camera_->setAspectRatio(window_->aspectRatio());
+    renderer_.init(CudaOutputBufferType::GL_INTEROP, window_->size());
 
-    renderer_.createOutputBuffer(CUDAOutputBufferType::GL_INTEROP, window_->width(), window_->height());
+    hardcodeSceneEntities(scene);
+
     OpenGLDisplay gl_display;
 
     while (is_running_) {
         ImGuiLayer::begin();
 
-        updateState(scene);
-        updateLaunchParameters(scene);
+        onUpdate(scene);
+        renderer_.updateLaunchParameters(scene);
 
-        renderer_.launchSubframe(scene, launch_parameters_, d_params_, {window_->width(), window_->height()});
+        renderer_.launchSubframe(scene, window_->size());
 
         renderer_.displaySubframe(gl_display, window_->getNativeWindow());
 
@@ -66,7 +67,7 @@ void lift::Application::endFrame() {
     graphics_context_->swapBuffers();
 }
 
-void lift::Application::updateState(const lift::Scene& scene) {
+void lift::Application::onUpdate(const lift::Scene& scene) {
     Profiler profiler(Profiler::Id::SceneUpdate);
     Timer::tick();
 
@@ -81,15 +82,7 @@ void lift::Application::updateState(const lift::Scene& scene) {
         layer->onImguiRender();
     }
 
-    camera_.onUpdate();
-
-}
-void lift::Application::updateLaunchParameters(const lift::Scene& scene) {
-    launch_parameters_.camera.eye = makeFloat3(camera_.eye());
-    launch_parameters_.camera.u = makeFloat3(camera_.vectorU());
-    launch_parameters_.camera.v = makeFloat3(camera_.vectorV());
-    launch_parameters_.camera.w = makeFloat3(camera_.vectorW());
-    launch_parameters_.handle = scene.traversableHandle();
+    camera_->onUpdate();
 }
 
 void lift::Application::initGraphicsContext() {
@@ -126,15 +119,8 @@ bool lift::Application::onWindowResize(WindowResizeEvent& e) {
     if (e.height() && e.width()) {
         // Only resize when not minimized
         RenderCommand::resize(e.width(), e.height());
-        camera_.setAspectRatio(float(e.width()) / float(e.height()));
-        renderer_.resizeOutputBuffer(e.width(), e.height());
-
-        // Realloc accumulation buffer
-        CUDA_CHECK(cudaFree(reinterpret_cast<void*>( launch_parameters_.accum_buffer )));
-        CUDA_CHECK(cudaMalloc(
-            reinterpret_cast<void**>( &launch_parameters_.accum_buffer ),
-            window_->width() * window_->height() * sizeof(float4)
-        ));
+        camera_->setAspectRatio(float(e.width()) / float(e.height()));
+        renderer_.onResize(e.width(), e.height());
     }
 
     return false;
@@ -148,75 +134,68 @@ bool lift::Application::onWindowMinimize(WindowMinimizeEvent& e) const {
 inline bool lift::Application::onMouseMove(MouseMovedEvent& e) {
     if (Input::isMouseButtonPressed(LF_MOUSE_BUTTON_LEFT)) {
         const auto delta = Input::getMouseDelta();
-        camera_.orbit(-delta.x, -delta.y);
+        camera_->orbit(-delta.x, -delta.y);
     } else if (Input::isMouseButtonPressed(LF_MOUSE_BUTTON_MIDDLE)) {
         const auto delta = Input::getMouseDelta();
-        camera_.strafe(-delta.x, delta.y);
+        camera_->strafe(-delta.x, delta.y);
     } else if (Input::isMouseButtonPressed(LF_MOUSE_BUTTON_RIGHT)) {
         const auto delta = Input::getMouseDelta();
-        camera_.zoom(delta.y);
+        camera_->zoom(delta.y);
     }
     return false;
 }
 
 inline bool lift::Application::onMouseScroll(MouseScrolledEvent& e) {
-    camera_.zoom(e.getYOffset() * -10);
+    camera_->zoom(e.getYOffset() * -10);
     return false;
 }
 
 bool lift::Application::onKeyPress(lift::KeyPressedEvent& e) {
     if (e.getKeyCode() == LF_KEY_W) {
-        camera_.setMoveDirection(Direction::FORWARD);
+        camera_->setMoveDirection(Direction::FORWARD);
     }
     if (e.getKeyCode() == LF_KEY_S) {
-        camera_.setMoveDirection(Direction::BACK);
+        camera_->setMoveDirection(Direction::BACK);
     }
     if (e.getKeyCode() == LF_KEY_D) {
-        camera_.setMoveDirection(Direction::RIGHT);
+        camera_->setMoveDirection(Direction::RIGHT);
     }
     if (e.getKeyCode() == LF_KEY_A) {
-        camera_.setMoveDirection(Direction::LEFT);
+        camera_->setMoveDirection(Direction::LEFT);
     }
     if (e.getKeyCode() == LF_KEY_E) {
-        camera_.setMoveDirection(Direction::UP);
+        camera_->setMoveDirection(Direction::UP);
     }
     if (e.getKeyCode() == LF_KEY_Q) {
-        camera_.setMoveDirection(Direction::DOWN);
+        camera_->setMoveDirection(Direction::DOWN);
     }
 
     return false;
 }
+
 bool lift::Application::onKeyRelease(lift::KeyReleasedEvent& e) {
     if (e.getKeyCode() == LF_KEY_W) {
-        camera_.setMoveDirection(Direction::FORWARD, -1.0f);
+        camera_->setMoveDirection(Direction::FORWARD, -1.0f);
     }
     if (e.getKeyCode() == LF_KEY_S) {
-        camera_.setMoveDirection(Direction::BACK, -1.0f);
+        camera_->setMoveDirection(Direction::BACK, -1.0f);
     }
     if (e.getKeyCode() == LF_KEY_D) {
-        camera_.setMoveDirection(Direction::RIGHT, -1.0f);
+        camera_->setMoveDirection(Direction::RIGHT, -1.0f);
     }
     if (e.getKeyCode() == LF_KEY_A) {
-        camera_.setMoveDirection(Direction::LEFT, -1.0f);
+        camera_->setMoveDirection(Direction::LEFT, -1.0f);
     }
     if (e.getKeyCode() == LF_KEY_E) {
-        camera_.setMoveDirection(Direction::UP, -1.0f);
+        camera_->setMoveDirection(Direction::UP, -1.0f);
     }
     if (e.getKeyCode() == LF_KEY_Q) {
-        camera_.setMoveDirection(Direction::DOWN, -1.0f);
+        camera_->setMoveDirection(Direction::DOWN, -1.0f);
     }
     return false;
 }
 
-void lift::Application::initLaunchParameters(lift::Scene& scene) {
-    CUDA_CHECK(cudaMalloc(
-        reinterpret_cast<void**>(&launch_parameters_.accum_buffer),
-        window_->width() * window_->height() * sizeof(float4)
-    ));
-    launch_parameters_.frame_buffer = nullptr;
-
-    launch_parameters_.subframe_index = 0u;
-
+void lift::Application::hardcodeSceneEntities(lift::Scene& scene) {
     const float low_offset = scene.aabb().maxExtent();
 
     // TODO: add light support to Scene
@@ -230,22 +209,10 @@ void lift::Application::initLaunchParameters(lift::Scene& scene) {
     Lights::PointLight light1;
     light1.color = {0.8f, 0.8f, 1.0f};
     light1.intensity = 3.0f;
-    light1.position = makeFloat3(scene.aabb().center()) + makeFloat3(-low_offset, 0.5f * low_offset, -0.5f * low_offset);
+    light1.position =
+        makeFloat3(scene.aabb().center()) + makeFloat3(-low_offset, 0.5f * low_offset, -0.5f * low_offset);
     light1.falloff = Light::Falloff::QUADRATIC;
     scene.addLight(light1);
 
-    renderer_.allocLights(scene, launch_parameters_);
-
-    launch_parameters_.miss_color = makeFloat3(0.1f);
-
-    CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>( &d_params_ ), sizeof(LaunchParameters)));
-
-    launch_parameters_.handle = scene.traversableHandle();
-
-    // Realloc accumulation buffer
-    CUDA_CHECK(cudaFree(reinterpret_cast<void*>( launch_parameters_.accum_buffer )));
-    CUDA_CHECK(cudaMalloc(
-        reinterpret_cast<void**>( &launch_parameters_.accum_buffer ),
-        window_->width() * window_->height() * sizeof(float4)
-    ));
+    renderer_.allocLights(scene);
 }

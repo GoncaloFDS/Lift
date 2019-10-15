@@ -148,26 +148,21 @@ void lift::Scene::finalize() {
     for (const auto& mesh : meshes_)
         scene_aabb_.include(mesh->world_aabb);
 
-    if (!cameras_.empty())
-        cameras_.front().setLookAt(scene_aabb_.center());
 }
 
 void lift::Scene::cleanup() {
     // TODO
 }
 
-lift::Camera lift::Scene::camera() const {
-    // TODO return set camera
-    if (!cameras_.empty()) {
-        LF_ERROR("Returning first camera");
-        return cameras_.front();
+std::shared_ptr<lift::Camera> lift::Scene::camera() {
+    if (cameras_.empty()) {
+        auto camera = std::make_shared<Camera>();
+        camera->setFovy(45.0f);
+        camera->setLookAt(scene_aabb_.center());
+        camera->setEye(scene_aabb_.center() + vec3(1.0f, 1.0f, 1.0f));
+        addCamera(camera);
     }
-    LF_TRACE("Return default camera");
-    Camera camera;
-    camera.setFovy(45.0f);
-    camera.setLookAt(scene_aabb_.center());
-    camera.setEye(scene_aabb_.center() + vec3(1.0f, 1.0f, 1.0f));
-    return camera;
+    return cameras_.front();
 }
 
 void lift::Scene::createContext() {
@@ -644,11 +639,11 @@ void lift::Scene::processGltfNode(const tinygltf::Model& model, const tinygltf::
         std::cerr << "\tfov   : " << yfov << std::endl;
         std::cerr << "\taspect: " << gltf_camera.perspective.aspectRatio << std::endl;
 
-        Camera camera;
-        camera.setFovy(yfov);
-        camera.setAspectRatio(static_cast<float>(gltf_camera.perspective.aspectRatio));
-        camera.setEye(eye);
-        camera.setUp(up);
+        auto camera = std::make_shared<Camera>();
+        camera->setFovy(yfov);
+        camera->setAspectRatio(static_cast<float>(gltf_camera.perspective.aspectRatio));
+        camera->setEye(eye);
+        camera->setUp(up);
         addCamera(camera);
     } else if (gltf_node.mesh != -1) {
         const auto& gltf_mesh = model.meshes[gltf_node.mesh];

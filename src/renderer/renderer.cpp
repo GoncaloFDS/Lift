@@ -1,23 +1,36 @@
 #include "pch.h"
 #include "renderer.h"
-#include "render_command.h"
 
 #include <optix.h>
 #include <optix_stubs.h>
 #include <core/profiler.h>
 #include <platform/opengl/opengl_display.h>
 #include <GLFW/glfw3.h>
-#include <core/os/window.h>
+#include <cuda/launch_parameters.h>
+#include <cuda/math_constructors.h>
+#include <cuda/vec_math.h>
 #include "scene/scene.h"
-#include "cuda/launch_parameters.h"
 
-void lift::Renderer::launchSubframe(const Scene& scene, LaunchParameters& params, LaunchParameters* d_params,
-                                    const ivec2& size) {
+void lift::Renderer::init(CudaOutputBufferType output_buffer_type, ivec2 frame_size) {
+    CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>( &d_params_ ), sizeof(LaunchParameters)));
+    CUDA_CHECK(cudaMalloc(
+        reinterpret_cast<void**>( &launch_parameters_.accum_buffer ),
+        frame_size.x * frame_size.y * sizeof(float4)
+    ));
+    launch_parameters_.frame_buffer = nullptr;
+    launch_parameters_.subframe_index = 0u;
+    launch_parameters_.miss_color = makeFloat3(0.1f);
+    createOutputBuffer(output_buffer_type, frame_size);
+}
+
+void lift::Renderer::launchSubframe(const Scene& scene, const ivec2& size) {
+    if (size.x == 0 || size.y == 0)
+        return;
     Profiler profiler(Profiler::Id::Render);
     uchar4* result_buffer_data = output_buffer_->map();
-    params.frame_buffer = result_buffer_data;
-    CUDA_CHECK(cudaMemcpyAsync(reinterpret_cast<void*>(d_params),
-                               &params,
+    launch_parameters_.frame_buffer = result_buffer_data;
+    CUDA_CHECK(cudaMemcpyAsync(reinterpret_cast<void*>(d_params_),
+                               &launch_parameters_,
                                sizeof(LaunchParameters),
                                cudaMemcpyHostToDevice,
                                nullptr));
@@ -25,7 +38,7 @@ void lift::Renderer::launchSubframe(const Scene& scene, LaunchParameters& params
     OPTIX_CHECK(optixLaunch(
         scene.pipeline(),
         nullptr,
-        reinterpret_cast<CUdeviceptr>( d_params ),
+        reinterpret_cast<CUdeviceptr>( d_params_ ),
         sizeof(LaunchParameters),
         scene.sbt(),
         size.x,
@@ -48,31 +61,50 @@ void lift::Renderer::displaySubframe(OpenGLDisplay& gl_display, void* window) {
     );
 }
 
-void lift::Renderer::submit(const std::shared_ptr<VertexArray>& vertex_array) {
-    vertex_array->bind();
-    RenderCommand::drawIndexed(vertex_array);
+void lift::Renderer::createOutputBuffer(CudaOutputBufferType type, ivec2 frame_size) {
+    output_buffer_ = std::make_unique<CudaOutputBuffer<uchar4>>(type, frame_size.x, frame_size.y);
 
 }
-void lift::Renderer::createOutputBuffer(CUDAOutputBufferType type, int32_t width, int32_t height) {
-    output_buffer_ = std::make_unique<CudaOutputBuffer<uchar4>>(type, width, height);
 
-}
-void lift::Renderer::resizeOutputBuffer(int32_t width, int32_t height) {
-    output_buffer_->resize(width, height);
-}
-
-void lift::Renderer::allocLights(lift::Scene& scene, lift::LaunchParameters& params) {
+void lift::Renderer::allocLights(Scene& scene) {
     auto& lights = scene.lights();
-    params.lights.count = lights.size();
+    launch_parameters_.lights.count = static_cast<uint32_t>(lights.size());
     CUDA_CHECK(cudaMalloc(
-        reinterpret_cast<void**>(&params.lights.data),
+        reinterpret_cast<void**>(&launch_parameters_.lights.data),
         lights.size() * sizeof(Lights::PointLight)
 
     ));
     CUDA_CHECK(cudaMemcpy(
-        reinterpret_cast<void*>( params.lights.data ),
+        reinterpret_cast<void*>( launch_parameters_.lights.data ),
         lights.data(),
         lights.size() * sizeof(Lights::PointLight),
         cudaMemcpyHostToDevice
     ));
 }
+
+void lift::Renderer::updateLaunchParameters(Scene scene) {
+    auto camera = scene.camera();
+    launch_parameters_.camera.eye = makeFloat3(camera->eye());
+    launch_parameters_.camera.u = makeFloat3(camera->vectorU());
+    launch_parameters_.camera.v = makeFloat3(camera->vectorV());
+    launch_parameters_.camera.w = makeFloat3(camera->vectorW());
+    launch_parameters_.handle = scene.traversableHandle();
+}
+
+void lift::Renderer::onResize(int32_t width, int32_t height) {
+    resizeOutputBuffer(width, height);
+    resizeAccumulationButter(width, height);
+}
+
+void lift::Renderer::resizeOutputBuffer(int32_t width, int32_t height) {
+    output_buffer_->resize(width, height);
+}
+
+void lift::Renderer::resizeAccumulationButter(int32_t width, int32_t height) {
+    CUDA_CHECK(cudaFree(reinterpret_cast<void*>( launch_parameters_.accum_buffer )));
+    CUDA_CHECK(cudaMalloc(
+        reinterpret_cast<void**>( &launch_parameters_.accum_buffer ),
+        width * height * sizeof(float4)
+    ));
+}
+

@@ -14,6 +14,8 @@ public:
 
     [[nodiscard]] inline unsigned int width() const override;
     [[nodiscard]] inline unsigned int height() const override;
+    [[nodiscard]] inline ivec2 size() const override;
+    [[nodiscard]] inline float aspectRatio() const override;
 
     [[nodiscard]] std::pair<int, int> getPosition() const override;
 

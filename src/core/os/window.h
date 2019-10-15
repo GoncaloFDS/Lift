@@ -34,6 +34,8 @@ public:
 
     [[nodiscard]] virtual unsigned int width() const = 0;
     [[nodiscard]] virtual unsigned int height() const = 0;
+    [[nodiscard]] virtual ivec2 size() const = 0;
+    [[nodiscard]] virtual float aspectRatio() const = 0;
     [[nodiscard]] virtual std::pair<int, int> getPosition() const = 0;
 
     // Window attributes

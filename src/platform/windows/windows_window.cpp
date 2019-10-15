@@ -175,3 +175,11 @@ void lift::WindowsWindow::shutdown() {
     glfwDestroyWindow(window_handle_);
     glfwTerminate();
 }
+
+ivec2 lift::WindowsWindow::size() const {
+    return glm::ivec2(properties_.width, properties_.height);
+}
+
+float lift::WindowsWindow::aspectRatio() const {
+    return static_cast<float>(properties_.width) / static_cast<float>(properties_.height);
+}
