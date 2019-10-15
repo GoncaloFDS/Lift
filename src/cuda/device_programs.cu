@@ -156,7 +156,7 @@ extern "C" __global__ void __closesthit__radiance() {
     float3 result = makeFloat3(0.0f);
 
     for (int i = 0; i < params.lights.count; ++i) {
-        Light::Point light = params.lights[i];
+        auto light = params.lights[i];
 
         // TODO: optimize
         const float l_dist = length(light.position - geom.p);

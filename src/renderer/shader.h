@@ -22,7 +22,7 @@ public:
     static void setTexImage2D(const uint32_t width, const uint32_t height);
 
 private:
-    ShaderProgramSource parseShader(const std::string& file_path) const;
+    [[nodiscard]] ShaderProgramSource parseShader(const std::string& file_path) const;
     static unsigned int createShader(const std::string& vertex_source, const std::string& fragment_source);
     static unsigned compileShader(const unsigned int type, const std::string& source);
     int getUniformLocation(const std::string& name);

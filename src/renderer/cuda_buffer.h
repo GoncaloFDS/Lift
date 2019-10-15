@@ -21,8 +21,8 @@ class CudaBuffer {
         }
         alloc(count);
     }
-    CUdeviceptr get() const { return reinterpret_cast<CUdeviceptr>( d_ptr_ ); }
-    CUdeviceptr get(size_t index) const { return reinterpret_cast<CUdeviceptr>( d_ptr_ + index ); }
+    [[nodiscard]] CUdeviceptr get() const { return reinterpret_cast<CUdeviceptr>( d_ptr_ ); }
+    [[nodiscard]] CUdeviceptr get(size_t index) const { return reinterpret_cast<CUdeviceptr>( d_ptr_ + index ); }
     void free() {
         count_ = 0;
         alloc_count_ = 0;
@@ -47,9 +47,9 @@ class CudaBuffer {
         assert(count + offset < alloc_count_);
         CUDA_CHECK(cudaMemcpy(data, d_ptr_ + offset, count * sizeof(T), cudaMemcpyDeviceToHost));
     }
-    size_t count() const { return count_; }
-    size_t reservedCount() const { return alloc_count_; }
-    size_t byteSize() const { return alloc_count_ * sizeof(T); }
+    [[nodiscard]] size_t count() const { return count_; }
+    [[nodiscard]] size_t reservedCount() const { return alloc_count_; }
+    [[nodiscard]] size_t byteSize() const { return alloc_count_ * sizeof(T); }
 
  private:
     size_t count_ = 0;

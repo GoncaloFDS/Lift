@@ -40,8 +40,6 @@ void lift::Application::run() {
     scene.loadFromFile("res/models/Sponza/glTF/Sponza.gltf");
     scene.finalize();
 
-    OPTIX_CHECK(optixInit());
-
     camera_ = scene.camera();
     camera_.setAspectRatio((float) window_->width() / (float) window_->height());
     initLaunchParameters(scene);
@@ -210,7 +208,7 @@ bool lift::Application::onKeyRelease(lift::KeyReleasedEvent& e) {
     return false;
 }
 
-void lift::Application::initLaunchParameters(const lift::Scene& scene) {
+void lift::Application::initLaunchParameters(lift::Scene& scene) {
     CUDA_CHECK(cudaMalloc(
         reinterpret_cast<void**>(&launch_parameters_.accum_buffer),
         window_->width() * window_->height() * sizeof(float4)
@@ -222,28 +220,21 @@ void lift::Application::initLaunchParameters(const lift::Scene& scene) {
     const float low_offset = scene.aabb().maxExtent();
 
     // TODO: add light support to Scene
-    std::vector<Light::Point> lights(2);
-    lights[0].color = {1.0f, 1.0f, 0.8f};
-    lights[0].intensity = 5.0f;
-    lights[0].position = makeFloat3(scene.aabb().center()) + makeFloat3(low_offset);
-    lights[0].falloff = Light::Falloff::QUADRATIC;
-    lights[1].color = {0.8f, 0.8f, 1.0f};
-    lights[1].intensity = 3.0f;
-    lights[1].position =
-        makeFloat3(scene.aabb().center()) + makeFloat3(-low_offset, 0.5f * low_offset, -0.5f * low_offset);
-    lights[1].falloff = Light::Falloff::QUADRATIC;
+    Lights::PointLight light0;
+    light0.color = {1.0f, 1.0f, 0.8f};
+    light0.intensity = 5.0f;
+    light0.position = makeFloat3(scene.aabb().center()) + makeFloat3(low_offset);
+    light0.falloff = Light::Falloff::QUADRATIC;
+    scene.addLight(light0);
 
-    launch_parameters_.lights.count = static_cast<uint32_t>(lights.size());
-    CUDA_CHECK(cudaMalloc(
-        reinterpret_cast<void**>( &launch_parameters_.lights.data ),
-        lights.size() * sizeof(Light::Point)
-    ));
-    CUDA_CHECK(cudaMemcpy(
-        reinterpret_cast<void*>( launch_parameters_.lights.data ),
-        lights.data(),
-        lights.size() * sizeof(Light::Point),
-        cudaMemcpyHostToDevice
-    ));
+    Lights::PointLight light1;
+    light1.color = {0.8f, 0.8f, 1.0f};
+    light1.intensity = 3.0f;
+    light1.position = makeFloat3(scene.aabb().center()) + makeFloat3(-low_offset, 0.5f * low_offset, -0.5f * low_offset);
+    light1.falloff = Light::Falloff::QUADRATIC;
+    scene.addLight(light1);
+
+    renderer_.allocLights(scene, launch_parameters_);
 
     launch_parameters_.miss_color = makeFloat3(0.1f);
 

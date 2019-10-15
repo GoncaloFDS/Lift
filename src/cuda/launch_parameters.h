@@ -24,7 +24,7 @@ struct LaunchParameters {
         float3 w;
     } camera;
 
-    BufferView<Light::Point> lights;
+    BufferView<Lights::PointLight> lights;
     float3 miss_color;
     OptixTraversableHandle handle;
 

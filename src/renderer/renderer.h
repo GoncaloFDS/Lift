@@ -11,12 +11,14 @@ class Window;
 
 class Renderer {
  public:
-    void launchSubframe(const Scene& scene, LaunchParameters& params,
-                        LaunchParameters* d_params, const ivec2& size);
+    void launchSubframe(const Scene& scene, LaunchParameters& params, LaunchParameters* d_params, const ivec2& size);
+
     void displaySubframe(OpenGLDisplay& gl_display, void* window);
 
     void createOutputBuffer(CUDAOutputBufferType type, int32_t width, int32_t height);
     void resizeOutputBuffer(int32_t width, int32_t height);
+
+    void allocLights(Scene& scene, LaunchParameters& params);
 
     static void submit(const std::shared_ptr<VertexArray>& vertex_array);
     static RendererApi::API getApi() { return RendererApi::getApi(); }

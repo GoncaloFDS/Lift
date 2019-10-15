@@ -42,8 +42,8 @@ void lift::Renderer::displaySubframe(OpenGLDisplay& gl_display, void* window) {
     int framebuf_res_y = 0;   //
     glfwGetFramebufferSize(static_cast<GLFWwindow*>(window), &framebuf_res_x, &framebuf_res_y);
     gl_display.display(
-        {output_buffer_->width(), output_buffer_->height()},
-        {framebuf_res_x, framebuf_res_y},
+        ivec2(output_buffer_->width(), output_buffer_->height()),
+        ivec2(framebuf_res_x, framebuf_res_y),
         output_buffer_->getPBO()
     );
 }
@@ -59,4 +59,20 @@ void lift::Renderer::createOutputBuffer(CUDAOutputBufferType type, int32_t width
 }
 void lift::Renderer::resizeOutputBuffer(int32_t width, int32_t height) {
     output_buffer_->resize(width, height);
+}
+
+void lift::Renderer::allocLights(lift::Scene& scene, lift::LaunchParameters& params) {
+    auto& lights = scene.lights();
+    params.lights.count = lights.size();
+    CUDA_CHECK(cudaMalloc(
+        reinterpret_cast<void**>(&params.lights.data),
+        lights.size() * sizeof(Lights::PointLight)
+
+    ));
+    CUDA_CHECK(cudaMemcpy(
+        reinterpret_cast<void*>( params.lights.data ),
+        lights.data(),
+        lights.size() * sizeof(Lights::PointLight),
+        cudaMemcpyHostToDevice
+    ));
 }

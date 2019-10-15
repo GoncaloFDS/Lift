@@ -51,7 +51,7 @@ private:
     static Application* s_instance;
 
     void initGraphicsContext();
-    void initLaunchParameters(const Scene& scene);
+    void initLaunchParameters(Scene& scene);
 
 
     void onEvent(Event& e);

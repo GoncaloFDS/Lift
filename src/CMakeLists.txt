@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
+set(EXTERNAL_DIR ../external)
+
 cuda_compile_and_embed(embedded_ptx_code cuda/device_programs.cu)
 
 add_executable(Lift
@@ -86,13 +88,12 @@ add_executable(Lift
 find_package(OptiX REQUIRED)
 target_include_directories(Lift PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ../external/glm
-        ../external/glad/include
         ${OptiX_INCLUDE}
         )
+
 target_include_directories(Lift PRIVATE
         src/
-        ../external/tinygltf)
+        ${EXTERNAL_DIR}/tinygltf)
 
 target_link_libraries(Lift
         ${optix_LIBRARY}
@@ -103,8 +104,8 @@ target_link_libraries(Lift
 target_include_directories(Lift PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
 #GLAD
-add_library(glad ../external/glad/src/glad.c)
-target_include_directories(glad PRIVATE ../external/glad/include)
+add_library(glad ${EXTERNAL_DIR}/glad/src/glad.c)
+target_include_directories(glad PUBLIC ${EXTERNAL_DIR}/glad/include)
 target_link_libraries(Lift glad ${CMAKE_DL_LIBS})
 
 #GLFW
@@ -112,23 +113,25 @@ target_link_libraries(Lift glfw)
 
 #ImGUI
 add_library(imgui
-        ../external/imgui/imconfig.h
-        ../external/imgui/imgui.h
-        ../external/imgui/imgui.cpp
-        ../external/imgui/imgui_draw.cpp
-        ../external/imgui/imgui_internal.h
-        ../external/imgui/imgui_widgets.cpp
-        ../external/imgui/imstb_rectpack.h
-        ../external/imgui/imstb_textedit.h
-        ../external/imgui/imstb_truetype.h
-        ../external/imgui/imgui_demo.cpp
-        )
-target_include_directories(Lift PRIVATE ../external/imgui)
+        ${EXTERNAL_DIR}/imgui/imconfig.h
+        ${EXTERNAL_DIR}/imgui/imgui.h
+        ${EXTERNAL_DIR}/imgui/imgui.cpp
+        ${EXTERNAL_DIR}/imgui/imgui_draw.cpp
+        ${EXTERNAL_DIR}/imgui/imgui_internal.h
+        ${EXTERNAL_DIR}/imgui/imgui_widgets.cpp
+        ${EXTERNAL_DIR}/imgui/imstb_rectpack.h
+        ${EXTERNAL_DIR}/imgui/imstb_textedit.h
+        ${EXTERNAL_DIR}/imgui/imstb_truetype.h
+        ${EXTERNAL_DIR}/imgui/imgui_demo.cpp)
+target_include_directories(Lift PRIVATE ${EXTERNAL_DIR}/imgui)
 target_link_libraries(Lift imgui)
 
 #spdlog
-target_include_directories(Lift PUBLIC ../external/spdlog/include)
+target_include_directories(Lift PUBLIC ${EXTERNAL_DIR}/spdlog/include)
 target_link_libraries(Lift spdlog)
+
+#glm
+target_include_directories(Lift PUBLIC ${EXTERNAL_DIR}/glm)
 
 add_compile_definitions(LF_PLATFORM_WINDOWS)
 add_compile_definitions(LF_BUILD_DLL)

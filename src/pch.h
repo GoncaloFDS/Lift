@@ -34,8 +34,4 @@ using namespace glm;
 #include "core/os/key_codes.h"
 #include "core/util.h"
 
-#ifdef LF_PLATFORM_WINDOWS
-#include <Windows.h>
-#include "windowsx.h"
-#endif
 

@@ -3,7 +3,7 @@
 
 namespace lift {
 class Aabb {
-public:
+ public:
 
     /** Construct an invalid box */
     Aabb();
@@ -146,9 +146,7 @@ inline Aabb::Aabb(const vec3& v_0, const vec3& v_1, const vec3& v_2) {
     set(v_0, v_1, v_2);
 }
 
-inline
-
-bool Aabb::operator==(const Aabb& other) const {
+inline bool Aabb::operator==(const Aabb& other) const {
     return m_min.x == other.m_min.x &&
         m_min.y == other.m_min.y &&
         m_min.z == other.m_min.z &&
@@ -162,73 +160,53 @@ inline vec3& Aabb::operator[](int i) {
     return (&m_min)[i];
 }
 
-inline
-
-const vec3& Aabb::operator[](int i) const {
+inline const vec3& Aabb::operator[](int i) const {
     LF_ASSERT(i >= 0 && i <= 1, "");
     return (&m_min)[i];
 }
 
-inline
-
-void Aabb::set(const vec3& min, const vec3& max) {
+inline void Aabb::set(const vec3& min, const vec3& max) {
     m_min = min;
     m_max = max;
 }
 
-inline
-
-void Aabb::set(const vec3& v_0, const vec3& v_1, const vec3& v_2) {
+inline void Aabb::set(const vec3& v_0, const vec3& v_1, const vec3& v_2) {
     m_min = min(v_0, min(v_1, v_2));
     m_max = max(v_0, max(v_1, v_2));
 }
 
-inline
-
-void Aabb::invalidate() {
+inline void Aabb::invalidate() {
     m_min = vec3(1e37f);
     m_max = vec3(-1e37f);
 }
 
-inline
-
-bool Aabb::valid() const {
+inline bool Aabb::valid() const {
     return m_min.x <= m_max.x &&
         m_min.y <= m_max.y &&
         m_min.z <= m_max.z;
 }
 
-inline
-
-bool Aabb::contains(const vec3& p) const {
+inline bool Aabb::contains(const vec3& p) const {
     return p.x >= m_min.x && p.x <= m_max.x &&
         p.y >= m_min.y && p.y <= m_max.y &&
         p.z >= m_min.z && p.z <= m_max.z;
 }
 
-inline
-
-bool Aabb::contains(const Aabb& bb) const {
+inline bool Aabb::contains(const Aabb& bb) const {
     return contains(bb.m_min) && contains(bb.m_max);
 }
 
-inline
-
-void Aabb::include(const vec3& p) {
+inline void Aabb::include(const vec3& p) {
     m_min = min(m_min, p);
     m_max = max(m_max, p);
 }
 
-inline
-
-void Aabb::include(const Aabb& other) {
+inline void Aabb::include(const Aabb& other) {
     m_min = min(m_min, other.m_min);
     m_max = max(m_max, other.m_max);
 }
 
-inline
-
-void Aabb::include(const vec3& min, const vec3& max) {
+inline void Aabb::include(const vec3& min, const vec3& max) {
     m_min = glm::min(m_min, min);
     m_max = glm::max(m_max, max);
 }
@@ -238,9 +216,7 @@ inline vec3 Aabb::center() const {
     return (m_min + m_max) * 0.5f;
 }
 
-inline
-
-float Aabb::center(int dim) const {
+inline float Aabb::center(int dim) const {
     LF_ASSERT(valid(), "");
     LF_ASSERT(dim >= 0 && dim <= 2, "");
     return (((const float*) (&m_min))[dim] + ((const float*) (&m_max))[dim]) * 0.5f;
@@ -251,38 +227,28 @@ inline vec3 Aabb::extent() const {
     return m_max - m_min;
 }
 
-inline
-
-float Aabb::extent(int dim) const {
+inline float Aabb::extent(int dim) const {
     LF_ASSERT(valid(), "");
     return ((const float*) (&m_max))[dim] - ((const float*) (&m_min))[dim];
 }
 
-inline
-
-float Aabb::volume() const {
+inline float Aabb::volume() const {
     LF_ASSERT(valid(), "");
     const vec3 d = extent();
     return d.x * d.y * d.z;
 }
 
-inline
-
-float Aabb::area() const {
+inline float Aabb::area() const {
     return 2.0f * halfArea();
 }
 
-inline
-
-float Aabb::halfArea() const {
+inline float Aabb::halfArea() const {
     LF_ASSERT(valid(), "");
     const vec3 d = extent();
     return d.x * d.y + d.y * d.z + d.z * d.x;
 }
 
-inline
-
-int Aabb::longestAxis() const {
+inline int Aabb::longestAxis() const {
     LF_ASSERT(valid(), "");
     const vec3 d = extent();
 
@@ -291,24 +257,18 @@ int Aabb::longestAxis() const {
     return d.y > d.z ? 1 : 2;
 }
 
-inline
-
-float Aabb::maxExtent() const {
+inline float Aabb::maxExtent() const {
     return extent(longestAxis());
 }
 
-inline
-
-bool Aabb::intersects(const Aabb& other) const {
+inline bool Aabb::intersects(const Aabb& other) const {
     if (other.m_min.x > m_max.x || other.m_max.x < m_min.x) return false;
     if (other.m_min.y > m_max.y || other.m_max.y < m_min.y) return false;
     if (other.m_min.z > m_max.z || other.m_max.z < m_min.z) return false;
     return true;
 }
 
-inline
-
-void Aabb::intersection(const Aabb& other) {
+inline void Aabb::intersection(const Aabb& other) {
     m_min.x = max(m_min.x, other.m_min.x);
     m_min.y = max(m_min.y, other.m_min.y);
     m_min.z = max(m_min.z, other.m_min.z);
@@ -317,17 +277,13 @@ void Aabb::intersection(const Aabb& other) {
     m_max.z = min(m_max.z, other.m_max.z);
 }
 
-inline
-
-void Aabb::enlarge(float amount) {
+inline void Aabb::enlarge(float amount) {
     LF_ASSERT(valid(), "");
     m_min -= vec3(amount);
     m_max += vec3(amount);
 }
 
-inline
-
-void Aabb::transform(const mat4& m) {
+inline void Aabb::transform(const mat4& m) {
     const vec3 b_000 = m_min;
     const vec3 b_001 = vec3(m_min.x, m_min.y, m_max.z);
     const vec3 b_010 = vec3(m_min.x, m_max.y, m_min.z);
@@ -348,23 +304,17 @@ void Aabb::transform(const mat4& m) {
     include(vec3(m * vec4(b_111, 1.0f)));
 }
 
-inline
-
-bool Aabb::isFlat() const {
+inline bool Aabb::isFlat() const {
     return m_min.x == m_max.x ||
         m_min.y == m_max.y ||
         m_min.z == m_max.z;
 }
 
-inline
-
-float Aabb::distance(const vec3& x) const {
+inline float Aabb::distance(const vec3& x) const {
     return sqrtf(distance2(x));
 }
 
-inline
-
-float Aabb::signedDistance(const vec3& x) const {
+inline float Aabb::signedDistance(const vec3& x) const {
     if (m_min.x <= x.x && x.x <= m_max.x &&
         m_min.y <= x.y && x.y <= m_max.y &&
         m_min.z <= x.z && x.z <= m_max.z) {
@@ -379,9 +329,7 @@ float Aabb::signedDistance(const vec3& x) const {
     return distance(x);
 }
 
-inline
-
-float Aabb::distance2(const vec3& x) const {
+inline float Aabb::distance2(const vec3& x) const {
     vec3 box_dims = m_max - m_min;
 
     // compute vector from min corner of box
@@ -418,4 +366,4 @@ float Aabb::distance2(const vec3& x) const {
     return dist_2;
 }
 
-} // end namespace sutil
+}

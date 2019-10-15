@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "mesh.h"
 #include "cuda/material_data.h"
+#include <cuda/light.h>
 #include "scene/cameras/camera.h"
 
 namespace tinygltf {
@@ -16,7 +17,7 @@ namespace lift {
 class Camera;
 
 class Scene {
-public:
+ public:
 
     void addCamera(const Camera& camera) { cameras_.push_back(camera); }
     void addMesh(const std::shared_ptr<Mesh>& mesh) { meshes_.push_back(mesh); }
@@ -26,6 +27,7 @@ public:
                   const int32_t num_components, const void* data);
     void addSampler(cudaTextureAddressMode address_s, cudaTextureAddressMode address_t,
                     cudaTextureFilterMode filter_mode, const int32_t image_idx);
+    void addLight(const Light& light) { lights_.push_back(light); }
 
     [[nodiscard]] CUdeviceptr buffer(int32_t buffer_index) const { return buffers_[buffer_index]; }
     [[nodiscard]] cudaArray_t image(int32_t image_index) const { return images_[image_index]; }
@@ -42,12 +44,13 @@ public:
     [[nodiscard]] OptixDeviceContext context() const { return context_; }
     [[nodiscard]] const std::vector<MaterialData>& materials() const { return materials_; }
     [[nodiscard]] const std::vector<std::shared_ptr<Mesh>>& meshes() const { return meshes_; }
+    [[nodiscard]] const std::vector<Light>& lights() const { return lights_; }
 
     void createContext();
     void buildMeshAccels();
     void buildInstanceAccel(int ray_type_count = k_RayTypeCount);
     void loadFromFile(const std::string& file_name);
-private:
+ private:
     void createPtxModule();
     void createProgramGroups();
     void createPipeline();
@@ -56,6 +59,7 @@ private:
 
     std::vector<Camera> cameras_;
     std::vector<std::shared_ptr<Mesh>> meshes_;
+    std::vector<Light> lights_;
     std::vector<MaterialData> materials_;
     std::vector<CUdeviceptr> buffers_;
     std::vector<cudaTextureObject_t> samplers_;
