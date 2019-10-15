@@ -26,6 +26,8 @@ class Renderer {
 
     void updateLaunchParameters(Scene scene);
 
+    void setClearColor(const vec3& color);
+    vec3 clearColor();
  private:
     void createOutputBuffer(CudaOutputBufferType type, ivec2 frame_size);
     void resizeOutputBuffer(int32_t width, int32_t height);
@@ -36,5 +38,6 @@ class Renderer {
     LaunchParameters launch_parameters_;
     LaunchParameters* d_params_;
 
+    vec3 clear_color_;
 };
 }

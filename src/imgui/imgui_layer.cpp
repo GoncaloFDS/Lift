@@ -10,11 +10,6 @@
 #include "imgui_internal.h"
 #include <core/profiler.h>
 
-ivec2 lift::ImGuiLayer::s_render_window_size;
-
-// TEMPORARY
-ImGuiWindowFlags k_WindowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove;
-
 lift::ImGuiLayer::ImGuiLayer()
     : Layer("ImGuiLayer") {
 
@@ -48,13 +43,26 @@ void lift::ImGuiLayer::onDetach() {
     ImGui::DestroyContext();
 }
 
+void lift::ImGuiLayer::begin() {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
+
 void lift::ImGuiLayer::onUpdate() {
+}
+
+void lift::ImGuiLayer::onEvent(Event& event) {
+    const auto& io = ImGui::GetIO();
+    if (io.WantCaptureMouse) {
+        event.handled = true;
+    }
 }
 
 void lift::ImGuiLayer::onImguiRender() {
 
     auto& app = Application::get();
-    if (ImGui::Begin("Editor")) {
+    if (ImGui::Begin("Status")) {
 
         ImGui::Text("Frame Size: %dx%d ", app.getWindow().width(), app.getWindow().height());
 
@@ -70,19 +78,16 @@ void lift::ImGuiLayer::onImguiRender() {
         }
     }
     ImGui::End();
-}
 
-void lift::ImGuiLayer::onEvent(Event& event) {
-    const auto& io = ImGui::GetIO();
-    if (io.WantCaptureMouse) {
-        event.handled = true;
+    if(ImGui::Begin("Editor")){
+       ImGui::ColorEdit3("Clear Color", &app.ui_elements.clear_color.x);
+
+
+       if(ImGui::Button("Apply")){
+           app.ui_elements.dirty = true;
+       }
     }
-}
-
-void lift::ImGuiLayer::begin() {
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
+    ImGui::End();
 }
 
 void lift::ImGuiLayer::end() {

@@ -82,7 +82,7 @@ add_executable(Lift
         pch.h
         cuda/light.h
         cuda/preprocessor.h
-        cuda/math_constructors.h platform/opengl/opengl_display.cpp platform/opengl/opengl_display.h renderer/cuda_buffer.h)
+        cuda/math_constructors.h platform/opengl/opengl_display.cpp platform/opengl/opengl_display.h renderer/cuda_buffer.h imgui/ui_elements.h)
 
 
 find_package(OptiX REQUIRED)

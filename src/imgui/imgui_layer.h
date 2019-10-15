@@ -18,10 +18,6 @@ public:
 
     static void begin();
     static void end();
-private:
-    static ivec2 s_render_window_size;
-    bool is_render_hovered_;
-    bool show_render_window_ = true;
 };
 
 }

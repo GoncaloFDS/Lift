@@ -19,7 +19,7 @@ void lift::Renderer::init(CudaOutputBufferType output_buffer_type, ivec2 frame_s
     ));
     launch_parameters_.frame_buffer = nullptr;
     launch_parameters_.subframe_index = 0u;
-    launch_parameters_.miss_color = makeFloat3(0.1f);
+    setClearColor(vec3(0.1f));
     createOutputBuffer(output_buffer_type, frame_size);
 }
 
@@ -106,5 +106,14 @@ void lift::Renderer::resizeAccumulationButter(int32_t width, int32_t height) {
         reinterpret_cast<void**>( &launch_parameters_.accum_buffer ),
         width * height * sizeof(float4)
     ));
+}
+
+void lift::Renderer::setClearColor(const vec3& color) {
+    clear_color_ = color;
+    launch_parameters_.miss_color = makeFloat3(clear_color_);
+}
+
+vec3 lift::Renderer::clearColor() {
+    return clear_color_;
 }
 

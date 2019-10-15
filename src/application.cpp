@@ -35,6 +35,7 @@ lift::Application::~Application() {
 }
 
 void lift::Application::run() {
+    OpenGLDisplay gl_display;
     Scene scene;
     //scene.loadFromFile("res/models/WaterBottle/WaterBottle.gltf");
     scene.loadFromFile("res/models/Sponza/glTF/Sponza.gltf");
@@ -46,8 +47,7 @@ void lift::Application::run() {
 
     hardcodeSceneEntities(scene);
 
-    OpenGLDisplay gl_display;
-
+    initUiElements();
     while (is_running_) {
         ImGuiLayer::begin();
 
@@ -83,6 +83,14 @@ void lift::Application::onUpdate(const lift::Scene& scene) {
     }
 
     camera_->onUpdate();
+    if (ui_elements.dirty) {
+        applyUiRequestedChanges();
+    }
+}
+
+void lift::Application::applyUiRequestedChanges() {
+    renderer_.setClearColor(this->ui_elements.clear_color);
+    ui_elements.dirty = false;
 }
 
 void lift::Application::initGraphicsContext() {
@@ -198,7 +206,6 @@ bool lift::Application::onKeyRelease(lift::KeyReleasedEvent& e) {
 void lift::Application::hardcodeSceneEntities(lift::Scene& scene) {
     const float low_offset = scene.aabb().maxExtent();
 
-    // TODO: add light support to Scene
     Lights::PointLight light0;
     light0.color = {1.0f, 1.0f, 0.8f};
     light0.intensity = 5.0f;
@@ -215,4 +222,8 @@ void lift::Application::hardcodeSceneEntities(lift::Scene& scene) {
     scene.addLight(light1);
 
     renderer_.allocLights(scene);
+}
+
+void lift::Application::initUiElements() {
+    ui_elements.clear_color = renderer_.clearColor();
 }

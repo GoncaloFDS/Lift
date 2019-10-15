@@ -1,5 +1,6 @@
 #pragma once
 
+#include <imgui/ui_elements.h>
 #include "core/os/window.h"
 
 #include "core/layer_stack.h"
@@ -31,6 +32,7 @@ public:
 
     static Application& get() { return *s_instance; }
     [[nodiscard]] Window& getWindow() const { return *window_; }
+    UiElements ui_elements;
 
 private:
     bool is_running_ = true;
@@ -39,7 +41,6 @@ private:
     Renderer renderer_;
 
     LayerStack layer_stack_;
-
     std::shared_ptr<Camera> camera_;
 
     static Application* s_instance;
@@ -58,6 +59,8 @@ private:
 
     void onUpdate(const Scene& scene);
     void endFrame();
+    void initUiElements();
+    void applyUiRequestedChanges();
 };
 
 // Defined by Sandbox
