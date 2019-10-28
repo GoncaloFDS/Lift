@@ -12,19 +12,6 @@
 \.vscode/
 
 *.filters
-
 build/
-
-tests/res/models/
-
 lift/x64/
-
-sandbox/res/models/
-
 .idea/
-
-lift/res/models/
-
-res/models/
-
-res/
