@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 set(EXTERNAL_DIR ../external)
 
-cuda_compile_and_embed(embedded_ptx_code cuda/device_programs.cu)
+cuda_compile_and_embed(embedded_ptx_code cuda/path_tracer.cu)
 
 add_executable(Lift
         ${embedded_ptx_code}
@@ -82,7 +82,11 @@ add_executable(Lift
         pch.h
         cuda/light.h
         cuda/preprocessor.h
-        cuda/math_constructors.h platform/opengl/opengl_display.cpp platform/opengl/opengl_display.h renderer/cuda_buffer.h imgui/ui_elements.h)
+        cuda/math_constructors.h
+        platform/opengl/opengl_display.cpp
+        platform/opengl/opengl_display.h
+        renderer/cuda_buffer.h
+        imgui/ui_elements.h)
 
 
 find_package(OptiX REQUIRED)

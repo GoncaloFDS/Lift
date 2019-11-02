@@ -6,6 +6,12 @@
 
 namespace lift {
 
+enum RayType {
+    RAY_TYPE_RADIANCE = 0,
+    RAY_TYPE_OCCLUSION = 1,
+    RAY_TYPE_COUNT = 2,
+};
+
 struct HitGroupData {
     GeometryData geometry_data;
     MaterialData material_data;
@@ -16,6 +22,7 @@ struct LaunchParameters {
     float4* accum_buffer;
     uchar4* frame_buffer;
     int32_t max_depth;
+    uint32_t samples_per_launch;
 
     struct {
         float3 eye;
@@ -24,22 +31,30 @@ struct LaunchParameters {
         float3 w;
     } camera;
 
-    BufferView<Lights::PointLight> lights;
-    float3 miss_color;
+    BufferView<Lights::ParallelogramLight> lights;
     OptixTraversableHandle handle;
 
 };
 
 struct PayloadRadiance {
-    float3 result;
-    float importance;
-    int depth;
+    // TODO: move some state directly into payload registers?
+    float3 emitted;
+    float3 radiance;
+    float3 attenuation;
+    float3 origin;
+    float3 direction;
+    uint32_t seed;
+    int32_t countEmitted;
+    int32_t done;
+    int32_t pad;
 };
 
-enum RayType {
-    RAY_TYPE_RADIANCE = 0,
-    RAY_TYPE_OCCLUSION = 1,
-    RAY_TYPE_COUNT = 2,
+struct MissData {
+    float4 bg_color{};
+};
+
+struct RayGenData {
+
 };
 
 }

@@ -861,10 +861,10 @@ void lift::Scene::createPipeline() {
 
 void lift::Scene::createSbt() {
     {
-        const size_t raygen_record_size = sizeof(EmptyRecord);
+        const size_t raygen_record_size = sizeof(RayGenRecord);
         CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>( &sbt_.raygenRecord ), raygen_record_size));
 
-        EmptyRecord rg_sbt;
+        RayGenRecord rg_sbt;
         OPTIX_CHECK(optixSbtRecordPackHeader(raygen_prog_group_, &rg_sbt));
         CUDA_CHECK(cudaMemcpy(
             reinterpret_cast<void*>( sbt_.raygenRecord ),
@@ -875,13 +875,13 @@ void lift::Scene::createSbt() {
     }
 
     {
-        const size_t miss_record_size = sizeof(EmptyRecord);
+        const size_t miss_record_size = sizeof(MissDataRecord);
         CUDA_CHECK(cudaMalloc(
             reinterpret_cast<void**>( &sbt_.missRecordBase ),
             miss_record_size * RAY_TYPE_COUNT
         ));
 
-        EmptyRecord ms_sbt[RAY_TYPE_COUNT];
+        MissDataRecord ms_sbt[RAY_TYPE_COUNT];
         OPTIX_CHECK(optixSbtRecordPackHeader(radiance_miss_group_, &ms_sbt[0]));
         OPTIX_CHECK(optixSbtRecordPackHeader(occlusion_miss_group_, &ms_sbt[1]));
 

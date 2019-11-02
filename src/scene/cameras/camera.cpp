@@ -22,24 +22,27 @@ lift::Camera::Camera(const vec3& eye, const vec3& look_at, const vec3& up, const
 
 }
 
-void lift::Camera::onUpdate() {
+bool lift::Camera::onUpdate() {
     move();
-    if (changed_) {
-        vector_w_ = look_at_ - eye_; // Do not normalize -- it implies focal length
-        const auto w_length = length(vector_w_);
-        vector_u_ = normalize(cross(vector_w_, up_));
-        vector_v_ = normalize(cross(vector_u_, vector_w_));
 
-        norm_vector_u_ = vector_u_;
-        norm_vector_v_ = vector_v_;
-        norm_vector_w_ = normalize(vector_w_);
+    if (!changed_)
+        return false;
 
-        const auto v_length = w_length * tanf(0.5f * fovy_ * pi<float>() / 180.f);
-        vector_v_ *= v_length;
-        const auto u_length = v_length * aspect_ratio_;
-        vector_u_ *= u_length;
-        changed_ = false;
-    }
+    vector_w_ = look_at_ - eye_; // Do not normalize -- it implies focal length
+    const auto w_length = length(vector_w_);
+    vector_u_ = normalize(cross(vector_w_, up_));
+    vector_v_ = normalize(cross(vector_u_, vector_w_));
+
+    norm_vector_u_ = vector_u_;
+    norm_vector_v_ = vector_v_;
+    norm_vector_w_ = normalize(vector_w_);
+
+    const auto v_length = w_length * tanf(0.5f * fovy_ * pi<float>() / 180.f);
+    vector_v_ *= v_length;
+    const auto u_length = v_length * aspect_ratio_;
+    vector_u_ *= u_length;
+    changed_ = false;
+    return true;
 }
 
 void lift::Camera::orbit(const float dx, const float dy) {

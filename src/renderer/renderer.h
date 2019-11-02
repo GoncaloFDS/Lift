@@ -28,6 +28,7 @@ class Renderer {
 
     void setClearColor(const vec3& color);
     vec3 clearColor();
+    void resetFrame();
  private:
     void createOutputBuffer(CudaOutputBufferType type, ivec2 frame_size);
     void resizeOutputBuffer(int32_t width, int32_t height);

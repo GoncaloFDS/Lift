@@ -5,50 +5,10 @@
 #include "random.cuh"
 #include "vec_math.h"
 #include "local_geometry.h"
+#include "cuda_util.cuh"
 
 using namespace lift;
 extern "C" __constant__ LaunchParameters params;
-
-//------------------------------------------------------------------------------
-//
-// GGX/smith shading helpers
-// TODO: move into header so can be shared by path tracer and bespoke renderers
-//
-//------------------------------------------------------------------------------
-
-__device__ float3 schlick(const float3 spec_color, const float v_dot_h) {
-    return spec_color + (makeFloat3(1.0f) - spec_color) * powf(1.0f - v_dot_h, 5.0f);
-}
-
-__device__ float vis(const float n_dot_l, const float n_dot_v, const float alpha) {
-    const float alpha_sq = alpha * alpha;
-
-    const float ggx_0 = n_dot_l * sqrtf(n_dot_v * n_dot_v * (1.0f - alpha_sq) + alpha_sq);
-    const float ggx_1 = n_dot_v * sqrtf(n_dot_l * n_dot_l * (1.0f - alpha_sq) + alpha_sq);
-
-    return 2.0f * n_dot_l * n_dot_v / (ggx_0 + ggx_1);
-}
-
-__device__ float ggxNormal(const float n_dot_h, const float alpha) {
-    const float alpha_sq = alpha * alpha;
-    const float n_dot_h_sq = n_dot_h * n_dot_h;
-    const float x = n_dot_h_sq * (alpha_sq - 1.0f) + 1.0f;
-    return alpha_sq / (M_PIf * x * x);
-}
-
-__device__ float3 linearize(float3 c) {
-    return make_float3(
-        powf(c.x, 2.2f),
-        powf(c.y, 2.2f),
-        powf(c.z, 2.2f)
-    );
-}
-
-//------------------------------------------------------------------------------
-//
-//
-//
-//------------------------------------------------------------------------------
 
 static __forceinline__ __device__ void traceRadiance(
     OptixTraversableHandle handle,
@@ -101,6 +61,7 @@ static __forceinline__ __device__ bool traceOcclusion(
         occluded);
     return occluded;
 }
+
 __forceinline__ __device__ void setPayloadResult(float3 p) {
     optixSetPayload_0(float_as_int(p.x));
     optixSetPayload_1(float_as_int(p.y));

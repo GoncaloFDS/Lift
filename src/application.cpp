@@ -82,7 +82,9 @@ void lift::Application::onUpdate(const lift::Scene& scene) {
         layer->onImguiRender();
     }
 
-    camera_->onUpdate();
+    if(camera_->onUpdate()){
+        renderer_.resetFrame();
+    }
     if (ui_elements.dirty) {
         applyUiRequestedChanges();
     }
@@ -206,20 +208,21 @@ bool lift::Application::onKeyRelease(lift::KeyReleasedEvent& e) {
 void lift::Application::hardcodeSceneEntities(lift::Scene& scene) {
     const float low_offset = scene.aabb().maxExtent();
 
-    Lights::PointLight light0;
-    light0.color = {1.0f, 1.0f, 0.8f};
-    light0.intensity = 5.0f;
-    light0.position = makeFloat3(scene.aabb().center()) + makeFloat3(low_offset);
-    light0.falloff = Light::Falloff::QUADRATIC;
-    scene.addLight(light0);
+    Lights::ParallelogramLight light2;
+    light2.emission = {15.0f, 15.0f, 5.0f};
+    light2.corner = {343.0f, 548.5f, 227.0f};
+    light2.v1 = {0.0f, 0.0f, 105.0f};
+    light2.v2 = {-130.0f, 0.0f, 0.0f};
+    light2.normal = normalize( cross( light2.v1, light2.v2));
+    scene.addLight(light2);
 
-    Lights::PointLight light1;
-    light1.color = {0.8f, 0.8f, 1.0f};
-    light1.intensity = 3.0f;
-    light1.position =
-        makeFloat3(scene.aabb().center()) + makeFloat3(-low_offset, 0.5f * low_offset, -0.5f * low_offset);
-    light1.falloff = Light::Falloff::QUADRATIC;
-    scene.addLight(light1);
+    //Lights::PointLight light1;
+    //light1.color = {0.8f, 0.8f, 1.0f};
+    //light1.intensity = 3.0f;
+    //light1.position =
+    //    makeFloat3(scene.aabb().center()) + makeFloat3(-low_offset, 0.5f * low_offset, -0.5f * low_offset);
+    //light1.falloff = Light::Falloff::QUADRATIC;
+    //scene.addLight(light1);
 
     renderer_.allocLights(scene);
 }

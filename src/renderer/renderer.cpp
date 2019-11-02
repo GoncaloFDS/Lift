@@ -19,6 +19,7 @@ void lift::Renderer::init(CudaOutputBufferType output_buffer_type, ivec2 frame_s
     ));
     launch_parameters_.frame_buffer = nullptr;
     launch_parameters_.subframe_index = 0u;
+    launch_parameters_.samples_per_launch = 1;
     setClearColor(vec3(0.1f));
     createOutputBuffer(output_buffer_type, frame_size);
 }
@@ -71,19 +72,20 @@ void lift::Renderer::allocLights(Scene& scene) {
     launch_parameters_.lights.count = static_cast<uint32_t>(lights.size());
     CUDA_CHECK(cudaMalloc(
         reinterpret_cast<void**>(&launch_parameters_.lights.data),
-        lights.size() * sizeof(Lights::PointLight)
+        lights.size() * sizeof(Lights::ParallelogramLight)
 
     ));
     CUDA_CHECK(cudaMemcpy(
         reinterpret_cast<void*>( launch_parameters_.lights.data ),
         lights.data(),
-        lights.size() * sizeof(Lights::PointLight),
+        lights.size() * sizeof(Lights::ParallelogramLight),
         cudaMemcpyHostToDevice
     ));
 }
 
 void lift::Renderer::updateLaunchParameters(Scene scene) {
     auto camera = scene.camera();
+
     launch_parameters_.camera.eye = makeFloat3(camera->eye());
     launch_parameters_.camera.u = makeFloat3(camera->vectorU());
     launch_parameters_.camera.v = makeFloat3(camera->vectorV());
@@ -110,10 +112,15 @@ void lift::Renderer::resizeAccumulationButter(int32_t width, int32_t height) {
 
 void lift::Renderer::setClearColor(const vec3& color) {
     clear_color_ = color;
-    launch_parameters_.miss_color = makeFloat3(clear_color_);
+
+    //launch_parameters_.miss_color = makeFloat3(clear_color_);
 }
 
 vec3 lift::Renderer::clearColor() {
     return clear_color_;
+}
+
+void lift::Renderer::resetFrame() {
+    launch_parameters_.subframe_index = 0u;
 }
 

@@ -19,6 +19,13 @@ struct Light {
 
 namespace Lights {
 
-struct PointLight : Light{ };
+struct PointLight : public Light{ };
+
+struct ParallelogramLight : public Light {
+    float3 corner;
+    float3 v1, v2;
+    float3 normal;
+    float3 emission;
+};
 
 }

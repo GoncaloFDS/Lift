@@ -13,5 +13,8 @@ struct EmptyData {
 
 typedef Record<EmptyData> EmptyRecord;
 
+typedef Record<RayGenData> RayGenRecord;
 typedef Record<HitGroupData> HitGroupRecord;
+typedef Record<MissData> MissDataRecord;
+
 }
