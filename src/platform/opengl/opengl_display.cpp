@@ -3,10 +3,10 @@
 
 namespace {
 
-GLuint createGLShader(const std::string& source, GLuint shader_type) {
+auto createGLShader(const std::string& source, GLuint shader_type) -> GLuint {
     GLuint shader = glCreateShader(shader_type);
     {
-        const GLchar* source_data = reinterpret_cast<const GLchar*>( source.data());
+        const auto* source_data = reinterpret_cast<const GLchar*>(source.data());
         glShaderSource(shader, 1, &source_data, nullptr);
         glCompileShader(shader);
 
@@ -30,10 +30,9 @@ GLuint createGLShader(const std::string& source, GLuint shader_type) {
     return shader;
 }
 
-GLuint createGLProgram(
-    const std::string& vert_source,
-    const std::string& frag_source
-) {
+auto createGLProgram(const std::string& vert_source,
+                     const std::string& frag_source) -> GLuint {
+
     GLuint vert_shader = createGLShader(vert_source, GL_VERTEX_SHADER);
     if (vert_shader == 0)
         return 0;
@@ -56,7 +55,7 @@ GLuint createGLProgram(
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &max_length);
 
         std::string info_log(max_length, '\0');
-        GLchar* info_log_data = reinterpret_cast<GLchar*>( &info_log[0]);
+        auto* info_log_data = reinterpret_cast<GLchar*>( &info_log[0]);
         glGetProgramInfoLog(program, max_length, nullptr, info_log_data);
         std::cerr << "Linking of program failed: " << info_log << std::endl;
 
@@ -73,7 +72,7 @@ GLuint createGLProgram(
     return program;
 }
 
-GLint getGLUniformLocation(GLuint program, const std::string& name) {
+auto getGLUniformLocation(GLuint program, const std::string& name) -> GLint {
     GLint loc = glGetUniformLocation(program, name.c_str());
     return loc;
 }
@@ -193,7 +192,7 @@ void lift::OpenGLDisplay::display(ivec2 screen_res, ivec2 frame_buffer_res, uint
         GL_FLOAT,           // type
         GL_FALSE,           // normalized?
         0,                  // stride
-        (void*) 0            // array buffer offset
+        nullptr            // array buffer offset
     )
     );
 

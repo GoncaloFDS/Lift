@@ -10,22 +10,13 @@ public:
     Layer(std::string name = "Layer");
     virtual ~Layer();
 
-    virtual void onAttach() {
-    }
+    virtual void onAttach();
+    virtual void onDetach();
+    virtual void onUpdate();
+    virtual void onImguiRender();
+    virtual void onEvent(Event& event);
 
-    virtual void onDetach() {
-    }
-
-    virtual void onUpdate() {
-    }
-
-    virtual void onImguiRender() {
-    }
-
-    virtual void onEvent(Event& event) {
-    }
-
-    inline const std::string& getName() const;
+    [[nodiscard]] inline auto getName() const -> const std::string&;
 
 protected:
     std::string name_;

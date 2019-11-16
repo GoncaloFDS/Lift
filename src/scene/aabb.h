@@ -3,7 +3,7 @@
 
 namespace lift {
 class Aabb {
- public:
+public:
 
     /** Construct an invalid box */
     Aabb();
@@ -16,239 +16,218 @@ class Aabb {
 
     /** Exact equality */
 
-    bool operator==(const Aabb& other) const;
+    auto operator==(const Aabb& other) const -> bool;
 
     /** Array access */
-    vec3& operator[](int i);
+    auto operator[](int i) -> vec3&;
 
     /** Const array access */
-    const vec3& operator[](int i) const;
+    auto operator[](int i) const -> const vec3&;
 
     /** Set using two vectors */
-
     void set(const vec3& min, const vec3& max);
 
     /** Set using three points (e.g. triangle) */
-
     void set(const vec3& v_0, const vec3& v_1, const vec3& v_2);
 
     /** Invalidate the box */
-
     void invalidate();
 
     /** Check if the box is valid */
-
-    bool valid() const;
+    [[nodiscard]] auto valid() const -> bool;
 
     /** Check if the point is in the box */
-
-    bool contains(const vec3& p) const;
+    [[nodiscard]] auto contains(const vec3& p) const -> bool;
 
     /** Check if the box is fully contained in the box */
-
-    bool contains(const Aabb& bb) const;
+    [[nodiscard]] auto contains(const Aabb& bb) const -> bool;
 
     /** Extend the box to include the given point */
-
     void include(const vec3& p);
 
     /** Extend the box to include the given box */
-
     void include(const Aabb& other);
 
     /** Extend the box to include the given box */
-
     void include(const vec3& min, const vec3& max);
 
     /** Compute the box center */
-    vec3 center() const;
+    [[nodiscard]] auto center() const -> vec3;
 
     /** Compute the box center in the given dimension */
-
-    float center(int dim) const;
+    [[nodiscard]] auto center(int dim) const -> float;
 
     /** Compute the box extent */
-    vec3 extent() const;
+    [[nodiscard]] auto extent() const -> vec3;
 
     /** Compute the box extent in the given dimension */
-
-    float extent(int dim) const;
+    [[nodiscard]] auto extent(int dim) const -> float;
 
     /** Compute the volume of the box */
-
-    float volume() const;
+    [[nodiscard]] auto volume() const -> float;
 
     /** Compute the surface area of the box */
-
-    float area() const;
+    [[nodiscard]] auto area() const -> float;
 
     /** Compute half the surface area of the box */
-
-    float halfArea() const;
+    [[nodiscard]] auto halfArea() const -> float;
 
     /** Get the index of the longest axis */
-
-    int longestAxis() const;
+    [[nodiscard]] auto longestAxis() const -> int;
 
     /** Get the extent of the longest axis */
-
-    float maxExtent() const;
+    [[nodiscard]] auto maxExtent() const -> float;
 
     /** Check for intersection with another box */
-
-    bool intersects(const Aabb& other) const;
+    [[nodiscard]] auto intersects(const Aabb& other) const -> bool;
 
     /** Make the current box be the intersection between this one and another one */
-
     void intersection(const Aabb& other);
 
     /** Enlarge the box by moving both min and max by 'amount' */
-
     void enlarge(float amount);
 
     void transform(const mat4& m);
 
     /** Check if the box is flat in at least one dimension  */
-
-    bool isFlat() const;
+    [[nodiscard]] auto isFlat() const -> bool;
 
     /** Compute the minimum Euclidean distance from a point on the
      surface of this Aabb to the point of interest */
-
-    float distance(const vec3& x) const;
+    [[nodiscard]] auto distance(const vec3& x) const -> float;
 
     /** Compute the minimum squared Euclidean distance from a point on the
      surface of this Aabb to the point of interest */
-
-    float distance2(const vec3& x) const;
+    [[nodiscard]] auto distance2(const vec3& x) const -> float;
 
     /** Compute the minimum Euclidean distance from a point on the surface
       of this Aabb to the point of interest.
       If the point of interest lies inside this Aabb, the result is negative  */
-
-    float signedDistance(const vec3& x) const;
+    [[nodiscard]] auto signedDistance(const vec3& x) const -> float;
 
     /** Min bound */
-    vec3 m_min;
+    vec3 min_{};
     /** Max bound */
-    vec3 m_max;
+    vec3 max_{};
 };
 
-inline Aabb::Aabb() {
+}
+
+inline lift::Aabb::Aabb() {
     invalidate();
 }
 
-inline Aabb::Aabb(const vec3& min, const vec3& max) {
+inline lift::Aabb::Aabb(const vec3& min, const vec3& max) {
     set(min, max);
 }
 
-inline Aabb::Aabb(const vec3& v_0, const vec3& v_1, const vec3& v_2) {
+inline lift::Aabb::Aabb(const vec3& v_0, const vec3& v_1, const vec3& v_2) {
     set(v_0, v_1, v_2);
 }
 
-inline bool Aabb::operator==(const Aabb& other) const {
-    return m_min.x == other.m_min.x &&
-        m_min.y == other.m_min.y &&
-        m_min.z == other.m_min.z &&
-        m_max.x == other.m_max.x &&
-        m_max.y == other.m_max.y &&
-        m_max.z == other.m_max.z;
+inline auto lift::Aabb::operator==(const Aabb& other) const -> bool {
+    return min_.x == other.min_.x &&
+        min_.y == other.min_.y &&
+        min_.z == other.min_.z &&
+        max_.x == other.max_.x &&
+        max_.y == other.max_.y &&
+        max_.z == other.max_.z;
 }
 
-inline vec3& Aabb::operator[](int i) {
+inline auto lift::Aabb::operator[](int i) -> vec3& {
     LF_ASSERT(i >= 0 && i <= 1, "");
-    return (&m_min)[i];
+    return (&min_)[i];
 }
 
-inline const vec3& Aabb::operator[](int i) const {
+inline auto lift::Aabb::operator[](int i) const -> const vec3& {
     LF_ASSERT(i >= 0 && i <= 1, "");
-    return (&m_min)[i];
+    return (&min_)[i];
 }
 
-inline void Aabb::set(const vec3& min, const vec3& max) {
-    m_min = min;
-    m_max = max;
+inline void lift::Aabb::set(const vec3& min, const vec3& max) {
+    min_ = min;
+    max_ = max;
 }
 
-inline void Aabb::set(const vec3& v_0, const vec3& v_1, const vec3& v_2) {
-    m_min = min(v_0, min(v_1, v_2));
-    m_max = max(v_0, max(v_1, v_2));
+inline void lift::Aabb::set(const vec3& v_0, const vec3& v_1, const vec3& v_2) {
+    min_ = min(v_0, min(v_1, v_2));
+    max_ = max(v_0, max(v_1, v_2));
 }
 
-inline void Aabb::invalidate() {
-    m_min = vec3(1e37f);
-    m_max = vec3(-1e37f);
+inline void lift::Aabb::invalidate() {
+    min_ = vec3(1e37f);
+    max_ = vec3(-1e37f);
 }
 
-inline bool Aabb::valid() const {
-    return m_min.x <= m_max.x &&
-        m_min.y <= m_max.y &&
-        m_min.z <= m_max.z;
+inline auto lift::Aabb::valid() const -> bool {
+    return min_.x <= max_.x &&
+        min_.y <= max_.y &&
+        min_.z <= max_.z;
 }
 
-inline bool Aabb::contains(const vec3& p) const {
-    return p.x >= m_min.x && p.x <= m_max.x &&
-        p.y >= m_min.y && p.y <= m_max.y &&
-        p.z >= m_min.z && p.z <= m_max.z;
+inline auto lift::Aabb::contains(const vec3& p) const -> bool {
+    return p.x >= min_.x && p.x <= max_.x &&
+        p.y >= min_.y && p.y <= max_.y &&
+        p.z >= min_.z && p.z <= max_.z;
 }
 
-inline bool Aabb::contains(const Aabb& bb) const {
-    return contains(bb.m_min) && contains(bb.m_max);
+inline auto lift::Aabb::contains(const Aabb& bb) const -> bool {
+    return contains(bb.min_) && contains(bb.max_);
 }
 
-inline void Aabb::include(const vec3& p) {
-    m_min = min(m_min, p);
-    m_max = max(m_max, p);
+inline void lift::Aabb::include(const vec3& p) {
+    min_ = min(min_, p);
+    max_ = max(max_, p);
 }
 
-inline void Aabb::include(const Aabb& other) {
-    m_min = min(m_min, other.m_min);
-    m_max = max(m_max, other.m_max);
+inline void lift::Aabb::include(const Aabb& other) {
+    min_ = min(min_, other.min_);
+    max_ = max(max_, other.max_);
 }
 
-inline void Aabb::include(const vec3& min, const vec3& max) {
-    m_min = glm::min(m_min, min);
-    m_max = glm::max(m_max, max);
+inline void lift::Aabb::include(const vec3& min, const vec3& max) {
+    min_ = glm::min(min_, min);
+    max_ = glm::max(max_, max);
 }
 
-inline vec3 Aabb::center() const {
+inline auto lift::Aabb::center() const -> vec3 {
     LF_ASSERT(valid(), "");
-    return (m_min + m_max) * 0.5f;
+    return (min_ + max_) * 0.5f;
 }
 
-inline float Aabb::center(int dim) const {
+inline auto lift::Aabb::center(int dim) const -> float {
     LF_ASSERT(valid(), "");
     LF_ASSERT(dim >= 0 && dim <= 2, "");
-    return (((const float*) (&m_min))[dim] + ((const float*) (&m_max))[dim]) * 0.5f;
+    return (((const float*) (&min_))[dim] + ((const float*) (&max_))[dim]) * 0.5f;
 }
 
-inline vec3 Aabb::extent() const {
+inline auto lift::Aabb::extent() const -> vec3 {
     LF_ASSERT(valid(), "");
-    return m_max - m_min;
+    return max_ - min_;
 }
 
-inline float Aabb::extent(int dim) const {
+inline auto lift::Aabb::extent(int dim) const -> float {
     LF_ASSERT(valid(), "");
-    return ((const float*) (&m_max))[dim] - ((const float*) (&m_min))[dim];
+    return ((const float*) (&max_))[dim] - ((const float*) (&min_))[dim];
 }
 
-inline float Aabb::volume() const {
+inline auto lift::Aabb::volume() const -> float {
     LF_ASSERT(valid(), "");
     const vec3 d = extent();
     return d.x * d.y * d.z;
 }
 
-inline float Aabb::area() const {
+inline auto lift::Aabb::area() const -> float {
     return 2.0f * halfArea();
 }
 
-inline float Aabb::halfArea() const {
+inline auto lift::Aabb::halfArea() const -> float {
     LF_ASSERT(valid(), "");
     const vec3 d = extent();
     return d.x * d.y + d.y * d.z + d.z * d.x;
 }
 
-inline int Aabb::longestAxis() const {
+inline auto lift::Aabb::longestAxis() const -> int {
     LF_ASSERT(valid(), "");
     const vec3 d = extent();
 
@@ -257,41 +236,40 @@ inline int Aabb::longestAxis() const {
     return d.y > d.z ? 1 : 2;
 }
 
-inline float Aabb::maxExtent() const {
+inline auto lift::Aabb::maxExtent() const -> float {
     return extent(longestAxis());
 }
 
-inline bool Aabb::intersects(const Aabb& other) const {
-    if (other.m_min.x > m_max.x || other.m_max.x < m_min.x) return false;
-    if (other.m_min.y > m_max.y || other.m_max.y < m_min.y) return false;
-    if (other.m_min.z > m_max.z || other.m_max.z < m_min.z) return false;
-    return true;
+inline auto lift::Aabb::intersects(const Aabb& other) const -> bool {
+    if (other.min_.x > max_.x || other.max_.x < min_.x) return false;
+    if (other.min_.y > max_.y || other.max_.y < min_.y) return false;
+    return !(other.min_.z > max_.z || other.max_.z < min_.z);
 }
 
-inline void Aabb::intersection(const Aabb& other) {
-    m_min.x = max(m_min.x, other.m_min.x);
-    m_min.y = max(m_min.y, other.m_min.y);
-    m_min.z = max(m_min.z, other.m_min.z);
-    m_max.x = min(m_max.x, other.m_max.x);
-    m_max.y = min(m_max.y, other.m_max.y);
-    m_max.z = min(m_max.z, other.m_max.z);
+inline void lift::Aabb::intersection(const Aabb& other) {
+    min_.x = max(min_.x, other.min_.x);
+    min_.y = max(min_.y, other.min_.y);
+    min_.z = max(min_.z, other.min_.z);
+    max_.x = min(max_.x, other.max_.x);
+    max_.y = min(max_.y, other.max_.y);
+    max_.z = min(max_.z, other.max_.z);
 }
 
-inline void Aabb::enlarge(float amount) {
+inline void lift::Aabb::enlarge(float amount) {
     LF_ASSERT(valid(), "");
-    m_min -= vec3(amount);
-    m_max += vec3(amount);
+    min_ -= vec3(amount);
+    max_ += vec3(amount);
 }
 
-inline void Aabb::transform(const mat4& m) {
-    const vec3 b_000 = m_min;
-    const vec3 b_001 = vec3(m_min.x, m_min.y, m_max.z);
-    const vec3 b_010 = vec3(m_min.x, m_max.y, m_min.z);
-    const vec3 b_011 = vec3(m_min.x, m_max.y, m_max.z);
-    const vec3 b_100 = vec3(m_max.x, m_min.y, m_min.z);
-    const vec3 b_101 = vec3(m_max.x, m_min.y, m_max.z);
-    const vec3 b_110 = vec3(m_max.x, m_max.y, m_min.z);
-    const vec3 b_111 = m_max;
+inline void lift::Aabb::transform(const mat4& m) {
+    const vec3 b_000 = min_;
+    const vec3 b_001 = vec3(min_.x, min_.y, max_.z);
+    const vec3 b_010 = vec3(min_.x, max_.y, min_.z);
+    const vec3 b_011 = vec3(min_.x, max_.y, max_.z);
+    const vec3 b_100 = vec3(max_.x, min_.y, min_.z);
+    const vec3 b_101 = vec3(max_.x, min_.y, max_.z);
+    const vec3 b_110 = vec3(max_.x, max_.y, min_.z);
+    const vec3 b_111 = max_;
 
     invalidate();
     include(vec3(m * vec4(b_000, 1.0f)));
@@ -304,23 +282,23 @@ inline void Aabb::transform(const mat4& m) {
     include(vec3(m * vec4(b_111, 1.0f)));
 }
 
-inline bool Aabb::isFlat() const {
-    return m_min.x == m_max.x ||
-        m_min.y == m_max.y ||
-        m_min.z == m_max.z;
+inline bool lift::Aabb::isFlat() const {
+    return min_.x == max_.x ||
+        min_.y == max_.y ||
+        min_.z == max_.z;
 }
 
-inline float Aabb::distance(const vec3& x) const {
+inline auto lift::Aabb::distance(const vec3& x) const -> float {
     return sqrtf(distance2(x));
 }
 
-inline float Aabb::signedDistance(const vec3& x) const {
-    if (m_min.x <= x.x && x.x <= m_max.x &&
-        m_min.y <= x.y && x.y <= m_max.y &&
-        m_min.z <= x.z && x.z <= m_max.z) {
-        float distance_x = min(x.x - m_min.x, m_max.x - x.x);
-        float distance_y = min(x.y - m_min.y, m_max.y - x.y);
-        float distance_z = min(x.z - m_min.z, m_max.z - x.z);
+inline auto lift::Aabb::signedDistance(const vec3& x) const -> float {
+    if (min_.x <= x.x && x.x <= max_.x &&
+        min_.y <= x.y && x.y <= max_.y &&
+        min_.z <= x.z && x.z <= max_.z) {
+        float distance_x = min(x.x - min_.x, max_.x - x.x);
+        float distance_y = min(x.y - min_.y, max_.y - x.y);
+        float distance_z = min(x.z - min_.z, max_.z - x.z);
 
         float min_distance = min(distance_x, min(distance_y, distance_z));
         return -min_distance;
@@ -329,11 +307,11 @@ inline float Aabb::signedDistance(const vec3& x) const {
     return distance(x);
 }
 
-inline float Aabb::distance2(const vec3& x) const {
-    vec3 box_dims = m_max - m_min;
+inline auto lift::Aabb::distance2(const vec3& x) const -> float {
+    vec3 box_dims = max_ - min_;
 
     // compute vector from min corner of box
-    vec3 v = x - m_min;
+    vec3 v = x - min_;
 
     float dist_2 = 0;
     float excess;
@@ -364,6 +342,4 @@ inline float Aabb::distance2(const vec3& x) const {
     dist_2 += excess * excess;
 
     return dist_2;
-}
-
 }

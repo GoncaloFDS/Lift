@@ -9,10 +9,7 @@
 #include "platform/windows/windows_window.h"
 #include "platform/opengl/opengl_context.h"
 #include "scene/scene.h"
-#include <optix_stubs.h>
-#include "cuda/math_constructors.h"
 #include "cuda/vec_math.h"
-#include <thread>
 #include <platform/opengl/opengl_display.h>
 
 lift::Application* lift::Application::s_instance = nullptr;
@@ -20,7 +17,8 @@ lift::Application* lift::Application::s_instance = nullptr;
 lift::Application::Application() {
     LF_ASSERT(!s_instance, "Application already exists");
     s_instance = this;
-    window_ = std::unique_ptr<Window>(Window::create({"Lift Engine", 1280, 720, 0, 28}));
+    window_ = std::unique_ptr<Window>(Window::create(
+        WindowProperties{"Lift Engine", 1280, 720, 0, 28}));
     window_->setEventCallback(LF_BIND_EVENT_FN(Application::onEvent));
 
     Timer::start();
@@ -82,7 +80,7 @@ void lift::Application::onUpdate(const lift::Scene& scene) {
         layer->onImguiRender();
     }
 
-    if(camera_->onUpdate()){
+    if (camera_->onUpdate()) {
         renderer_.resetFrame();
     }
     if (ui_elements.dirty) {
@@ -119,13 +117,13 @@ void lift::Application::onEvent(Event& e) {
 
 }
 
-bool lift::Application::onWindowClose(WindowCloseEvent& e) {
+auto lift::Application::onWindowClose(WindowCloseEvent& e) -> bool {
     is_running_ = false;
     LF_TRACE(e.toString());
     return false;
 }
 
-bool lift::Application::onWindowResize(WindowResizeEvent& e) {
+auto lift::Application::onWindowResize(WindowResizeEvent& e) -> bool {
     if (e.height() && e.width()) {
         // Only resize when not minimized
         RenderCommand::resize(e.width(), e.height());
@@ -136,12 +134,12 @@ bool lift::Application::onWindowResize(WindowResizeEvent& e) {
     return false;
 }
 
-bool lift::Application::onWindowMinimize(WindowMinimizeEvent& e) const {
+auto lift::Application::onWindowMinimize(WindowMinimizeEvent& e) -> bool {
     LF_TRACE(e.toString());
     return false;
 }
 
-inline bool lift::Application::onMouseMove(MouseMovedEvent& e) {
+inline auto lift::Application::onMouseMove(MouseMovedEvent& e) -> bool {
     if (Input::isMouseButtonPressed(LF_MOUSE_BUTTON_LEFT)) {
         const auto delta = Input::getMouseDelta();
         camera_->orbit(-delta.x, -delta.y);
@@ -155,12 +153,12 @@ inline bool lift::Application::onMouseMove(MouseMovedEvent& e) {
     return false;
 }
 
-inline bool lift::Application::onMouseScroll(MouseScrolledEvent& e) {
+inline auto lift::Application::onMouseScroll(MouseScrolledEvent& e) -> bool {
     camera_->zoom(e.getYOffset() * -10);
     return false;
 }
 
-bool lift::Application::onKeyPress(lift::KeyPressedEvent& e) {
+auto lift::Application::onKeyPress(lift::KeyPressedEvent& e) -> bool {
     if (e.getKeyCode() == LF_KEY_W) {
         camera_->setMoveDirection(Direction::FORWARD);
     }
@@ -183,7 +181,7 @@ bool lift::Application::onKeyPress(lift::KeyPressedEvent& e) {
     return false;
 }
 
-bool lift::Application::onKeyRelease(lift::KeyReleasedEvent& e) {
+auto lift::Application::onKeyRelease(lift::KeyReleasedEvent& e) -> bool {
     if (e.getKeyCode() == LF_KEY_W) {
         camera_->setMoveDirection(Direction::FORWARD, -1.0f);
     }
@@ -213,7 +211,7 @@ void lift::Application::hardcodeSceneEntities(lift::Scene& scene) {
     light2.corner = {343.0f, 548.5f, 227.0f};
     light2.v1 = {0.0f, 0.0f, 105.0f};
     light2.v2 = {-130.0f, 0.0f, 0.0f};
-    light2.normal = normalize( cross( light2.v1, light2.v2));
+    light2.normal = normalize(cross(light2.v1, light2.v2));
     scene.addLight(light2);
 
     //Lights::PointLight light1;

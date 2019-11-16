@@ -7,24 +7,24 @@ namespace lift {
 
 class WindowsWindow : public Window {
 public:
-    WindowsWindow(const WindowProperties& props);
-    virtual ~WindowsWindow();
+    explicit WindowsWindow(const WindowProperties& props);
+    ~WindowsWindow() override;
 
     void onUpdate() override;
 
-    [[nodiscard]] inline unsigned int width() const override;
-    [[nodiscard]] inline unsigned int height() const override;
-    [[nodiscard]] inline ivec2 size() const override;
-    [[nodiscard]] inline float aspectRatio() const override;
+    [[nodiscard]] inline auto width() const -> unsigned int override;
+    [[nodiscard]] inline auto height() const -> unsigned int override;
+    [[nodiscard]] inline auto size() const -> ivec2 override;
+    [[nodiscard]] inline auto aspectRatio() const -> float override;
 
-    [[nodiscard]] std::pair<int, int> getPosition() const override;
+    [[nodiscard]] auto getPosition() const -> std::pair<int, int> override;
 
     //Window attributes
     inline void setEventCallback(const EventCallbackFn& callback) override;
     void setVSync(bool enabled) override;
-    bool isVSync() const override;
+    [[nodiscard]] auto isVSync() const -> bool override;
 
-    [[nodiscard]] inline void* getNativeWindow() const override;
+    [[nodiscard]] inline auto getNativeWindow() const -> void* override;
 private:
     virtual void init(const WindowProperties& props);
     virtual void shutdown();

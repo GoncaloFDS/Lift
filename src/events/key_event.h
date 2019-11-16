@@ -6,12 +6,11 @@ namespace lift {
 
 class KeyEvent : public Event {
 public:
-    [[nodiscard]] unsigned int getKeyCode() const { return key_code_; }
-
-    [[nodiscard]]int getCategoryFlags() const override { return EVENT_CATEGORY_KEYBOARD | EVENT_CATEGORY_INPUT; }
+    [[nodiscard]] auto getKeyCode() const -> unsigned int { return key_code_; }
+    [[nodiscard]] auto getCategoryFlags() const -> int override { return EVENT_CATEGORY_KEYBOARD | EVENT_CATEGORY_INPUT; }
 protected:
-    KeyEvent(const int keycode)
-        : key_code_(keycode) {
+    explicit KeyEvent(const int key_code)
+        : key_code_(key_code) {
     }
 
     unsigned int key_code_;
@@ -19,57 +18,57 @@ protected:
 
 class KeyPressedEvent : public KeyEvent {
 public:
-    KeyPressedEvent(const int keycode, const int repeat_count)
-        : KeyEvent(keycode), repeat_count_(repeat_count) {
+    KeyPressedEvent(const int key_code, const int repeat_count)
+        : KeyEvent(key_code), repeat_count_(repeat_count) {
     }
 
-    int getRepeatCount() const { return repeat_count_; }
+    [[nodiscard]] auto getRepeatCount() const -> int { return repeat_count_; }
 
-    [[nodiscard]] std::string toString() const override {
+    [[nodiscard]] auto toString() const -> std::string override {
         std::stringstream ss;
         ss << "KeyPressedEvent: " << key_code_ << " (" << repeat_count_ << " repeats)";
         return ss.str();
     }
 
-    [[nodiscard]]static EventType getStaticType() { return EventType::KEY_PRESSED; }
-    [[nodiscard]]EventType getEventType() const override { return getStaticType(); }
-    [[nodiscard]]const char* getName() const override { return "KEY_PRESSED"; }
+    [[nodiscard]]static auto getStaticType() -> EventType { return EventType::KEY_PRESSED; }
+    [[nodiscard]]auto getEventType() const -> EventType override { return getStaticType(); }
+    [[nodiscard]]auto getName() const -> const char* override { return "KEY_PRESSED"; }
 private:
     int repeat_count_;
 };
 
 class KeyReleasedEvent : public KeyEvent {
 public:
-    KeyReleasedEvent(const int keycode)
-        : KeyEvent(keycode) {
+    explicit KeyReleasedEvent(const int key_code)
+        : KeyEvent(key_code) {
     }
 
-    [[nodiscard]] std::string toString() const override {
+    [[nodiscard]] auto toString() const -> std::string override {
         std::stringstream ss;
         ss << "KeyReleasedEvent: " << key_code_;
         return ss.str();
     }
 
-    [[nodiscard]]static EventType getStaticType() { return EventType::KEY_RELEASED; }
-    [[nodiscard]]EventType getEventType() const override { return getStaticType(); }
-    [[nodiscard]]const char* getName() const override { return "KEY_RELEASED"; }
+    [[nodiscard]] static auto getStaticType() -> EventType { return EventType::KEY_RELEASED; }
+    [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
+    [[nodiscard]] auto getName() const -> const char* override { return "KEY_RELEASED"; }
 };
 
 class KeyTypedEvent : public KeyEvent {
 public:
-    explicit KeyTypedEvent(const int keycode)
-        : KeyEvent(keycode) {
+    explicit KeyTypedEvent(const int key_code)
+        : KeyEvent(key_code) {
     }
 
-    [[nodiscard]] std::string toString() const override {
+    [[nodiscard]] auto toString() const -> std::string override {
         std::stringstream ss;
         ss << "KeyTypedEvent: " << key_code_;
         return ss.str();
     }
 
-    [[nodiscard]]static EventType getStaticType() { return EventType::KEY_TYPED; }
-    [[nodiscard]]EventType getEventType() const override { return getStaticType(); }
-    [[nodiscard]]const char* getName() const override { return "KEY_TYPED"; }
+    [[nodiscard]] static auto getStaticType() -> EventType { return EventType::KEY_TYPED; }
+    [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
+    [[nodiscard]] auto getName() const -> const char* override { return "KEY_TYPED"; }
 };
 
 }

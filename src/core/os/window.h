@@ -13,7 +13,7 @@ struct WindowProperties {
     unsigned int height;
     unsigned int x, y;
 
-    WindowProperties(std::string title = "lift Engine",
+    explicit WindowProperties(std::string title = "lift Engine",
                      const unsigned int width = 1280,
                      const unsigned int height = 720,
                      const unsigned int position_x = 200,
@@ -32,20 +32,20 @@ public:
 
     virtual void onUpdate() = 0;
 
-    [[nodiscard]] virtual unsigned int width() const = 0;
-    [[nodiscard]] virtual unsigned int height() const = 0;
-    [[nodiscard]] virtual ivec2 size() const = 0;
-    [[nodiscard]] virtual float aspectRatio() const = 0;
-    [[nodiscard]] virtual std::pair<int, int> getPosition() const = 0;
+    [[nodiscard]] virtual auto width() const -> unsigned int = 0;
+    [[nodiscard]] virtual auto height() const -> unsigned int = 0;
+    [[nodiscard]] virtual auto size() const -> ivec2 = 0;
+    [[nodiscard]] virtual auto aspectRatio() const -> float = 0;
+    [[nodiscard]] virtual auto getPosition() const -> std::pair<int, int> = 0;
 
     // Window attributes
     virtual void setEventCallback(const EventCallbackFn& callback) = 0;
     virtual void setVSync(bool enabled) = 0;
-    virtual bool isVSync() const = 0;
+    [[nodiscard]] virtual auto isVSync() const -> bool = 0;
 
-    virtual void* getNativeWindow() const = 0;
+    [[nodiscard]] virtual auto getNativeWindow() const -> void* = 0;
 
-    static Window* create(const WindowProperties& props = WindowProperties());
+    static auto create(const WindowProperties& props = WindowProperties()) -> Window*;
 
 };
 }

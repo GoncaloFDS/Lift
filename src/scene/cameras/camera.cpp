@@ -1,7 +1,6 @@
 ﻿#include <core/timer.h>
 #include "pch.h"
 #include "camera.h"
-#include <glm/gtx/rotate_vector.hpp>
 
 lift::Camera::Camera() :
     eye_(0.0f, 0.0f, -12.f),

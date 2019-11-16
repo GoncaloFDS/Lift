@@ -30,8 +30,8 @@ public:
     template<typename T>
     void pushOverlay() { layer_stack_.pushOverlay<T>(); }
 
-    static Application& get() { return *s_instance; }
-    [[nodiscard]] Window& getWindow() const { return *window_; }
+    static auto get() -> Application& { return *s_instance; }
+    [[nodiscard]] auto getWindow() const -> Window& { return *window_; }
     UiElements ui_elements;
 
 private:
@@ -49,13 +49,13 @@ private:
     void hardcodeSceneEntities(Scene& scene);
 
     void onEvent(Event& e);
-    bool onWindowClose(WindowCloseEvent& e);
-    bool onWindowResize(WindowResizeEvent& e);
-    bool onWindowMinimize(WindowMinimizeEvent& e) const;
-    bool onMouseMove(MouseMovedEvent& e);
-    bool onMouseScroll(MouseScrolledEvent& e);
-    bool onKeyPress(KeyPressedEvent& e);
-    bool onKeyRelease(KeyReleasedEvent& e);
+    auto onWindowClose(WindowCloseEvent& e) -> bool;
+    auto onWindowResize(WindowResizeEvent& e) -> bool;
+    auto onWindowMinimize(WindowMinimizeEvent& e) -> bool ;
+    auto onMouseMove(MouseMovedEvent& e) -> bool;
+    auto onMouseScroll(MouseScrolledEvent& e) -> bool;
+    auto onKeyPress(KeyPressedEvent& e) -> bool;
+    auto onKeyRelease(KeyReleasedEvent& e) -> bool;
 
     void onUpdate(const Scene& scene);
     void endFrame();
@@ -64,5 +64,5 @@ private:
 };
 
 // Defined by Sandbox
-std::shared_ptr<Application> createApplication();
+auto createApplication() -> std::shared_ptr<Application>;
 }

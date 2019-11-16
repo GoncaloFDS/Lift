@@ -27,15 +27,15 @@ class CudaOutputBuffer {
     void resize(int32_t width, int32_t height);
 
     // Allocate or update device pointer as necessary for CUDA access
-    PIXEL_FORMAT* map();
+    auto map() -> PIXEL_FORMAT*;
     void unmap();
 
-    int32_t width() { return width_; }
-    int32_t height() { return height_; }
+    auto width() -> int32_t { return width_; }
+    auto height() -> int32_t { return height_; }
 
     // Get output buffer
-    GLuint getPBO();
-    PIXEL_FORMAT* getHostPointer();
+    auto getPixelBufferObject() -> GLuint;
+    auto getHostPointer() -> PIXEL_FORMAT*;
 
  private:
     void makeCurrent() { CUDA_CHECK(cudaSetDevice(device_idx_)); }
@@ -51,7 +51,7 @@ class CudaOutputBuffer {
     PIXEL_FORMAT* host_copy_pixels_ = nullptr;
     std::vector<PIXEL_FORMAT> host_pixels_;
 
-    CUstream stream_ = 0u;
+    CUstream stream_ = nullptr;
     int32_t device_idx_ = 0;
 };
 
@@ -147,7 +147,7 @@ void CudaOutputBuffer<PIXEL_FORMAT>::resize(int32_t width, int32_t height) {
 }
 
 template<typename PIXEL_FORMAT>
-PIXEL_FORMAT* CudaOutputBuffer<PIXEL_FORMAT>::map() {
+auto CudaOutputBuffer<PIXEL_FORMAT>::map() -> PIXEL_FORMAT* {
     if (m_type == CudaOutputBufferType::CUDA_DEVICE || m_type == CudaOutputBufferType::CUDA_P2P) {
         // nothing needed
     } else if (m_type == CudaOutputBufferType::GL_INTEROP) {
@@ -183,7 +183,7 @@ void CudaOutputBuffer<PIXEL_FORMAT>::unmap() {
 }
 
 template<typename PIXEL_FORMAT>
-GLuint CudaOutputBuffer<PIXEL_FORMAT>::getPBO() {
+auto CudaOutputBuffer<PIXEL_FORMAT>::getPixelBufferObject() -> GLuint {
     if (pbo_ == 0u)
     GL_CHECK(glGenBuffers(1, &pbo_));
 
@@ -237,7 +237,7 @@ GLuint CudaOutputBuffer<PIXEL_FORMAT>::getPBO() {
 }
 
 template<typename PIXEL_FORMAT>
-PIXEL_FORMAT* CudaOutputBuffer<PIXEL_FORMAT>::getHostPointer() {
+auto CudaOutputBuffer<PIXEL_FORMAT>::getHostPointer() -> PIXEL_FORMAT* {
     if (m_type == CudaOutputBufferType::CUDA_DEVICE ||
         m_type == CudaOutputBufferType::CUDA_P2P ||
         m_type == CudaOutputBufferType::GL_INTEROP) {
@@ -259,6 +259,6 @@ PIXEL_FORMAT* CudaOutputBuffer<PIXEL_FORMAT>::getHostPointer() {
     }
 }
 
-} // end namespace sutil
+}
 
 

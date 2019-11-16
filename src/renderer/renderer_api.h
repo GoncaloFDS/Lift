@@ -18,7 +18,7 @@ public:
 
     virtual void drawIndexed(const std::shared_ptr<VertexArray>& vertex_array) = 0;
 
-    inline static API getApi() { return renderer_api_; }
+    inline static auto getApi() -> API { return renderer_api_; }
 private:
     static API renderer_api_;
 };

@@ -12,7 +12,7 @@ class Window;
 
 class Renderer {
  public:
-    static RendererApi::API getApi() { return RendererApi::getApi(); }
+    static auto getApi() -> RendererApi::API { return RendererApi::getApi(); }
 
     void init(CudaOutputBufferType type, ivec2 frame_size);
 
@@ -27,7 +27,7 @@ class Renderer {
     void updateLaunchParameters(Scene scene);
 
     void setClearColor(const vec3& color);
-    vec3 clearColor();
+    auto clearColor() -> vec3;
     void resetFrame();
  private:
     void createOutputBuffer(CudaOutputBufferType type, ivec2 frame_size);

@@ -136,3 +136,4 @@ constexpr int LF_KEY_RIGHT_CONTROL = 345;
 constexpr int LF_KEY_RIGHT_ALT = 346;
 constexpr int LF_KEY_RIGHT_SUPER = 347;
 constexpr int LF_KEY_MENU = 348;
+

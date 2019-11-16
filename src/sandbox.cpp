@@ -14,9 +14,9 @@ public:
     void onEvent(lift::Event& event) override {
         if (event.getEventType() == lift::EventType::KEY_PRESSED) {
             auto& e = dynamic_cast<lift::KeyPressedEvent&>(event);
-            if (e.getKeyCode() == LF_KEY_TAB)
+            if (e.getKeyCode() == LF_KEY_TAB) {
                 LF_TRACE("Tab key is pressed (event)!");
-            //LF_TRACE("{0}", static_cast<char>(e.getKeyCode()));
+            }
         }
     }
 
@@ -30,10 +30,10 @@ public:
         pushLayer<ExampleLayer>();
     }
 
-    ~Sandbox() = default;
+    ~Sandbox() override = default;
 
 };
 
-std::shared_ptr<lift::Application> lift::createApplication() {
+auto lift::createApplication() -> std::shared_ptr<lift::Application> {
     return std::make_shared<Sandbox>();
 }

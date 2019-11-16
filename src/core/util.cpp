@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "util.h"
 
-std::string lift::Util::getPtxString(const char* file_name) {
+auto lift::Util::getPtxString(const char* file_name) -> std::string {
     std::string ptx_source;
 
     const std::ifstream file(file_name);

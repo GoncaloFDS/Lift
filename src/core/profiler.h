@@ -17,7 +17,7 @@ class Profiler {
     Profiler(std::string message);
     ~Profiler();
 
-    static float getDuration(Id id);
+    static auto getDuration(Id id) -> float;
 
  private:
     std::chrono::time_point<std::chrono::steady_clock> start_, end_;

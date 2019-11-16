@@ -23,6 +23,6 @@ Profiler::~Profiler() {
     s_map[id_] = s;
 }
 
-float Profiler::getDuration(Id id) {
+auto Profiler::getDuration(Id id) -> float {
     return s_map[id];
 }

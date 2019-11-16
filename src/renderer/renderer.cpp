@@ -58,7 +58,7 @@ void lift::Renderer::displaySubframe(OpenGLDisplay& gl_display, void* window) {
     gl_display.display(
         ivec2(output_buffer_->width(), output_buffer_->height()),
         ivec2(framebuf_res_x, framebuf_res_y),
-        output_buffer_->getPBO()
+        output_buffer_->getPixelBufferObject()
     );
 }
 
@@ -116,7 +116,7 @@ void lift::Renderer::setClearColor(const vec3& color) {
     //launch_parameters_.miss_color = makeFloat3(clear_color_);
 }
 
-vec3 lift::Renderer::clearColor() {
+auto lift::Renderer::clearColor() -> vec3 {
     return clear_color_;
 }
 

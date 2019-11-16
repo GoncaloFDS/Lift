@@ -11,9 +11,8 @@
 #define LF_CORE_ASSERT(x, ...)
 #endif
 
-//#define BIT(x) (1 << (x))
 template<typename T>
-constexpr T bit(T x) {
+constexpr auto bit(T x) -> T {
     return 1 << x;
 }
 
@@ -53,11 +52,6 @@ constexpr T bit(T x) {
                             #call, cudaGetErrorString(error), __FILE__, __LINE__);  \
         }                                                                            \
     } while( 0 )
-
-#define CUDA_CHECK_NOEXCEPT(call)                                        \
-    {                                    \
-      cuda##call;                                                       \
-    }
 
 #define CUDA_SYNC_CHECK()                                               \
   {                                                                     \

@@ -11,8 +11,6 @@ enum class BufferImageFormat {
     FLOAT_3
 };
 
-size_t pixelFormatSize(BufferImageFormat format);
-
 class OpenGLRendererAPI : public RendererApi {
  public:
     void setClearColor(const vec4& color) override;
@@ -21,4 +19,7 @@ class OpenGLRendererAPI : public RendererApi {
     void drawIndexed(const std::shared_ptr<VertexArray>& vertex_array) override;
     void resize(uint32_t width, uint32_t height) override;
 };
+
+auto pixelFormatSize(BufferImageFormat format) -> size_t;
+
 }

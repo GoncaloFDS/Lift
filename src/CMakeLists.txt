@@ -40,8 +40,6 @@ add_executable(Lift
         platform/opengl/opengl_renderer_api.h
         platform/opengl/opengl_vertex_array.cpp
         platform/opengl/opengl_vertex_array.h
-        platform/opengl/pixel_buffer.cpp
-        platform/opengl/pixel_buffer.h
         platform/windows/windows_input.cpp
         platform/windows/windows_input.h
         platform/windows/windows_window.cpp
@@ -86,7 +84,7 @@ add_executable(Lift
         platform/opengl/opengl_display.cpp
         platform/opengl/opengl_display.h
         renderer/cuda_buffer.h
-        imgui/ui_elements.h)
+        imgui/ui_elements.h core/os/input.cpp)
 
 
 find_package(OptiX REQUIRED)

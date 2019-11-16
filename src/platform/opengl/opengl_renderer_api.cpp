@@ -19,7 +19,7 @@ void lift::OpenGLRendererAPI::resize(uint32_t width, uint32_t height) {
     glViewport(0, 0, width, height);
 }
 
-size_t lift::pixelFormatSize(lift::BufferImageFormat format) {
+auto lift::pixelFormatSize(lift::BufferImageFormat format) -> size_t {
     switch (format) {
         case BufferImageFormat::UNSIGNED_BYTE_4:
             return sizeof(char) * 4;

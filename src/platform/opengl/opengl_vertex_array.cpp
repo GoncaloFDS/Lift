@@ -2,31 +2,23 @@
 #include "opengl_vertex_array.h"
 #include "glad/glad.h"
 
-static GLenum ShaderDataTypeToOpenGLBaseType(const lift::ShaderDataType type) {
+static auto ShaderDataTypeToOpenGLBaseType(const lift::ShaderDataType type) -> GLenum {
     switch (type) {
         case lift::ShaderDataType::FLOAT:
-            return GL_FLOAT;
         case lift::ShaderDataType::FLOAT_2:
-            return GL_FLOAT;
         case lift::ShaderDataType::FLOAT_3:
-            return GL_FLOAT;
         case lift::ShaderDataType::FLOAT_4:
-            return GL_FLOAT;
         case lift::ShaderDataType::MAT_3:
-            return GL_FLOAT;
         case lift::ShaderDataType::MAT_4:
             return GL_FLOAT;
         case lift::ShaderDataType::INT:
-            return GL_INT;
         case lift::ShaderDataType::INT_2:
-            return GL_INT;
         case lift::ShaderDataType::INT_3:
-            return GL_INT;
         case lift::ShaderDataType::INT_4:
             return GL_INT;
         case lift::ShaderDataType::Bool:
             return GL_BOOL;
-        default: LF_ASSERT(false, "Unkown ShaderDataType");
+        default: LF_ASSERT(false, "Unknown ShaderDataType");
             return 0;
     }
 }

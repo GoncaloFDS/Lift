@@ -8,7 +8,7 @@ class OpenGLVertexArray : public VertexArray {
 public:
 
     OpenGLVertexArray();
-    virtual ~OpenGLVertexArray() = default;
+    ~OpenGLVertexArray() override = default;
 
     void bind() const override;
     void unbind() const override;
@@ -16,8 +16,8 @@ public:
     void addVertexBuffer(const std::shared_ptr<VertexBuffer>& vertex_buffer) override;
     void setIndexBuffer(const std::shared_ptr<IndexBuffer>& index_buffer) override;
 
-    const std::vector<std::shared_ptr<VertexBuffer>>& getVertexBuffers() const override { return vertex_buffers_; }
-    const std::shared_ptr<IndexBuffer>& getIndexBuffer() const override { return index_buffer_; }
+    [[nodiscard]] auto getVertexBuffers() const -> const std::vector<std::shared_ptr<VertexBuffer>>& override { return vertex_buffers_; }
+    [[nodiscard]] auto getIndexBuffer() const -> const std::shared_ptr<IndexBuffer>& override { return index_buffer_; }
 
 private:
     uint32_t renderer_id_{};

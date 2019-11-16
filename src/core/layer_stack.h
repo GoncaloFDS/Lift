@@ -29,8 +29,8 @@ public:
     template<typename T>
     void popOverlay(std::string name);
 
-    std::vector<std::unique_ptr<Layer>>::iterator begin();
-    std::vector<std::unique_ptr<Layer>>::iterator end();
+    auto begin() -> std::vector<std::unique_ptr<Layer>>::iterator;
+    auto end() -> std::vector<std::unique_ptr<Layer>>::iterator;
 private:
     std::vector<std::unique_ptr<Layer>> layers_;
     unsigned int layer_insert_index_ = 0;

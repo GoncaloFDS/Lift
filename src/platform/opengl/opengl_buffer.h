@@ -7,12 +7,12 @@ namespace lift {
 class OpenGLVertexBuffer : public VertexBuffer {
 public:
     OpenGLVertexBuffer(float* vertices, uint32_t size);
-    virtual ~OpenGLVertexBuffer();
+    ~OpenGLVertexBuffer() override;
 
     void bind() const override;
     void unbind() const override;
 
-    const BufferLayout& getLayout() const override { return layout_; }
+    [[nodiscard]] auto getLayout() const -> const BufferLayout& override { return layout_; }
     void setLayout(const BufferLayout& layout) override;
 
 private:
@@ -23,12 +23,12 @@ private:
 class OpenGLIndexBuffer : public IndexBuffer {
 public:
     OpenGLIndexBuffer(uint32_t* indices, uint32_t count);
-    virtual ~OpenGLIndexBuffer();
+    ~OpenGLIndexBuffer() override;
 
     void bind() const override;
     void unbind() const override;
 
-    uint32_t getCount() const override;
+    [[nodiscard]] auto getCount() const -> uint32_t override;
 private:
     uint32_t renderer_id_{};
     uint32_t count_;

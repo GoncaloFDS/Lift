@@ -1,59 +1,36 @@
 #pragma once
 
-#include  "core.h"
+#include <utility>
+#include <memory>
+#include "core.h"
 
 namespace lift {
-
 class Input {
 public:
     virtual ~Input() = default;
-    inline static void onUpdate();
-    inline static bool isKeyPressed(int key_code);
-    inline static bool isMouseButtonPressed(int button);
-    inline static std::pair<float, float> getMousePos();
-    inline static float getMouseX();
-    inline static float getMouseY();
-    inline static const vec2& getMouseDelta() { return mouse_delta_; };
+
+    static void onUpdate();
+    static auto isKeyPressed(int key_code) -> bool;
+    static auto isMouseButtonPressed(int button) -> bool;
+
+    inline static auto getMousePos() -> std::pair<float, float>;
+    inline static auto getMouseX() -> float;
+    inline static auto getMouseY() -> float;
+    inline static auto getMouseDelta() -> const vec2& { return mouse_delta_; };
 
 protected:
-    virtual bool isKeyPressedImpl(int key_code) = 0;
-    virtual bool isMouseButtonPressedImpl(int button) = 0;
-    virtual std::pair<float, float> getMousePosImpl() = 0;
-    virtual float getMouseXImpl() = 0;
-    virtual float getMouseYImpl() = 0;
+    virtual auto isKeyPressedImpl(int key_code) -> bool = 0;
+    virtual auto isMouseButtonPressedImpl(int button) -> bool = 0;
+    virtual auto getMousePosImpl() -> std::pair<float, float> = 0;
+    virtual auto getMouseXImpl() -> float = 0;
+    virtual auto getMouseYImpl() -> float = 0;
 
-    inline static vec2 last_mouse_position_ = {0, 0};
-    inline static vec2 mouse_delta_ = {0, 0};
+    static vec2 last_mouse_position_;
+    static vec2 mouse_delta_;
 
 private:
     static std::unique_ptr<Input> k_Instance;
 };
 
-inline void Input::onUpdate() {
-    const auto x = getMouseX();
-    const auto y = getMouseY();
-    mouse_delta_ = {x - last_mouse_position_.x, y - last_mouse_position_.y};
-    last_mouse_position_ = {x, y};
-}
-
-inline bool Input::isKeyPressed(const int key_code) {
-    return k_Instance->isKeyPressedImpl(key_code);
-}
-
-inline bool Input::isMouseButtonPressed(const int button) {
-    return k_Instance->isMouseButtonPressedImpl(button);
-}
-
-inline std::pair<float, float> Input::getMousePos() {
-    return k_Instance->getMousePosImpl();
-}
-
-inline float Input::getMouseX() {
-    return k_Instance->getMouseXImpl();
-}
-
-inline float Input::getMouseY() {
-    return k_Instance->getMouseYImpl();
-}
 
 }

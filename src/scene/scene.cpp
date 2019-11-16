@@ -23,7 +23,7 @@
 extern "C" char embedded_ptx_code[];
 
 template<typename T>
-lift::BufferView<T> bufferViewFromGltf(const tinygltf::Model& model, lift::Scene* scene, const int32_t accessor_idx) {
+auto bufferViewFromGltf(const tinygltf::Model& model, lift::Scene* scene, const int32_t accessor_idx) -> lift::BufferView<T> {
     if (accessor_idx == -1)
         return lift::BufferView<T>();
 

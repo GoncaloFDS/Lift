@@ -15,7 +15,7 @@ struct Texture {
     Texture(const std::string& path);
     Texture();
     void bind(unsigned int slot = 0) const;
-    void unbind();
+    static void unbind();
     void setData();
     auto data() { return data_.data(); }
 

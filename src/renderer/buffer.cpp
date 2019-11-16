@@ -4,7 +4,7 @@
 #include "renderer.h"
 #include "platform/opengl/opengl_buffer.h"
 
-lift::VertexBuffer* lift::VertexBuffer::create(float* vertices, const uint32_t size) {
+auto lift::VertexBuffer::create(float* vertices, const uint32_t size) -> lift::VertexBuffer* {
     switch (Renderer::getApi()) {
         case RendererApi::API::NONE: LF_ASSERT(false, "RendererAPI::API::None is set");
             return nullptr;
@@ -16,7 +16,7 @@ lift::VertexBuffer* lift::VertexBuffer::create(float* vertices, const uint32_t s
     return nullptr;
 }
 
-lift::IndexBuffer* lift::IndexBuffer::create(uint32_t* indices, const uint32_t count) {
+auto lift::IndexBuffer::create(uint32_t* indices, const uint32_t count) -> lift::IndexBuffer* {
     switch (Renderer::getApi()) {
         case RendererApi::API::NONE: LF_ASSERT(false, "RendererAPI::API::None is set");
             return nullptr;

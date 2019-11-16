@@ -9,7 +9,7 @@ enum class ShaderDataType {
     NONE = 0, FLOAT, FLOAT_2, FLOAT_3, FLOAT_4, MAT_3, MAT_4, INT, INT_2, INT_3, INT_4, Bool
 };
 
-static uint32_t shaderDataTypeSize(const ShaderDataType type) {
+static auto shaderDataTypeSize(const ShaderDataType type) -> uint32_t {
     switch (type) {
         case ShaderDataType::NONE:
             break;
@@ -41,20 +41,20 @@ static uint32_t shaderDataTypeSize(const ShaderDataType type) {
 }
 
 struct BufferElement {
-    ShaderDataType type;
+    ShaderDataType type = ShaderDataType::NONE;
     std::string name;
-    uint32_t size;
-    uint32_t offset;
-    bool normalized;
+    uint32_t size{};
+    uint32_t offset{};
+    bool normalized{};
 
     BufferElement() = default;
 
-    BufferElement(const ShaderDataType type, const std::string& name, const bool normalized = false)
+    BufferElement(const ShaderDataType type, std::string name, const bool normalized = false)
         : type{type}, name{std::move(name)}, size{shaderDataTypeSize(type)}, offset{0},
           normalized{normalized} {
     }
 
-    uint32_t getComponentCount() const {
+    [[nodiscard]] auto getComponentCount() const -> uint32_t {
         switch (type) {
             case ShaderDataType::FLOAT:
                 return 1;
@@ -78,6 +78,9 @@ struct BufferElement {
                 return 4;
             case ShaderDataType::Bool:
                 return 1;
+            case ShaderDataType::NONE:
+                LF_ASSERT(false, "Shader Data Type set to None");
+                break;
         }
 
         return 0;
@@ -93,13 +96,13 @@ public:
         calculateOffsetAndStride();
     }
 
-    [[nodiscard]] uint32_t getStride() const { return stride_; }
-    [[nodiscard]] const std::vector<BufferElement>& getElements() const { return elements_; }
+    [[nodiscard]] auto getStride() const -> uint32_t { return stride_; }
+    [[nodiscard]] auto getElements() const -> const std::vector<BufferElement>& { return elements_; }
 
-    std::vector<BufferElement>::iterator begin() { return elements_.begin(); }
-    std::vector<BufferElement>::iterator end() { return elements_.end(); }
-    [[nodiscard]] std::vector<BufferElement>::const_iterator begin() const { return elements_.begin(); }
-    [[nodiscard]] std::vector<BufferElement>::const_iterator end() const { return elements_.end(); }
+    auto begin() -> std::vector<BufferElement>::iterator { return elements_.begin(); }
+    auto end() -> std::vector<BufferElement>::iterator { return elements_.end(); }
+    [[nodiscard]] auto begin() const -> std::vector<BufferElement>::const_iterator { return elements_.begin(); }
+    [[nodiscard]] auto end() const -> std::vector<BufferElement>::const_iterator { return elements_.end(); }
 
 private:
     void calculateOffsetAndStride() {
@@ -124,10 +127,10 @@ public:
     virtual void bind() const = 0;
     virtual void unbind() const = 0;
 
-    [[nodiscard]] virtual const BufferLayout& getLayout() const = 0;
+    [[nodiscard]] virtual auto getLayout() const -> const BufferLayout& = 0;
     virtual void setLayout(const BufferLayout& layout) = 0;
 
-    static VertexBuffer* create(float* vertices, const uint32_t size);
+    static auto create(float* vertices, const uint32_t size) -> VertexBuffer*;
 };
 
 class IndexBuffer {
@@ -137,9 +140,9 @@ public:
     virtual void bind() const = 0;
     virtual void unbind() const = 0;
 
-    [[nodiscard]] virtual uint32_t getCount() const = 0;
+    [[nodiscard]] virtual auto getCount() const -> uint32_t = 0;
 
-    static IndexBuffer* create(uint32_t* indices, const uint32_t count);
+    static auto create(uint32_t* indices, const uint32_t count) -> IndexBuffer*;
 };
 
 }

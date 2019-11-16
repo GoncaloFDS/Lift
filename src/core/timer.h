@@ -13,7 +13,7 @@ public:
     static void restart();
     static void tick();
 
-    static bool isRunning() { return k_IsRunning; }
+    static auto isRunning() -> bool { return k_IsRunning; }
 
     // seconds passed since last frame
     static float deltaTime;

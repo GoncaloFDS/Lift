@@ -5,11 +5,11 @@
 namespace lift {
 class WindowsInput : public Input {
 protected:
-    bool isKeyPressedImpl(int key_code) override;
-    bool isMouseButtonPressedImpl(int button) override;
-    std::pair<float, float> getMousePosImpl() override;
-    float getMouseXImpl() override;
-    float getMouseYImpl() override;
+    auto isKeyPressedImpl(int key_code) -> bool override;
+    auto isMouseButtonPressedImpl(int button) -> bool override;
+    auto getMousePosImpl() -> std::pair<float, float> override;
+    auto getMouseXImpl() -> float override;
+    auto getMouseYImpl() -> float override;
 };
 
 }

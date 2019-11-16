@@ -14,7 +14,7 @@ public:
     ~Shader();
 
     void bind() const;
-    void unbind() const;
+    static void unbind() ;
 
     void setUniform1I(const std::string& name, int value);
     void SetUniform1f(const std::string& name, float value);
@@ -22,10 +22,10 @@ public:
     static void setTexImage2D(const uint32_t width, const uint32_t height);
 
 private:
-    [[nodiscard]] ShaderProgramSource parseShader(const std::string& file_path) const;
-    static unsigned int createShader(const std::string& vertex_source, const std::string& fragment_source);
-    static unsigned compileShader(const unsigned int type, const std::string& source);
-    int getUniformLocation(const std::string& name);
+    [[nodiscard]] static auto parseShader(const std::string& file_path) -> ShaderProgramSource ;
+    static auto createShader(const std::string& vertex_source, const std::string& fragment_source) -> unsigned int;
+    static auto compileShader(const unsigned int type, const std::string& source) -> unsigned;
+    auto getUniformLocation(const std::string& name) -> int;
 
     uint32_t renderer_id_;
     std::string file_path_;

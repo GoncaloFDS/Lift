@@ -20,7 +20,7 @@ void lift::Shader::bind() const {
     glUseProgram(renderer_id_);
 }
 
-void lift::Shader::unbind() const {
+void lift::Shader::unbind() {
     glUseProgram(0);
 }
 
@@ -36,7 +36,7 @@ void lift::Shader::setTexImage2D(const uint32_t width, const uint32_t height) {
     GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr));
 }
 
-ShaderProgramSource lift::Shader::parseShader(const std::string& file_path) const {
+auto lift::Shader::parseShader(const std::string& file_path) -> ShaderProgramSource {
     std::string line;
     std::stringstream string_stream[2];
 
@@ -52,7 +52,7 @@ ShaderProgramSource lift::Shader::parseShader(const std::string& file_path) cons
 
 }
 
-unsigned lift::Shader::createShader(const std::string& vertex_source, const std::string& fragment_source) {
+auto lift::Shader::createShader(const std::string& vertex_source, const std::string& fragment_source) -> unsigned {
     const unsigned int program = glCreateProgram();
     const unsigned int vertex_shader = compileShader(GL_VERTEX_SHADER, vertex_source);
     const unsigned int fragment_shader = compileShader(GL_FRAGMENT_SHADER, fragment_source);
@@ -68,11 +68,11 @@ unsigned lift::Shader::createShader(const std::string& vertex_source, const std:
     return program;
 }
 
-unsigned lift::Shader::compileShader(const unsigned int type, const std::string& source) {
+auto lift::Shader::compileShader(const unsigned int type, const std::string& source) -> unsigned {
     const auto shader_id = glCreateShader(type);
     auto src = source.c_str();
 
-    GL_CHECK(glShaderSource(shader_id, 1, &src, 0));
+    GL_CHECK(glShaderSource(shader_id, 1, &src, nullptr));
     GL_CHECK(glCompileShader(shader_id));
 
     int is_compiled = 0;
@@ -93,7 +93,7 @@ unsigned lift::Shader::compileShader(const unsigned int type, const std::string&
     return shader_id;
 }
 
-int lift::Shader::getUniformLocation(const std::string& name) {
+auto lift::Shader::getUniformLocation(const std::string& name) -> int {
     if (uniform_location_cache_.find(name) != uniform_location_cache_.end())
         return uniform_location_cache_[name];
 

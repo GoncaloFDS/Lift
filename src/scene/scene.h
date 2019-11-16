@@ -6,7 +6,6 @@
 
 namespace tinygltf {
 class Node;
-
 class Model;
 }
 
@@ -18,7 +17,7 @@ namespace lift {
 class Camera;
 
 class Scene {
- public:
+public:
 
     void addCamera(const std::shared_ptr<Camera>& camera) { cameras_.push_back(camera); }
 
@@ -34,38 +33,35 @@ class Scene {
 
     void addLight(const Light& light) { lights_.push_back(light); }
 
-    [[nodiscard]] CUdeviceptr buffer(int32_t buffer_index) const { return buffers_[buffer_index]; }
-
-    [[nodiscard]] cudaArray_t image(int32_t image_index) const { return images_[image_index]; }
-
-    [[nodiscard]] cudaTextureObject_t sampler(int32_t sampler_index) const { return samplers_[sampler_index]; }
+    [[nodiscard]] auto buffer(int32_t buffer_index) const -> CUdeviceptr { return buffers_[buffer_index]; }
+    [[nodiscard]] auto image(int32_t image_index) const -> cudaArray_t { return images_[image_index]; }
+    [[nodiscard]] auto sampler(int32_t sampler_index) const -> cudaTextureObject_t { return samplers_[sampler_index]; }
 
     void finalize();
     void cleanup();
 
-    [[nodiscard]] std::shared_ptr<Camera> camera();
+    [[nodiscard]] auto camera() -> std::shared_ptr<Camera>;
+    [[nodiscard]] auto pipeline() const -> OptixPipeline { return pipeline_; }
 
-    [[nodiscard]] OptixPipeline pipeline() const { return pipeline_; }
+    [[nodiscard]] auto sbt() const -> const OptixShaderBindingTable* { return &sbt_; }
 
-    [[nodiscard]] const OptixShaderBindingTable* sbt() const { return &sbt_; }
+    [[nodiscard]] auto traversableHandle() const -> OptixTraversableHandle { return ias_handle_; }
 
-    [[nodiscard]] OptixTraversableHandle traversableHandle() const { return ias_handle_; }
+    [[nodiscard]] auto aabb() const -> Aabb { return scene_aabb_; }
 
-    [[nodiscard]] Aabb aabb() const { return scene_aabb_; }
+    [[nodiscard]] auto context() const -> OptixDeviceContext { return context_; }
 
-    [[nodiscard]] OptixDeviceContext context() const { return context_; }
+    [[nodiscard]] auto materials() const -> const std::vector<MaterialData>& { return materials_; }
 
-    [[nodiscard]] const std::vector<MaterialData>& materials() const { return materials_; }
+    [[nodiscard]] auto meshes() const -> const std::vector<std::shared_ptr<Mesh>>& { return meshes_; }
 
-    [[nodiscard]] const std::vector<std::shared_ptr<Mesh>>& meshes() const { return meshes_; }
-
-    [[nodiscard]] const std::vector<Light>& lights() const { return lights_; }
+    [[nodiscard]] auto lights() const -> const std::vector<Light>& { return lights_; }
 
     void createContext();
     void buildMeshAccels();
     void buildInstanceAccel(int ray_type_count = k_RayTypeCount);
     void loadFromFile(const std::string& file_name);
- private:
+private:
     void createPtxModule();
     void createProgramGroups();
     void createPipeline();

@@ -10,7 +10,7 @@ namespace lift {
 
 class OpenGLDisplay {
  public:
-    OpenGLDisplay(BufferImageFormat format = BufferImageFormat::UNSIGNED_BYTE_4);
+    explicit OpenGLDisplay(BufferImageFormat format = BufferImageFormat::UNSIGNED_BYTE_4);
 
     void display(ivec2 screen_res, ivec2 frame_buffer_res, uint32_t pbo);
 

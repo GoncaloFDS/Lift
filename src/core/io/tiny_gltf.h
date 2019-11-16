@@ -2,12 +2,11 @@
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "tiny_gltf.h"
 #include "cuda/buffer_view.h"
 #include "scene/scene.h"
 
 template<typename T>
-lift::BufferView<T> bufferViewFromGltf(const tinygltf::Model& model, lift::Scene* scene, const int32_t accessor_idx) {
+auto bufferViewFromGltf(const tinygltf::Model& model, lift::Scene* scene, const int32_t accessor_idx) -> lift::BufferView<T> {
     if (accessor_idx == -1)
         return lift::BufferView<T>();
 

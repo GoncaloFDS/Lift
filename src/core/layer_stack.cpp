@@ -23,10 +23,10 @@ void lift::LayerStack::popOverlay(std::string name) {
     //
 }
 
-std::vector<std::unique_ptr<lift::Layer>>::iterator lift::LayerStack::begin() {
+auto lift::LayerStack::begin() -> std::vector<std::unique_ptr<lift::Layer>>::iterator {
     return layers_.begin();
 }
 
-std::vector<std::unique_ptr<lift::Layer>>::iterator lift::LayerStack::end() {
+auto lift::LayerStack::end() -> std::vector<std::unique_ptr<lift::Layer>>::iterator {
     return layers_.end();
 }

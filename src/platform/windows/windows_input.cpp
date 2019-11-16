@@ -6,19 +6,19 @@
 
 std::unique_ptr<lift::Input> lift::Input::k_Instance = std::make_unique<WindowsInput>();
 
-bool lift::WindowsInput::isKeyPressedImpl(const int key_code) {
+auto lift::WindowsInput::isKeyPressedImpl(const int key_code) -> bool {
     const auto window = static_cast<GLFWwindow*>(Application::get().getWindow().getNativeWindow());
     const auto state = glfwGetKey(window, key_code);
     return state == GLFW_PRESS || state == GLFW_REPEAT;
 }
 
-bool lift::WindowsInput::isMouseButtonPressedImpl(const int button) {
+auto lift::WindowsInput::isMouseButtonPressedImpl(const int button) -> bool {
     const auto window = static_cast<GLFWwindow*>(Application::get().getWindow().getNativeWindow());
     const auto state = glfwGetMouseButton(window, button);
     return state == GLFW_PRESS;
 }
 
-std::pair<float, float> lift::WindowsInput::getMousePosImpl() {
+auto lift::WindowsInput::getMousePosImpl() -> std::pair<float, float> {
     const auto window = static_cast<GLFWwindow*>(Application::get().getWindow().getNativeWindow());
     double x_pos, y_pos;
     glfwGetCursorPos(window, &x_pos, &y_pos);
@@ -26,12 +26,10 @@ std::pair<float, float> lift::WindowsInput::getMousePosImpl() {
     return {static_cast<float>(x_pos), static_cast<float>(y_pos)};
 }
 
-float lift::WindowsInput::getMouseXImpl() {
-    auto[x, y] = getMousePosImpl();
-    return x;
+auto lift::WindowsInput::getMouseXImpl() -> float {
+    return getMousePosImpl().first;
 }
 
-float lift::WindowsInput::getMouseYImpl() {
-    auto[x, y] = getMousePosImpl();
-    return y;
+auto lift::WindowsInput::getMouseYImpl() -> float {
+    return getMousePosImpl().second;
 }
