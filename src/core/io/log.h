@@ -7,14 +7,14 @@
 namespace lift {
 
 class Log {
- public:
+public:
     static void init();
 
     static std::shared_ptr<spdlog::logger>& getCoreLogger() {
         return s_logger;
     }
- private:
 
+private:
     static std::shared_ptr<spdlog::logger> s_logger;
 };
 

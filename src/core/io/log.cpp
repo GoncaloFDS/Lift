@@ -9,6 +9,5 @@ void lift::Log::init() {
     spdlog::set_pattern("[%n] %^%v%$");
     //spdlog::set_pattern("%^[%T] %n: %v%$");
     s_logger = spdlog::stdout_color_mt("lift");
-    s_logger->set_level(spdlog::level::trace);
-
+    s_logger->set_level(spdlog::level::debug);
 }
