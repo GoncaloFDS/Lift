@@ -37,13 +37,13 @@ void lift::Application::run() {
     Scene scene;
     //scene.loadFromFile("res/models/WaterBottle/WaterBottle.gltf");
     scene.loadFromFile("res/models/Sponza/glTF/Sponza.gltf");
-    scene.finalize();
 
-    camera_ = scene.camera();
-    camera_->setAspectRatio(window_->aspectRatio());
     renderer_.init(CudaOutputBufferType::GL_INTEROP, window_->size());
-
-    hardcodeSceneEntities(scene);
+	renderer_.initOptix(scene);
+	scene.calculateAabb();
+	camera_ = scene.camera();
+	camera_->setAspectRatio(window_->aspectRatio());
+	hardcodeSceneEntities(scene);
 
     initUiElements();
     while (is_running_) {
