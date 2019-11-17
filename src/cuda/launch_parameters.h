@@ -18,21 +18,21 @@ struct HitGroupData {
 };
 
 struct LaunchParameters {
-    uint32_t subframe_index;
-    float4* accum_buffer;
-    uchar4* frame_buffer;
-    int32_t max_depth;
-    uint32_t samples_per_launch;
+    uint32_t subframe_index{};
+    float4* accum_buffer{};
+    uchar4* frame_buffer{};
+    int32_t max_depth{};
+    uint32_t samples_per_launch{};
 
     struct {
         float3 eye;
         float3 u;
         float3 v;
         float3 w;
-    } camera;
+    } camera{};
 
     BufferView<Lights::ParallelogramLight> lights;
-    OptixTraversableHandle handle;
+    OptixTraversableHandle handle{};
 
 };
 

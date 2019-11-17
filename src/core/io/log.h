@@ -1,5 +1,6 @@
 #pragma once
 
+#include <renderer/graphics_context.h>
 #include "core.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"

@@ -10,7 +10,6 @@
 
 #include "renderer/graphics_context.h"
 #include "renderer/renderer.h"
-#include "renderer/texture.h"
 #include "scene/cameras/camera.h"
 #include "cuda/launch_parameters.h"
 #include "scene/scene.h"
@@ -36,7 +35,7 @@ public:
 
 private:
     bool is_running_ = true;
-    std::unique_ptr<Window> window_;
+    std::shared_ptr<Window> window_;
     std::unique_ptr<GraphicsContext> graphics_context_;
     Renderer renderer_;
 

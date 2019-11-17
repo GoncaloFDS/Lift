@@ -32,36 +32,18 @@ add_executable(Lift
         imgui/imgui_build.cpp
         imgui/imgui_layer.cpp
         imgui/imgui_layer.h
-        platform/opengl/opengl_buffer.cpp
-        platform/opengl/opengl_buffer.h
         platform/opengl/opengl_context.cpp
         platform/opengl/opengl_context.h
-        platform/opengl/opengl_renderer_api.cpp
-        platform/opengl/opengl_renderer_api.h
-        platform/opengl/opengl_vertex_array.cpp
-        platform/opengl/opengl_vertex_array.h
         platform/windows/windows_input.cpp
         platform/windows/windows_input.h
         platform/windows/windows_window.cpp
         platform/windows/windows_window.h
-        renderer/buffer.cpp
-        renderer/buffer.h
         cuda/buffer_view.h
         renderer/cuda_output_buffer.h
         renderer/graphics_context.h
         renderer/record.h
-        renderer/render_command.cpp
-        renderer/render_command.h
         renderer/renderer.cpp
         renderer/renderer.h
-        renderer/renderer_api.cpp
-        renderer/renderer_api.h
-        renderer/shader.cpp
-        renderer/shader.h
-        renderer/texture.cpp
-        renderer/texture.h
-        renderer/vertex_array.cpp
-        renderer/vertex_array.h
         scene/cameras/camera.cpp
         scene/cameras/camera.h
         scene/aabb.cpp
@@ -81,10 +63,8 @@ add_executable(Lift
         cuda/light.h
         cuda/preprocessor.h
         cuda/math_constructors.h
-        platform/opengl/opengl_display.cpp
-        platform/opengl/opengl_display.h
         renderer/cuda_buffer.h
-        imgui/ui_elements.h core/os/input.cpp)
+        imgui/ui_elements.h core/os/input.cpp renderer/optix_context.cpp renderer/optix_context.h)
 
 
 find_package(OptiX REQUIRED)

@@ -2,22 +2,17 @@
 #include "application.h"
 
 #include "imgui/imgui_layer.h"
-#include "renderer/render_command.h"
 #include "core/os/input.h"
 #include "core/timer.h"
 #include "core/profiler.h"
-#include "platform/windows/windows_window.h"
-#include "platform/opengl/opengl_context.h"
-#include "scene/scene.h"
 #include "cuda/vec_math.h"
-#include <platform/opengl/opengl_display.h>
 
 lift::Application* lift::Application::s_instance = nullptr;
 
 lift::Application::Application() {
     LF_ASSERT(!s_instance, "Application already exists");
     s_instance = this;
-    window_ = std::unique_ptr<Window>(Window::create(
+    window_ = std::shared_ptr<Window>(Window::create(
         WindowProperties{"Lift Engine", 1280, 720, 0, 28}));
     window_->setEventCallback(LF_BIND_EVENT_FN(Application::onEvent));
 
@@ -29,20 +24,21 @@ lift::Application::Application() {
 }
 
 lift::Application::~Application() {
-    RenderCommand::shutdown();
 }
 
 void lift::Application::run() {
-    OpenGLDisplay gl_display;
     Scene scene;
-    //scene.loadFromFile("res/models/WaterBottle/WaterBottle.gltf");
+
     scene.loadFromFile("res/models/Sponza/glTF/Sponza.gltf");
 
-    renderer_.init(CudaOutputBufferType::GL_INTEROP, window_->size());
-	renderer_.initOptix(scene);
+    renderer_.init(CudaOutputBufferType::GL_INTEROP, window_);
+	renderer_.initOptixContext(scene);
+
 	scene.calculateAabb();
+
 	camera_ = scene.camera();
 	camera_->setAspectRatio(window_->aspectRatio());
+
 	hardcodeSceneEntities(scene);
 
     initUiElements();
@@ -54,7 +50,7 @@ void lift::Application::run() {
 
         renderer_.launchSubframe(scene, window_->size());
 
-        renderer_.displaySubframe(gl_display, window_->getNativeWindow());
+        renderer_.displaySubframe(window_->getNativeWindow());
 
         endFrame();
     }
@@ -94,9 +90,8 @@ void lift::Application::applyUiRequestedChanges() {
 }
 
 void lift::Application::initGraphicsContext() {
-    graphics_context_ = std::make_unique<OpenGLContext>(static_cast<GLFWwindow*>(window_->getNativeWindow()));
+    graphics_context_ = std::make_unique<OpenGLContext>(window_);
     graphics_context_->init();
-    RenderCommand::setClearColor({1.0f, 0.1f, 1.0f, 1.0f});
 }
 
 void lift::Application::onEvent(Event& e) {
@@ -126,7 +121,7 @@ auto lift::Application::onWindowClose(WindowCloseEvent& e) -> bool {
 auto lift::Application::onWindowResize(WindowResizeEvent& e) -> bool {
     if (e.height() && e.width()) {
         // Only resize when not minimized
-        RenderCommand::resize(e.width(), e.height());
+        //RenderCommand::resize(e.width(), e.height());
         camera_->setAspectRatio(float(e.width()) / float(e.height()));
         renderer_.onResize(e.width(), e.height());
     }
@@ -204,8 +199,6 @@ auto lift::Application::onKeyRelease(lift::KeyReleasedEvent& e) -> bool {
 }
 
 void lift::Application::hardcodeSceneEntities(lift::Scene& scene) {
-    const float low_offset = scene.aabb().maxExtent();
-
     Lights::ParallelogramLight light2;
     light2.emission = {15.0f, 15.0f, 5.0f};
     light2.corner = {343.0f, 548.5f, 227.0f};
@@ -213,14 +206,6 @@ void lift::Application::hardcodeSceneEntities(lift::Scene& scene) {
     light2.v2 = {-130.0f, 0.0f, 0.0f};
     light2.normal = normalize(cross(light2.v1, light2.v2));
     scene.addLight(light2);
-
-    //Lights::PointLight light1;
-    //light1.color = {0.8f, 0.8f, 1.0f};
-    //light1.intensity = 3.0f;
-    //light1.position =
-    //    makeFloat3(scene.aabb().center()) + makeFloat3(-low_offset, 0.5f * low_offset, -0.5f * low_offset);
-    //light1.falloff = Light::Falloff::QUADRATIC;
-    //scene.addLight(light1);
 
     renderer_.allocLights(scene);
 }
