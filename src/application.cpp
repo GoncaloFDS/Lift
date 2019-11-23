@@ -199,13 +199,13 @@ auto lift::Application::onKeyRelease(lift::KeyReleasedEvent& e) -> bool {
 }
 
 void lift::Application::hardcodeSceneEntities(lift::Scene& scene) {
-    Lights::ParallelogramLight light2;
-    light2.emission = {15.0f, 15.0f, 5.0f};
-    light2.corner = {343.0f, 548.5f, 227.0f};
-    light2.v1 = {0.0f, 0.0f, 105.0f};
-    light2.v2 = {-130.0f, 0.0f, 0.0f};
-    light2.normal = normalize(cross(light2.v1, light2.v2));
-    scene.addLight(light2);
+    Light light1;
+	light1.position = {-1200.0f, 800, -200};
+	light1.v1 = {400.0f, 0.0f, 0.0f};
+	light1.v2 = {0.0f, 0.0f, 400.0f};
+	light1.normal = normalize(cross(light1.v1, light1.v2));
+	light1.intensity = 3000000.0f;
+    scene.addLight(light1);
 
     renderer_.allocLights(scene);
 }

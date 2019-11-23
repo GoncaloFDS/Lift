@@ -7,8 +7,8 @@
 namespace lift {
 
 enum RayType {
-    RAY_TYPE_RADIANCE = 0,
-    RAY_TYPE_OCCLUSION = 1,
+    RADIANCE_RAY_TYPE = 0,
+    SHADOW_RAY_TYPE = 1,
     RAY_TYPE_COUNT = 2,
 };
 
@@ -31,22 +31,14 @@ struct LaunchParameters {
         float3 w;
     } camera{};
 
-    BufferView<Lights::ParallelogramLight> lights;
+    BufferView<Light> lights;
     OptixTraversableHandle handle{};
 
 };
 
 struct PayloadRadiance {
-    // TODO: move some state directly into payload registers?
-    float3 emitted;
-    float3 radiance;
-    float3 attenuation;
-    float3 origin;
-    float3 direction;
-    uint32_t seed;
-    int32_t countEmitted;
-    int32_t done;
-    int32_t pad;
+	uint32_t random_seed;
+	float3 pixel_color;
 };
 
 struct MissData {

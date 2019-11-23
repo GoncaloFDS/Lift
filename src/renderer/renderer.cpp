@@ -21,6 +21,7 @@ void lift::Renderer::init(CudaOutputBufferType type, std::shared_ptr<Window> win
 	launch_parameters_.frame_buffer = nullptr;
 	launch_parameters_.subframe_index = 0u;
 	launch_parameters_.samples_per_launch = 1;
+	launch_parameters_.max_depth = 4;
 	setClearColor(vec3(0.1f));
 	createOutputBuffer(type, window->size());
 }
@@ -73,13 +74,13 @@ void lift::Renderer::allocLights(Scene& scene) {
 	launch_parameters_.lights.count = static_cast<uint32_t>(lights.size());
 	CUDA_CHECK(cudaMalloc(
 		reinterpret_cast<void**>(&launch_parameters_.lights.data),
-		lights.size() * sizeof(Lights::ParallelogramLight)
+		lights.size() * sizeof(Light)
 
 	));
 	CUDA_CHECK(cudaMemcpy(
 		reinterpret_cast<void*>( launch_parameters_.lights.data ),
 		lights.data(),
-		lights.size() * sizeof(Lights::ParallelogramLight),
+		lights.size() * sizeof(Light),
 		cudaMemcpyHostToDevice
 	));
 }

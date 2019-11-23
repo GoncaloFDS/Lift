@@ -52,3 +52,5 @@ static __forceinline__ __device__ void cosine_sample_hemisphere(const float u1, 
     // Project up to hemisphere.
     p.z = sqrtf(fmaxf(0.0f, 1.0f - p.x * p.x - p.y * p.y));
 }
+
+
