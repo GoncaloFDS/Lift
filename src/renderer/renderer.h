@@ -12,7 +12,7 @@ class Window;
 
 class Renderer {
  public:
-    void init(CudaOutputBufferType type, std::shared_ptr<Window> window);
+    void init(CudaOutputBufferType type, const std::shared_ptr<Window>& window);
 
     void initOptixContext(const Scene& scene);
 

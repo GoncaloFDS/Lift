@@ -3,6 +3,7 @@
 #include "geometry_data.h"
 #include "material_data.h"
 #include "light.h"
+#include "random.cuh"
 
 namespace lift {
 
@@ -22,9 +23,12 @@ struct LaunchParameters {
     float4* accum_buffer{};
     uchar4* frame_buffer{};
     int32_t max_depth{};
-    uint32_t samples_per_launch{};
+    uint32_t width{};
+    uint32_t height{};
+	uint32_t samples_per_launch{};
+	uint32_t samples_per_light{};
 
-    struct {
+	struct {
         float3 eye;
         float3 u;
         float3 v;
@@ -36,9 +40,16 @@ struct LaunchParameters {
 
 };
 
-struct PayloadRadiance {
-	uint32_t random_seed;
-	float3 pixel_color;
+struct RadiancePRD {
+	Random random;
+	float3 emitted;
+	float3 radiance;
+	float3 attenuation;
+	float3 origin;
+	float3 direction;
+	int32_t count_emitted;
+	int32_t done;
+	int32_t pad;
 };
 
 struct MissData {

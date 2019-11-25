@@ -204,7 +204,7 @@ void lift::Application::hardcodeSceneEntities(lift::Scene& scene) {
 	light1.v1 = {400.0f, 0.0f, 0.0f};
 	light1.v2 = {0.0f, 0.0f, 400.0f};
 	light1.normal = normalize(cross(light1.v1, light1.v2));
-	light1.intensity = 3000000.0f;
+	light1.emission = {15.0f, 15.0f, 15.0f};
     scene.addLight(light1);
 
     renderer_.allocLights(scene);

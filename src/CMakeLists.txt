@@ -64,7 +64,12 @@ add_executable(Lift
         cuda/preprocessor.h
         cuda/math_constructors.h
         renderer/cuda_buffer.h
-        imgui/ui_elements.h core/os/input.cpp renderer/optix_context.cpp renderer/optix_context.h)
+        imgui/ui_elements.h
+        core/os/input.cpp
+        renderer/optix_context.cpp
+        renderer/optix_context.h
+        cuda/gdt.h)
+
 
 
 find_package(OptiX REQUIRED)

@@ -12,7 +12,7 @@
 #include "cuda_buffer.h"
 
 
-void lift::Renderer::init(CudaOutputBufferType type, std::shared_ptr<Window> window) {
+void lift::Renderer::init(CudaOutputBufferType type, const std::shared_ptr<Window>& window) {
 	LF_ASSERT(type == CudaOutputBufferType::GL_INTEROP, "Unsupported CudaOutputBufferType");
 	graphics_context_ = std::make_unique<OpenGLContext>(window);
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>( &d_params_ ), sizeof(LaunchParameters)));
@@ -22,6 +22,8 @@ void lift::Renderer::init(CudaOutputBufferType type, std::shared_ptr<Window> win
 	launch_parameters_.subframe_index = 0u;
 	launch_parameters_.samples_per_launch = 1;
 	launch_parameters_.max_depth = 4;
+	launch_parameters_.width = window->width();
+	launch_parameters_.height = window->height();
 	setClearColor(vec3(0.1f));
 	createOutputBuffer(type, window->size());
 }
@@ -50,6 +52,8 @@ void lift::Renderer::launchSubframe(const Scene& scene, const ivec2& size) {
 
 	output_buffer_->unmap();
 	CUDA_SYNC_CHECK();
+
+	launch_parameters_.subframe_index++;
 }
 
 void lift::Renderer::displaySubframe(void* window) {
@@ -98,6 +102,9 @@ void lift::Renderer::updateLaunchParameters(Scene scene) {
 void lift::Renderer::onResize(int32_t width, int32_t height) {
 	resizeOutputBuffer(width, height);
 	resizeAccumulationButter(width, height);
+	launch_parameters_.width = width;
+	launch_parameters_.height = height;
+	resetFrame();
 }
 
 void lift::Renderer::resizeOutputBuffer(int32_t width, int32_t height) {
