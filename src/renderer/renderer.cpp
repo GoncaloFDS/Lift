@@ -21,7 +21,7 @@ void lift::Renderer::init(CudaOutputBufferType type, const std::shared_ptr<Windo
 	launch_parameters_.frame_buffer = nullptr;
 	launch_parameters_.subframe_index = 0u;
 	launch_parameters_.samples_per_launch = 1;
-	launch_parameters_.max_depth = 4;
+	launch_parameters_.max_depth = 3;
 	launch_parameters_.width = window->width();
 	launch_parameters_.height = window->height();
 	setClearColor(vec3(0.1f));

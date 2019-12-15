@@ -1,9 +1,6 @@
 [submodule "external/imgui"]
 	path = external/imgui
 	url = https://github.com/GoncaloFDS/imgui.git
-[submodule "external/glfw"]
-	path = external/glfw
-	url = https://github.com/GoncaloFDS/glfw.git
 [submodule "external/spdlog"]
 	path = external/spdlog
 	url = https://github.com/gabime/spdlog.git
@@ -19,3 +16,6 @@
 [submodule "external/tinygltf"]
 	path = external/tinygltf
 	url = https://github.com/syoyo/tinygltf
+[submodule "external/tinyobj"]
+	path = external/tinyobj
+	url = https://github.com/syoyo/tinyobjloader.git

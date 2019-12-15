@@ -225,7 +225,7 @@ extern "C" __global__ void __closesthit__radiance() {
 		}
 	}
 
-	prd->radiance += light.emission * weight;
+	prd->radiance += light.emission * weight * 0.3f;
 }
 
 

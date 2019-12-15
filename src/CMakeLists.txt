@@ -1,102 +1,168 @@
-cmake_minimum_required(VERSION 3.14)
-
 set(EXTERNAL_DIR ../external)
+set(exe_name ${MAIN_PROJECT})
 
-cuda_compile_and_embed(embedded_ptx_code cuda/path_tracer.cu)
-
-add_executable(Lift
-        ${embedded_ptx_code}
-        sandbox.cpp
-        core/io/log.cpp
-        core/io/log.h
-        core/io/tiny_gltf.h
-        core/os/input.h
-        core/os/key_codes.h
-        core/os/window.h
-        core/layer.cpp
-        core/layer.h
-        core/layer_stack.cpp
-        core/layer_stack.h
-        core/profiler.cpp
-        core/profiler.h
-        core/timer.cpp
-        core/timer.h
-        core/util.cpp
-        core/util.h
-        cuda/launch_parameters.h
-        cuda/vec_math.h
-        events/application_event.h
-        events/event.h
-        events/key_event.h
-        events/mouse_event.h
-        imgui/imgui_build.cpp
-        imgui/imgui_layer.cpp
-        imgui/imgui_layer.h
-        platform/opengl/opengl_context.cpp
-        platform/opengl/opengl_context.h
-        platform/windows/windows_input.cpp
-        platform/windows/windows_input.h
-        platform/windows/windows_window.cpp
-        platform/windows/windows_window.h
-        cuda/buffer_view.h
-        renderer/cuda_output_buffer.h
-        renderer/graphics_context.h
-        renderer/record.h
-        renderer/renderer.cpp
-        renderer/renderer.h
-        scene/cameras/camera.cpp
-        scene/cameras/camera.h
-        scene/aabb.cpp
-        scene/aabb.h
-        cuda/geometry_data.h
-        cuda/material_data.h
-        scene/mesh.h
-        scene/scene.cpp
-        scene/scene.h
-        application.cpp
-        application.h
-        core.h
-        lift.h
-        main.h
-        pch.cpp
-        pch.h
-        cuda/light.h
-        cuda/preprocessor.h
-        cuda/math_constructors.h
-        renderer/cuda_buffer.h
-        imgui/ui_elements.h
-        core/os/input.cpp
-        renderer/optix_context.cpp
-        renderer/optix_context.h
-        cuda/gdt.h)
-
-
-
-find_package(OptiX REQUIRED)
-target_include_directories(Lift PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${OptiX_INCLUDE}
+set(src_files_assets
+        Assets/CornellBox.cpp
+        Assets/CornellBox.hpp
+        Assets/Material.hpp
+        Assets/Model.cpp
+        Assets/Model.hpp
+        Assets/Procedural.hpp
+        Assets/Scene.cpp
+        Assets/Scene.hpp
+        Assets/Sphere.hpp
+        Assets/Texture.cpp
+        Assets/Texture.hpp
+        Assets/TextureImage.cpp
+        Assets/TextureImage.hpp
+        Assets/UniformBuffer.cpp
+        Assets/UniformBuffer.hpp
+        Assets/Vertex.hpp
         )
 
-target_include_directories(Lift PRIVATE
-        src/
-        ${EXTERNAL_DIR}/tinygltf)
+set(src_files_imgui
+        ImGui/imgui_impl_glfw.cpp
+        ImGui/imgui_impl_glfw.h
+        ImGui/imgui_impl_vulkan.cpp
+        ImGui/imgui_impl_vulkan.h
+        )
 
-target_link_libraries(Lift
+set(src_files_utilities
+        Utilities/Console.cpp
+        Utilities/Console.hpp
+        Utilities/Glm.hpp
+        Utilities/StbImage.cpp
+        Utilities/StbImage.hpp
+        )
+
+set(src_files_vulkan
+        Vulkan/Application.cpp
+        Vulkan/Application.hpp
+        Vulkan/Buffer.cpp
+        Vulkan/Buffer.hpp
+        Vulkan/CommandBuffers.cpp
+        Vulkan/CommandBuffers.hpp
+        Vulkan/CommandPool.cpp
+        Vulkan/CommandPool.hpp
+        Vulkan/DepthBuffer.cpp
+        Vulkan/DepthBuffer.hpp
+        Vulkan/DescriptorBinding.hpp
+        Vulkan/DescriptorPool.cpp
+        Vulkan/DescriptorPool.hpp
+        Vulkan/DescriptorSetLayout.cpp
+        Vulkan/DescriptorSetLayout.hpp
+        Vulkan/DescriptorSetManager.cpp
+        Vulkan/DescriptorSetManager.hpp
+        Vulkan/DescriptorSets.cpp
+        Vulkan/DescriptorSets.hpp
+        Vulkan/Device.cpp
+        Vulkan/Device.hpp
+        Vulkan/DeviceMemory.cpp
+        Vulkan/DeviceMemory.hpp
+        Vulkan/DebugUtilsMessenger.cpp
+        Vulkan/DebugUtilsMessenger.hpp
+        Vulkan/Enumerate.hpp
+        Vulkan/Fence.cpp
+        Vulkan/Fence.hpp
+        Vulkan/FrameBuffer.cpp
+        Vulkan/FrameBuffer.hpp
+        Vulkan/GraphicsPipeline.cpp
+        Vulkan/GraphicsPipeline.hpp
+        Vulkan/Image.cpp
+        Vulkan/Image.hpp
+        Vulkan/ImageMemoryBarrier.hpp
+        Vulkan/ImageView.cpp
+        Vulkan/ImageView.hpp
+        Vulkan/Instance.cpp
+        Vulkan/Instance.hpp
+        Vulkan/PipelineLayout.cpp
+        Vulkan/PipelineLayout.hpp
+        Vulkan/RenderPass.cpp
+        Vulkan/RenderPass.hpp
+        Vulkan/Sampler.cpp
+        Vulkan/Sampler.hpp
+        Vulkan/Semaphore.cpp
+        Vulkan/Semaphore.hpp
+        Vulkan/ShaderModule.cpp
+        Vulkan/ShaderModule.hpp
+        Vulkan/SingleTimeCommands.hpp
+        Vulkan/Strings.cpp
+        Vulkan/Strings.hpp
+        Vulkan/Surface.cpp
+        Vulkan/Surface.hpp
+        Vulkan/SwapChain.cpp
+        Vulkan/SwapChain.hpp
+        Vulkan/Version.hpp
+        Vulkan/Vulkan.cpp
+        Vulkan/Vulkan.hpp
+        Vulkan/Window.cpp
+        Vulkan/Window.hpp
+        Vulkan/WindowConfig.hpp
+        )
+
+set(src_files_vulkan_raytracing
+        Vulkan/RayTracing/AccelerationStructure.cpp
+        Vulkan/RayTracing/AccelerationStructure.hpp
+        Vulkan/RayTracing/Application.cpp
+        Vulkan/RayTracing/Application.hpp
+        Vulkan/RayTracing/BottomLevelAccelerationStructure.cpp
+        Vulkan/RayTracing/BottomLevelAccelerationStructure.hpp
+        Vulkan/RayTracing/DeviceProcedures.cpp
+        Vulkan/RayTracing/DeviceProcedures.hpp
+        Vulkan/RayTracing/RayTracingPipeline.cpp
+        Vulkan/RayTracing/RayTracingPipeline.hpp
+        Vulkan/RayTracing/RayTracingProperties.cpp
+        Vulkan/RayTracing/RayTracingProperties.hpp
+        Vulkan/RayTracing/ShaderBindingTable.cpp
+        Vulkan/RayTracing/ShaderBindingTable.hpp
+        Vulkan/RayTracing/TopLevelAccelerationStructure.cpp
+        Vulkan/RayTracing/TopLevelAccelerationStructure.hpp
+        )
+
+set(src_files
+        main.cpp
+        Options.cpp
+        Options.hpp
+        RayTracer.cpp
+        RayTracer.hpp
+        SceneList.cpp
+        SceneList.hpp
+        UserInterface.cpp
+        UserInterface.hpp
+        UserSettings.hpp
+        )
+
+source_group("Assets" FILES ${src_files_assets})
+source_group("ImGui" FILES ${src_files_imgui})
+source_group("Utilities" FILES ${src_files_utilities})
+source_group("Vulkan" FILES ${src_files_vulkan})
+source_group("Vulkan.RayTracing" FILES ${src_files_vulkan_raytracing})
+source_group("Main" FILES ${src_files})
+
+include_directories(.)
+include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${glfw3_INCLUDE_DIRS})
+include_directories(${glm_INCLUDE_DIRS})
+include_directories(${Vulkan_INCLUDE_DIRS})
+link_directories(${Vulkan_LIBRARY})
+
+find_package(OptiX REQUIRED)
+include_directories(
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${OptiX_INCLUDE})
+
+include_directories(
+        src/
+        ${EXTERNAL_DIR}/tinygltf
+        ${EXTERNAL_DIR}/tinyobj)
+
+link_libraries(
         ${optix_LIBRARY}
         ${CUDA_LIBRARIES}
         ${CUDA_CUDA_LIBRARIES})
 
 #Cuda
-target_include_directories(Lift PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
-
-#GLAD
-add_library(glad ${EXTERNAL_DIR}/glad/src/glad.c)
-target_include_directories(glad PUBLIC ${EXTERNAL_DIR}/glad/include)
-target_link_libraries(Lift glad ${CMAKE_DL_LIBS})
-
-#GLFW
-target_link_libraries(Lift glfw)
+include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
 #ImGUI
 add_library(imgui
@@ -110,19 +176,29 @@ add_library(imgui
         ${EXTERNAL_DIR}/imgui/imstb_textedit.h
         ${EXTERNAL_DIR}/imgui/imstb_truetype.h
         ${EXTERNAL_DIR}/imgui/imgui_demo.cpp)
-target_include_directories(Lift PRIVATE ${EXTERNAL_DIR}/imgui)
-target_link_libraries(Lift imgui)
+include_directories(${EXTERNAL_DIR}/imgui)
 
 #spdlog
-target_include_directories(Lift PUBLIC ${EXTERNAL_DIR}/spdlog/include)
-target_link_libraries(Lift spdlog)
+#include_directories(${EXTERNAL_DIR}/spdlog/include)
 
 #glm
-target_include_directories(Lift PUBLIC ${EXTERNAL_DIR}/glm)
+include_directories(${EXTERNAL_DIR}/glm)
 
-add_compile_definitions(LF_PLATFORM_WINDOWS)
-add_compile_definitions(LF_BUILD_DLL)
-#add_compile_definitions(GLFW_INCLUDE_NONE)
-add_compile_definitions(LF_DEBUG)
-add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+#boost
+
+add_executable(${exe_name}
+        ${src_files_assets}
+        ${src_files_imgui}
+        ${src_files_utilities}
+        ${src_files_vulkan}
+        ${src_files_vulkan_raytracing}
+        ${src_files}
+        )
+
+#add_compile_definitions(LF_DEBUG)
+#add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+set_target_properties(${exe_name} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+target_link_libraries(${exe_name} PRIVATE ${Boost_LIBRARIES} glfw imgui spdlog ${Vulkan_LIBRARIES})
+add_dependencies(${exe_name} Assets)
+
 

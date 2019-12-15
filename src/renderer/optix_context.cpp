@@ -7,7 +7,6 @@
 #include "cuda_buffer.h"
 #include "record.h"
 
-
 extern "C" char embedded_ptx_code[];
 
 void lift::OptixContext::init(const lift::Scene& scene) {
@@ -325,8 +324,8 @@ void lift::OptixContext::buildInstanceAccel(const Scene& scene, int ray_type_cou
 		0 // num emitted properties
 	));
 
-	CUDA_CHECK(cudaFree(reinterpret_cast<void*>( d_temp_buffer )));
-	CUDA_CHECK(cudaFree(reinterpret_cast<void*>( d_instances )));
+	CUDA_CHECK(cudaFree(reinterpret_cast<void*>(d_temp_buffer)));
+	CUDA_CHECK(cudaFree(reinterpret_cast<void*>(d_instances)));
 }
 
 void lift::OptixContext::createPtxModule() {
@@ -340,7 +339,9 @@ void lift::OptixContext::createPtxModule() {
 	pipeline_compile_options_.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
 	pipeline_compile_options_.numPayloadValues = k_NumPayloadValues;
 	pipeline_compile_options_.numAttributeValues = 2; // TODO
-	pipeline_compile_options_.exceptionFlags = OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+	//pipeline_compile_options_.exceptionFlags = OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+	pipeline_compile_options_.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG;
+	//pipeline_compile_options_.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
 	pipeline_compile_options_.pipelineLaunchParamsVariableName = "params";
 
 	const std::string ptx = embedded_ptx_code;
@@ -427,17 +428,17 @@ void lift::OptixContext::createProgramGroups() {
 	//
 	OptixProgramGroupDesc hit_prog_group_desc = {};
 	hit_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-	hit_prog_group_desc.hitgroup.moduleCH = this->ptx_module_;
+	hit_prog_group_desc.hitgroup.moduleCH = ptx_module_;
 	hit_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__radiance";
 	sizeof_log = sizeof(log);
 	OPTIX_CHECK(optixProgramGroupCreate(
-		this->context_,
+		context_,
 		&hit_prog_group_desc,
 		1, // num program groups
 		&program_group_options,
 		log,
 		&sizeof_log,
-		&this->radiance_hit_group_
+		&radiance_hit_group_
 	));
 
 	memset(&hit_prog_group_desc, 0, sizeof(OptixProgramGroupDesc));
@@ -446,13 +447,13 @@ void lift::OptixContext::createProgramGroups() {
 	hit_prog_group_desc.hitgroup.entryFunctionNameCH = nullptr;
 	sizeof_log = sizeof(log);
 	OPTIX_CHECK(optixProgramGroupCreate(
-		this->context_,
+		context_,
 		&hit_prog_group_desc,
 		1, // num program groups
 		&program_group_options,
 		log,
 		&sizeof_log,
-		&this->occlusion_hit_group_
+		&occlusion_hit_group_
 	));
 }
 
@@ -487,12 +488,12 @@ void lift::OptixContext::createPipeline() {
 void lift::OptixContext::createSbt(const Scene& scene) {
 	{
 		const size_t raygen_record_size = sizeof(RayGenRecord);
-		CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>( &sbt_.raygenRecord ), raygen_record_size));
+		CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&sbt_.raygenRecord), raygen_record_size));
 
 		RayGenRecord rg_sbt;
 		OPTIX_CHECK(optixSbtRecordPackHeader(raygen_prog_group_, &rg_sbt));
 		CUDA_CHECK(cudaMemcpy(
-			reinterpret_cast<void*>( sbt_.raygenRecord ),
+			reinterpret_cast<void*>(sbt_.raygenRecord),
 			&rg_sbt,
 			raygen_record_size,
 			cudaMemcpyHostToDevice
@@ -502,7 +503,7 @@ void lift::OptixContext::createSbt(const Scene& scene) {
 	{
 		const size_t miss_record_size = sizeof(MissDataRecord);
 		CUDA_CHECK(cudaMalloc(
-			reinterpret_cast<void**>( &sbt_.missRecordBase ),
+			reinterpret_cast<void**>(&sbt_.missRecordBase),
 			miss_record_size * RAY_TYPE_COUNT
 		));
 
@@ -511,7 +512,7 @@ void lift::OptixContext::createSbt(const Scene& scene) {
 		OPTIX_CHECK(optixSbtRecordPackHeader(occlusion_miss_group_, &ms_sbt[1]));
 
 		CUDA_CHECK(cudaMemcpy(
-			reinterpret_cast<void*>( sbt_.missRecordBase ),
+			reinterpret_cast<void*>(sbt_.missRecordBase),
 			ms_sbt,
 			miss_record_size * RAY_TYPE_COUNT,
 			cudaMemcpyHostToDevice
@@ -547,11 +548,11 @@ void lift::OptixContext::createSbt(const Scene& scene) {
 
 		const size_t hitgroup_record_size = sizeof(HitGroupRecord);
 		CUDA_CHECK(cudaMalloc(
-			reinterpret_cast<void**>( &sbt_.hitgroupRecordBase ),
+			reinterpret_cast<void**>(&sbt_.hitgroupRecordBase),
 			hitgroup_record_size * hitgroup_records.size()
 		));
 		CUDA_CHECK(cudaMemcpy(
-			reinterpret_cast<void*>( sbt_.hitgroupRecordBase ),
+			reinterpret_cast<void*>(sbt_.hitgroupRecordBase),
 			hitgroup_records.data(),
 			hitgroup_record_size * hitgroup_records.size(),
 			cudaMemcpyHostToDevice

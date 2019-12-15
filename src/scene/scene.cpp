@@ -219,7 +219,7 @@ void lift::Scene::loadFromFile(const std::string& file_name) {
     // Materials
     //
     for (auto& gltf_material : model.materials) {
-        MaterialData mtl;
+        MaterialData mtl = MaterialData();
 
         const auto base_color_it = gltf_material.values.find("baseColorFactor");
         if (base_color_it != gltf_material.values.end()) {
