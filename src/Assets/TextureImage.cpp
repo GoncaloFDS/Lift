@@ -1,10 +1,10 @@
 #include "TextureImage.hpp"
 #include "Texture.hpp"
-#include "Vulkan/Buffer.hpp"
-#include "Vulkan/CommandPool.hpp"
-#include "Vulkan/ImageView.hpp"
-#include "Vulkan/Image.hpp"
-#include "Vulkan/Sampler.hpp"
+#include "platform/vulkan/Buffer.h"
+#include "platform/vulkan/CommandPool.h"
+#include "platform/vulkan/ImageView.h"
+#include "platform/vulkan/Image.h"
+#include "platform/vulkan/Sampler.h"
 #include <cstring>
 
 namespace Assets {

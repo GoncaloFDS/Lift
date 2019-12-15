@@ -2,22 +2,22 @@ set(EXTERNAL_DIR ../external)
 set(exe_name ${MAIN_PROJECT})
 
 set(src_files_assets
-        Assets/CornellBox.cpp
-        Assets/CornellBox.hpp
-        Assets/Material.hpp
-        Assets/Model.cpp
-        Assets/Model.hpp
-        Assets/Procedural.hpp
-        Assets/Scene.cpp
-        Assets/Scene.hpp
-        Assets/Sphere.hpp
-        Assets/Texture.cpp
-        Assets/Texture.hpp
-        Assets/TextureImage.cpp
-        Assets/TextureImage.hpp
-        Assets/UniformBuffer.cpp
-        Assets/UniformBuffer.hpp
-        Assets/Vertex.hpp
+        assets/CornellBox.cpp
+        assets/CornellBox.hpp
+        assets/Material.hpp
+        assets/Model.cpp
+        assets/Model.hpp
+        assets/Procedural.hpp
+        assets/Scene.cpp
+        assets/Scene.hpp
+        assets/Sphere.hpp
+        assets/Texture.cpp
+        assets/Texture.hpp
+        assets/TextureImage.cpp
+        assets/TextureImage.hpp
+        assets/UniformBuffer.cpp
+        assets/UniformBuffer.hpp
+        assets/Vertex.hpp
         )
 
 set(src_files_imgui
@@ -36,100 +36,100 @@ set(src_files_utilities
         )
 
 set(src_files_vulkan
-        Vulkan/Application.cpp
-        Vulkan/Application.hpp
-        Vulkan/Buffer.cpp
-        Vulkan/Buffer.hpp
-        Vulkan/CommandBuffers.cpp
-        Vulkan/CommandBuffers.hpp
-        Vulkan/CommandPool.cpp
-        Vulkan/CommandPool.hpp
-        Vulkan/DepthBuffer.cpp
-        Vulkan/DepthBuffer.hpp
-        Vulkan/DescriptorBinding.hpp
-        Vulkan/DescriptorPool.cpp
-        Vulkan/DescriptorPool.hpp
-        Vulkan/DescriptorSetLayout.cpp
-        Vulkan/DescriptorSetLayout.hpp
-        Vulkan/DescriptorSetManager.cpp
-        Vulkan/DescriptorSetManager.hpp
-        Vulkan/DescriptorSets.cpp
-        Vulkan/DescriptorSets.hpp
-        Vulkan/Device.cpp
-        Vulkan/Device.hpp
-        Vulkan/DeviceMemory.cpp
-        Vulkan/DeviceMemory.hpp
-        Vulkan/DebugUtilsMessenger.cpp
-        Vulkan/DebugUtilsMessenger.hpp
-        Vulkan/Enumerate.hpp
-        Vulkan/Fence.cpp
-        Vulkan/Fence.hpp
-        Vulkan/FrameBuffer.cpp
-        Vulkan/FrameBuffer.hpp
-        Vulkan/GraphicsPipeline.cpp
-        Vulkan/GraphicsPipeline.hpp
-        Vulkan/Image.cpp
-        Vulkan/Image.hpp
-        Vulkan/ImageMemoryBarrier.hpp
-        Vulkan/ImageView.cpp
-        Vulkan/ImageView.hpp
-        Vulkan/Instance.cpp
-        Vulkan/Instance.hpp
-        Vulkan/PipelineLayout.cpp
-        Vulkan/PipelineLayout.hpp
-        Vulkan/RenderPass.cpp
-        Vulkan/RenderPass.hpp
-        Vulkan/Sampler.cpp
-        Vulkan/Sampler.hpp
-        Vulkan/Semaphore.cpp
-        Vulkan/Semaphore.hpp
-        Vulkan/ShaderModule.cpp
-        Vulkan/ShaderModule.hpp
-        Vulkan/SingleTimeCommands.hpp
-        Vulkan/Strings.cpp
-        Vulkan/Strings.hpp
-        Vulkan/Surface.cpp
-        Vulkan/Surface.hpp
-        Vulkan/SwapChain.cpp
-        Vulkan/SwapChain.hpp
-        Vulkan/Version.hpp
-        Vulkan/Vulkan.cpp
-        Vulkan/Vulkan.hpp
-        Vulkan/Window.cpp
-        Vulkan/Window.hpp
-        Vulkan/WindowConfig.hpp
+        platform/vulkan/Application.cpp
+        platform/vulkan/Application.h
+        platform/vulkan/Buffer.cpp
+        platform/vulkan/Buffer.h
+        platform/vulkan/CommandBuffers.cpp
+        platform/vulkan/CommandBuffers.h
+        platform/vulkan/CommandPool.cpp
+        platform/vulkan/CommandPool.h
+        platform/vulkan/DepthBuffer.cpp
+        platform/vulkan/DepthBuffer.h
+        platform/vulkan/DescriptorBinding.h
+        platform/vulkan/DescriptorPool.cpp
+        platform/vulkan/DescriptorPool.h
+        platform/vulkan/DescriptorSetLayout.cpp
+        platform/vulkan/DescriptorSetLayout.h
+        platform/vulkan/DescriptorSetManager.cpp
+        platform/vulkan/DescriptorSetManager.h
+        platform/vulkan/DescriptorSets.cpp
+        platform/vulkan/DescriptorSets.h
+        platform/vulkan/Device.cpp
+        platform/vulkan/Device.h
+        platform/vulkan/DeviceMemory.cpp
+        platform/vulkan/DeviceMemory.h
+        platform/vulkan/DebugUtilsMessenger.cpp
+        platform/vulkan/DebugUtilsMessenger.h
+        platform/vulkan/Enumerate.h
+        platform/vulkan/Fence.cpp
+        platform/vulkan/Fence.h
+        platform/vulkan/FrameBuffer.cpp
+        platform/vulkan/FrameBuffer.h
+        platform/vulkan/GraphicsPipeline.cpp
+        platform/vulkan/GraphicsPipeline.h
+        platform/vulkan/Image.cpp
+        platform/vulkan/Image.h
+        platform/vulkan/ImageMemoryBarrier.h
+        platform/vulkan/ImageView.cpp
+        platform/vulkan/ImageView.h
+        platform/vulkan/Instance.cpp
+        platform/vulkan/Instance.h
+        platform/vulkan/PipelineLayout.cpp
+        platform/vulkan/PipelineLayout.h
+        platform/vulkan/RenderPass.cpp
+        platform/vulkan/RenderPass.h
+        platform/vulkan/Sampler.cpp
+        platform/vulkan/Sampler.h
+        platform/vulkan/Semaphore.cpp
+        platform/vulkan/Semaphore.h
+        platform/vulkan/ShaderModule.cpp
+        platform/vulkan/ShaderModule.h
+        platform/vulkan/SingleTimeCommands.h
+        platform/vulkan/Strings.cpp
+        platform/vulkan/Strings.hpp
+        platform/vulkan/Surface.cpp
+        platform/vulkan/Surface.h
+        platform/vulkan/SwapChain.cpp
+        platform/vulkan/SwapChain.h
+        platform/vulkan/Version.hpp
+        platform/vulkan/VulkanError.cpp
+        platform/vulkan/VulkanError.h
+        platform/vulkan/Window.cpp
+        platform/vulkan/Window.h
+        platform/vulkan/WindowConfig.h
         )
 
 set(src_files_vulkan_raytracing
-        Vulkan/RayTracing/AccelerationStructure.cpp
-        Vulkan/RayTracing/AccelerationStructure.hpp
-        Vulkan/RayTracing/Application.cpp
-        Vulkan/RayTracing/Application.hpp
-        Vulkan/RayTracing/BottomLevelAccelerationStructure.cpp
-        Vulkan/RayTracing/BottomLevelAccelerationStructure.hpp
-        Vulkan/RayTracing/DeviceProcedures.cpp
-        Vulkan/RayTracing/DeviceProcedures.hpp
-        Vulkan/RayTracing/RayTracingPipeline.cpp
-        Vulkan/RayTracing/RayTracingPipeline.hpp
-        Vulkan/RayTracing/RayTracingProperties.cpp
-        Vulkan/RayTracing/RayTracingProperties.hpp
-        Vulkan/RayTracing/ShaderBindingTable.cpp
-        Vulkan/RayTracing/ShaderBindingTable.hpp
-        Vulkan/RayTracing/TopLevelAccelerationStructure.cpp
-        Vulkan/RayTracing/TopLevelAccelerationStructure.hpp
+        platform/vulkan/rayTracing/AccelerationStructure.cpp
+        platform/vulkan/rayTracing/AccelerationStructure.hpp
+        platform/vulkan/rayTracing/Application.cpp
+        platform/vulkan/rayTracing/Application.hpp
+        platform/vulkan/rayTracing/BottomLevelAccelerationStructure.cpp
+        platform/vulkan/rayTracing/BottomLevelAccelerationStructure.hpp
+        platform/vulkan/rayTracing/DeviceProcedures.cpp
+        platform/vulkan/rayTracing/DeviceProcedures.hpp
+        platform/vulkan/rayTracing/RayTracingPipeline.cpp
+        platform/vulkan/rayTracing/RayTracingPipeline.hpp
+        platform/vulkan/rayTracing/RayTracingProperties.cpp
+        platform/vulkan/rayTracing/RayTracingProperties.hpp
+        platform/vulkan/rayTracing/ShaderBindingTable.cpp
+        platform/vulkan/rayTracing/ShaderBindingTable.hpp
+        platform/vulkan/rayTracing/TopLevelAccelerationStructure.cpp
+        platform/vulkan/rayTracing/TopLevelAccelerationStructure.hpp
         )
 
 set(src_files
         main.cpp
         Options.cpp
-        Options.hpp
+        Options.h
         RayTracer.cpp
-        RayTracer.hpp
+        RayTracer.h
         SceneList.cpp
-        SceneList.hpp
+        SceneList.h
         UserInterface.cpp
-        UserInterface.hpp
-        UserSettings.hpp
+        UserInterface.h
+        UserSettings.h
         )
 
 source_group("Assets" FILES ${src_files_assets})
@@ -140,6 +140,7 @@ source_group("Vulkan.RayTracing" FILES ${src_files_vulkan_raytracing})
 source_group("Main" FILES ${src_files})
 
 include_directories(.)
+include_directories(./platform)
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${glfw3_INCLUDE_DIRS})
 include_directories(${glm_INCLUDE_DIRS})

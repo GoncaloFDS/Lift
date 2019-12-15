@@ -1,6 +1,5 @@
-#include "Sampler.hpp"
-#include "Device.hpp"
-#include "Utilities/Exception.hpp"
+#include "Sampler.h"
+#include "Device.h"
 
 namespace Vulkan {
 
@@ -27,7 +26,7 @@ Sampler::Sampler(const class Device& device, const SamplerConfig& config) :
 
 	if (vkCreateSampler(device.Handle(), &samplerInfo, nullptr, &sampler_) != VK_SUCCESS)
 	{
-		Throw(std::runtime_error("failed to create sampler"));
+//		Throw(std::runtime_error("failed to create sampler"));
 	}
 }
 

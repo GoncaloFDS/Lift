@@ -1,10 +1,12 @@
-#include "Device.hpp"
-#include "Enumerate.hpp"
-#include "Instance.hpp"
-#include "Surface.hpp"
-#include "Utilities/Exception.hpp"
+#include "Device.h"
+#include "Enumerate.h"
+#include "Instance.h"
+#include "Surface.h"
 #include <algorithm>
 #include <set>
+#include <string>
+#include <stdexcept>
+#include <core.h>
 
 namespace Vulkan {
 
@@ -26,7 +28,7 @@ namespace Vulkan {
 
 			if (family == queueFamilies.end())
 			{
-				Throw(std::runtime_error("found no matching " + name + " queue"));
+				LF_ASSERT(std::runtime_error("found no matching " + name + " queue"));
 			}
 
 			return family;
@@ -64,7 +66,7 @@ Device::Device(VkPhysicalDevice physicalDevice, const class Surface& surface) :
 
 	if (presentFamily == queueFamilies.end())
 	{
-		Throw(std::runtime_error("found no presentation queue"));
+        LF_ASSERT(std::runtime_error("found no presentation queue"));
 	}
 
 	graphicsFamilyIndex_ = static_cast<uint32_t>(graphicsFamily - queueFamilies.begin());
@@ -165,7 +167,7 @@ void Device::CheckRequiredExtensions(VkPhysicalDevice physicalDevice) const
 			first = false;
 		}
 
-		Throw(std::runtime_error("missing required extensions: " + extensions));
+		LF_ASSERT(std::runtime_error("missing required extensions: " + extensions));
 	}
 }
 

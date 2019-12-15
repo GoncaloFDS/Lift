@@ -2,10 +2,9 @@
 #include "DeviceProcedures.hpp"
 #include "RayTracingPipeline.hpp"
 #include "RayTracingProperties.hpp"
-#include "Utilities/Exception.hpp"
-#include "Vulkan/Buffer.hpp"
-#include "Vulkan/Device.hpp"
-#include "Vulkan/DeviceMemory.hpp"
+#include "platform/vulkan/Buffer.h"
+#include "platform/vulkan/Device.h"
+#include "platform/vulkan/DeviceMemory.h"
 #include <algorithm>
 #include <cstring>
 

@@ -1,6 +1,6 @@
-#include "CommandBuffers.hpp"
-#include "CommandPool.hpp"
-#include "Device.hpp"
+#include "CommandBuffers.h"
+#include "CommandPool.h"
+#include "Device.h"
 
 namespace Vulkan {
 

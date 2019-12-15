@@ -1,5 +1,5 @@
-#include "ImageView.hpp"
-#include "Device.hpp"
+#include "ImageView.h"
+#include "Device.h"
 
 namespace Vulkan {
 

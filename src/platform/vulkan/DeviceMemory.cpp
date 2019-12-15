@@ -1,6 +1,5 @@
-#include "DeviceMemory.hpp"
-#include "Device.hpp"
-#include "Utilities/Exception.hpp"
+#include "DeviceMemory.h"
+#include "Device.h"
 
 namespace Vulkan {
 
@@ -63,7 +62,7 @@ uint32_t DeviceMemory::FindMemoryType(const uint32_t typeFilter, const VkMemoryP
 		}
 	}
 
-	Throw(std::runtime_error("failed to find suitable memory type"));
+//	Throw(std::runtime_error("failed to find suitable memory type"));
 }
 
 }

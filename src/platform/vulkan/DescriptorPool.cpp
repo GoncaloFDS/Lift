@@ -1,5 +1,5 @@
-#include "DescriptorPool.hpp"
-#include "Device.hpp"
+#include "DescriptorPool.h"
+#include "Device.h"
 
 namespace Vulkan {
 

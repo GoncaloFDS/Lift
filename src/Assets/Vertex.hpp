@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Utilities/Glm.hpp"
-#include "Vulkan/Vulkan.hpp"
+#include "vulkan/VulkanError.h"
 #include <array>
 
 namespace Assets

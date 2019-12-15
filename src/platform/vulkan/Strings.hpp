@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VulkanMacros.hpp"
+#include "VulkanError.h"
 
 namespace Vulkan
 {

@@ -1,5 +1,5 @@
-#include "CommandPool.hpp"
-#include "Device.hpp"
+#include "CommandPool.h"
+#include "Device.h"
 
 namespace Vulkan {
 

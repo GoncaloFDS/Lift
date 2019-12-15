@@ -1,10 +1,10 @@
-#include "DescriptorSets.hpp"
-#include "DescriptorPool.hpp"
-#include "DescriptorSetLayout.hpp"
-#include "Device.hpp"
-#include "Utilities/Exception.hpp"
+#include "DescriptorSets.h"
+#include "DescriptorPool.h"
+#include "DescriptorSetLayout.h"
+#include "Device.h"
 #include <array>
 #include <utility>
+#include <core.h>
 
 namespace Vulkan {
 
@@ -99,7 +99,7 @@ VkDescriptorType DescriptorSets::GetBindingType(uint32_t binding) const
 	const auto it = bindingTypes_.find(binding);
 	if (it == bindingTypes_.end())
 	{
-		Throw(std::invalid_argument("binding not found"));
+		LF_ASSERT(std::invalid_argument("binding not found"));
 	}
 
 	return it->second;

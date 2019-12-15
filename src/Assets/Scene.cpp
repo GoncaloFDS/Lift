@@ -3,10 +3,10 @@
 #include "Sphere.hpp"
 #include "Texture.hpp"
 #include "TextureImage.hpp"
-#include "Vulkan/Buffer.hpp"
-#include "Vulkan/CommandPool.hpp"
-#include "Vulkan/ImageView.hpp"
-#include "Vulkan/Sampler.hpp"
+#include "platform/vulkan/Buffer.h"
+#include "platform/vulkan/CommandPool.h"
+#include "platform/vulkan/ImageView.h"
+#include "platform/vulkan/Sampler.h"
 #include <cstring>
 
 namespace Assets {

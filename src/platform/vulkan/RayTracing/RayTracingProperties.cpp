@@ -1,5 +1,5 @@
 #include "RayTracingProperties.hpp"
-#include "Vulkan/Device.hpp"
+#include "platform/vulkan/Device.h"
 
 namespace Vulkan::RayTracing {
 

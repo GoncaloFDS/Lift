@@ -1,6 +1,6 @@
-#include "PipelineLayout.hpp"
-#include "DescriptorSetLayout.hpp"
-#include "Device.hpp"
+#include "PipelineLayout.h"
+#include "DescriptorSetLayout.h"
+#include "Device.h"
 
 namespace Vulkan {
 

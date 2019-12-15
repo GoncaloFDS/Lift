@@ -1,15 +1,15 @@
-#include "UserInterface.hpp"
-#include "SceneList.hpp"
-#include "UserSettings.hpp"
-#include "Vulkan/DescriptorPool.hpp"
-#include "Vulkan/Device.hpp"
-#include "Vulkan/FrameBuffer.hpp"
-#include "Vulkan/Instance.hpp"
-#include "Vulkan/RenderPass.hpp"
-#include "Vulkan/SingleTimeCommands.hpp"
-#include "Vulkan/Surface.hpp"
-#include "Vulkan/SwapChain.hpp"
-#include "Vulkan/Window.hpp"
+#include "UserInterface.h"
+#include "SceneList.h"
+#include "UserSettings.h"
+#include "platform/vulkan/DescriptorPool.h"
+#include "platform/vulkan/Device.h"
+#include "platform/vulkan/FrameBuffer.h"
+#include "platform/vulkan/Instance.h"
+#include "platform/vulkan/RenderPass.h"
+#include "platform/vulkan/SingleTimeCommands.h"
+#include "platform/vulkan/Surface.h"
+#include "platform/vulkan/SwapChain.h"
+#include "platform/vulkan/Window.h"
 
 #include "imgui.h"
 #include "ImGui/imgui_impl_glfw.h"
@@ -30,8 +30,8 @@ namespace
 }
 
 UserInterface::UserInterface(
-	Vulkan::CommandPool& commandPool, 
-	const Vulkan::SwapChain& swapChain, 
+	Vulkan::CommandPool& commandPool,
+	const Vulkan::SwapChain& swapChain,
 	const Vulkan::DepthBuffer& depthBuffer,
 	UserSettings& userSettings) :
 	userSettings_(userSettings)

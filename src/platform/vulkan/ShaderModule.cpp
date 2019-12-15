@@ -1,6 +1,5 @@
-#include "ShaderModule.hpp"
-#include "Device.hpp"
-#include "Utilities/Exception.hpp"
+#include "ShaderModule.h"
+#include "Device.h"
 #include <fstream>
 
 namespace Vulkan {
@@ -48,7 +47,7 @@ std::vector<char> ShaderModule::ReadFile(const std::string& filename)
 
 	if (!file.is_open())
 	{
-		Throw(std::runtime_error("failed to open file '" + filename + "'"));
+//		Throw(std::runtime_error("failed to open file '" + filename + "'"));
 	}
 
 	const auto fileSize = static_cast<size_t>(file.tellg());

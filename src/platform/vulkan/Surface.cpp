@@ -1,6 +1,6 @@
-#include "Surface.hpp"
-#include "Instance.hpp"
-#include "Window.hpp"
+#include "Surface.h"
+#include "Instance.h"
+#include "Window.h"
 
 namespace Vulkan {
 

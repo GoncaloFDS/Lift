@@ -1,5 +1,4 @@
-#include "Window.hpp"
-#include "Utilities/Exception.hpp"
+#include "Window.h"
 #include "Utilities/StbImage.hpp"
 #include <iostream>
 
@@ -47,12 +46,12 @@ Window::Window(const WindowConfig& config) :
 
 	if (!glfwInit())
 	{
-		Throw(std::runtime_error("glfwInit() failed"));
+//		Throw(std::runtime_error("glfwInit() failed"));
 	}
 
 	if (!glfwVulkanSupported())
 	{
-		Throw(std::runtime_error("glfwVulkanSupported() failed"));
+//		Throw(std::runtime_error("glfwVulkanSupported() failed"));
 	}
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -63,14 +62,14 @@ Window::Window(const WindowConfig& config) :
 	window_ = glfwCreateWindow(config.Width, config.Height, config.Title.c_str(), monitor, nullptr);
 	if (window_ == nullptr)
 	{
-		Throw(std::runtime_error("failed to create window"));
+//		Throw(std::runtime_error("failed to create window"));
 	}
 
 	GLFWimage icon;
 	icon.pixels = stbi_load("../resources/textures/Vulkan.png", &icon.width, &icon.height, nullptr, 4);
 	if (icon.pixels == nullptr)
 	{
-		Throw(std::runtime_error("failed to load icon"));
+//		Throw(std::runtime_error("failed to load icon"));
 	}
 
 	glfwSetWindowIcon(window_, 1, &icon);

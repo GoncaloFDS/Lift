@@ -1,7 +1,6 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
-#include "platform/vulkan/VulkanMacros.hpp"
+#include "platform/vulkan/VulkanError.h"
 
 namespace Vulkan
 {

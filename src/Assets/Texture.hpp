@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vulkan/Sampler.hpp"
+#include "platform/vulkan/Sampler.h"
 #include <memory>
 #include <string>
 

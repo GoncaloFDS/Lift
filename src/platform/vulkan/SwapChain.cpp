@@ -1,11 +1,10 @@
-#include "SwapChain.hpp"
-#include "Device.hpp"
-#include "Enumerate.hpp"
-#include "ImageView.hpp"
-#include "Instance.hpp"
-#include "Surface.hpp"
-#include "Window.hpp"
-#include "Utilities/Exception.hpp"
+#include "SwapChain.h"
+#include "Device.h"
+#include "Enumerate.h"
+#include "ImageView.h"
+#include "Instance.h"
+#include "Surface.h"
+#include "Window.h"
 #include <algorithm>
 #include <limits>
 
@@ -18,7 +17,7 @@ SwapChain::SwapChain(const class Device& device, const bool vsync) :
 	const auto details = QuerySwapChainSupport(device.PhysicalDevice(), device.Surface().Handle());
 	if (details.Formats.empty() || details.PresentModes.empty())
 	{
-		throw std::runtime_error("empty swap chain support");
+//		throw std::runtime_error("empty swap chain support");
 	}
 
 	const auto& surface = device.Surface();
@@ -111,7 +110,8 @@ VkSurfaceFormatKHR SwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfac
 		}
 	}
 
-	Throw(std::runtime_error("found no suitable surface format"));
+	return {};
+//	Throw(std::runtime_error("found no suitable surface format"));
 }
 
 VkPresentModeKHR SwapChain::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& presentModes, const bool vsync) 

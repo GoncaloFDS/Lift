@@ -1,5 +1,5 @@
-#include "Buffer.hpp"
-#include "SingleTimeCommands.hpp"
+#include "Buffer.h"
+#include "SingleTimeCommands.h"
 
 namespace Vulkan {
 

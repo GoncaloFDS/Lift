@@ -1,10 +1,10 @@
 
-#include "Vulkan/Enumerate.hpp"
+#include "platform/vulkan/Enumerate.h"
 #include "Vulkan/Strings.hpp"
 #include "Vulkan/Version.hpp"
 #include "Utilities/Console.hpp"
-#include "Options.hpp"
-#include "RayTracer.hpp"
+#include "Options.h"
+#include "RayTracer.h"
 
 #include <algorithm>
 #include <cstdlib>

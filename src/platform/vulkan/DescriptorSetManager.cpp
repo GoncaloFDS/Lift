@@ -1,10 +1,11 @@
-#include "DescriptorSetManager.hpp"
-#include "DescriptorPool.hpp"
-#include "DescriptorSetLayout.hpp"
-#include "DescriptorSets.hpp"
-#include "Device.hpp"
-#include "Utilities/Exception.hpp"
+#include "DescriptorSetManager.h"
+#include "DescriptorPool.h"
+#include "DescriptorSetLayout.h"
+#include "DescriptorSets.h"
+#include "Device.h"
+#include <memory>
 #include <set>
+#include <core.h>
 
 namespace Vulkan {
 
@@ -17,13 +18,13 @@ DescriptorSetManager::DescriptorSetManager(const Device& device, const std::vect
 	{
 		if (!bindingTypes.insert(std::make_pair(binding.Binding, binding.Type)).second)
 		{
-			Throw(std::invalid_argument("binding collision"));
+			LF_ASSERT(std::invalid_argument("binding collision"));
 		}
 	}
 
-	descriptorPool_.reset(new DescriptorPool(device, descriptorBindings, maxSets));
-	descriptorSetLayout_.reset(new class DescriptorSetLayout(device, descriptorBindings));
-	descriptorSets_.reset(new class DescriptorSets(*descriptorPool_, *descriptorSetLayout_, bindingTypes, maxSets));
+	descriptorPool_ = std::make_unique<DescriptorPool>(device, descriptorBindings, maxSets);
+	descriptorSetLayout_ = std::make_unique<class DescriptorSetLayout>(device, descriptorBindings);
+	descriptorSets_ = std::make_unique<class DescriptorSets>(*descriptorPool_, *descriptorSetLayout_, bindingTypes, maxSets);
 }
 
 DescriptorSetManager::~DescriptorSetManager()

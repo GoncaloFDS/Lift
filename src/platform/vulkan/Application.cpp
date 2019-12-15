@@ -1,25 +1,26 @@
-#include "Application.hpp"
-#include "Buffer.hpp"
-#include "CommandPool.hpp"
-#include "CommandBuffers.hpp"
-#include "DebugUtilsMessenger.hpp"
-#include "DepthBuffer.hpp"
-#include "Device.hpp"
-#include "Fence.hpp"
-#include "FrameBuffer.hpp"
-#include "GraphicsPipeline.hpp"
-#include "Instance.hpp"
-#include "PipelineLayout.hpp"
-#include "RenderPass.hpp"
-#include "Semaphore.hpp"
-#include "Surface.hpp"
-#include "SwapChain.hpp"
-#include "Window.hpp"
-#include "Assets/Model.hpp"
-#include "Assets/Scene.hpp"
-#include "Assets/UniformBuffer.hpp"
-#include "Utilities/Exception.hpp"
+#include "Application.h"
+#include "Buffer.h"
+#include "CommandPool.h"
+#include "CommandBuffers.h"
+#include "DebugUtilsMessenger.h"
+#include "DepthBuffer.h"
+#include "Device.h"
+#include "Fence.h"
+#include "FrameBuffer.h"
+#include "GraphicsPipeline.h"
+#include "Instance.h"
+#include "PipelineLayout.h"
+#include "RenderPass.h"
+#include "Semaphore.h"
+#include "Surface.h"
+#include "SwapChain.h"
+#include "Window.h"
+#include "assets/Model.hpp"
+#include "assets/Scene.hpp"
+#include "assets/UniformBuffer.hpp"
 #include <array>
+#include <memory>
+#include <core.h>
 
 namespace Vulkan {
 
@@ -30,10 +31,10 @@ Application::Application(const WindowConfig& windowConfig, const bool vsync, con
 		? std::vector<const char*>{"VK_LAYER_KHRONOS_validation"}
 		: std::vector<const char*>();
 
-	window_.reset(new class Window(windowConfig));
-	instance_.reset(new Instance(*window_, validationLayers));
+	window_ = std::make_unique<class Window>(windowConfig);
+	instance_ = std::make_unique<Instance>(*window_, validationLayers);
 	debugUtilsMessenger_.reset(enableValidationLayers ? new DebugUtilsMessenger(*instance_, VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) : nullptr);
-	surface_.reset(new Surface(*instance_));
+	surface_ = std::make_unique<Surface>(*instance_);
 }
 
 Application::~Application()
@@ -62,7 +63,7 @@ void Application::SetPhysicalDevice(VkPhysicalDevice physicalDevice)
 {
 	if (device_)
 	{
-		Throw(std::logic_error("physical device has already been set"));
+		LF_ASSERT(std::logic_error("physical device has already been set"));
 	}
 
 	device_ = std::make_unique<class Device>(physicalDevice, *surface_);
@@ -78,7 +79,7 @@ void Application::Run()
 {
 	if (!device_)
 	{
-		Throw(std::logic_error("physical device has not been set"));
+		LF_ASSERT(std::logic_error("physical device has not been set"));
 	}
 
 	currentFrame_ = 0;
@@ -158,7 +159,7 @@ void Application::DrawFrame()
 
 	if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 	{
-		Throw(std::runtime_error(std::string("failed to acquire next image (") + ToString(result) + ")"));
+		LF_ASSERT(std::runtime_error(std::string("failed to acquire next image (") + ToString(result) + ")"));
 	}
 
 	const auto commandBuffer = commandBuffers_->Begin(imageIndex);
@@ -208,7 +209,7 @@ void Application::DrawFrame()
 	
 	if (result != VK_SUCCESS)
 	{
-		Throw(std::runtime_error(std::string("failed to present next image (") + ToString(result) + ")"));
+		LF_ASSERT(std::runtime_error(std::string("failed to present next image (") + ToString(result) + ")"));
 	}
 
 	currentFrame_ = (currentFrame_ + 1) % inFlightFences_.size();

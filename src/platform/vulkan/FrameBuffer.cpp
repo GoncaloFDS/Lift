@@ -1,9 +1,9 @@
-#include "FrameBuffer.hpp"
-#include "DepthBuffer.hpp"
-#include "Device.hpp"
-#include "ImageView.hpp"
-#include "RenderPass.hpp"
-#include "SwapChain.hpp"
+#include "FrameBuffer.h"
+#include "DepthBuffer.h"
+#include "Device.h"
+#include "ImageView.h"
+#include "RenderPass.h"
+#include "SwapChain.h"
 #include <array>
 
 namespace Vulkan {

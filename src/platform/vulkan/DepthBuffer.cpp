@@ -1,10 +1,11 @@
-#include "DepthBuffer.hpp"
-#include "CommandPool.hpp"
-#include "Device.hpp"
-#include "DeviceMemory.hpp"
-#include "Image.hpp"
-#include "ImageView.hpp"
-#include "Utilities/Exception.hpp"
+#include <stdexcept>
+#include <core.h>
+#include "DepthBuffer.h"
+#include "CommandPool.h"
+#include "Device.h"
+#include "DeviceMemory.h"
+#include "Image.h"
+#include "ImageView.h"
 
 namespace Vulkan {
 
@@ -28,7 +29,7 @@ namespace Vulkan {
 				}
 			}
 
-			Throw(std::runtime_error("failed to find supported format"));
+			LF_ASSERT(std::runtime_error("failed to find supported format"));
 		}
 
 		VkFormat FindDepthFormat(const Device& device)

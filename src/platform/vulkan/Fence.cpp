@@ -1,5 +1,5 @@
-#include "Fence.hpp"
-#include "Device.hpp"
+#include "Fence.h"
+#include "Device.h"
 
 namespace Vulkan {
 

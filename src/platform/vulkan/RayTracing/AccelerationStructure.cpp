@@ -1,6 +1,6 @@
 #include "AccelerationStructure.hpp"
 #include "DeviceProcedures.hpp"
-#include "platform/vulkan/Device.hpp"
+#include "platform/vulkan/Device.h"
 #undef MemoryBarrier
 
 namespace Vulkan::RayTracing {

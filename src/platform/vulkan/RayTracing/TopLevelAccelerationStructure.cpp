@@ -1,10 +1,9 @@
 #include "TopLevelAccelerationStructure.hpp"
 #include "BottomLevelAccelerationStructure.hpp"
 #include "DeviceProcedures.hpp"
-#include "Utilities/Exception.hpp"
-#include "Vulkan/Buffer.hpp"
-#include "Vulkan/Device.hpp"
-#include "Vulkan/DeviceMemory.hpp"
+#include "platform/vulkan/Buffer.h"
+#include "platform/vulkan/Device.h"
+#include "platform/vulkan/DeviceMemory.h"
 #include <cstring>
 
 namespace Vulkan::RayTracing {
@@ -64,7 +63,7 @@ void TopLevelAccelerationStructure::Generate(
 {
 	if (updateOnly && !allowUpdate_)
 	{
-		throw std::invalid_argument("cannot update readonly structure");
+//		throw std::invalid_argument("cannot update readonly structure");
 	}
 
 	const VkAccelerationStructureNV previousStructure = updateOnly ? Handle() : nullptr;

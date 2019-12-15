@@ -1,5 +1,5 @@
-#include "Options.hpp"
-#include "SceneList.hpp"
+#include "Options.h"
+#include "SceneList.h"
 #include <boost/program_options.hpp>
 #include <iostream>
 

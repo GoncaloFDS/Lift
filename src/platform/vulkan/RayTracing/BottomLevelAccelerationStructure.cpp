@@ -1,11 +1,10 @@
 #include "BottomLevelAccelerationStructure.hpp"
 #include "DeviceProcedures.hpp"
-#include "Assets/Scene.hpp"
-#include "Assets/Vertex.hpp"
-#include "Utilities/Exception.hpp"
-#include "Vulkan/Buffer.hpp"
-#include "Vulkan/Device.hpp"
-#include "Vulkan/SingleTimeCommands.hpp"
+#include "assets/Scene.hpp"
+#include "assets/Vertex.hpp"
+#include "platform/vulkan/Buffer.h"
+#include "platform/vulkan/Device.h"
+#include "platform/vulkan/SingleTimeCommands.h"
 
 namespace Vulkan::RayTracing {
 

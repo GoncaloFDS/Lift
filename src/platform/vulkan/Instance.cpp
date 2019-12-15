@@ -1,8 +1,7 @@
-#include "Instance.hpp"
-#include "Enumerate.hpp"
+#include "Instance.h"
+#include "Enumerate.h"
 #include "Version.hpp"
-#include "Window.hpp"
-#include "Utilities/Exception.hpp"
+#include "Window.h"
 #include <algorithm>
 #include <sstream>
 
@@ -67,7 +66,7 @@ void Instance::GetVulkanDevices()
 
 	if (physicalDevices_.empty())
 	{
-		Throw(std::runtime_error("found no Vulkan physical devices"));
+//		Throw(std::runtime_error("found no Vulkan physical devices"));
 	}
 }
 
@@ -88,7 +87,7 @@ void Instance::CheckVulkanMinimumVersion(const uint32_t minVersion)
 		out << "minimum required version not found (required " << Version(minVersion);
 		out << ", found " << Version(version) << ")";
 
-		Throw(std::runtime_error(out.str()));
+//		Throw(std::runtime_error(out.str()));
 	}
 }
 
@@ -105,7 +104,7 @@ void Instance::CheckVulkanValidationLayerSupport(const std::vector<const char*>&
 
 		if (result == availableLayers.end())
 		{
-			Throw(std::runtime_error("could not find the requested validation layer: '" + std::string(layer) + "'"));
+//			Throw(std::runtime_error("could not find the requested validation layer: '" + std::string(layer) + "'"));
 		}
 	}
 }

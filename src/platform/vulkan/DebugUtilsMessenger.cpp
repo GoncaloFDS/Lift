@@ -1,7 +1,6 @@
-#include "DebugUtilsMessenger.hpp"
-#include "Instance.hpp"
+#include "DebugUtilsMessenger.h"
+#include "Instance.h"
 #include "Utilities/Console.hpp"
-#include "Utilities/Exception.hpp"
 #include <iostream>
 
 namespace Vulkan {
@@ -161,8 +160,7 @@ DebugUtilsMessenger::DebugUtilsMessenger(const Instance& instance, VkDebugUtilsM
 	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
 		severity |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 		break;
-	default:
-		Throw(std::invalid_argument("invalid threshold"));
+//		Throw(std::invalid_argument("invalid threshold"));
 	}
 
 	VkDebugUtilsMessengerCreateInfoEXT createInfo = {};

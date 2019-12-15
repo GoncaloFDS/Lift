@@ -1,6 +1,5 @@
 #include "DeviceProcedures.hpp"
-#include "Utilities/Exception.hpp"
-#include "Vulkan/Device.hpp"
+#include "platform/vulkan/Device.h"
 #include <string>
 
 namespace Vulkan::RayTracing
@@ -14,7 +13,7 @@ namespace
 		const auto func = reinterpret_cast<Func>(vkGetDeviceProcAddr(device.Handle(), name));
 		if (func == nullptr)
 		{
-			Throw(std::runtime_error(std::string("failed to get address of '") + name + "'"));
+//			Throw(std::runtime_error(std::string("failed to get address of '") + name + "'"));
 		}
 
 		return func;

@@ -1,9 +1,8 @@
-#include "Image.hpp"
-#include "Buffer.hpp"
-#include "DepthBuffer.hpp"
-#include "Device.hpp"
-#include "SingleTimeCommands.hpp"
-#include "Utilities/Exception.hpp"
+#include "Image.h"
+#include "Buffer.h"
+#include "DepthBuffer.h"
+#include "Device.h"
+#include "SingleTimeCommands.h"
 
 namespace Vulkan {
 
@@ -139,7 +138,7 @@ void Image::TransitionImageLayout(CommandPool& commandPool, VkImageLayout newLay
 		}
 		else 
 		{
-			Throw(std::invalid_argument("unsupported layout transition"));
+//			Throw(std::invalid_argument("unsupported layout transition"));
 		}
 
 		vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);

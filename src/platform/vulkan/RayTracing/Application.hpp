@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vulkan/Application.hpp"
+#include "platform/vulkan/Application.h"
 #include "RayTracingProperties.hpp"
 
 namespace Vulkan
