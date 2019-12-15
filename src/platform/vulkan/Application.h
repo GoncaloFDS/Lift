@@ -1,7 +1,7 @@
 #pragma once
 
-#include "FrameBuffer.hpp"
-#include "WindowConfig.hpp"
+#include "FrameBuffer.h"
+#include "WindowConfig.h"
 #include <vector>
 #include <memory>
 

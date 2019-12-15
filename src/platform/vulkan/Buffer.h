@@ -1,7 +1,7 @@
 #pragma once
 
-#include "VulkanError.hpp"
-#include "DeviceMemory.hpp"
+#include "VulkanError.h"
+#include "DeviceMemory.h"
 
 namespace Vulkan
 {
