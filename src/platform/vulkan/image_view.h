@@ -2,28 +2,23 @@
 
 #include "VulkanError.h"
 
-namespace Vulkan
-{
-	class Device;
+namespace vulkan {
+class Device;
 
-	class ImageView final
-	{
-	public:
+class ImageView final {
+public:
+    explicit ImageView(const Device& device, VkImage image, VkFormat format, VkImageAspectFlags aspect_flags);
+    ~ImageView();
 
-		VULKAN_NON_COPIABLE(ImageView)
+    [[nodiscard]] const Device& device() const { return device_; }
 
-		explicit ImageView(const Device& device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-		~ImageView();
+private:
 
-		const class Device& Device() const { return device_; }
+    const class Device& device_;
+    const VkImage image_;
+    const VkFormat format_;
 
-	private:
-
-		const class Device& device_;
-		const VkImage image_;
-		const VkFormat format_;
-
-		VULKAN_HANDLE(VkImageView, imageView_)
-	};
+VULKAN_HANDLE(VkImageView, imageView_)
+};
 
 }

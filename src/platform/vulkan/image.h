@@ -3,39 +3,39 @@
 #include "VulkanError.h"
 #include "device_memory.h"
 
-namespace Vulkan {
+namespace vulkan {
 class Buffer;
 class CommandPool;
 class Device;
 
-class Texture final {
+class Image final {
 public:
 
-    Texture(const Texture&) = delete;
-    Texture& operator=(const Texture&) = delete;
-    Texture& operator=(Texture&&) = delete;
+    Image(const Image&) = delete;
+    Image& operator=(const Image&) = delete;
+    Image& operator=(Image&&) = delete;
 
-    Texture(const Device& device, VkExtent2D extent, VkFormat format);
-    Texture(const Device& device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage);
-    Texture(Texture&& other) noexcept;
-    ~Texture();
+    Image(const Device& device, VkExtent2D extent, VkFormat format);
+    Image(const Device& device, VkExtent2D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage);
+    Image(Image&& other) noexcept;
+    ~Image();
 
-    const class Device& Device() const { return device_; }
-    VkExtent2D Extent() const { return extent_; }
-    VkFormat Format() const { return format_; }
+    [[nodiscard]] const class Device& device() const { return device_; }
+    [[nodiscard]] VkExtent2D extent() const { return extent_; }
+    [[nodiscard]] VkFormat format() const { return format_; }
 
-    DeviceMemory AllocateMemory(VkMemoryPropertyFlags properties) const;
-    VkMemoryRequirements GetMemoryRequirements() const;
+    [[nodiscard]] DeviceMemory allocateMemory(VkMemoryPropertyFlags properties) const;
+    [[nodiscard]] VkMemoryRequirements getMemoryRequirements() const;
 
-    void TransitionImageLayout(CommandPool& commandPool, VkImageLayout newLayout);
-    void CopyFrom(CommandPool& commandPool, const Buffer& buffer);
+    void transitionImageLayout(CommandPool& command_pool, VkImageLayout new_layout);
+    void copyFrom(CommandPool& command_pool, const Buffer& buffer);
 
 private:
 
     const class Device& device_;
     const VkExtent2D extent_;
     const VkFormat format_;
-    VkImageLayout imageLayout_;
+    VkImageLayout image_layout_;
 
 VULKAN_HANDLE(VkImage, image_)
 };

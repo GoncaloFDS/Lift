@@ -2,45 +2,40 @@
 
 #include "VulkanError.h"
 
-namespace Vulkan
-{
-	class Device;
+namespace vulkan {
+class Device;
 
 	struct SamplerConfig final
 	{
-		VkFilter MagFilter = VK_FILTER_LINEAR;
-		VkFilter MinFilter = VK_FILTER_LINEAR;
-		VkSamplerAddressMode AddressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-		VkSamplerAddressMode AddressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-		VkSamplerAddressMode AddressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-		bool AnisotropyEnable = true;
-		float MaxAnisotropy = 16;
-		VkBorderColor BorderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-		bool UnnormalizedCoordinates = false;
-		bool CompareEnable = false;
-		VkCompareOp CompareOp = VK_COMPARE_OP_ALWAYS;
-		VkSamplerMipmapMode MipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-		float MipLodBias = 0.0f;
-		float MinLod = 0.0f;
-		float MaxLod = 0.0f;
+		VkFilter magFilter = VK_FILTER_LINEAR;
+		VkFilter minFilter = VK_FILTER_LINEAR;
+		VkSamplerAddressMode addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		VkSamplerAddressMode addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		VkSamplerAddressMode addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		bool anisotropyEnable = true;
+		float maxAnisotropy = 16;
+		VkBorderColor borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+		bool unnormalizedCoordinates = false;
+		bool compareEnable = false;
+		VkCompareOp compareOp = VK_COMPARE_OP_ALWAYS;
+		VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		float mipLodBias = 0.0f;
+		float minLod = 0.0f;
+		float maxLod = 0.0f;
 	};
 
-	class Sampler final
-	{
-	public:
+class Sampler final {
+public:
+    Sampler(const Device& device, const SamplerConfig& config);
+    ~Sampler();
 
-		VULKAN_NON_COPIABLE(Sampler)
+    [[nodiscard]] const class Device& device() const { return device_; }
 
-		Sampler(const Device& device, const SamplerConfig& config);
-		~Sampler();
+private:
 
-		const class Device& Device() const { return device_; }
+    const class Device& device_;
 
-	private:
-
-		const class Device& device_;
-
-		VULKAN_HANDLE(VkSampler, sampler_)
-	};
+VULKAN_HANDLE(VkSampler, sampler_)
+};
 
 }

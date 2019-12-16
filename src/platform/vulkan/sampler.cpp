@@ -1,42 +1,40 @@
-#include "Sampler.h"
-#include "Device.h"
+#include "sampler.h"
+#include "device.h"
 
-namespace Vulkan {
+namespace vulkan {
 
 Sampler::Sampler(const class Device& device, const SamplerConfig& config) :
 	device_(device)
 {
 	VkSamplerCreateInfo samplerInfo = {};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerInfo.magFilter = config.MagFilter;
-	samplerInfo.minFilter = config.MinFilter;
-	samplerInfo.addressModeU = config.AddressModeU;
-	samplerInfo.addressModeV = config.AddressModeV;
-	samplerInfo.addressModeW = config.AddressModeW;
-	samplerInfo.anisotropyEnable = config.AnisotropyEnable;
-	samplerInfo.maxAnisotropy = config.MaxAnisotropy;
-	samplerInfo.borderColor = config.BorderColor;
-	samplerInfo.unnormalizedCoordinates = config.UnnormalizedCoordinates;
-	samplerInfo.compareEnable = config.CompareEnable;
-	samplerInfo.compareOp = config.CompareOp;
-	samplerInfo.mipmapMode = config.MipmapMode;
-	samplerInfo.mipLodBias = config.MipLodBias;
-	samplerInfo.minLod = config.MinLod;
-	samplerInfo.maxLod = config.MaxLod;
+	samplerInfo.magFilter = config.magFilter;
+	samplerInfo.minFilter = config.minFilter;
+	samplerInfo.addressModeU = config.addressModeU;
+	samplerInfo.addressModeV = config.addressModeV;
+	samplerInfo.addressModeW = config.addressModeW;
+	samplerInfo.anisotropyEnable = config.anisotropyEnable;
+	samplerInfo.maxAnisotropy = config.maxAnisotropy;
+	samplerInfo.borderColor = config.borderColor;
+	samplerInfo.unnormalizedCoordinates = config.unnormalizedCoordinates;
+	samplerInfo.compareEnable = config.compareEnable;
+	samplerInfo.compareOp = config.compareOp;
+	samplerInfo.mipmapMode = config.mipmapMode;
+	samplerInfo.mipLodBias = config.mipLodBias;
+	samplerInfo.minLod = config.minLod;
+	samplerInfo.maxLod = config.maxLod;
 
 	if (vkCreateSampler(device.Handle(), &samplerInfo, nullptr, &sampler_) != VK_SUCCESS)
 	{
 //		Throw(std::runtime_error("failed to create sampler"));
-	}
+    }
 }
 
-Sampler::~Sampler()
-{
-	if (sampler_ != nullptr)
-	{
-		vkDestroySampler(device_.Handle(), sampler_, nullptr);
-		sampler_ = nullptr;
-	}
+Sampler::~Sampler() {
+    if (sampler_ != nullptr) {
+        vkDestroySampler(device_.Handle(), sampler_, nullptr);
+        sampler_ = nullptr;
+    }
 }
 
 }

@@ -4,30 +4,27 @@
 #include <memory>
 #include <vector>
 
-namespace Vulkan
-{
-	class Device;
-	class DescriptorPool;
-	class DescriptorSetLayout;
-	class DescriptorSets;
+namespace vulkan {
+class Device;
+class DescriptorPool;
+class DescriptorSetLayout;
+class DescriptorSets;
 
-	class DescriptorSetManager final
-	{
-	public:
+class DescriptorSetManager final {
+public:
+    explicit DescriptorSetManager(const Device& device,
+                                  const std::vector<DescriptorBinding>& descriptor_bindings,
+                                  size_t max_sets);
+    ~DescriptorSetManager();
 
-		VULKAN_NON_COPIABLE(DescriptorSetManager)
+    [[nodiscard]] const DescriptorSetLayout& descriptorSetLayout() const { return *descriptor_set_layout_; }
+    class DescriptorSets& descriptorSets() { return *descriptor_sets_; }
 
-		explicit DescriptorSetManager(const Device& device, const std::vector<DescriptorBinding>& descriptorBindings, size_t maxSets);
-		~DescriptorSetManager();
+private:
 
-		const class DescriptorSetLayout& DescriptorSetLayout() const { return *descriptorSetLayout_; }
-		class DescriptorSets& DescriptorSets() { return *descriptorSets_; }
-
-	private:
-
-		std::unique_ptr<DescriptorPool> descriptorPool_;
-		std::unique_ptr<class DescriptorSetLayout> descriptorSetLayout_;
-		std::unique_ptr<class DescriptorSets> descriptorSets_;
-	};
+    std::unique_ptr<DescriptorPool> descriptor_pool_;
+    std::unique_ptr<class DescriptorSetLayout> descriptor_set_layout_;
+    std::unique_ptr<class DescriptorSets> descriptor_sets_;
+};
 
 }

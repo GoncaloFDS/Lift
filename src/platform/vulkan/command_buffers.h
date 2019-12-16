@@ -3,30 +3,25 @@
 #include "VulkanError.h"
 #include <vector>
 
-namespace Vulkan
-{
-	class CommandPool;
+namespace vulkan {
+class CommandPool;
 
-	class CommandBuffers final
-	{
-	public:
+class CommandBuffers final {
+public:
+    CommandBuffers(CommandPool& command_pool, uint32_t size);
+    ~CommandBuffers();
 
-		VULKAN_NON_COPIABLE(CommandBuffers)
+    [[nodiscard]] uint32_t size() const { return static_cast<uint32_t>(command_buffers_.size()); }
+    VkCommandBuffer& operator[](const size_t i) { return command_buffers_[i]; }
 
-		CommandBuffers(CommandPool& commandPool, uint32_t size);
-		~CommandBuffers();
+    VkCommandBuffer begin(size_t i);
+    void end(size_t i);
 
-		uint32_t Size() const { return static_cast<uint32_t>(commandBuffers_.size()); }
-		VkCommandBuffer& operator [] (const size_t i) { return commandBuffers_[i]; }
+private:
 
-		VkCommandBuffer Begin(size_t i);
-		void End(size_t);
+    const CommandPool& command_pool_;
 
-	private:
-
-		const CommandPool& commandPool_;
-
-		std::vector<VkCommandBuffer> commandBuffers_;
-	};
+    std::vector<VkCommandBuffer> command_buffers_;
+};
 
 }

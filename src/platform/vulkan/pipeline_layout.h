@@ -2,25 +2,20 @@
 
 #include "VulkanError.h"
 
-namespace Vulkan
-{
-	class DescriptorSetLayout;
-	class Device;
+namespace vulkan {
+class DescriptorSetLayout;
+class Device;
 
-	class PipelineLayout final
-	{
-	public:
+class PipelineLayout final {
+public:
+    PipelineLayout(const Device& device, const DescriptorSetLayout& descriptor_set_layout);
+    ~PipelineLayout();
 
-		VULKAN_NON_COPIABLE(PipelineLayout)
+private:
 
-		PipelineLayout(const Device& device, const DescriptorSetLayout& descriptorSetLayout);
-		~PipelineLayout();
+    const Device& device_;
 
-	private:
-
-		const Device& device_;
-
-		VULKAN_HANDLE(VkPipelineLayout, pipelineLayout_)
-	};
+VULKAN_HANDLE(VkPipelineLayout, pipelineLayout_)
+};
 
 }

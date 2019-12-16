@@ -1,108 +1,108 @@
-#include "DescriptorSets.h"
+#include "descriptor_sets.h"
 #include "descriptor_pool.h"
 #include "descriptor_set_layout.h"
-#include "Device.h"
+#include "device.h"
 #include <array>
 #include <utility>
 #include <core.h>
 
-namespace Vulkan {
+namespace vulkan {
 
-DescriptorSets::DescriptorSets(
-	const DescriptorPool& descriptorPool, 
-	const DescriptorSetLayout& layout,
-	std::map<uint32_t, VkDescriptorType> bindingTypes,
-	const size_t size) :
-	descriptorPool_(descriptorPool),
-	bindingTypes_(std::move(bindingTypes))
-{
-	std::vector<VkDescriptorSetLayout> layouts(size, layout.Handle());
+DescriptorSets::DescriptorSets(const DescriptorPool& descriptor_pool,
+                               const DescriptorSetLayout& layout,
+                               std::map<uint32_t, VkDescriptorType> binding_types,
+                               const size_t size)
+    : descriptor_pool_(descriptor_pool),
+      binding_types_(std::move(binding_types)) {
 
-	VkDescriptorSetAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool = descriptorPool.Handle();
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(size);
-	allocInfo.pSetLayouts = layouts.data();
+    std::vector<VkDescriptorSetLayout> layouts(size, layout.Handle());
 
-	descriptorSets_.resize(size);
+    VkDescriptorSetAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    alloc_info.descriptorPool = descriptor_pool.Handle();
+    alloc_info.descriptorSetCount = static_cast<uint32_t>(size);
+    alloc_info.pSetLayouts = layouts.data();
 
-    Vulkan_Check(vkAllocateDescriptorSets(descriptorPool.Device().Handle(), &allocInfo, descriptorSets_.data()),
-                 "allocate descriptor sets");
+    descriptor_sets_.resize(size);
+
+    vulkanCheck(vkAllocateDescriptorSets(descriptor_pool.device().Handle(), &alloc_info, descriptor_sets_.data()),
+                "allocate descriptor sets");
 }
 
-DescriptorSets::~DescriptorSets()
-{
-	//if (!descriptorSets_.empty())
-	//{
-	//	vkFreeDescriptorSets(
-	//		descriptorPool_.Device().Handle(),
-	//		descriptorPool_.Handle(),
-	//		static_cast<uint32_t>(descriptorSets_.size()),
-	//		descriptorSets_.data());
+DescriptorSets::~DescriptorSets() {
+    //if (!descriptorSets_.empty())
+    //{
+    //	vkFreeDescriptorSets(
+    //		descriptorPool_.device().Handle(),
+    //		descriptorPool_.Handle(),
+    //		static_cast<uint32_t>(descriptorSets_.size()),
+    //		descriptorSets_.data());
 
-	//	descriptorSets_.clear();
-	//}
+    //	descriptorSets_.clear();
+    //}
 }
 
-VkWriteDescriptorSet DescriptorSets::Bind(const uint32_t index, const uint32_t binding, const VkDescriptorBufferInfo& bufferInfo, const uint32_t count) const
-{
-	VkWriteDescriptorSet descriptorWrite = {};
-	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descriptorWrite.dstSet = descriptorSets_[index];
-	descriptorWrite.dstBinding = binding;
-	descriptorWrite.dstArrayElement = 0;
-	descriptorWrite.descriptorType = GetBindingType(binding);
-	descriptorWrite.descriptorCount = count;
-	descriptorWrite.pBufferInfo = &bufferInfo;
+VkWriteDescriptorSet DescriptorSets::bind(const uint32_t index,
+                                          const uint32_t binding,
+                                          const VkDescriptorBufferInfo& buffer_info,
+                                          const uint32_t count) const {
+    VkWriteDescriptorSet descriptor_write = {};
+    descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptor_write.dstSet = descriptor_sets_[index];
+    descriptor_write.dstBinding = binding;
+    descriptor_write.dstArrayElement = 0;
+    descriptor_write.descriptorType = getBindingType(binding);
+    descriptor_write.descriptorCount = count;
+    descriptor_write.pBufferInfo = &buffer_info;
 
-	return descriptorWrite;
+    return descriptor_write;
 }
 
-VkWriteDescriptorSet DescriptorSets::Bind(const uint32_t index, const uint32_t binding, const VkDescriptorImageInfo& imageInfo, const uint32_t count) const
-{
-	VkWriteDescriptorSet descriptorWrite = {};
-	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descriptorWrite.dstSet = descriptorSets_[index];
-	descriptorWrite.dstBinding = binding;
-	descriptorWrite.dstArrayElement = 0;
-	descriptorWrite.descriptorType = GetBindingType(binding);
-	descriptorWrite.descriptorCount = count;
-	descriptorWrite.pImageInfo = &imageInfo;
+VkWriteDescriptorSet DescriptorSets::bind(const uint32_t index,
+                                          const uint32_t binding,
+                                          const VkDescriptorImageInfo& image_info,
+                                          const uint32_t count) const {
+    VkWriteDescriptorSet descriptor_write = {};
+    descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptor_write.dstSet = descriptor_sets_[index];
+    descriptor_write.dstBinding = binding;
+    descriptor_write.dstArrayElement = 0;
+    descriptor_write.descriptorType = getBindingType(binding);
+    descriptor_write.descriptorCount = count;
+    descriptor_write.pImageInfo = &image_info;
 
-	return descriptorWrite;
+    return descriptor_write;
 }
 
-VkWriteDescriptorSet DescriptorSets::Bind(uint32_t index, uint32_t binding, const VkWriteDescriptorSetAccelerationStructureNV& structureInfo, const uint32_t count) const
-{
-	VkWriteDescriptorSet descriptorWrite = {};
-	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descriptorWrite.dstSet = descriptorSets_[index];
-	descriptorWrite.dstBinding = binding;
-	descriptorWrite.dstArrayElement = 0;
-	descriptorWrite.descriptorType = GetBindingType(binding);
-	descriptorWrite.descriptorCount = count;
-	descriptorWrite.pNext = &structureInfo;
+VkWriteDescriptorSet DescriptorSets::bind(uint32_t index,
+                                          uint32_t binding,
+                                          const VkWriteDescriptorSetAccelerationStructureNV& structure_info,
+                                          const uint32_t count) const {
+    VkWriteDescriptorSet descriptor_write = {};
+    descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptor_write.dstSet = descriptor_sets_[index];
+    descriptor_write.dstBinding = binding;
+    descriptor_write.dstArrayElement = 0;
+    descriptor_write.descriptorType = getBindingType(binding);
+    descriptor_write.descriptorCount = count;
+    descriptor_write.pNext = &structure_info;
 
-	return descriptorWrite;
+    return descriptor_write;
 }
 
-void DescriptorSets::UpdateDescriptors(uint32_t index, const std::vector<VkWriteDescriptorSet>& descriptorWrites)
-{
-	vkUpdateDescriptorSets(
-		descriptorPool_.Device().Handle(),
-		static_cast<uint32_t>(descriptorWrites.size()),
-		descriptorWrites.data(), 0, nullptr);
+void DescriptorSets::updateDescriptors(const std::vector<VkWriteDescriptorSet>& descriptor_writes) {
+    vkUpdateDescriptorSets(descriptor_pool_.device().Handle(),
+                           static_cast<uint32_t>(descriptor_writes.size()),
+                           descriptor_writes.data(), 0, nullptr);
 }
 
-VkDescriptorType DescriptorSets::GetBindingType(uint32_t binding) const
-{
-	const auto it = bindingTypes_.find(binding);
-	if (it == bindingTypes_.end())
-	{
-		LF_ASSERT(std::invalid_argument("binding not found"));
-	}
+VkDescriptorType DescriptorSets::getBindingType(uint32_t binding) const {
+    const auto it = binding_types_.find(binding);
+    if (it == binding_types_.end()) {
+        LF_ASSERT(std::invalid_argument("binding not found"));
+    }
 
-	return it->second;
+    return it->second;
 }
 
 }

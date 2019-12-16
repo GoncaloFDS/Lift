@@ -1,51 +1,46 @@
-#include "FrameBuffer.h"
+#include "frame_buffer.h"
 #include "depth_buffer.h"
 #include "device.h"
-#include "ImageView.h"
-#include "RenderPass.h"
-#include "SwapChain.h"
+#include "image_view.h"
+#include "render_pass.h"
+#include "swap_chain.h"
 #include <array>
 
-namespace Vulkan {
+namespace vulkan {
 
-FrameBuffer::FrameBuffer(const class ImageView& imageView, const class RenderPass& renderPass) :
-	imageView_(imageView),
-	renderPass_(renderPass)
-{
-	std::array<VkImageView, 2> attachments =
-	{
-		imageView.Handle(),
-		renderPass.DepthBuffer().ImageView().Handle()
-	};
+FrameBuffer::FrameBuffer(const class ImageView& image_view, const class RenderPass& render_pass)
+    : image_view_(image_view), render_pass_(render_pass) {
 
-	VkFramebufferCreateInfo framebufferInfo = {};
-	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	framebufferInfo.renderPass = renderPass.Handle();
-	framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-	framebufferInfo.pAttachments = attachments.data();
-	framebufferInfo.width = renderPass.SwapChain().Extent().width;
-	framebufferInfo.height = renderPass.SwapChain().Extent().height;
-	framebufferInfo.layers = 1;
+    std::array<VkImageView, 2> attachments = {
+            image_view.Handle(),
+            render_pass.depthBuffer().imageView().Handle()
+        };
 
-    Vulkan_Check(vkCreateFramebuffer(imageView_.Device().Handle(), &framebufferInfo, nullptr, &framebuffer_),
-                 "create framebuffer");
+    VkFramebufferCreateInfo framebuffer_info = {};
+    framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    framebuffer_info.renderPass = render_pass.Handle();
+    framebuffer_info.attachmentCount = static_cast<uint32_t>(attachments.size());
+    framebuffer_info.pAttachments = attachments.data();
+    framebuffer_info.width = render_pass.swapChain().extent().width;
+    framebuffer_info.height = render_pass.swapChain().extent().height;
+    framebuffer_info.layers = 1;
+
+    vulkanCheck(vkCreateFramebuffer(image_view_.device().Handle(), &framebuffer_info, nullptr, &framebuffer_),
+                "create framebuffer");
 }
 
 FrameBuffer::FrameBuffer(FrameBuffer&& other) noexcept :
-	imageView_(other.imageView_),
-	renderPass_(other.renderPass_),
-	framebuffer_(other.framebuffer_)
-{
-	other.framebuffer_ = nullptr;
+    image_view_(other.image_view_),
+    render_pass_(other.render_pass_),
+    framebuffer_(other.framebuffer_) {
+    other.framebuffer_ = nullptr;
 }
 
-FrameBuffer::~FrameBuffer()
-{
-	if (framebuffer_ != nullptr)
-	{
-		vkDestroyFramebuffer(imageView_.Device().Handle(), framebuffer_, nullptr);
-		framebuffer_ = nullptr;
-	}
+FrameBuffer::~FrameBuffer() {
+    if (framebuffer_ != nullptr) {
+        vkDestroyFramebuffer(image_view_.device().Handle(), framebuffer_, nullptr);
+        framebuffer_ = nullptr;
+    }
 }
 
 }

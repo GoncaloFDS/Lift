@@ -2,27 +2,22 @@
 
 #include "VulkanError.h"
 
-namespace Vulkan
-{
-	class Instance;
-	class Window;
+namespace vulkan {
+class Instance;
+class Window;
 
-	class Surface final
-	{
-	public:
+class Surface final {
+public:
+    explicit Surface(const Instance& instance);
+    ~Surface();
 
-		VULKAN_NON_COPIABLE(Surface)
+    [[nodiscard]] const Instance& instance() const { return instance_; }
 
-		explicit Surface(const Instance& instance);
-		~Surface();
+private:
 
-		const class Instance& Instance() const { return instance_; }
+    const class Instance& instance_;
 
-	private:
-
-		const class Instance& instance_;
-
-		VULKAN_HANDLE(VkSurfaceKHR, surface_)
-	};
+VULKAN_HANDLE(VkSurfaceKHR, surface_)
+};
 
 }

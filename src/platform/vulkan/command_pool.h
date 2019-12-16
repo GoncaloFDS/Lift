@@ -2,26 +2,21 @@
 
 #include "VulkanError.h"
 
-namespace Vulkan
-{
-	class Device;
+namespace vulkan {
+class Device;
 
-	class CommandPool final
-	{
-	public:
+class CommandPool final {
+public:
+    CommandPool(const Device& device, uint32_t queue_family_index, bool allow_reset);
+    ~CommandPool();
 
-		VULKAN_NON_COPIABLE(CommandPool)
+    [[nodiscard]] const class Device& device() const { return device_; }
 
-		CommandPool(const Device& device, uint32_t queueFamilyIndex, bool allowReset);
-		~CommandPool();
+private:
 
-		const class Device& Device() const { return device_; }
+    const class Device& device_;
 
-	private:
-
-		const class Device& device_;
-
-		VULKAN_HANDLE(VkCommandPool, commandPool_)
-	};
+VULKAN_HANDLE(VkCommandPool, commandPool_)
+};
 
 }

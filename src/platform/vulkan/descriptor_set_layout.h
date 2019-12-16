@@ -3,24 +3,19 @@
 #include "descriptor_binding.h"
 #include <vector>
 
-namespace Vulkan
-{
-	class Device;
+namespace vulkan {
+class Device;
 
-	class DescriptorSetLayout final
-	{
-	public:
+class DescriptorSetLayout final {
+public:
+    DescriptorSetLayout(const Device& device, const std::vector<DescriptorBinding>& descriptor_bindings);
+    ~DescriptorSetLayout();
 
-		VULKAN_NON_COPIABLE(DescriptorSetLayout)
+private:
 
-		DescriptorSetLayout(const Device& device, const std::vector<DescriptorBinding>& descriptorBindings);
-		~DescriptorSetLayout();
+    const Device& device_;
 
-	private:
-
-		const Device& device_;
-
-		VULKAN_HANDLE(VkDescriptorSetLayout, layout_)
-	};
+VULKAN_HANDLE(VkDescriptorSetLayout, layout_)
+};
 
 }

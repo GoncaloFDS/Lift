@@ -4,54 +4,48 @@
 #include <memory>
 #include <vector>
 
-namespace Vulkan
-{
-	class Device;
-	class ImageView;
-	class Window;
+namespace vulkan {
+class Device;
+class ImageView;
+class Window;
 
-	class SwapChain final
-	{
-	public:
+class SwapChain final {
+public:
+    SwapChain(const Device& device, bool vsync);
+    ~SwapChain();
 
-		VULKAN_NON_COPIABLE(SwapChain)
+    [[nodiscard]] VkPhysicalDevice physicalDevice() const { return physical_device_; }
+    [[nodiscard]] const class Device& device() const { return device_; }
+    [[nodiscard]] uint32_t minImageCount() const { return min_image_count_; }
+    [[nodiscard]] const std::vector<VkImage>& images() const { return images_; }
+    [[nodiscard]] const std::vector<std::unique_ptr<ImageView>>& imageViews() const { return image_views_; }
+    [[nodiscard]] const VkExtent2D& extent() const { return extent_; }
+    [[nodiscard]] VkFormat format() const { return format_; }
 
-		SwapChain(const Device& device, bool vsync);
-		~SwapChain();
+private:
 
-		VkPhysicalDevice PhysicalDevice() const { return physicalDevice_; }
-		const class Device& Device() const { return device_; }
-		uint32_t MinImageCount() const { return minImageCount_; }
-		const std::vector<VkImage>& Images() const { return images_; }
-		const std::vector<std::unique_ptr<ImageView>>& ImageViews() const { return imageViews_; }
-		const VkExtent2D& Extent() const { return extent_; }
-		VkFormat Format() const { return format_; }
+    struct SupportDetails {
+        VkSurfaceCapabilitiesKHR capabilities{};
+        std::vector<VkSurfaceFormatKHR> formats;
+        std::vector<VkPresentModeKHR> presentModes;
+    };
 
-	private:
+    static SupportDetails querySwapChainSupport(VkPhysicalDevice physical_device, VkSurfaceKHR surface);
+    static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& formats);
+    static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& present_modes, bool vsync);
+    static VkExtent2D chooseSwapExtent(const Window& window, const VkSurfaceCapabilitiesKHR& capabilities);
+    static uint32_t chooseImageCount(const VkSurfaceCapabilitiesKHR& capabilities);
 
-		struct SupportDetails
-		{
-			VkSurfaceCapabilitiesKHR Capabilities{};
-			std::vector<VkSurfaceFormatKHR> Formats;
-			std::vector<VkPresentModeKHR> PresentModes;
-		};
+    const VkPhysicalDevice physical_device_;
+    const class Device& device_;
 
-		static SupportDetails QuerySwapChainSupport(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
-		static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& formats);
-		static VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& presentModes, bool vsync);
-		static VkExtent2D ChooseSwapExtent(const Window& window, const VkSurfaceCapabilitiesKHR& capabilities);
-		static uint32_t ChooseImageCount(const VkSurfaceCapabilitiesKHR& capabilities);
+VULKAN_HANDLE(VkSwapchainKHR, swapChain_)
 
-		const VkPhysicalDevice physicalDevice_;
-		const class Device& device_;
-
-		VULKAN_HANDLE(VkSwapchainKHR, swapChain_)
-
-		uint32_t minImageCount_;
-		VkFormat format_;
-		VkExtent2D extent_{};
-		std::vector<VkImage> images_;
-		std::vector<std::unique_ptr<ImageView>> imageViews_;
-	};
+    uint32_t min_image_count_;
+    VkFormat format_;
+    VkExtent2D extent_{};
+    std::vector<VkImage> images_;
+    std::vector<std::unique_ptr<ImageView>> image_views_;
+};
 
 }

@@ -2,29 +2,27 @@
 
 #include "VulkanError.h"
 
-namespace Vulkan
-{
-	class DepthBuffer;
-	class SwapChain;
+namespace vulkan {
+class DepthBuffer;
+class SwapChain;
 
-	class RenderPass final
-	{
-	public:
+class RenderPass final {
+public:
+    RenderPass(const SwapChain& swap_chain,
+               const DepthBuffer& depth_buffer,
+               bool clear_color_buffer,
+               bool clear_depth_buffer);
+    ~RenderPass();
 
-		VULKAN_NON_COPIABLE(RenderPass)
+    [[nodiscard]] const class SwapChain& swapChain() const { return swap_chain_; }
+    [[nodiscard]] const class DepthBuffer& depthBuffer() const { return depth_buffer_; }
 
-		RenderPass(const SwapChain& swapChain, const DepthBuffer& depthBuffer, bool clearColorBuffer, bool clearDepthBuffer);
-		~RenderPass();
+private:
 
-		const class SwapChain& SwapChain() const { return swapChain_; }
-		const class DepthBuffer& DepthBuffer() const { return depthBuffer_; }
+    const class SwapChain& swap_chain_;
+    const class DepthBuffer& depth_buffer_;
 
-	private:
-
-		const class SwapChain& swapChain_;
-		const class DepthBuffer& depthBuffer_;
-
-		VULKAN_HANDLE(VkRenderPass, renderPass_)
-	};
+VULKAN_HANDLE(VkRenderPass, renderPass_)
+};
 
 }

@@ -1,32 +1,28 @@
-#include "Semaphore.h"
-#include "Device.h"
+#include "semaphore.h"
+#include "device.h"
 
-namespace Vulkan {
+namespace vulkan {
 
 Semaphore::Semaphore(const class Device& device) :
-	device_(device)
-{
-	VkSemaphoreCreateInfo semaphoreInfo = {};
-	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    device_(device) {
+    VkSemaphoreCreateInfo semaphore_info = {};
+    semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-	Check(vkCreateSemaphore(device.Handle(), &semaphoreInfo, nullptr, &semaphore_),
-		"create semaphores");
+    vulkanCheck(vkCreateSemaphore(device.Handle(), &semaphore_info, nullptr, &semaphore_),
+                "create semaphores");
 }
 
 Semaphore::Semaphore(Semaphore&& other) noexcept :
-	device_(other.device_),
-	semaphore_(other.semaphore_)
-{
-	other.semaphore_ = nullptr;
+    device_(other.device_),
+    semaphore_(other.semaphore_) {
+    other.semaphore_ = nullptr;
 }
 
-Semaphore::~Semaphore()
-{
-	if (semaphore_ != nullptr)
-	{
-		vkDestroySemaphore(device_.Handle(), semaphore_, nullptr);
-		semaphore_ = nullptr;
-	}
+Semaphore::~Semaphore() {
+    if (semaphore_ != nullptr) {
+        vkDestroySemaphore(device_.Handle(), semaphore_, nullptr);
+        semaphore_ = nullptr;
+    }
 }
 
 }

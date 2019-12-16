@@ -3,53 +3,48 @@
 #include "VulkanError.h"
 #include <vector>
 
-namespace Vulkan
-{
-	class Surface;
+namespace vulkan {
+class Surface;
 
-	class Device final
-	{
-	public:
+class Device final {
+public:
+    Device(VkPhysicalDevice physical_device, const Surface& surface);
+    ~Device();
 
-		VULKAN_NON_COPIABLE(Device)
+    [[nodiscard]] VkPhysicalDevice physicalDevice() const { return physical_device_; }
+    [[nodiscard]] const class Surface& surface() const { return surface_; }
 
-		Device(VkPhysicalDevice physicalDevice, const Surface& surface);
-		~Device();
+    [[nodiscard]] uint32_t graphicsFamilyIndex() const { return graphics_family_index_; }
+    [[nodiscard]] uint32_t computeFamilyIndex() const { return compute_family_index_; }
+    [[nodiscard]] uint32_t presentFamilyIndex() const { return present_family_index_; }
+    [[nodiscard]] uint32_t transferFamilyIndex() const { return transfer_family_index_; }
+    [[nodiscard]] VkQueue graphicsQueue() const { return graphics_queue_; }
+    [[nodiscard]] VkQueue computeQueue() const { return compute_queue_; }
+    [[nodiscard]] VkQueue presentQueue() const { return present_queue_; }
+    [[nodiscard]] VkQueue transferQueue() const { return transfer_queue_; }
 
-		VkPhysicalDevice PhysicalDevice() const { return physicalDevice_; }
-		const class Surface& Surface() const { return surface_; }
+    void waitIdle() const;
 
-		uint32_t GraphicsFamilyIndex() const { return graphicsFamilyIndex_; }
-		uint32_t ComputeFamilyIndex() const { return computeFamilyIndex_; }
-		uint32_t PresentFamilyIndex() const { return presentFamilyIndex_; }
-		uint32_t TransferFamilyIndex() const { return transferFamilyIndex_; }
-		VkQueue GraphicsQueue() const { return graphicsQueue_; }
-		VkQueue ComputeQueue() const { return computeQueue_; }
-		VkQueue PresentQueue() const { return presentQueue_; }
-		VkQueue TransferQueue() const { return transferQueue_; }
+private:
 
-		void WaitIdle() const;
+    static void checkRequiredExtensions(VkPhysicalDevice physical_device) ;
 
-	private:
+    static const std::vector<const char*> required_extensions_;
 
-		void CheckRequiredExtensions(VkPhysicalDevice physicalDevice) const;
+    const VkPhysicalDevice physical_device_;
+    const class Surface& surface_;
 
-		static const std::vector<const char*> RequiredExtensions;
+VULKAN_HANDLE(VkDevice, device_)
 
-		const VkPhysicalDevice physicalDevice_;
-		const class Surface& surface_;
+    uint32_t graphics_family_index_{};
+    uint32_t compute_family_index_{};
+    uint32_t present_family_index_{};
+    uint32_t transfer_family_index_{};
 
-		VULKAN_HANDLE(VkDevice, device_)
-
-		uint32_t graphicsFamilyIndex_ {};
-		uint32_t computeFamilyIndex_{};
-		uint32_t presentFamilyIndex_{};
-		uint32_t transferFamilyIndex_{};
-
-		VkQueue graphicsQueue_{};
-		VkQueue computeQueue_{};
-		VkQueue presentQueue_{};
-		VkQueue transferQueue_{};
-	};
+    VkQueue graphics_queue_{};
+    VkQueue compute_queue_{};
+    VkQueue present_queue_{};
+    VkQueue transfer_queue_{};
+};
 
 }

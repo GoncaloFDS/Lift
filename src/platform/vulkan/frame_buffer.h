@@ -2,32 +2,30 @@
 
 #include "VulkanError.h"
 
-namespace Vulkan
-{
-	class ImageView;
-	class RenderPass;
+namespace vulkan {
+class ImageView;
+class RenderPass;
 
-	class FrameBuffer final
-	{
-	public:
+class FrameBuffer final {
+public:
 
-		FrameBuffer(const FrameBuffer&) = delete;
-		FrameBuffer& operator = (const FrameBuffer&) = delete;
-		FrameBuffer& operator = (FrameBuffer&&) = delete;
+    FrameBuffer(const FrameBuffer&) = delete;
+    FrameBuffer& operator=(const FrameBuffer&) = delete;
+    FrameBuffer& operator=(FrameBuffer&&) = delete;
 
-		explicit FrameBuffer(const ImageView& imageView, const RenderPass& renderPass);
-		FrameBuffer(FrameBuffer&& other) noexcept;
-		~FrameBuffer();
+    explicit FrameBuffer(const ImageView& image_view, const RenderPass& render_pass);
+    FrameBuffer(FrameBuffer&& other) noexcept;
+    ~FrameBuffer();
 
-		const class ImageView& ImageView() const { return imageView_; }
-		const class RenderPass& RenderPass() const { return renderPass_; }
+    [[nodiscard]] const class ImageView& imageView() const { return image_view_; }
+    [[nodiscard]] const class RenderPass& renderPass() const { return render_pass_; }
 
-	private:
+private:
 
-		const class ImageView& imageView_;
-		const class RenderPass& renderPass_;
+    const class ImageView& image_view_;
+    const class RenderPass& render_pass_;
 
-		VULKAN_HANDLE(VkFramebuffer, framebuffer_)
-	};
+VULKAN_HANDLE(VkFramebuffer, framebuffer_)
+};
 
 }

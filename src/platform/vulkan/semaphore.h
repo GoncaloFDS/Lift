@@ -2,29 +2,27 @@
 
 #include "VulkanError.h"
 
-namespace Vulkan
-{
-	class Device;
+namespace vulkan {
+class Device;
 
-	class Semaphore final
-	{
-	public:
+class Semaphore final {
+public:
 
-		Semaphore(const Semaphore&) = delete;
-		Semaphore& operator = (const Semaphore&) = delete;
-		Semaphore& operator = (Semaphore&&) = delete;
+    Semaphore(const Semaphore&) = delete;
+    Semaphore& operator=(const Semaphore&) = delete;
+    Semaphore& operator=(Semaphore&&) = delete;
 
-		explicit Semaphore(const Device& device);
-		Semaphore(Semaphore&& other) noexcept;
-		~Semaphore();
+    explicit Semaphore(const Device& device);
+    Semaphore(Semaphore&& other) noexcept;
+    ~Semaphore();
 
-		const class Device& Device() const { return device_; }
+    [[nodiscard]] const Device& device() const { return device_; }
 
-	private:
+private:
 
-		const class Device& device_;
+    const class Device& device_;
 
-		VULKAN_HANDLE(VkSemaphore, semaphore_)
-	};
+VULKAN_HANDLE(VkSemaphore, semaphore_)
+};
 
 }

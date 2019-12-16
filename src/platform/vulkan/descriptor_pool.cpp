@@ -1,35 +1,35 @@
-#include "DescriptorPool.h"
-#include "Device.h"
+#include "descriptor_pool.h"
+#include "device.h"
 
-namespace Vulkan {
+namespace vulkan {
 
-DescriptorPool::DescriptorPool(const Vulkan::Device& device, const std::vector<DescriptorBinding>& descriptorBindings, const size_t maxSets) :
-	device_(device)
-{
-	std::vector<VkDescriptorPoolSize> poolSizes;
+DescriptorPool::DescriptorPool(const vulkan::Device& device,
+                               const std::vector<DescriptorBinding>& descriptor_bindings,
+                               const size_t max_sets) :
+    device_(device) {
+    std::vector<VkDescriptorPoolSize> pool_sizes;
 
-	for (const auto& binding : descriptorBindings)
-	{
-		poolSizes.push_back(VkDescriptorPoolSize{ binding.Type, static_cast<uint32_t>(binding.DescriptorCount*maxSets )});
-	}
+    pool_sizes.reserve(descriptor_bindings.size());
+    for (const auto& binding : descriptor_bindings) {
+        pool_sizes.push_back(VkDescriptorPoolSize{binding.Type,
+                                                  static_cast<uint32_t>(binding.DescriptorCount * max_sets )});
+    }
 
-	VkDescriptorPoolCreateInfo poolInfo = {};
-	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = static_cast<uint32_t>(maxSets);
+    VkDescriptorPoolCreateInfo pool_info = {};
+    pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    pool_info.poolSizeCount = static_cast<uint32_t>(pool_sizes.size());
+    pool_info.pPoolSizes = pool_sizes.data();
+    pool_info.maxSets = static_cast<uint32_t>(max_sets);
 
-    Vulkan_Check(vkCreateDescriptorPool(device.Handle(), &poolInfo, nullptr, &descriptorPool_),
-                 "create descriptor pool");
+    vulkanCheck(vkCreateDescriptorPool(device.Handle(), &pool_info, nullptr, &descriptorPool_),
+                "create descriptor pool");
 }
 
-DescriptorPool::~DescriptorPool()
-{
-	if (descriptorPool_ != nullptr)
-	{
-		vkDestroyDescriptorPool(device_.Handle(), descriptorPool_, nullptr);
-		descriptorPool_ = nullptr;
-	}
+DescriptorPool::~DescriptorPool() {
+    if (descriptorPool_ != nullptr) {
+        vkDestroyDescriptorPool(device_.Handle(), descriptorPool_, nullptr);
+        descriptorPool_ = nullptr;
+    }
 }
 
 }

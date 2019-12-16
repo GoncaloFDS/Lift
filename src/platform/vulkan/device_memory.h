@@ -2,34 +2,32 @@
 
 #include "VulkanError.h"
 
-namespace Vulkan
-{
-	class Device;
+namespace vulkan {
+class Device;
 
-	class DeviceMemory final
-	{
-	public:
+class DeviceMemory final {
+public:
 
-		DeviceMemory(const DeviceMemory&) = delete;
-		DeviceMemory& operator = (const DeviceMemory&) = delete;
-		DeviceMemory& operator = (DeviceMemory&&) = delete;
+    DeviceMemory(const DeviceMemory&) = delete;
+    DeviceMemory& operator=(const DeviceMemory&) = delete;
+    DeviceMemory& operator=(DeviceMemory&&) = delete;
 
-		DeviceMemory(const Device& device, size_t size, uint32_t memoryTypeBits, VkMemoryPropertyFlags properties);
-		DeviceMemory(DeviceMemory&& other) noexcept;
-		~DeviceMemory();
+    DeviceMemory(const Device& device, size_t size, uint32_t memory_type_bits, VkMemoryPropertyFlags properties);
+    DeviceMemory(DeviceMemory&& other) noexcept;
+    ~DeviceMemory();
 
-		const class Device& Device() const { return device_; }
+    [[nodiscard]] const class Device& device() const { return device_; }
 
-		void* Map(size_t offset, size_t size);
-		void Unmap();
+    void* map(size_t offset, size_t size);
+    void unmap();
 
-	private:
+private:
 
-		uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+    [[nodiscard]] uint32_t findMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties) const;
 
-		const class Device& device_;
+    const class Device& device_;
 
-		VULKAN_HANDLE(VkDeviceMemory, memory_)
-	};
+VULKAN_HANDLE(VkDeviceMemory, memory_)
+};
 
 }

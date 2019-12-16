@@ -3,37 +3,31 @@
 #include "VulkanError.h"
 #include <memory>
 
-namespace Vulkan
-{
-	class CommandPool;
-	class Device;
-	class DeviceMemory;
-	class Image;
-	class ImageView;
+namespace vulkan {
+class CommandPool;
+class Device;
+class DeviceMemory;
+class Image;
+class ImageView;
 
-	class DepthBuffer final
-	{
-	public:
+class DepthBuffer final {
+public:
+    DepthBuffer(CommandPool& command_pool, VkExtent2D extent);
+    ~DepthBuffer();
 
-		VULKAN_NON_COPIABLE(DepthBuffer)
+    [[nodiscard]] VkFormat format() const { return format_; }
+    [[nodiscard]] const ImageView& imageView() const { return *image_view_; }
 
-		DepthBuffer(CommandPool& commandPool, VkExtent2D extent);
-		~DepthBuffer();
+    static bool hasStencilComponent(const VkFormat format) {
+        return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+    }
 
-		VkFormat Format() const { return format_; }
-		const class ImageView& ImageView() const { return *imageView_; }
+private:
 
-		static bool HasStencilComponent(const VkFormat format)
-		{
-			return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
-		}
-
-	private:
-
-		const VkFormat format_;
-		std::unique_ptr<Image> image_;
-		std::unique_ptr<DeviceMemory> imageMemory_;
-		std::unique_ptr<class ImageView> imageView_;
-	};
+    const VkFormat format_;
+    std::unique_ptr<Image> image_;
+    std::unique_ptr<DeviceMemory> image_memory_;
+    std::unique_ptr<class ImageView> image_view_;
+};
 
 }

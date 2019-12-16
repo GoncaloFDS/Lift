@@ -1,50 +1,48 @@
-#include "CommandBuffers.h"
-#include "CommandPool.h"
-#include "Device.h"
+#include "command_buffers.h"
+#include "command_pool.h"
+#include "device.h"
 
-namespace Vulkan {
+namespace vulkan {
 
-CommandBuffers::CommandBuffers(CommandPool& commandPool, const uint32_t size) :
-	commandPool_(commandPool)
-{
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = commandPool.Handle();
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = size;
+CommandBuffers::CommandBuffers(CommandPool& command_pool, const uint32_t size) :
+    command_pool_(command_pool) {
+    VkCommandBufferAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    alloc_info.commandPool = command_pool.Handle();
+    alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandBufferCount = size;
 
-	commandBuffers_.resize(size);
+    command_buffers_.resize(size);
 
-    Vulkan_Check(vkAllocateCommandBuffers(commandPool.Device().Handle(), &allocInfo, commandBuffers_.data()),
-                 "allocate command buffers");
+    vulkanCheck(vkAllocateCommandBuffers(command_pool.device().Handle(), &alloc_info, command_buffers_.data()),
+                "allocate command buffers");
 }
 
-CommandBuffers::~CommandBuffers()
-{
-	if (!commandBuffers_.empty())
-	{
-		vkFreeCommandBuffers(commandPool_.Device().Handle(), commandPool_.Handle(), static_cast<uint32_t>(commandBuffers_.size()), commandBuffers_.data());
-		commandBuffers_.clear();
-	}
+CommandBuffers::~CommandBuffers() {
+    if (!command_buffers_.empty()) {
+        vkFreeCommandBuffers(command_pool_.device().Handle(),
+                             command_pool_.Handle(),
+                             static_cast<uint32_t>(command_buffers_.size()),
+                             command_buffers_.data());
+        command_buffers_.clear();
+    }
 }
 
-VkCommandBuffer CommandBuffers::Begin(const size_t i)
-{
-	VkCommandBufferBeginInfo beginInfo = {};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-	beginInfo.pInheritanceInfo = nullptr; // Optional
+VkCommandBuffer CommandBuffers::begin(const size_t i) {
+    VkCommandBufferBeginInfo begin_info = {};
+    begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    begin_info.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+    begin_info.pInheritanceInfo = nullptr; // Optional
 
-    Vulkan_Check(vkBeginCommandBuffer(commandBuffers_[i], &beginInfo),
-                 "begin recording command buffer");
+    vulkanCheck(vkBeginCommandBuffer(command_buffers_[i], &begin_info),
+                "begin recording command buffer");
 
-	return commandBuffers_[i];
+    return command_buffers_[i];
 }
 
-void CommandBuffers::End(const size_t i)
-{
-    Vulkan_Check(vkEndCommandBuffer(commandBuffers_[i]),
-                 "record command buffer");
+void CommandBuffers::end(const size_t i) {
+    vulkanCheck(vkEndCommandBuffer(command_buffers_[i]),
+                "record command buffer");
 }
 
 }

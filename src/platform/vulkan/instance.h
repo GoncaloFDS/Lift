@@ -3,40 +3,34 @@
 #include "VulkanError.h"
 #include <vector>
 
-namespace Vulkan
-{
-	class Window;
+namespace vulkan {
+class Window;
 
-	class Instance final
-	{
-	public:
+class Instance final {
+public:
+    Instance(const Window& window, const std::vector<const char*>& validation_layers);
+    ~Instance();
 
-		VULKAN_NON_COPIABLE(Instance)
+    [[nodiscard]] const class Window& window() const { return window_; }
 
-		Instance(const Window& window, const std::vector<const char*>& validationLayers);
-		~Instance();
+    [[nodiscard]] const std::vector<VkExtensionProperties>& extensions() const { return extensions_; }
+    [[nodiscard]] const std::vector<VkPhysicalDevice>& physicalDevices() const { return physical_devices_; }
+    [[nodiscard]] const std::vector<const char*>& validationLayers() const { return validation_layers_; }
 
-		const class Window& Window() const { return window_; }
+private:
 
-		const std::vector<VkExtensionProperties>& Extensions() const { return extensions_; }
-		const std::vector<VkPhysicalDevice>& PhysicalDevices() const { return physicalDevices_; }
-		const std::vector<const char*>& ValidationLayers() const { return validationLayers_; }
+    void getVulkanDevices();
+    void getVulkanExtensions();
 
-	private:
+    static void checkVulkanValidationLayerSupport(const std::vector<const char*>& validation_layers);
 
-		void GetVulkanDevices();
-		void GetVulkanExtensions();
+    const class Window& window_;
+    const std::vector<const char*> validation_layers_;
 
-		static void CheckVulkanMinimumVersion(uint32_t minVersion);
-		static void CheckVulkanValidationLayerSupport(const std::vector<const char*>& validationLayers);
+VULKAN_HANDLE(VkInstance, instance_)
 
-		const class Window& window_;
-		const std::vector<const char*> validationLayers_;
-
-		VULKAN_HANDLE(VkInstance, instance_)
-
-		std::vector<VkPhysicalDevice> physicalDevices_;
-		std::vector<VkExtensionProperties> extensions_;
-	};
+    std::vector<VkPhysicalDevice> physical_devices_;
+    std::vector<VkExtensionProperties> extensions_;
+};
 
 }

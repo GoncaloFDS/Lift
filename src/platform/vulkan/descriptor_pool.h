@@ -3,26 +3,21 @@
 #include "descriptor_binding.h"
 #include <vector>
 
-namespace Vulkan
-{
-	class Device;
+namespace vulkan {
+class Device;
 
-	class DescriptorPool final
-	{
-	public:
+class DescriptorPool final {
+public:
+    DescriptorPool(const Device& device, const std::vector<DescriptorBinding>& descriptor_bindings, size_t max_sets);
+    ~DescriptorPool();
 
-		VULKAN_NON_COPIABLE(DescriptorPool)
+    [[nodiscard]] const Device& device() const { return device_; }
 
-		DescriptorPool(const Device& device, const std::vector<DescriptorBinding>& descriptorBindings, size_t maxSets);
-		~DescriptorPool();
+private:
 
-		const class Device& Device() const { return device_; }
+    const Device& device_;
 
-	private:
-
-		const class Device& device_;
-
-		VULKAN_HANDLE(VkDescriptorPool, descriptorPool_)
-	};
+VULKAN_HANDLE(VkDescriptorPool, descriptorPool_)
+};
 
 }

@@ -4,43 +4,47 @@
 #include <map>
 #include <vector>
 
-namespace Vulkan
-{
-	class Buffer;
-	class DescriptorPool;
-	class DescriptorSetLayout;
-	class ImageView;
+namespace vulkan {
+class Buffer;
+class DescriptorPool;
+class DescriptorSetLayout;
+class ImageView;
 
-	class DescriptorSets final
-	{
-	public:
+class DescriptorSets final {
+public:
+    DescriptorSets(
+        const DescriptorPool& descriptor_pool,
+        const DescriptorSetLayout& layout,
+        std::map<uint32_t, VkDescriptorType> binding_types,
+        size_t size);
 
-		VULKAN_NON_COPIABLE(DescriptorSets)
+    ~DescriptorSets();
 
-		DescriptorSets(
-			const DescriptorPool& descriptorPool, 
-			const DescriptorSetLayout& layout,
-		    std::map<uint32_t, VkDescriptorType> bindingTypes, 
-			size_t size);
+    [[nodiscard]] VkDescriptorSet Handle(uint32_t index) const { return descriptor_sets_[index]; }
 
-		~DescriptorSets();
+    [[nodiscard]] VkWriteDescriptorSet bind(uint32_t index,
+                                            uint32_t binding,
+                                            const VkDescriptorBufferInfo& buffer_info,
+                                            uint32_t count = 1) const;
+    [[nodiscard]] VkWriteDescriptorSet bind(uint32_t index,
+                                            uint32_t binding,
+                                            const VkDescriptorImageInfo& image_info,
+                                            uint32_t count = 1) const;
+    [[nodiscard]] VkWriteDescriptorSet bind(uint32_t index,
+                                            uint32_t binding,
+                                            const VkWriteDescriptorSetAccelerationStructureNV& structure_info,
+                                            uint32_t count = 1) const;
 
-		VkDescriptorSet Handle(uint32_t index) const { return descriptorSets_[index]; }
+    void updateDescriptors(const std::vector<VkWriteDescriptorSet>& descriptor_writes);
 
-		VkWriteDescriptorSet Bind(uint32_t index, uint32_t binding, const VkDescriptorBufferInfo& bufferInfo, uint32_t count = 1) const;
-		VkWriteDescriptorSet Bind(uint32_t index, uint32_t binding, const VkDescriptorImageInfo& imageInfo, uint32_t count = 1) const;
-		VkWriteDescriptorSet Bind(uint32_t index, uint32_t binding, const VkWriteDescriptorSetAccelerationStructureNV& structureInfo, uint32_t count = 1) const;
+private:
 
-		void UpdateDescriptors(uint32_t index, const std::vector<VkWriteDescriptorSet>& descriptorWrites);
+    [[nodiscard]] VkDescriptorType getBindingType(uint32_t binding) const;
 
-	private:
+    const DescriptorPool& descriptor_pool_;
+    const std::map<uint32_t, VkDescriptorType> binding_types_;
 
-		VkDescriptorType GetBindingType(uint32_t binding) const;
-
-		const DescriptorPool& descriptorPool_;
-		const std::map<uint32_t, VkDescriptorType> bindingTypes_;
-		
-		std::vector<VkDescriptorSet> descriptorSets_;
-	};
+    std::vector<VkDescriptorSet> descriptor_sets_;
+};
 
 }

@@ -8,7 +8,7 @@ class Device;
 class DeviceMemory;
 }
 
-namespace vulkan::RayTracing {
+namespace vulkan::ray_tracing {
 class DeviceProcedures;
 
 class AccelerationStructure {
@@ -27,20 +27,20 @@ public:
     AccelerationStructure(AccelerationStructure&& other) noexcept;
     virtual ~AccelerationStructure();
 
-    const class Device& Device() const { return device_; }
-    const class DeviceProcedures& DeviceProcedures() const { return deviceProcedures_; }
+    const class Device& device() const { return device_; }
+    const class DeviceProcedures& deviceProcedures() const { return device_procedures_; }
 
-    MemoryRequirements GetMemoryRequirements() const;
+    MemoryRequirements getMemoryRequirements() const;
 
-    static void MemoryBarrier(VkCommandBuffer commandBuffer);
+    static void memoryBarrier(VkCommandBuffer command_buffer);
 
 protected:
 
-    AccelerationStructure(const class DeviceProcedures& deviceProcedures,
-                          const VkAccelerationStructureCreateInfoNV& createInfo);
+    AccelerationStructure(const class DeviceProcedures& device_procedures,
+                          const VkAccelerationStructureCreateInfoNV& create_info);
 
-    const class DeviceProcedures& deviceProcedures_;
-    const bool allowUpdate_;
+    const class DeviceProcedures& device_procedures_;
+    const bool allow_update_;
 
 private:
 

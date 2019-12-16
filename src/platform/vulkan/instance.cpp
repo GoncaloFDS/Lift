@@ -1,112 +1,74 @@
-#include "Instance.h"
-#include "Enumerate.h"
-#include "Version.hpp"
-#include "Window.h"
+#include "instance.h"
+#include "enumerate.h"
+#include "window.h"
 #include <algorithm>
-#include <sstream>
 
-namespace Vulkan {
+namespace vulkan {
 
-Instance::Instance(const class Window& window, const std::vector<const char*>& validationLayers) :
-	window_(window),
-	validationLayers_(validationLayers)
-{
-	// Check the minimum version.
-	const uint32_t version = VK_API_VERSION_1_1;
+Instance::Instance(const class Window& window, const std::vector<const char*>& validation_layers) :
+    window_(window),
+    validation_layers_(validation_layers) {
 
-	CheckVulkanMinimumVersion(version);
+    auto extensions = window.getRequiredInstanceExtensions();
 
-	// Get the list of required extensions.
-	auto extensions = window.GetRequiredInstanceExtensions();
+    checkVulkanValidationLayerSupport(validation_layers);
 
-	// Check the validation layers and add them to the list of required extensions.
-	CheckVulkanValidationLayerSupport(validationLayers);
+    if (!validation_layers.empty()) {
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
 
-	if (!validationLayers.empty())
-	{
-		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-	}
+    VkApplicationInfo app_info = {};
+    app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    app_info.pApplicationName = "Lift";
+    app_info.pEngineName = "Lift Engine";
 
-	// Create the Vulkan instance.
-	VkApplicationInfo appInfo = {};
-	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = "RayTracingWeekends";
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-	appInfo.pEngineName = "No Engine";
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-	appInfo.apiVersion = version;
+    VkInstanceCreateInfo create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    create_info.pApplicationInfo = &app_info;
+    create_info.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+    create_info.ppEnabledExtensionNames = extensions.data();
+    create_info.enabledLayerCount = static_cast<uint32_t>(validation_layers.size());
+    create_info.ppEnabledLayerNames = validation_layers.data();
 
-	VkInstanceCreateInfo createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	createInfo.pApplicationInfo = &appInfo;
-	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-	createInfo.ppEnabledExtensionNames = extensions.data();
-	createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-	createInfo.ppEnabledLayerNames = validationLayers.data();
+    vulkanCheck(vkCreateInstance(&create_info, nullptr, &instance_), "create instance");
 
-	Check(vkCreateInstance(&createInfo, nullptr, &instance_),
-		"create instance");
-
-	GetVulkanDevices();
-	GetVulkanExtensions();
+    getVulkanDevices();
+    getVulkanExtensions();
 }
 
-Instance::~Instance()
-{
-	if (instance_ != nullptr)
-	{
-		vkDestroyInstance(instance_, nullptr);
-		instance_ = nullptr;
-	}
+Instance::~Instance() {
+    if (instance_ != nullptr) {
+        vkDestroyInstance(instance_, nullptr);
+        instance_ = nullptr;
+    }
 }
 
-void Instance::GetVulkanDevices()
-{
-	GetEnumerateVector(instance_, vkEnumeratePhysicalDevices, physicalDevices_);
+void Instance::getVulkanDevices() {
+    getEnumerateVector(instance_, vkEnumeratePhysicalDevices, physical_devices_);
 
-	if (physicalDevices_.empty())
-	{
-//		Throw(std::runtime_error("found no Vulkan physical devices"));
-	}
+    if (physical_devices_.empty()) {
+//		Throw(std::runtime_error("found no vulkan physical devices"));
+    }
 }
 
-void Instance::GetVulkanExtensions()
-{
-	GetEnumerateVector(static_cast<const char*>(nullptr), vkEnumerateInstanceExtensionProperties, extensions_);
+void Instance::getVulkanExtensions() {
+    getEnumerateVector(static_cast<const char*>(nullptr), vkEnumerateInstanceExtensionProperties, extensions_);
 }
 
-void Instance::CheckVulkanMinimumVersion(const uint32_t minVersion)
-{
-	uint32_t version;
-	Check(vkEnumerateInstanceVersion(&version),
-		"query instance version");
+void Instance::checkVulkanValidationLayerSupport(const std::vector<const char*>& validation_layers) {
+    const auto available_layers = getEnumerateVector(vkEnumerateInstanceLayerProperties);
 
-	if (minVersion > version)
-	{
-		std::ostringstream out;
-		out << "minimum required version not found (required " << Version(minVersion);
-		out << ", found " << Version(version) << ")";
+    for (const char* layer : validation_layers) {
+        auto result = std::find_if(available_layers.begin(),
+                                   available_layers.end(),
+                                   [layer](const VkLayerProperties& layer_properties) {
+                                       return strcmp(layer, layer_properties.layerName) == 0;
+                                   });
 
-//		Throw(std::runtime_error(out.str()));
-	}
-}
-
-void Instance::CheckVulkanValidationLayerSupport(const std::vector<const char*>& validationLayers)
-{
-	const auto availableLayers = GetEnumerateVector(vkEnumerateInstanceLayerProperties);
-
-	for (const char* layer : validationLayers)
-	{
-		auto result = std::find_if(availableLayers.begin(), availableLayers.end(), [layer](const VkLayerProperties& layerProperties)
-		{
-			return strcmp(layer, layerProperties.layerName) == 0;
-		});
-
-		if (result == availableLayers.end())
-		{
+        if (result == available_layers.end()) {
 //			Throw(std::runtime_error("could not find the requested validation layer: '" + std::string(layer) + "'"));
-		}
-	}
+        }
+    }
 }
 
 }

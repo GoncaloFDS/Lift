@@ -4,31 +4,26 @@
 #include <string>
 #include <vector>
 
-namespace Vulkan
-{
-	class Device;
+namespace vulkan {
+class Device;
 
-	class ShaderModule final
-	{
-	public:
+class ShaderModule final {
+public:
+    ShaderModule(const Device& device, const std::string& filename);
+    ShaderModule(const Device& device, const std::vector<char>& code);
+    ~ShaderModule();
 
-		VULKAN_NON_COPIABLE(ShaderModule)
+    [[nodiscard]] const Device& device() const { return device_; }
 
-		ShaderModule(const Device& device, const std::string& filename);
-		ShaderModule(const Device& device, const std::vector<char>& code);
-		~ShaderModule();
+    [[nodiscard]] VkPipelineShaderStageCreateInfo createShaderStage(VkShaderStageFlagBits stage) const;
 
-		const class Device& Device() const { return device_; }
+private:
 
-		VkPipelineShaderStageCreateInfo CreateShaderStage(VkShaderStageFlagBits stage) const;
+    static std::vector<char> readFile(const std::string& filename);
 
-	private:
+    const class Device& device_;
 
-		static std::vector<char> ReadFile(const std::string& filename);
-
-		const class Device& device_;
-
-		VULKAN_HANDLE(VkShaderModule, shaderModule_)
-	};
+VULKAN_HANDLE(VkShaderModule, shaderModule_)
+};
 
 }

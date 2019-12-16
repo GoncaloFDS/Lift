@@ -1,34 +1,29 @@
 #pragma once
 
 #include "VulkanError.h"
-#include "DeviceMemory.h"
+#include "device_memory.h"
 
-namespace Vulkan
-{
-	class CommandPool;
-	class Device;
+namespace vulkan {
+class CommandPool;
+class Device;
 
-	class Buffer final
-	{
-	public:
+class Buffer final {
+public:
+    Buffer(const Device& device, size_t size, VkBufferUsageFlags usage);
+    ~Buffer();
 
-		VULKAN_NON_COPIABLE(Buffer)
+    [[nodiscard]] const class Device& device() const { return device_; }
 
-		Buffer(const Device& device, size_t size, VkBufferUsageFlags usage);
-		~Buffer();
+    DeviceMemory allocateMemory(VkMemoryPropertyFlags properties);
+    [[nodiscard]] VkMemoryRequirements getMemoryRequirements() const;
 
-		const class Device& Device() const { return device_; }
+    void copyFrom(CommandPool& command_pool, const Buffer& src, VkDeviceSize size);
 
-		DeviceMemory AllocateMemory(VkMemoryPropertyFlags properties);
-		VkMemoryRequirements GetMemoryRequirements() const;
+private:
 
-		void CopyFrom(CommandPool& commandPool, const Buffer& src, VkDeviceSize size);
+    const class Device& device_;
 
-	private:
-
-		const class Device& device_;
-
-		VULKAN_HANDLE(VkBuffer, buffer_)
-	};
+VULKAN_HANDLE(VkBuffer, buffer_)
+};
 
 }
