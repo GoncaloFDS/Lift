@@ -2,22 +2,22 @@ set(EXTERNAL_DIR ../external)
 set(exe_name ${MAIN_PROJECT})
 
 set(src_files_assets
-        assets/CornellBox.cpp
-        assets/CornellBox.hpp
-        assets/Material.hpp
-        assets/Model.cpp
-        assets/Model.hpp
-        assets/Procedural.hpp
-        assets/Scene.cpp
-        assets/Scene.hpp
-        assets/Sphere.hpp
-        assets/Texture.cpp
-        assets/Texture.hpp
-        assets/TextureImage.cpp
-        assets/TextureImage.hpp
-        assets/UniformBuffer.cpp
-        assets/UniformBuffer.hpp
-        assets/Vertex.hpp
+        assets/cornell_box.cpp
+        assets/cornell_box.h
+        assets/material.h
+        assets/model.cpp
+        assets/model.h
+        assets/procedural.h
+        assets/scene.cpp
+        assets/scene.h
+        assets/sphere.h
+        assets/texture.cpp
+        assets/texture.h
+        assets/texture_image.cpp
+        assets/texture_image.h
+        assets/uniform_buffer.cpp
+        assets/uniform_buffer.h
+        assets/vertex.h
         )
 
 set(src_files_imgui
@@ -38,98 +38,93 @@ set(src_files_utilities
 set(src_files_vulkan
         platform/vulkan/Application.cpp
         platform/vulkan/Application.h
-        platform/vulkan/Buffer.cpp
-        platform/vulkan/Buffer.h
-        platform/vulkan/CommandBuffers.cpp
-        platform/vulkan/CommandBuffers.h
-        platform/vulkan/CommandPool.cpp
-        platform/vulkan/CommandPool.h
-        platform/vulkan/DepthBuffer.cpp
-        platform/vulkan/DepthBuffer.h
-        platform/vulkan/DescriptorBinding.h
-        platform/vulkan/DescriptorPool.cpp
-        platform/vulkan/DescriptorPool.h
-        platform/vulkan/DescriptorSetLayout.cpp
-        platform/vulkan/DescriptorSetLayout.h
-        platform/vulkan/DescriptorSetManager.cpp
-        platform/vulkan/DescriptorSetManager.h
-        platform/vulkan/DescriptorSets.cpp
-        platform/vulkan/DescriptorSets.h
-        platform/vulkan/Device.cpp
-        platform/vulkan/Device.h
-        platform/vulkan/DeviceMemory.cpp
-        platform/vulkan/DeviceMemory.h
-        platform/vulkan/DebugUtilsMessenger.cpp
-        platform/vulkan/DebugUtilsMessenger.h
-        platform/vulkan/Enumerate.h
-        platform/vulkan/Fence.cpp
-        platform/vulkan/Fence.h
-        platform/vulkan/FrameBuffer.cpp
-        platform/vulkan/FrameBuffer.h
-        platform/vulkan/GraphicsPipeline.cpp
-        platform/vulkan/GraphicsPipeline.h
-        platform/vulkan/Image.cpp
-        platform/vulkan/Image.h
-        platform/vulkan/ImageMemoryBarrier.h
-        platform/vulkan/ImageView.cpp
-        platform/vulkan/ImageView.h
-        platform/vulkan/Instance.cpp
-        platform/vulkan/Instance.h
-        platform/vulkan/PipelineLayout.cpp
-        platform/vulkan/PipelineLayout.h
-        platform/vulkan/RenderPass.cpp
-        platform/vulkan/RenderPass.h
-        platform/vulkan/Sampler.cpp
-        platform/vulkan/Sampler.h
-        platform/vulkan/Semaphore.cpp
-        platform/vulkan/Semaphore.h
-        platform/vulkan/ShaderModule.cpp
-        platform/vulkan/ShaderModule.h
-        platform/vulkan/SingleTimeCommands.h
-        platform/vulkan/Strings.cpp
-        platform/vulkan/Strings.hpp
-        platform/vulkan/Surface.cpp
-        platform/vulkan/Surface.h
-        platform/vulkan/SwapChain.cpp
-        platform/vulkan/SwapChain.h
-        platform/vulkan/Version.hpp
+        platform/vulkan/buffer.cpp
+        platform/vulkan/buffer.h
+        platform/vulkan/command_buffers.cpp
+        platform/vulkan/command_buffers.h
+        platform/vulkan/command_pool.cpp
+        platform/vulkan/command_pool.h
+        platform/vulkan/depth_buffer.cpp
+        platform/vulkan/depth_buffer.h
+        platform/vulkan/descriptor_binding.h
+        platform/vulkan/descriptor_pool.cpp
+        platform/vulkan/descriptor_pool.h
+        platform/vulkan/descriptor_set_layout.cpp
+        platform/vulkan/descriptor_set_layout.h
+        platform/vulkan/descriptor_set_manager.cpp
+        platform/vulkan/descriptor_set_manager.h
+        platform/vulkan/descriptor_sets.cpp
+        platform/vulkan/descriptor_sets.h
+        platform/vulkan/device.cpp
+        platform/vulkan/device.h
+        platform/vulkan/device_memory.cpp
+        platform/vulkan/device_memory.h
+        platform/vulkan/enumerate.h
+        platform/vulkan/fence.cpp
+        platform/vulkan/fence.h
+        platform/vulkan/frame_buffer.cpp
+        platform/vulkan/frame_buffer.h
+        platform/vulkan/graphics_pipeline.cpp
+        platform/vulkan/graphics_pipeline.h
+        platform/vulkan/image.cpp
+        platform/vulkan/image.h
+        platform/vulkan/image_memory_barrier.h
+        platform/vulkan/image_view.cpp
+        platform/vulkan/image_view.h
+        platform/vulkan/instance.cpp
+        platform/vulkan/instance.h
+        platform/vulkan/pipeline_layout.cpp
+        platform/vulkan/pipeline_layout.h
+        platform/vulkan/render_pass.cpp
+        platform/vulkan/render_pass.h
+        platform/vulkan/sampler.cpp
+        platform/vulkan/sampler.h
+        platform/vulkan/semaphore.cpp
+        platform/vulkan/semaphore.h
+        platform/vulkan/shader_module.cpp
+        platform/vulkan/shader_module.h
+        platform/vulkan/single_time_commands.h
+        platform/vulkan/surface.cpp
+        platform/vulkan/surface.h
+        platform/vulkan/swap_chain.cpp
+        platform/vulkan/swap_chain.h
         platform/vulkan/VulkanError.cpp
         platform/vulkan/VulkanError.h
-        platform/vulkan/Window.cpp
-        platform/vulkan/Window.h
-        platform/vulkan/WindowConfig.h
+        platform/vulkan/window.cpp
+        platform/vulkan/window.h
+        platform/vulkan/window_properties.h
         )
 
 set(src_files_vulkan_raytracing
-        platform/vulkan/rayTracing/AccelerationStructure.cpp
-        platform/vulkan/rayTracing/AccelerationStructure.hpp
-        platform/vulkan/rayTracing/Application.cpp
-        platform/vulkan/rayTracing/Application.hpp
-        platform/vulkan/rayTracing/BottomLevelAccelerationStructure.cpp
-        platform/vulkan/rayTracing/BottomLevelAccelerationStructure.hpp
-        platform/vulkan/rayTracing/DeviceProcedures.cpp
-        platform/vulkan/rayTracing/DeviceProcedures.hpp
-        platform/vulkan/rayTracing/RayTracingPipeline.cpp
-        platform/vulkan/rayTracing/RayTracingPipeline.hpp
-        platform/vulkan/rayTracing/RayTracingProperties.cpp
-        platform/vulkan/rayTracing/RayTracingProperties.hpp
-        platform/vulkan/rayTracing/ShaderBindingTable.cpp
-        platform/vulkan/rayTracing/ShaderBindingTable.hpp
-        platform/vulkan/rayTracing/TopLevelAccelerationStructure.cpp
-        platform/vulkan/rayTracing/TopLevelAccelerationStructure.hpp
+        platform/vulkan/rayTracing/acceleration_structure.cpp
+        platform/vulkan/rayTracing/acceleration_structure.h
+        platform/vulkan/rayTracing/application.cpp
+        platform/vulkan/rayTracing/application.h
+        platform/vulkan/rayTracing/blas.cpp
+        platform/vulkan/rayTracing/blas.h
+        platform/vulkan/rayTracing/device_procedures.cpp
+        platform/vulkan/rayTracing/device_procedures.h
+        platform/vulkan/rayTracing/ray_tracing_pipeline.cpp
+        platform/vulkan/rayTracing/ray_tracing_pipeline.h
+        platform/vulkan/rayTracing/ray_tracing_properties.cpp
+        platform/vulkan/rayTracing/ray_tracing_properties.h
+        platform/vulkan/rayTracing/shader_binding_table.cpp
+        platform/vulkan/rayTracing/shader_binding_table.h
+        platform/vulkan/rayTracing/tlas.cpp
+        platform/vulkan/rayTracing/tlas.h
         )
 
 set(src_files
         main.cpp
-        Options.cpp
-        Options.h
+        properties.cpp
+        properties.h
         RayTracer.cpp
         RayTracer.h
-        SceneList.cpp
-        SceneList.h
-        UserInterface.cpp
-        UserInterface.h
-        UserSettings.h
+        scene_list.cpp
+        scene_list.h
+        imgui_layer.cpp
+        imgui_layer.h
+        user_settings.h
         )
 
 source_group("Assets" FILES ${src_files_assets})

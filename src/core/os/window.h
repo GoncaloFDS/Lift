@@ -14,10 +14,10 @@ struct WindowProperties {
     unsigned int x, y;
 
     explicit WindowProperties(std::string title = "lift Engine",
-                     const unsigned int width = 1280,
-                     const unsigned int height = 720,
-                     const unsigned int position_x = 200,
-                     const unsigned int position_y = 200)
+                              const unsigned int width = 1280,
+                              const unsigned int height = 720,
+                              const unsigned int position_x = 200,
+                              const unsigned int position_y = 200)
         : title(std::move(title)), width(width), height(height), x(position_x), y(position_y) {
     }
 

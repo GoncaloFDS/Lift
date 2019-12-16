@@ -32,5 +32,4 @@ private:
     static std::unique_ptr<Input> k_Instance;
 };
 
-
 }

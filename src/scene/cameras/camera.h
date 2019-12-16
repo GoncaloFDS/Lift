@@ -22,11 +22,26 @@ public:
     [[nodiscard]] auto aspectRatio() const -> float { return aspect_ratio_; }
 
     void setDirection(const vec3& direction) { look_at_ = eye_ + length(look_at_ - eye_); }
-    void setEye(const vec3& eye) { eye_ = eye; changed_ = true; }
-    void setLookAt(const vec3& look_at) { look_at_ = look_at; changed_ = true; }
-    void setUp(const vec3& up) { up_ = up; changed_ = true; }
-    void setFovy(const float fovy) { fovy_ = fovy; changed_ = true; }
-    void setAspectRatio(const float& aspect_ratio) { aspect_ratio_ = aspect_ratio; changed_ = true; }
+    void setEye(const vec3& eye) {
+        eye_ = eye;
+        changed_ = true;
+    }
+    void setLookAt(const vec3& look_at) {
+        look_at_ = look_at;
+        changed_ = true;
+    }
+    void setUp(const vec3& up) {
+        up_ = up;
+        changed_ = true;
+    }
+    void setFovy(const float fovy) {
+        fovy_ = fovy;
+        changed_ = true;
+    }
+    void setAspectRatio(const float& aspect_ratio) {
+        aspect_ratio_ = aspect_ratio;
+        changed_ = true;
+    }
 
     [[nodiscard]] auto vectorU() const -> const vec3& { return vector_u_; }
     [[nodiscard]] auto vectorV() const -> const vec3& { return vector_v_; }

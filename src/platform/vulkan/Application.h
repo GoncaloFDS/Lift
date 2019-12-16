@@ -1,84 +1,77 @@
 #pragma once
 
-#include "FrameBuffer.h"
-#include "WindowConfig.h"
+#include "frame_buffer.h"
+#include "window_properties.h"
 #include <vector>
 #include <memory>
 
-namespace Assets
-{
-	class Scene;
-	class UniformBufferObject;
-	class UniformBuffer;
+namespace assets {
+class Scene;
+class UniformBufferObject;
+class UniformBuffer;
 }
 
-namespace Vulkan 
-{
-	class Application
-	{
-	public:
+namespace vulkan {
+class Application {
+public:
+    virtual ~Application();
 
-		VULKAN_NON_COPIABLE(Application)
+    [[nodiscard]] const std::vector<VkExtensionProperties>& extensions() const;
+    [[nodiscard]] const std::vector<VkPhysicalDevice>& physicalDevices() const;
 
-		virtual ~Application();
+    void setPhysicalDevice(VkPhysicalDevice physical_device);
+    void run();
 
-		const std::vector<VkExtensionProperties>& Extensions() const;
-		const std::vector<VkPhysicalDevice>& PhysicalDevices() const;
+protected:
 
-		void SetPhysicalDevice(VkPhysicalDevice physicalDevice);
-		void Run();
+    Application(const WindowProperties& window_properties, bool vsync, bool enable_validation_layers);
 
-	protected:
+    [[nodiscard]] const class Window& window() const { return *window_; }
+    [[nodiscard]] const class Device& device() const { return *device_; }
+    class CommandPool& commandPool() { return *command_pool_; }
+    [[nodiscard]] const class SwapChain& swapChain() const { return *swap_chain_; }
+    [[nodiscard]] const class DepthBuffer& depthBuffer() const { return *depth_buffer_; }
+    [[nodiscard]] const std::vector<assets::UniformBuffer>& uniformBuffers() const { return uniform_buffers_; }
+    [[nodiscard]] const class GraphicsPipeline& graphicsPipeline() const { return *graphics_pipeline_; }
+    [[nodiscard]] const class FrameBuffer& swapChainFrameBuffer(const size_t i) const { return swap_chain_framebuffers_[i]; }
 
-		Application(const WindowConfig& windowConfig, bool vsync, bool enableValidationLayers);
+    [[nodiscard]] virtual const assets::Scene& getScene() const = 0;
+    [[nodiscard]] virtual assets::UniformBufferObject getUniformBufferObject(VkExtent2D extent) const = 0;
 
-		const class Window& Window() const { return *window_; }
-		const class Device& Device() const { return *device_; }
-		class CommandPool& CommandPool() { return *commandPool_; }
-		const class SwapChain& SwapChain() const { return *swapChain_; }
-		const class DepthBuffer& DepthBuffer() const { return *depthBuffer_; }
-		const std::vector<Assets::UniformBuffer>& UniformBuffers() const { return uniformBuffers_; }
-		const class GraphicsPipeline& GraphicsPipeline() const { return *graphicsPipeline_; }
-		const class FrameBuffer& SwapChainFrameBuffer(const size_t i) const { return swapChainFramebuffers_[i]; }
-		
-		virtual const Assets::Scene& GetScene() const = 0;
-		virtual Assets::UniformBufferObject GetUniformBufferObject(VkExtent2D extent) const = 0;
+    virtual void onDeviceSet();
+    virtual void createSwapChain();
+    virtual void deleteSwapChain();
+    virtual void drawFrame();
+    virtual void render(VkCommandBuffer command_buffer, uint32_t image_index);
 
-		virtual void OnDeviceSet();
-		virtual void CreateSwapChain();
-		virtual void DeleteSwapChain();
-		virtual void DrawFrame();
-		virtual void Render(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+    virtual void onKey(int key, int scancode, int action, int mods) {}
+    virtual void onCursorPosition(double xpos, double ypos) {}
+    virtual void onMouseButton(int button, int action, int mods) {}
 
-		virtual void OnKey(int key, int scancode, int action, int mods) { }
-		virtual void OnCursorPosition(double xpos, double ypos) { }
-		virtual void OnMouseButton(int button, int action, int mods) { }
+    bool is_wire_frame_{};
 
-		bool isWireFrame_{};
+private:
 
-	private:
+    void updateUniformBuffer(uint32_t image_index);
+    void recreateSwapChain();
 
-		void UpdateUniformBuffer(uint32_t imageIndex);
-		void RecreateSwapChain();
+    const bool vsync_;
+    std::unique_ptr<class Window> window_;
+    std::unique_ptr<class Instance> instance_;
+    std::unique_ptr<class Surface> surface_;
+    std::unique_ptr<class Device> device_;
+    std::unique_ptr<class SwapChain> swap_chain_;
+    std::vector<assets::UniformBuffer> uniform_buffers_;
+    std::unique_ptr<class DepthBuffer> depth_buffer_;
+    std::unique_ptr<class GraphicsPipeline> graphics_pipeline_;
+    std::vector<class FrameBuffer> swap_chain_framebuffers_;
+    std::unique_ptr<class CommandPool> command_pool_;
+    std::unique_ptr<class CommandBuffers> command_buffers_;
+    std::vector<class Semaphore> image_available_semaphores_;
+    std::vector<class Semaphore> render_finished_semaphores_;
+    std::vector<class Fence> in_flight_fences_;
 
-		const bool vsync_;
-		std::unique_ptr<class Window> window_;
-		std::unique_ptr<class Instance> instance_;
-		std::unique_ptr<class DebugUtilsMessenger> debugUtilsMessenger_;
-		std::unique_ptr<class Surface> surface_;
-		std::unique_ptr<class Device> device_;
-		std::unique_ptr<class SwapChain> swapChain_;
-		std::vector<Assets::UniformBuffer> uniformBuffers_;
-		std::unique_ptr<class DepthBuffer> depthBuffer_;
-		std::unique_ptr<class GraphicsPipeline> graphicsPipeline_;
-		std::vector<class FrameBuffer> swapChainFramebuffers_;
-		std::unique_ptr<class CommandPool> commandPool_;
-		std::unique_ptr<class CommandBuffers> commandBuffers_;
-		std::vector<class Semaphore> imageAvailableSemaphores_;
-		std::vector<class Semaphore> renderFinishedSemaphores_;
-		std::vector<class Fence> inFlightFences_;
-
-		size_t currentFrame_{};
-	};
+    size_t current_frame_{};
+};
 
 }

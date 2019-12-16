@@ -20,7 +20,6 @@
 #include "core/profiler.h"
 #include "cuda/vec_math.h"
 
-
 template<typename T>
 auto bufferViewFromGltf(const tinygltf::Model& model,
                         lift::Scene* scene,

@@ -7,7 +7,9 @@ namespace lift {
 class KeyEvent : public Event {
 public:
     [[nodiscard]] auto getKeyCode() const -> unsigned int { return key_code_; }
-    [[nodiscard]] auto getCategoryFlags() const -> int override { return EVENT_CATEGORY_KEYBOARD | EVENT_CATEGORY_INPUT; }
+    [[nodiscard]] auto getCategoryFlags() const -> int override {
+        return EVENT_CATEGORY_KEYBOARD | EVENT_CATEGORY_INPUT;
+    }
 protected:
     explicit KeyEvent(const int key_code)
         : key_code_(key_code) {

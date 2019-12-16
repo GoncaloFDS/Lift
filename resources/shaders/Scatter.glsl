@@ -9,7 +9,7 @@ float Schlick(const float cosine, const float refractionIndex)
 	return r0 + (1 - r0) * pow(1 - cosine, 5);
 }
 
-// Lambertian
+// lambertian
 RayPayload ScatterLambertian(const Material m, const vec3 direction, const vec3 normal, const vec2 texCoord, const float t, inout uint seed)
 {
 	const bool isScattered = dot(direction, normal) < 0;
@@ -20,7 +20,7 @@ RayPayload ScatterLambertian(const Material m, const vec3 direction, const vec3 
 	return RayPayload(colorAndDistance, scatter, seed);
 }
 
-// Metallic
+// metallic
 RayPayload ScatterMetallic(const Material m, const vec3 direction, const vec3 normal, const vec2 texCoord, const float t, inout uint seed)
 {
 	const vec3 reflected = reflect(direction, normal);
@@ -33,7 +33,7 @@ RayPayload ScatterMetallic(const Material m, const vec3 direction, const vec3 no
 	return RayPayload(colorAndDistance, scatter, seed);
 }
 
-// Dielectric
+// dielectric
 RayPayload ScatterDieletric(const Material m, const vec3 direction, const vec3 normal, const vec2 texCoord, const float t, inout uint seed)
 {
 	const float dot = dot(direction, normal);

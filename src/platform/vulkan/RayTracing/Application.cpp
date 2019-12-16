@@ -1,284 +1,344 @@
-#include "Application.hpp"
-#include "BottomLevelAccelerationStructure.hpp"
-#include "DeviceProcedures.hpp"
-#include "RayTracingPipeline.hpp"
-#include "ShaderBindingTable.hpp"
-#include "TopLevelAccelerationStructure.hpp"
-#include "assets/Model.hpp"
-#include "assets/Scene.hpp"
+#include "application.h"
+#include "blas.h"
+#include "device_procedures.h"
+#include "ray_tracing_pipeline.h"
+#include "shader_binding_table.h"
+#include "tlas.h"
+#include "assets/model.h"
+#include "assets/scene.h"
 #include "Utilities/Glm.hpp"
-#include "platform/vulkan/Buffer.h"
-#include "platform/vulkan/Image.h"
-#include "platform/vulkan/ImageMemoryBarrier.h"
-#include "platform/vulkan/ImageView.h"
-#include "platform/vulkan/PipelineLayout.h"
-#include "platform/vulkan/SingleTimeCommands.h"
-#include "platform/vulkan/SwapChain.h"
+#include "platform/vulkan/buffer.h"
+#include "platform/vulkan/image.h"
+#include "platform/vulkan/image_memory_barrier.h"
+#include "platform/vulkan/image_view.h"
+#include "platform/vulkan/pipeline_layout.h"
+#include "platform/vulkan/single_time_commands.h"
+#include "platform/vulkan/swap_chain.h"
 #include <chrono>
 #include <iostream>
+#include <memory>
 #include <numeric>
 
-namespace Vulkan::RayTracing {
+namespace vulkan::ray_tracing {
 
-namespace
-{
-	AccelerationStructure::MemoryRequirements GetTotalRequirements(const std::vector<AccelerationStructure::MemoryRequirements>& requirements)
-	{
-		AccelerationStructure::MemoryRequirements total{};
+namespace {
+AccelerationStructure::MemoryRequirements GetTotalRequirements(const std::vector<AccelerationStructure::MemoryRequirements>& requirements) {
+    AccelerationStructure::MemoryRequirements total{};
 
-		for (const auto& req : requirements)
-		{
-			total.Result.size += req.Result.size;
-			total.Build.size += req.Build.size;
-			total.Update.size += req.Update.size;
-		}
+    for (const auto& req : requirements) {
+        total.Result.size += req.Result.size;
+        total.Build.size += req.Build.size;
+        total.Update.size += req.Update.size;
+    }
 
-		return total;
-	}
+    return total;
+}
 }
 
-Application::Application(const WindowConfig& windowConfig, const bool vsync, const bool enableValidationLayers) :
-	Vulkan::Application(windowConfig, vsync, enableValidationLayers)
-{
+Application::Application(const WindowProperties& window_properties, const bool vsync, const bool enable_validation_layers) :
+    vulkan::Application(window_properties, vsync, enable_validation_layers) {
 }
 
-Application::~Application()
-{
-	Application::DeleteSwapChain();
-	DeleteAccelerationStructures();
+Application::~Application() {
+    Application::deleteSwapChain();
+    deleteAccelerationStructures();
 
-	deviceProcedures_.reset();
-	properties_.reset();
+    device_procedures_.reset();
+    properties_.reset();
 }
 
-void Application::OnDeviceSet()
-{
-	properties_.reset(new RayTracingProperties(Device()));
-	deviceProcedures_.reset(new DeviceProcedures(Device()));
+void Application::onDeviceSet() {
+    properties_ = std::make_unique<RayTracingProperties>(device());
+    device_procedures_.reset(new DeviceProcedures(device()));
 }
 
-void Application::CreateAccelerationStructures()
-{
-	std::cout << "Building acceleration structures..." << std::endl;
-	const auto timer = std::chrono::high_resolution_clock::now();
+void Application::createAccelerationStructures() {
+    std::cout << "Building acceleration structures..." << std::endl;
+    const auto timer = std::chrono::high_resolution_clock::now();
 
-	SingleTimeCommands::Submit(CommandPool(), [this](VkCommandBuffer commandBuffer)
-	{
-		CreateBottomLevelStructures(commandBuffer);
-		AccelerationStructure::MemoryBarrier(commandBuffer);
-		CreateTopLevelStructures(commandBuffer);
-	});
+    SingleTimeCommands::submit(commandPool(), [this](VkCommandBuffer commandBuffer) {
+        createBottomLevelStructures(commandBuffer);
+        AccelerationStructure::memoryBarrier(commandBuffer);
+        createTopLevelStructures(commandBuffer);
+    });
 
-	topScratchBuffer_.reset();
-	topScratchBufferMemory_.reset();
-	bottomScratchBuffer_.reset();
-	bottomScratchBufferMemory_.reset();
+    top_scratch_buffer_.reset();
+    top_scratch_buffer_memory_.reset();
+    bottom_scratch_buffer_.reset();
+    bottom_scratch_buffer_memory_.reset();
 
-	const auto elapsed = std::chrono::duration<float, std::chrono::seconds::period>(std::chrono::high_resolution_clock::now() - timer).count();
-	std::cout << "Built acceleration structures in " << elapsed << "s" << std::endl;
+    const auto elapsed = std::chrono::duration<float, std::chrono::seconds::period>(
+        std::chrono::high_resolution_clock::now() - timer).count();
+    std::cout << "Built acceleration structures in " << elapsed << "s" << std::endl;
 }
 
-void Application::DeleteAccelerationStructures()
-{
-	topAs_.clear();
-	instancesBuffer_.reset();
-	instancesBufferMemory_.reset();
-	topScratchBuffer_.reset();
-	topScratchBufferMemory_.reset();
-	topBuffer_.reset();
-	topBufferMemory_.reset();
+void Application::deleteAccelerationStructures() {
+    top_as_.clear();
+    instances_buffer_.reset();
+    instances_buffer_memory_.reset();
+    top_scratch_buffer_.reset();
+    top_scratch_buffer_memory_.reset();
+    top_buffer_.reset();
+    top_buffer_memory_.reset();
 
-	bottomAs_.clear();
-	bottomScratchBuffer_.reset();
-	bottomScratchBufferMemory_.reset();
-	bottomBuffer_.reset();
-	bottomBufferMemory_.reset();
+    bottom_as_.clear();
+    bottom_scratch_buffer_.reset();
+    bottom_scratch_buffer_memory_.reset();
+    bottom_buffer_.reset();
+    bottom_buffer_memory_.reset();
 }
 
-void Application::CreateSwapChain()
-{
-	Vulkan::Application::CreateSwapChain();
+void Application::createSwapChain() {
+    vulkan::Application::createSwapChain();
 
-	CreateOutputImage();
+    createOutputImage();
 
-	rayTracingPipeline_.reset(new RayTracingPipeline(*deviceProcedures_, SwapChain(), topAs_[0], *accumulationImageView_, *outputImageView_, UniformBuffers(), GetScene()));
+    ray_tracing_pipeline_.reset(new RayTracingPipeline(*device_procedures_,
+                                                       swapChain(),
+                                                       top_as_[0],
+                                                       *accumulation_image_view_,
+                                                       *output_image_view_,
+                                                       uniformBuffers(),
+                                                       getScene()));
 
-	const std::vector<ShaderBindingTable::Entry> rayGenPrograms = { {rayTracingPipeline_->RayGenShaderIndex(), {}} };
-	const std::vector<ShaderBindingTable::Entry> missPrograms = { {rayTracingPipeline_->MissShaderIndex(), {}} };
-	const std::vector<ShaderBindingTable::Entry> hitGroups = { {rayTracingPipeline_->TriangleHitGroupIndex(), {}}, {rayTracingPipeline_->ProceduralHitGroupIndex(), {}} };
+    const std::vector<ShaderBindingTable::Entry> rayGenPrograms = {{ray_tracing_pipeline_->rayGenShaderIndex(), {}}};
+    const std::vector<ShaderBindingTable::Entry> missPrograms = {{ray_tracing_pipeline_->missShaderIndex(), {}}};
+    const std::vector<ShaderBindingTable::Entry> hitGroups =
+        {{ray_tracing_pipeline_->triangleHitGroupIndex(), {}}, {ray_tracing_pipeline_->proceduralHitGroupIndex(), {}}};
 
-	shaderBindingTable_.reset(new ShaderBindingTable(*deviceProcedures_, *rayTracingPipeline_, *properties_, rayGenPrograms, missPrograms, hitGroups));
+    shader_binding_table_.reset(new ShaderBindingTable(*device_procedures_,
+                                                       *ray_tracing_pipeline_,
+                                                       *properties_,
+                                                       rayGenPrograms,
+                                                       missPrograms,
+                                                       hitGroups));
 }
 
-void Application::DeleteSwapChain()
-{
-	shaderBindingTable_.reset();
-	rayTracingPipeline_.reset();
-	outputImageView_.reset();
-	outputImage_.reset();
-	outputImageMemory_.reset();
-	accumulationImageView_.reset();
-	accumulationImage_.reset();
-	accumulationImageMemory_.reset();
+void Application::deleteSwapChain() {
+    shader_binding_table_.reset();
+    ray_tracing_pipeline_.reset();
+    output_image_view_.reset();
+    output_image_.reset();
+    output_image_memory_.reset();
+    accumulation_image_view_.reset();
+    accumulation_image_.reset();
+    accumulation_image_memory_.reset();
 
-	Vulkan::Application::DeleteSwapChain();
+    vulkan::Application::deleteSwapChain();
 }
 
-void Application::Render(VkCommandBuffer commandBuffer, const uint32_t imageIndex)
-{
-	const auto extent = SwapChain().Extent();
+void Application::render(VkCommandBuffer command_buffer, uint32_t image_index) {
+    const auto extent = swapChain().extent();
 
-	VkDescriptorSet descriptorSets[] = { rayTracingPipeline_->DescriptorSet(imageIndex) };
+    VkDescriptorSet descriptorSets[] = {ray_tracing_pipeline_->descriptorSet(image_index)};
 
-	VkImageSubresourceRange subresourceRange;
-	subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	subresourceRange.baseMipLevel = 0;
-	subresourceRange.levelCount = 1;
-	subresourceRange.baseArrayLayer = 0;
-	subresourceRange.layerCount = 1;
+    VkImageSubresourceRange subresourceRange;
+    subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    subresourceRange.baseMipLevel = 0;
+    subresourceRange.levelCount = 1;
+    subresourceRange.baseArrayLayer = 0;
+    subresourceRange.layerCount = 1;
 
-	ImageMemoryBarrier::Insert(commandBuffer, accumulationImage_->Handle(), subresourceRange, 0, 
-		VK_ACCESS_SHADER_WRITE_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+    ImageMemoryBarrier::insert(command_buffer, accumulation_image_->Handle(), subresourceRange, 0,
+                               VK_ACCESS_SHADER_WRITE_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 
-	ImageMemoryBarrier::Insert(commandBuffer, outputImage_->Handle(), subresourceRange, 0, 
-		VK_ACCESS_SHADER_WRITE_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+    ImageMemoryBarrier::insert(command_buffer, output_image_->Handle(), subresourceRange, 0,
+                               VK_ACCESS_SHADER_WRITE_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 
-	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV, rayTracingPipeline_->Handle());
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV, rayTracingPipeline_->PipelineLayout().Handle(), 0, 1, descriptorSets, 0, nullptr);
+    vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV, ray_tracing_pipeline_->Handle());
+    vkCmdBindDescriptorSets(command_buffer,
+                            VK_PIPELINE_BIND_POINT_RAY_TRACING_NV,
+                            ray_tracing_pipeline_->pipelineLayout().Handle(),
+                            0,
+                            1,
+                            descriptorSets,
+                            0,
+                            nullptr);
 
-	deviceProcedures_->vkCmdTraceRaysNV(commandBuffer,
-		shaderBindingTable_->Buffer().Handle(), shaderBindingTable_->RayGenOffset(),
-		shaderBindingTable_->Buffer().Handle(), shaderBindingTable_->MissOffset(), shaderBindingTable_->MissEntrySize(),
-		shaderBindingTable_->Buffer().Handle(), shaderBindingTable_->HitGroupOffset(), shaderBindingTable_->HitGroupEntrySize(),
-		nullptr, 0, 0,
-		extent.width, extent.height, 1);
+    device_procedures_->vkCmdTraceRaysNV(command_buffer,
+                                         shader_binding_table_->buffer().Handle(),
+                                         shader_binding_table_->rayGenOffset(),
+                                         shader_binding_table_->buffer().Handle(),
+                                         shader_binding_table_->missOffset(),
+                                         shader_binding_table_->missEntrySize(),
+                                         shader_binding_table_->buffer().Handle(),
+                                         shader_binding_table_->hitGroupOffset(),
+                                         shader_binding_table_->hitGroupEntrySize(),
+                                         nullptr,
+                                         0,
+                                         0,
+                                         extent.width,
+                                         extent.height,
+                                         1);
 
-	ImageMemoryBarrier::Insert(commandBuffer, outputImage_->Handle(), subresourceRange, 
-		VK_ACCESS_SHADER_WRITE_BIT, VK_ACCESS_TRANSFER_READ_BIT, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+    ImageMemoryBarrier::insert(command_buffer,
+                               output_image_->Handle(),
+                               subresourceRange,
+                               VK_ACCESS_SHADER_WRITE_BIT,
+                               VK_ACCESS_TRANSFER_READ_BIT,
+                               VK_IMAGE_LAYOUT_GENERAL,
+                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
-	ImageMemoryBarrier::Insert(commandBuffer, SwapChain().Images()[imageIndex], subresourceRange, 0,
-		VK_ACCESS_TRANSFER_WRITE_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    ImageMemoryBarrier::insert(command_buffer,
+                               swapChain().images()[image_index],
+                               subresourceRange,
+                               0,
+                               VK_ACCESS_TRANSFER_WRITE_BIT,
+                               VK_IMAGE_LAYOUT_UNDEFINED,
+                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-	VkImageCopy copyRegion;
-	copyRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	copyRegion.srcOffset = { 0, 0, 0 };
-	copyRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	copyRegion.dstOffset = { 0, 0, 0 };
-	copyRegion.extent = { extent.width, extent.height, 1 };
+    VkImageCopy copyRegion;
+    copyRegion.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    copyRegion.srcOffset = {0, 0, 0};
+    copyRegion.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    copyRegion.dstOffset = {0, 0, 0};
+    copyRegion.extent = {extent.width, extent.height, 1};
 
-	vkCmdCopyImage(commandBuffer,
-		outputImage_->Handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-		SwapChain().Images()[imageIndex], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		1, &copyRegion);
+    vkCmdCopyImage(command_buffer,
+                   output_image_->Handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                   swapChain().images()[image_index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                   1, &copyRegion);
 
-	ImageMemoryBarrier::Insert(commandBuffer, SwapChain().Images()[imageIndex], subresourceRange, VK_ACCESS_TRANSFER_WRITE_BIT,
-		0, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+    ImageMemoryBarrier::insert(command_buffer,
+                               swapChain().images()[image_index],
+                               subresourceRange,
+                               VK_ACCESS_TRANSFER_WRITE_BIT,
+                               0,
+                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                               VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 }
 
-void Application::CreateBottomLevelStructures(VkCommandBuffer commandBuffer)
-{
-	const auto& scene = GetScene();
-	
-	// Bottom level acceleration structure
-	// Triangles via vertex buffers. Procedurals via AABBs.
-	uint32_t vertexOffset = 0;
-	uint32_t indexOffset = 0;
-	uint32_t aabbOffset = 0;
+void Application::createBottomLevelStructures(VkCommandBuffer command_buffer) {
+    const auto& scene = getScene();
 
-	std::vector<AccelerationStructure::MemoryRequirements> requirements;
+    // Bottom level acceleration structure
+    // Triangles via vertex buffers. Procedurals via AABBs.
+    uint32_t vertexOffset = 0;
+    uint32_t indexOffset = 0;
+    uint32_t aabbOffset = 0;
 
-	for (const auto& model : scene.Models())
-	{
-		const auto vertexCount = static_cast<uint32_t>(model.NumberOfVertices());
-		const auto indexCount = static_cast<uint32_t>(model.NumberOfIndices());
-		const std::vector<VkGeometryNV> geometries =
-		{
-			model.Procedural()
-				? BottomLevelAccelerationStructure::CreateGeometryAabb(scene, aabbOffset, 1, true)
-				: BottomLevelAccelerationStructure::CreateGeometry(scene, vertexOffset, vertexCount, indexOffset, indexCount, true)
-		};
+    std::vector<AccelerationStructure::MemoryRequirements> requirements;
 
-		bottomAs_.emplace_back(*deviceProcedures_, geometries, false);
-		requirements.push_back(bottomAs_.back().GetMemoryRequirements());
+    for (const auto& model : scene.Models()) {
+        const auto vertexCount = static_cast<uint32_t>(model.NumberOfVertices());
+        const auto indexCount = static_cast<uint32_t>(model.NumberOfIndices());
+        const std::vector<VkGeometryNV> geometries =
+            {
+                model.Procedural()
+                ? BottomLevelAccelerationStructure::createGeometryAabb(scene, aabbOffset, 1, true)
+                : BottomLevelAccelerationStructure::createGeometry(scene,
+                                                                   vertexOffset,
+                                                                   vertexCount,
+                                                                   indexOffset,
+                                                                   indexCount,
+                                                                   true)
+            };
 
-		vertexOffset += vertexCount * sizeof(Assets::Vertex);
-		indexOffset += indexCount * sizeof(uint32_t);
-		aabbOffset += sizeof(glm::vec3) * 2;
-	}
+        bottom_as_.emplace_back(*device_procedures_, geometries, false);
+        requirements.push_back(bottom_as_.back().getMemoryRequirements());
 
-	// Allocate the structure memory.
-	const auto total = GetTotalRequirements(requirements);
+        vertexOffset += vertexCount * sizeof(assets::Vertex);
+        indexOffset += indexCount * sizeof(uint32_t);
+        aabbOffset += sizeof(glm::vec3) * 2;
+    }
 
-	bottomBuffer_.reset(new Buffer(Device(), total.Result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV));
-	bottomBufferMemory_.reset(new DeviceMemory(bottomBuffer_->AllocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)));
+    // Allocate the structure memory.
+    const auto total = GetTotalRequirements(requirements);
 
-	bottomScratchBuffer_.reset(new Buffer(Device(), total.Build.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV));
-	bottomScratchBufferMemory_.reset(new DeviceMemory(bottomScratchBuffer_->AllocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)));
+    bottom_buffer_.reset(new Buffer(device(), total.Result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV));
+    bottom_buffer_memory_.reset(new DeviceMemory(bottom_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)));
 
-	// Generate the structures.
-	VkDeviceSize resultOffset = 0;
-	VkDeviceSize scratchOffset = 0;
+    bottom_scratch_buffer_.reset(new Buffer(device(), total.Build.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV));
+    bottom_scratch_buffer_memory_.reset(new DeviceMemory(bottom_scratch_buffer_->allocateMemory(
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)));
 
-	for (size_t i = 0; i != bottomAs_.size(); ++i)
-	{
-		bottomAs_[i].Generate(commandBuffer, *bottomScratchBuffer_, scratchOffset, *bottomBufferMemory_, resultOffset, false);
-		resultOffset += requirements[i].Result.size;
-		scratchOffset += requirements[i].Build.size;
-	}
+    // Generate the structures.
+    VkDeviceSize resultOffset = 0;
+    VkDeviceSize scratchOffset = 0;
+
+    for (size_t i = 0; i != bottom_as_.size(); ++i) {
+        bottom_as_[i].generate(command_buffer,
+                               *bottom_scratch_buffer_,
+                               scratchOffset,
+                               *bottom_buffer_memory_,
+                               resultOffset,
+                               false);
+        resultOffset += requirements[i].Result.size;
+        scratchOffset += requirements[i].Build.size;
+    }
 }
 
-void Application::CreateTopLevelStructures(VkCommandBuffer commandBuffer)
-{
-	const auto& scene = GetScene();
+void Application::createTopLevelStructures(VkCommandBuffer command_buffer) {
+    const auto& scene = getScene();
 
-	// Top level acceleration structure
-	std::vector<VkGeometryInstance> geometryInstances;
-	std::vector<AccelerationStructure::MemoryRequirements> requirements;
+    // Top level acceleration structure
+    std::vector<VkGeometryInstance> geometryInstances;
+    std::vector<AccelerationStructure::MemoryRequirements> requirements;
 
-	// Hit group 0: triangles
-	// Hit group 1: procedurals
-	uint32_t instanceId = 0;
+    // Hit group 0: triangles
+    // Hit group 1: procedurals
+    uint32_t instanceId = 0;
 
-	for (const auto& model : scene.Models())
-	{
-		geometryInstances.push_back(TopLevelAccelerationStructure::CreateGeometryInstance(
-			bottomAs_[instanceId], glm::mat4(1), instanceId, model.Procedural() ? 1 : 0));
-		instanceId++;
-	}
+    for (const auto& model : scene.Models()) {
+        geometryInstances.push_back(TopLevelAccelerationStructure::createGeometryInstance(
+            bottom_as_[instanceId], glm::mat4(1), instanceId, model.Procedural() ? 1 : 0));
+        instanceId++;
+    }
 
-	topAs_.emplace_back(*deviceProcedures_, geometryInstances, false);
-	requirements.push_back(topAs_.back().GetMemoryRequirements());
+    top_as_.emplace_back(*device_procedures_, geometryInstances, false);
+    requirements.push_back(top_as_.back().getMemoryRequirements());
 
-	// Allocate the structure memory.
-	const auto total = GetTotalRequirements(requirements);
+    // Allocate the structure memory.
+    const auto total = GetTotalRequirements(requirements);
 
-	topBuffer_.reset(new Buffer(Device(), total.Result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV));
-	topBufferMemory_.reset(new DeviceMemory(topBuffer_->AllocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)));
+    top_buffer_.reset(new Buffer(device(), total.Result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV));
+    top_buffer_memory_.reset(new DeviceMemory(top_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)));
 
-	topScratchBuffer_.reset(new Buffer(Device(), total.Build.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV));
-	topScratchBufferMemory_.reset(new DeviceMemory(topScratchBuffer_->AllocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)));
+    top_scratch_buffer_.reset(new Buffer(device(), total.Build.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV));
+    top_scratch_buffer_memory_.reset(new DeviceMemory(top_scratch_buffer_->allocateMemory(
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)));
 
-	const size_t instancesBufferSize = sizeof(VkGeometryInstance) * geometryInstances.size();
-	instancesBuffer_.reset(new Buffer(Device(), instancesBufferSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV));
-	instancesBufferMemory_.reset(new DeviceMemory(instancesBuffer_->AllocateMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)));
+    const size_t instancesBufferSize = sizeof(VkGeometryInstance) * geometryInstances.size();
+    instances_buffer_.reset(new Buffer(device(), instancesBufferSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV));
+    instances_buffer_memory_.reset(new DeviceMemory(instances_buffer_->allocateMemory(
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)));
 
-	// Generate the structures.
-	topAs_[0].Generate(commandBuffer, *topScratchBuffer_, 0, *topBufferMemory_, 0, *instancesBuffer_, *instancesBufferMemory_, 0, false);
+    // Generate the structures.
+    top_as_[0].generate(command_buffer,
+                        *top_scratch_buffer_,
+                        0,
+                        *top_buffer_memory_,
+                        0,
+                        *instances_buffer_,
+                        *instances_buffer_memory_,
+                        0,
+                        false);
 }
 
-void Application::CreateOutputImage()
-{
-	const auto extent = SwapChain().Extent();
-	const auto format = SwapChain().Format();
-	const auto tiling = VK_IMAGE_TILING_OPTIMAL;
+void Application::createOutputImage() {
+    const auto extent = swapChain().extent();
+    const auto format = swapChain().format();
+    const auto tiling = VK_IMAGE_TILING_OPTIMAL;
 
-	accumulationImage_.reset(new Image(Device(), extent, VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_STORAGE_BIT));
-	accumulationImageMemory_.reset(new DeviceMemory(accumulationImage_->AllocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)));
-	accumulationImageView_.reset(new ImageView(Device(), accumulationImage_->Handle(), VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_ASPECT_COLOR_BIT));
+    accumulation_image_.reset(new Image(device(),
+                                        extent,
+                                        VK_FORMAT_R32G32B32A32_SFLOAT,
+                                        VK_IMAGE_TILING_OPTIMAL,
+                                        VK_IMAGE_USAGE_STORAGE_BIT));
+    accumulation_image_memory_.reset(new DeviceMemory(accumulation_image_->allocateMemory(
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)));
+    accumulation_image_view_.reset(new ImageView(device(),
+                                                 accumulation_image_->Handle(),
+                                                 VK_FORMAT_R32G32B32A32_SFLOAT,
+                                                 VK_IMAGE_ASPECT_COLOR_BIT));
 
-	outputImage_.reset(new Image(Device(), extent, format, tiling, VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT));
-	outputImageMemory_.reset(new DeviceMemory(outputImage_->AllocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)));
-	outputImageView_.reset(new ImageView(Device(), outputImage_->Handle(), format, VK_IMAGE_ASPECT_COLOR_BIT));
+    output_image_.reset(new Image(device(),
+                                  extent,
+                                  format,
+                                  tiling,
+                                  VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT));
+    output_image_memory_.reset(new DeviceMemory(output_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)));
+    output_image_view_.reset(new ImageView(device(), output_image_->Handle(), format, VK_IMAGE_ASPECT_COLOR_BIT));
 }
 
 }

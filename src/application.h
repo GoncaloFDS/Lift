@@ -50,7 +50,7 @@ private:
     void onEvent(Event& e);
     auto onWindowClose(WindowCloseEvent& e) -> bool;
     auto onWindowResize(WindowResizeEvent& e) -> bool;
-    auto onWindowMinimize(WindowMinimizeEvent& e) -> bool ;
+    auto onWindowMinimize(WindowMinimizeEvent& e) -> bool;
     auto onMouseMove(MouseMovedEvent& e) -> bool;
     auto onMouseScroll(MouseScrolledEvent& e) -> bool;
     auto onKeyPress(KeyPressedEvent& e) -> bool;

@@ -17,7 +17,7 @@ enum class CudaOutputBufferType {
 
 template<typename PIXEL_FORMAT>
 class CudaOutputBuffer {
- public:
+public:
     CudaOutputBuffer(CudaOutputBufferType type, int32_t width, int32_t height);
     ~CudaOutputBuffer();
 
@@ -37,7 +37,7 @@ class CudaOutputBuffer {
     auto getPixelBufferObject() -> GLuint;
     auto getHostPointer() -> PIXEL_FORMAT*;
 
- private:
+private:
     void makeCurrent() { CUDA_CHECK(cudaSetDevice(device_idx_)); }
 
     CudaOutputBufferType m_type;
@@ -185,7 +185,7 @@ void CudaOutputBuffer<PIXEL_FORMAT>::unmap() {
 template<typename PIXEL_FORMAT>
 auto CudaOutputBuffer<PIXEL_FORMAT>::getPixelBufferObject() -> GLuint {
     if (pbo_ == 0u)
-    GL_CHECK(glGenBuffers(1, &pbo_));
+        GL_CHECK(glGenBuffers(1, &pbo_));
 
     const size_t buffer_size = width_ * height_ * sizeof(PIXEL_FORMAT);
 

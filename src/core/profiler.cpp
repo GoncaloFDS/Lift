@@ -8,7 +8,7 @@ Profiler::Profiler(Id id) : duration_(0), id_(id) {
     start_ = std::chrono::high_resolution_clock::now();
 }
 
-Profiler::Profiler(std::string  message) : duration_(0), message_(std::move(message)), id_(Id::Other) {
+Profiler::Profiler(std::string message) : duration_(0), message_(std::move(message)), id_(Id::Other) {
     start_ = std::chrono::high_resolution_clock::now();
 }
 
@@ -17,7 +17,7 @@ Profiler::~Profiler() {
     duration_ = end_ - start_;
 
     const auto s = duration_.count();
-    if(!message_.empty()){
+    if (!message_.empty()) {
         LF_WARN("{0} -> {1}", message_, s);
     }
     s_map[id_] = s;

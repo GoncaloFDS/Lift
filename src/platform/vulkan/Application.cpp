@@ -1,276 +1,269 @@
 #include "Application.h"
-#include "Buffer.h"
-#include "CommandPool.h"
-#include "CommandBuffers.h"
-#include "DebugUtilsMessenger.h"
-#include "DepthBuffer.h"
-#include "Device.h"
-#include "Fence.h"
-#include "FrameBuffer.h"
-#include "GraphicsPipeline.h"
-#include "Instance.h"
-#include "PipelineLayout.h"
-#include "RenderPass.h"
-#include "Semaphore.h"
-#include "Surface.h"
-#include "SwapChain.h"
-#include "Window.h"
-#include "assets/Model.hpp"
-#include "assets/Scene.hpp"
-#include "assets/UniformBuffer.hpp"
+#include "buffer.h"
+#include "command_pool.h"
+#include "command_buffers.h"
+#include "depth_buffer.h"
+#include "device.h"
+#include "fence.h"
+#include "frame_buffer.h"
+#include "graphics_pipeline.h"
+#include "instance.h"
+#include "pipeline_layout.h"
+#include "render_pass.h"
+#include "semaphore.h"
+#include "surface.h"
+#include "swap_chain.h"
+#include "window.h"
+#include "assets/model.h"
+#include "assets/scene.h"
+#include "assets/uniform_buffer.h"
 #include <array>
 #include <memory>
 #include <core.h>
 
-namespace Vulkan {
+namespace vulkan {
 
-Application::Application(const WindowConfig& windowConfig, const bool vsync, const bool enableValidationLayers) :
-	vsync_(vsync)
-{
-	const auto validationLayers = enableValidationLayers
-		? std::vector<const char*>{"VK_LAYER_KHRONOS_validation"}
-		: std::vector<const char*>();
+Application::Application(const WindowProperties& window_properties,
+                         const bool vsync,
+                         const bool enable_validation_layers) :
+    vsync_(vsync) {
+    const auto validation_layers = enable_validation_layers
+                                   ? std::vector<const char*>{"VK_LAYER_KHRONOS_validation"}
+                                   : std::vector<const char*>();
 
-	window_ = std::make_unique<class Window>(windowConfig);
-	instance_ = std::make_unique<Instance>(*window_, validationLayers);
-	debugUtilsMessenger_.reset(enableValidationLayers ? new DebugUtilsMessenger(*instance_, VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) : nullptr);
-	surface_ = std::make_unique<Surface>(*instance_);
+    window_ = std::make_unique<class Window>(window_properties);
+    instance_ = std::make_unique<Instance>(*window_, validation_layers);
+    surface_ = std::make_unique<Surface>(*instance_);
 }
 
-Application::~Application()
-{
-	Application::DeleteSwapChain();
+Application::~Application() {
+    Application::deleteSwapChain();
 
-	commandPool_.reset();
-	device_.reset();
-	surface_.reset();
-	debugUtilsMessenger_.reset();
-	instance_.reset();
-	window_.reset();
+    command_pool_.reset();
+    device_.reset();
+    surface_.reset();
+    instance_.reset();
+    window_.reset();
 }
 
-const std::vector<VkExtensionProperties>& Application::Extensions() const
-{
-	return instance_->Extensions();
+const std::vector<VkExtensionProperties>& Application::extensions() const {
+    return instance_->extensions();
 }
 
-const std::vector<VkPhysicalDevice>& Application::PhysicalDevices() const
-{
-	return instance_->PhysicalDevices();
+const std::vector<VkPhysicalDevice>& Application::physicalDevices() const {
+    return instance_->physicalDevices();
 }
 
-void Application::SetPhysicalDevice(VkPhysicalDevice physicalDevice)
-{
-	if (device_)
-	{
-		LF_ASSERT(std::logic_error("physical device has already been set"));
-	}
+void Application::setPhysicalDevice(VkPhysicalDevice physical_device) {
+    if (device_) {
+        LF_ASSERT(std::logic_error("physical device has already been set"));
+    }
 
-	device_ = std::make_unique<class Device>(physicalDevice, *surface_);
-	commandPool_ = std::make_unique<class CommandPool>(*device_, device_->GraphicsFamilyIndex(), true);
+    device_ = std::make_unique<class Device>(physical_device, *surface_);
+    command_pool_ = std::make_unique<class CommandPool>(*device_, device_->graphicsFamilyIndex(), true);
 
-	OnDeviceSet();
+    onDeviceSet();
 
-	// Create swap chain and command buffers.
-	CreateSwapChain();
+    // Create swap chain and command buffers.
+    createSwapChain();
 }
 
-void Application::Run()
-{
-	if (!device_)
-	{
-		LF_ASSERT(std::logic_error("physical device has not been set"));
-	}
+void Application::run() {
+    if (!device_) {
+        LF_ASSERT(std::logic_error("physical device has not been set"));
+    }
 
-	currentFrame_ = 0;
+    current_frame_ = 0;
 
-	window_->DrawFrame = [this]() { DrawFrame(); };
-	window_->OnKey = [this](int key, int scancode, int action, int mods) { OnKey(key, scancode, action, mods); };
-	window_->OnCursorPosition = [this](double xpos, double ypos) { OnCursorPosition(xpos, ypos); };
-	window_->OnMouseButton = [this](int button, int action, int mods) { OnMouseButton(button, action, mods); };
-	window_->Run();
-	device_->WaitIdle();
+    window_->drawFrame = [this]() { drawFrame(); };
+    window_->onKey = [this](int key, int scan_code, int action, int mods) { onKey(key, scan_code, action, mods); };
+    window_->onCursorPosition = [this](double xpos, double ypos) { onCursorPosition(xpos, ypos); };
+    window_->onMouseButton = [this](int button, int action, int mods) { onMouseButton(button, action, mods); };
+    window_->run();
+    device_->waitIdle();
 }
 
-void Application::OnDeviceSet()
-{
+void Application::onDeviceSet() {
 }
 
-void Application::CreateSwapChain()
-{
-	// Wait until the window is visible.
-	while (window_->IsMinimized())
-	{
-		window_->WaitForEvents();
-	}
+void Application::createSwapChain() {
+    // Wait until the window is visible.
+    while (window_->isMinimized()) {
+        window_->waitForEvents();
+    }
 
-	swapChain_.reset(new class SwapChain(*device_, vsync_));
-	depthBuffer_.reset(new class DepthBuffer(*commandPool_, swapChain_->Extent()));
+    swap_chain_ = std::make_unique<class SwapChain>(*device_, vsync_);
+    depth_buffer_ = std::make_unique<class DepthBuffer>(*command_pool_, swap_chain_->extent());
 
-	for (size_t i = 0; i != swapChain_->ImageViews().size(); ++i)
-	{
-		imageAvailableSemaphores_.emplace_back(*device_);
-		renderFinishedSemaphores_.emplace_back(*device_);
-		inFlightFences_.emplace_back(*device_, true);
-		uniformBuffers_.emplace_back(*device_);
-	}
+    for (size_t i = 0; i != swap_chain_->imageViews().size(); ++i) {
+        image_available_semaphores_.emplace_back(*device_);
+        render_finished_semaphores_.emplace_back(*device_);
+        in_flight_fences_.emplace_back(*device_, true);
+        uniform_buffers_.emplace_back(*device_);
+    }
 
-	graphicsPipeline_.reset(new class GraphicsPipeline(*swapChain_, *depthBuffer_, uniformBuffers_, GetScene(), isWireFrame_));
+    graphics_pipeline_ = std::make_unique<class GraphicsPipeline>(*swap_chain_,
+                                                                  *depth_buffer_,
+                                                                  uniform_buffers_,
+                                                                  getScene(),
+                                                                  is_wire_frame_);
 
-	for (const auto& imageView : swapChain_->ImageViews())
-	{
-		swapChainFramebuffers_.emplace_back(*imageView, graphicsPipeline_->RenderPass());
-	}
+    for (const auto& imageView : swap_chain_->imageViews()) {
+        swap_chain_framebuffers_.emplace_back(*imageView, graphics_pipeline_->renderPass());
+    }
 
-	commandBuffers_.reset(new CommandBuffers(*commandPool_, static_cast<uint32_t>(swapChainFramebuffers_.size())));
+    command_buffers_ =
+        std::make_unique<CommandBuffers>(*command_pool_, static_cast<uint32_t>(swap_chain_framebuffers_.size()));
 }
 
-void Application::DeleteSwapChain()
-{
-	commandBuffers_.reset();
-	swapChainFramebuffers_.clear();
-	graphicsPipeline_.reset();
-	uniformBuffers_.clear();
-	inFlightFences_.clear();
-	renderFinishedSemaphores_.clear();
-	imageAvailableSemaphores_.clear();
-	depthBuffer_.reset();
-	swapChain_.reset();
+void Application::deleteSwapChain() {
+    command_buffers_.reset();
+    swap_chain_framebuffers_.clear();
+    graphics_pipeline_.reset();
+    uniform_buffers_.clear();
+    in_flight_fences_.clear();
+    render_finished_semaphores_.clear();
+    image_available_semaphores_.clear();
+    depth_buffer_.reset();
+    swap_chain_.reset();
 }
 
-void Application::DrawFrame()
-{
-	const auto noTimeout = std::numeric_limits<uint64_t>::max();
+void Application::drawFrame() {
+    const auto no_timeout = std::numeric_limits<uint64_t>::max();
 
-	auto& inFlightFence = inFlightFences_[currentFrame_];
-	const auto imageAvailableSemaphore = imageAvailableSemaphores_[currentFrame_].Handle();
-	const auto renderFinishedSemaphore = renderFinishedSemaphores_[currentFrame_].Handle();
+    auto& in_flight_fence = in_flight_fences_[current_frame_];
+    const auto image_available_semaphore = image_available_semaphores_[current_frame_].Handle();
+    const auto render_finished_semaphore = render_finished_semaphores_[current_frame_].Handle();
 
-	inFlightFence.Wait(noTimeout);
+    in_flight_fence.wait(no_timeout);
 
-	uint32_t imageIndex;
-	auto result = vkAcquireNextImageKHR(device_->Handle(), swapChain_->Handle(), noTimeout, imageAvailableSemaphore, nullptr, &imageIndex);
+    uint32_t image_index;
+    auto result = vkAcquireNextImageKHR(device_->Handle(),
+                                        swap_chain_->Handle(),
+                                        no_timeout,
+                                        image_available_semaphore,
+                                        nullptr,
+                                        &image_index);
 
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || isWireFrame_ != graphicsPipeline_->IsWireFrame())
-	{
-		RecreateSwapChain();
-		return;
-	}
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || is_wire_frame_ != graphics_pipeline_->isWireFrame()) {
+        recreateSwapChain();
+        return;
+    }
 
-	if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-	{
-		LF_ASSERT(std::runtime_error(std::string("failed to acquire next image (") + ToString(result) + ")"));
-	}
+    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        LF_ASSERT(std::runtime_error(std::string("failed to acquire next image (") + toString(result) + ")"));
+    }
 
-	const auto commandBuffer = commandBuffers_->Begin(imageIndex);
-	Render(commandBuffer, imageIndex);
-	commandBuffers_->End(imageIndex);
+    const auto command_buffer = command_buffers_->begin(image_index);
+    render(command_buffer, image_index);
+    command_buffers_->end(image_index);
 
-	UpdateUniformBuffer(imageIndex);
+    updateUniformBuffer(image_index);
 
-	VkSubmitInfo submitInfo = {};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    VkSubmitInfo submit_info = {};
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-	VkCommandBuffer commandBuffers[]{ commandBuffer };
-	VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
-	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-	VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+    VkCommandBuffer command_buffers[]{command_buffer};
+    VkSemaphore wait_semaphores[] = {image_available_semaphore};
+    VkPipelineStageFlags wait_stages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    VkSemaphore signal_semaphores[] = {render_finished_semaphore};
 
-	submitInfo.waitSemaphoreCount = 1;
-	submitInfo.pWaitSemaphores = waitSemaphores;
-	submitInfo.pWaitDstStageMask = waitStages;
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = commandBuffers;
-	submitInfo.signalSemaphoreCount = 1;
-	submitInfo.pSignalSemaphores = signalSemaphores;
+    submit_info.waitSemaphoreCount = 1;
+    submit_info.pWaitSemaphores = wait_semaphores;
+    submit_info.pWaitDstStageMask = wait_stages;
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = command_buffers;
+    submit_info.signalSemaphoreCount = 1;
+    submit_info.pSignalSemaphores = signal_semaphores;
 
-	inFlightFence.Reset();
+    in_flight_fence.reset();
 
-	Check(vkQueueSubmit(device_->GraphicsQueue(), 1, &submitInfo, inFlightFence.Handle()),
-		"submit draw command buffer");
+    vulkanCheck(vkQueueSubmit(device_->graphicsQueue(), 1, &submit_info, in_flight_fence.handle()),
+                "submit draw command buffer");
 
-	VkSwapchainKHR swapChains[] = { swapChain_->Handle() };
-	VkPresentInfoKHR presentInfo = {};
-	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-	presentInfo.waitSemaphoreCount = 1;
-	presentInfo.pWaitSemaphores = signalSemaphores;
-	presentInfo.swapchainCount = 1;
-	presentInfo.pSwapchains = swapChains;
-	presentInfo.pImageIndices = &imageIndex;
-	presentInfo.pResults = nullptr; // Optional
+    VkSwapchainKHR swap_chains[] = {swap_chain_->Handle()};
+    VkPresentInfoKHR present_info = {};
+    present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    present_info.waitSemaphoreCount = 1;
+    present_info.pWaitSemaphores = signal_semaphores;
+    present_info.swapchainCount = 1;
+    present_info.pSwapchains = swap_chains;
+    present_info.pImageIndices = &image_index;
+    present_info.pResults = nullptr; // Optional
 
-	result = vkQueuePresentKHR(device_->PresentQueue(), &presentInfo);
+    result = vkQueuePresentKHR(device_->presentQueue(), &present_info);
 
-	if (result == VK_ERROR_OUT_OF_DATE_KHR)
-	{
-		RecreateSwapChain();
-		return;
-	}
-	
-	if (result != VK_SUCCESS)
-	{
-		LF_ASSERT(std::runtime_error(std::string("failed to present next image (") + ToString(result) + ")"));
-	}
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        recreateSwapChain();
+        return;
+    }
 
-	currentFrame_ = (currentFrame_ + 1) % inFlightFences_.size();
+    if (result != VK_SUCCESS) {
+        LF_ASSERT(std::runtime_error(std::string("failed to present next image (") + toString(result) + ")"));
+    }
+
+    current_frame_ = (current_frame_ + 1) % in_flight_fences_.size();
 }
 
-void Application::Render(VkCommandBuffer commandBuffer, const uint32_t imageIndex)
-{
-	std::array<VkClearValue, 2> clearValues = {};
-	clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-	clearValues[1].depthStencil = { 1.0f, 0 };
+void Application::render(VkCommandBuffer command_buffer, uint32_t image_index) {
+    std::array<VkClearValue, 2> clear_values = {};
+    clear_values[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
+    clear_values[1].depthStencil = {1.0f, 0};
 
-	VkRenderPassBeginInfo renderPassInfo = {};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = graphicsPipeline_->RenderPass().Handle();
-	renderPassInfo.framebuffer = swapChainFramebuffers_[imageIndex].Handle();
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = swapChain_->Extent();
-	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues = clearValues.data();
+    VkRenderPassBeginInfo render_pass_info = {};
+    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    render_pass_info.renderPass = graphics_pipeline_->renderPass().Handle();
+    render_pass_info.framebuffer = swap_chain_framebuffers_[image_index].Handle();
+    render_pass_info.renderArea.offset = {0, 0};
+    render_pass_info.renderArea.extent = swap_chain_->extent();
+    render_pass_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
+    render_pass_info.pClearValues = clear_values.data();
 
-	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	{
-		const auto& scene = GetScene();
+    vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
+    {
+        const auto& scene = getScene();
 
-		VkDescriptorSet descriptorSets[] = { graphicsPipeline_->DescriptorSet(imageIndex) };
-		VkBuffer vertexBuffers[] = { scene.VertexBuffer().Handle() };
-		const VkBuffer indexBuffer = scene.IndexBuffer().Handle();
-		VkDeviceSize offsets[] = { 0 };
+        VkDescriptorSet descriptor_sets[] = {graphics_pipeline_->descriptorSet(image_index)};
+        VkBuffer vertex_buffers[] = {scene.VertexBuffer().Handle()};
+        const VkBuffer index_buffer = scene.IndexBuffer().Handle();
+        VkDeviceSize offsets[] = {0};
 
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline_->Handle());
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline_->PipelineLayout().Handle(), 0, 1, descriptorSets, 0, nullptr);
-		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-		vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_->Handle());
+        vkCmdBindDescriptorSets(command_buffer,
+                                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                graphics_pipeline_->pipelineLayout().Handle(),
+                                0,
+                                1,
+                                descriptor_sets,
+                                0,
+                                nullptr);
+        vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
+        vkCmdBindIndexBuffer(command_buffer, index_buffer, 0, VK_INDEX_TYPE_UINT32);
 
-		uint32_t vertexOffset = 0;
-		uint32_t indexOffset = 0;
+        uint32_t vertex_offset = 0;
+        uint32_t index_offset = 0;
 
-		for (const auto& model : scene.Models())
-		{
-			const auto vertexCount = static_cast<uint32_t>(model.NumberOfVertices());
-			const auto indexCount = static_cast<uint32_t>(model.NumberOfIndices());
+        for (const auto& model : scene.Models()) {
+            const auto vertex_count = static_cast<uint32_t>(model.NumberOfVertices());
+            const auto index_count = static_cast<uint32_t>(model.NumberOfIndices());
 
-			vkCmdDrawIndexed(commandBuffer, indexCount, 1, indexOffset, vertexOffset, 0);
+            vkCmdDrawIndexed(command_buffer, index_count, 1, index_offset, vertex_offset, 0);
 
-			vertexOffset += vertexCount;
-			indexOffset += indexCount;
-		}
-	}
-	vkCmdEndRenderPass(commandBuffer);
+            vertex_offset += vertex_count;
+            index_offset += index_count;
+        }
+    }
+    vkCmdEndRenderPass(command_buffer);
 }
 
-void Application::UpdateUniformBuffer(const uint32_t imageIndex)
-{
-	uniformBuffers_[imageIndex].SetValue(GetUniformBufferObject(swapChain_->Extent()));
+void Application::updateUniformBuffer(const uint32_t image_index) {
+    uniform_buffers_[image_index].SetValue(getUniformBufferObject(swap_chain_->extent()));
 }
 
-void Application::RecreateSwapChain()
-{
-	device_->WaitIdle();
-	DeleteSwapChain();
-	CreateSwapChain();
+void Application::recreateSwapChain() {
+    device_->waitIdle();
+    deleteSwapChain();
+    createSwapChain();
 }
 
 }

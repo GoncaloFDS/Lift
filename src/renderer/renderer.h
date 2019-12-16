@@ -11,7 +11,7 @@ class Scene;
 class Window;
 
 class Renderer {
- public:
+public:
     void init(CudaOutputBufferType type, const std::shared_ptr<Window>& window);
 
     void initOptixContext(const Scene& scene);
@@ -26,18 +26,18 @@ class Renderer {
 
     void updateLaunchParameters(Scene scene);
 
-	void setClearColor(const vec3& color);
+    void setClearColor(const vec3& color);
     auto clearColor() -> vec3;
     void resetFrame();
- private:
+private:
     void createOutputBuffer(CudaOutputBufferType type, ivec2 frame_size);
     void resizeOutputBuffer(int32_t width, int32_t height);
     void resizeAccumulationButter(int32_t width, int32_t height);
 
 private:
-	OptixContext optix_context_;
-	std::unique_ptr<OpenGLContext> graphics_context_;
-	std::unique_ptr<CudaOutputBuffer<uchar4>> output_buffer_;
+    OptixContext optix_context_;
+    std::unique_ptr<OpenGLContext> graphics_context_;
+    std::unique_ptr<CudaOutputBuffer<uchar4>> output_buffer_;
     LaunchParameters launch_parameters_;
     LaunchParameters* d_params_;
 

@@ -30,18 +30,18 @@ void lift::Application::run() {
     Scene scene;
 
     scene.loadFromFile("res/models/Sponza/glTF/Sponza.gltf");
-	//scene.loadFromFile("res/models/Barcelone/pavillon_barcelone_v1.2.gltf");
-	//scene.loadFromFile("res/models/cube.glb");
+    //scene.loadFromFile("res/models/Barcelone/pavillon_barcelone_v1.2.gltf");
+    //scene.loadFromFile("res/models/cube.glb");
 
-	renderer_.init(CudaOutputBufferType::GL_INTEROP, window_);
-	renderer_.initOptixContext(scene);
+    renderer_.init(CudaOutputBufferType::GL_INTEROP, window_);
+    renderer_.initOptixContext(scene);
 
-	scene.calculateAabb();
+    scene.calculateAabb();
 
-	camera_ = scene.camera();
-	camera_->setAspectRatio(window_->aspectRatio());
+    camera_ = scene.camera();
+    camera_->setAspectRatio(window_->aspectRatio());
 
-	hardcodeSceneEntities(scene);
+    hardcodeSceneEntities(scene);
 
     initUiElements();
     while (is_running_) {
@@ -202,11 +202,11 @@ auto lift::Application::onKeyRelease(lift::KeyReleasedEvent& e) -> bool {
 
 void lift::Application::hardcodeSceneEntities(lift::Scene& scene) {
     Light light1;
-	light1.position = {0.0f, 8, 0.0f};
-	light1.v1 = {1.0f, 0.0f, 0.0f};
-	light1.v2 = {0.0f, 0.0f, 1.0f};
-	light1.normal = normalize(cross(light1.v1, light1.v2));
-	light1.emission = {40.0f, 40.0f, 40.0f};
+    light1.position = {0.0f, 8, 0.0f};
+    light1.v1 = {1.0f, 0.0f, 0.0f};
+    light1.v2 = {0.0f, 0.0f, 1.0f};
+    light1.normal = normalize(cross(light1.v1, light1.v2));
+    light1.emission = {40.0f, 40.0f, 40.0f};
     scene.addLight(light1);
 
     renderer_.allocLights(scene);

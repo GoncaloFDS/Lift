@@ -71,23 +71,17 @@ void lift::Camera::zoom(const float amount) {
 
 void lift::Camera::setMoveDirection(enum Direction direction, float amount) {
     switch (direction) {
-        case Direction::UP:
-            move_dir_ += vec3(0.0f, 1.0f, 0.0f) * amount;
+        case Direction::UP:move_dir_ += vec3(0.0f, 1.0f, 0.0f) * amount;
             break;
-        case Direction::DOWN:
-            move_dir_ -= vec3(0.0f, 1.0f, 0.0f) * amount;
+        case Direction::DOWN:move_dir_ -= vec3(0.0f, 1.0f, 0.0f) * amount;
             break;
-        case Direction::RIGHT:
-            move_dir_ += vec3(1.0f, 0.0f, 0.0f) * amount;
+        case Direction::RIGHT:move_dir_ += vec3(1.0f, 0.0f, 0.0f) * amount;
             break;
-        case Direction::LEFT:
-            move_dir_ -= vec3(1.0f, 0.0f, 0.0f) * amount;
+        case Direction::LEFT:move_dir_ -= vec3(1.0f, 0.0f, 0.0f) * amount;
             break;
-        case Direction::FORWARD:
-            move_dir_ += vec3(0.0f, 0.0f, 1.0f) * amount;
+        case Direction::FORWARD:move_dir_ += vec3(0.0f, 0.0f, 1.0f) * amount;
             break;
-        case Direction::BACK:
-            move_dir_ -= vec3(0.0f, 0.0f, 1.0f) * amount;
+        case Direction::BACK:move_dir_ -= vec3(0.0f, 0.0f, 1.0f) * amount;
             break;
     }
     move_dir_ = clamp(move_dir_, vec3(-1.0f), vec3(1.0f));

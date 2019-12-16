@@ -1,38 +1,36 @@
-#include "Texture.hpp"
+#include "texture.h"
 #include "Utilities/StbImage.hpp"
 #include <chrono>
 #include <iostream>
 #include <core.h>
 
-namespace Assets {
+namespace assets {
 
-Texture Texture::LoadTexture(const std::string& filename, const Vulkan::SamplerConfig& samplerConfig)
-{
-	std::cout << "Loading '" << filename << "'... " << std::flush;
-	const auto timer = std::chrono::high_resolution_clock::now();
+Texture Texture::LoadTexture(const std::string& filename, const vulkan::SamplerConfig& samplerConfig) {
+    std::cout << "Loading '" << filename << "'... " << std::flush;
+    const auto timer = std::chrono::high_resolution_clock::now();
 
-	// Load the texture in normal host memory.
-	int width, height, channels;
-	const auto pixels = stbi_load(filename.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+    // Load the texture in normal host memory.
+    int width, height, channels;
+    const auto pixels = stbi_load(filename.c_str(), &width, &height, &channels, STBI_rgb_alpha);
 
-	if (!pixels)
-	{
-		LF_ASSERT(std::runtime_error("failed to load texture image '" + filename + "'"));
-	}
+    if (!pixels) {
+        LF_ASSERT(std::runtime_error("failed to load texture image '" + filename + "'"));
+    }
 
-	const auto elapsed = std::chrono::duration<float, std::chrono::seconds::period>(std::chrono::high_resolution_clock::now() - timer).count();
-	std::cout << "(" << width << " x " << height << " x " << channels << ") ";
-	std::cout << elapsed << "s" << std::endl;
+    const auto elapsed = std::chrono::duration<float, std::chrono::seconds::period>(
+        std::chrono::high_resolution_clock::now() - timer).count();
+    std::cout << "(" << width << " x " << height << " x " << channels << ") ";
+    std::cout << elapsed << "s" << std::endl;
 
-	return Texture(width, height, channels, pixels);
+    return Texture(width, height, channels, pixels);
 }
 
 Texture::Texture(int width, int height, int channels, unsigned char* const pixels) :
-	width_(width),
-	height_(height),
-	channels_(channels),
-	pixels_(pixels, stbi_image_free)
-{
+    width_(width),
+    height_(height),
+    channels_(channels),
+    pixels_(pixels, stbi_image_free) {
 }
-	
+
 }

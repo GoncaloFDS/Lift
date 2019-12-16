@@ -3,7 +3,7 @@
 #include <chrono>
 
 class Profiler {
- public:
+public:
     enum class Id {
         SceneUpdate,
         Render,
@@ -19,7 +19,7 @@ class Profiler {
 
     static auto getDuration(Id id) -> float;
 
- private:
+private:
     std::chrono::time_point<std::chrono::steady_clock> start_, end_;
     std::chrono::duration<float> duration_;
     std::string message_;

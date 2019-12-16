@@ -79,13 +79,12 @@ void lift::ImGuiLayer::onImguiRender() {
     }
     ImGui::End();
 
-    if(ImGui::Begin("Editor")){
-       ImGui::ColorEdit3("Clear Color", &app.ui_elements.clear_color.x);
+    if (ImGui::Begin("Editor")) {
+        ImGui::ColorEdit3("Clear Color", &app.ui_elements.clear_color.x);
 
-
-       if(ImGui::Button("Apply")){
-           app.ui_elements.dirty = true;
-       }
+        if (ImGui::Button("Apply")) {
+            app.ui_elements.dirty = true;
+        }
     }
     ImGui::End();
 }

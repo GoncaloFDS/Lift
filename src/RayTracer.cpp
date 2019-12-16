@@ -1,13 +1,13 @@
 #include "RayTracer.h"
-#include "UserInterface.h"
-#include "UserSettings.h"
-#include "assets/Model.hpp"
-#include "assets/Scene.hpp"
-#include "assets/Texture.hpp"
-#include "assets/UniformBuffer.hpp"
-#include "vulkan/Device.h"
-#include "vulkan/SwapChain.h"
-#include "vulkan/Window.h"
+#include "imgui_layer.h"
+#include "user_settings.h"
+#include "assets/model.h"
+#include "assets/scene.h"
+#include "assets/texture.h"
+#include "assets/uniform_buffer.h"
+#include "vulkan/device.h"
+#include "vulkan/swap_chain.h"
+#include "vulkan/window.h"
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -15,279 +15,279 @@
 namespace {
 const bool EnableValidationLayers =
 #ifdef NDEBUG
-	false;
+    false;
 #else
-	true;
+true;
 #endif
 }
 
-RayTracer::RayTracer(const UserSettings& userSettings, const Vulkan::WindowConfig& windowConfig, const bool vsync) :
-	Application(windowConfig, vsync, EnableValidationLayers),
-	userSettings_(userSettings) {
-	CheckFramebufferSize();
+RayTracer::RayTracer(const UserSettings& user_settings,
+                     const vulkan::WindowProperties& window_properties,
+                     const bool vsync)
+    : Application(window_properties, vsync, EnableValidationLayers), user_settings_(user_settings) {
+    checkFramebufferSize();
 }
 
 RayTracer::~RayTracer() {
-	scene_.reset();
+    scene_.reset();
 }
 
-Assets::UniformBufferObject RayTracer::GetUniformBufferObject(const VkExtent2D extent) const {
-	const auto cameraRotX = static_cast<float>(cameraY_ / 300.0);
-	const auto cameraRotY = static_cast<float>(cameraX_ / 300.0);
+assets::UniformBufferObject RayTracer::getUniformBufferObject(VkExtent2D extent) const {
+    const auto camera_rot_x = static_cast<float>(camera_y_ / 300.0);
+    const auto camera_rot_y = static_cast<float>(camera_x_ / 300.0);
 
-	const auto& init = cameraInitialSate_;
-	const auto view = init.ModelView;
-	const auto model =
-		glm::rotate(glm::mat4(1.0f), cameraRotY * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
-			glm::rotate(glm::mat4(1.0f), cameraRotX * glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    const auto& init = camera_initial_sate_;
+    const auto view = init.modelView;
+    const auto model = glm::rotate(glm::mat4(1.0f), camera_rot_y * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+        glm::rotate(glm::mat4(1.0f), camera_rot_x * glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-	Assets::UniformBufferObject ubo = {};
-	ubo.ModelView = view * model;
-	ubo.Projection = glm::perspective(glm::radians(userSettings_.FieldOfView),
-									  extent.width / static_cast<float>(extent.height),
-									  0.1f,
-									  10000.0f);
-	ubo.Projection[1][1] *=
-		-1; // Inverting Y for Vulkan, https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
-	ubo.ModelViewInverse = glm::inverse(ubo.ModelView);
-	ubo.ProjectionInverse = glm::inverse(ubo.Projection);
-	ubo.Aperture = userSettings_.Aperture;
-	ubo.FocusDistance = userSettings_.FocusDistance;
-	ubo.TotalNumberOfSamples = totalNumberOfSamples_;
-	ubo.NumberOfSamples = numberOfSamples_;
-	ubo.NumberOfBounces = userSettings_.NumberOfBounces;
-	ubo.RandomSeed = 1;
-	ubo.GammaCorrection = userSettings_.GammaCorrection;
-	ubo.HasSky = init.HasSky;
+    assets::UniformBufferObject ubo = {};
+    ubo.ModelView = view * model;
+    ubo.Projection = glm::perspective(glm::radians(user_settings_.fieldOfView),
+                                      extent.width / static_cast<float>(extent.height),
+                                      0.1f,
+                                      10000.0f);
+    ubo.Projection[1][1] *=
+        -1; // Inverting Y for vulkan, https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
+    ubo.ModelViewInverse = glm::inverse(ubo.ModelView);
+    ubo.ProjectionInverse = glm::inverse(ubo.Projection);
+    ubo.Aperture = user_settings_.aperture;
+    ubo.FocusDistance = user_settings_.focusDistance;
+    ubo.TotalNumberOfSamples = total_number_of_samples_;
+    ubo.NumberOfSamples = number_of_samples_;
+    ubo.NumberOfBounces = user_settings_.numberOfBounces;
+    ubo.RandomSeed = 1;
+    ubo.GammaCorrection = user_settings_.gammaCorrection;
+    ubo.HasSky = init.hasSky;
 
-	return ubo;
+    return ubo;
 }
 
-void RayTracer::OnDeviceSet() {
-	Application::OnDeviceSet();
+void RayTracer::onDeviceSet() {
+    Application::onDeviceSet();
 
-	LoadScene(userSettings_.SceneIndex);
-	CreateAccelerationStructures();
+    loadScene(user_settings_.sceneIndex);
+    createAccelerationStructures();
 }
 
-void RayTracer::CreateSwapChain() {
-	Application::CreateSwapChain();
+void RayTracer::createSwapChain() {
+    Application::createSwapChain();
 
-	userInterface_ = std::make_unique<UserInterface>(CommandPool(), SwapChain(), DepthBuffer(), userSettings_);
-	resetAccumulation_ = true;
+    user_interface_ = std::make_unique<ImguiLayer>(commandPool(), swapChain(), depthBuffer(), user_settings_);
+    reset_accumulation_ = true;
 
-	CheckFramebufferSize();
+    checkFramebufferSize();
 }
 
-void RayTracer::DeleteSwapChain() {
-	userInterface_.reset();
+void RayTracer::deleteSwapChain() {
+    user_interface_.reset();
 
-	Application::DeleteSwapChain();
+    Application::deleteSwapChain();
 }
 
-void RayTracer::DrawFrame() {
-	// Check if the scene has been changed by the user.
-	if (sceneIndex_ != static_cast<uint32_t>(userSettings_.SceneIndex)) {
-		Device().WaitIdle();
-		DeleteSwapChain();
-		DeleteAccelerationStructures();
-		LoadScene(userSettings_.SceneIndex);
-		CreateAccelerationStructures();
-		CreateSwapChain();
-		return;
-	}
+void RayTracer::drawFrame() {
+    // Check if the scene has been changed by the user.
+    if (scene_index_ != static_cast<uint32_t>(user_settings_.sceneIndex)) {
+        device().waitIdle();
+        deleteSwapChain();
+        deleteAccelerationStructures();
+        loadScene(user_settings_.sceneIndex);
+        createAccelerationStructures();
+        createSwapChain();
+        return;
+    }
 
-	// Check if the accumulation buffer needs to be reset.
-	if (resetAccumulation_ ||
-		userSettings_.RequiresAccumulationReset(previousSettings_) ||
-		!userSettings_.AccumulateRays) {
-		totalNumberOfSamples_ = 0;
-		resetAccumulation_ = false;
-	}
+    // Check if the accumulation buffer needs to be reset.
+    if (reset_accumulation_ ||
+        user_settings_.requiresAccumulationReset(previous_settings_) ||
+        !user_settings_.accumulateRays) {
+        total_number_of_samples_ = 0;
+        reset_accumulation_ = false;
+    }
 
-	previousSettings_ = userSettings_;
+    previous_settings_ = user_settings_;
 
-	// Keep track of our sample count.
-	numberOfSamples_ =
-		glm::clamp(userSettings_.MaxNumberOfSamples - totalNumberOfSamples_, 0u, userSettings_.NumberOfSamples);
-	totalNumberOfSamples_ += numberOfSamples_;
+    // Keep track of our sample count.
+    number_of_samples_ =
+        glm::clamp(user_settings_.maxNumberOfSamples - total_number_of_samples_, 0u, user_settings_.numberOfSamples);
+    total_number_of_samples_ += number_of_samples_;
 
-	Application::DrawFrame();
+    Application::drawFrame();
 }
 
-void RayTracer::Render(VkCommandBuffer commandBuffer, const uint32_t imageIndex) {
-	// Record delta time between calls to Render.
-	const auto prevTime = time_;
-	time_ = Window().Time();
-	const auto deltaTime = time_ - prevTime;
+void RayTracer::render(VkCommandBuffer command_buffer, uint32_t image_index) {
+    // Record delta time between calls to Render.
+    const auto prev_time = time_;
+    time_ = window().time();
+    const auto delta_time = time_ - prev_time;
 
-	// Check the current state of the benchmark, update it for the new frame.
-	CheckAndUpdateBenchmarkState(prevTime);
+    // Check the current state of the benchmark, update it for the new frame.
+    checkAndUpdateBenchmarkState(prev_time);
 
-	// Render the scene
-	Vulkan::RayTracing::Application::Render(commandBuffer, imageIndex);
+    // Render the scene
+    vulkan::ray_tracing::Application::render(command_buffer, image_index);
 
-	// Render the UI
-	Statistics stats = {};
-	stats.FramebufferSize = Window().FramebufferSize();
-	stats.FrameRate = static_cast<float>(1 / deltaTime);
+    // Render the UI
+    Statistics stats = {};
+    stats.framebufferSize = window().framebufferSize();
+    stats.frameRate = static_cast<float>(1 / delta_time);
 
-	if (userSettings_.IsRayTraced) {
-		const auto extent = SwapChain().Extent();
+    if (user_settings_.isRayTraced) {
+        const auto extent = swapChain().extent();
 
-		stats.RayRate = static_cast<float>(
-			double(extent.width * extent.height) * numberOfSamples_
-				/ (deltaTime * 1000000000));
+        stats.rayRate = static_cast<float>(
+            double(extent.width * extent.height) * number_of_samples_
+                / (delta_time * 1000000000));
 
-		stats.TotalSamples = totalNumberOfSamples_;
-	}
+        stats.totalSamples = total_number_of_samples_;
+    }
 
-	userInterface_->Render(commandBuffer, SwapChainFrameBuffer(imageIndex), stats);
+    user_interface_->render(command_buffer, swapChainFrameBuffer(image_index), stats);
 }
 
-void RayTracer::OnKey(int key, int scancode, int action, int mods) {
-	if (userInterface_->WantsToCaptureKeyboard()) {
-		return;
-	}
+void RayTracer::onKey(int key, int scancode, int action, int mods) {
+    if (user_interface_->wantsToCaptureKeyboard()) {
+        return;
+    }
 
-	if (action == GLFW_PRESS) {
-		switch (key) {
-			case GLFW_KEY_ESCAPE: Window().Close();
-				break;
-			default: break;
-		}
+    if (action == GLFW_PRESS) {
+        switch (key) {
+            case GLFW_KEY_ESCAPE: window().close();
+                break;
+            default: break;
+        }
 
-		if (!userSettings_.Benchmark) {
-			switch (key) {
-				case GLFW_KEY_F1: userSettings_.ShowSettings = !userSettings_.ShowSettings;
-					break;
-				case GLFW_KEY_F2: userSettings_.ShowOverlay = !userSettings_.ShowOverlay;
-					break;
-				case GLFW_KEY_R: userSettings_.IsRayTraced = !userSettings_.IsRayTraced;
-					break;
-				case GLFW_KEY_W: isWireFrame_ = !isWireFrame_;
-					break;
-				default: break;
-			}
-		}
-	}
+        if (!user_settings_.benchmark) {
+            switch (key) {
+                case GLFW_KEY_F1: user_settings_.showSettings = !user_settings_.showSettings;
+                    break;
+                case GLFW_KEY_F2: user_settings_.showOverlay = !user_settings_.showOverlay;
+                    break;
+                case GLFW_KEY_R: user_settings_.isRayTraced = !user_settings_.isRayTraced;
+                    break;
+                case GLFW_KEY_W: is_wire_frame_ = !is_wire_frame_;
+                    break;
+                default: break;
+            }
+        }
+    }
 }
 
-void RayTracer::OnCursorPosition(const double xpos, const double ypos) {
-	if (userSettings_.Benchmark ||
-		userInterface_->WantsToCaptureKeyboard() ||
-		userInterface_->WantsToCaptureMouse()) {
-		return;
-	}
+void RayTracer::onCursorPosition(const double xpos, const double ypos) {
+    if (user_settings_.benchmark ||
+        user_interface_->wantsToCaptureKeyboard() ||
+        user_interface_->wantsToCaptureMouse()) {
+        return;
+    }
 
-	if (mouseLeftPressed_) {
-		const auto deltaX = static_cast<float>(xpos - mouseX_);
-		const auto deltaY = static_cast<float>(ypos - mouseY_);
+    if (mouse_left_pressed_) {
+        const auto delta_x = static_cast<float>(xpos - mouse_x_);
+        const auto delta_y = static_cast<float>(ypos - mouse_y_);
 
-		cameraX_ += deltaX;
-		cameraY_ += deltaY;
+        camera_x_ += delta_x;
+        camera_y_ += delta_y;
 
-		resetAccumulation_ = true;
-	}
+        reset_accumulation_ = true;
+    }
 
-	mouseX_ = xpos;
-	mouseY_ = ypos;
+    mouse_x_ = xpos;
+    mouse_y_ = ypos;
 }
 
-void RayTracer::OnMouseButton(const int button, const int action, const int mods) {
-	if (userSettings_.Benchmark ||
-		userInterface_->WantsToCaptureMouse()) {
-		return;
-	}
+void RayTracer::onMouseButton(const int button, const int action, const int mods) {
+    if (user_settings_.benchmark ||
+        user_interface_->wantsToCaptureMouse()) {
+        return;
+    }
 
-	if (button == GLFW_MOUSE_BUTTON_LEFT) {
-		mouseLeftPressed_ = action == GLFW_PRESS;
-	}
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        mouse_left_pressed_ = action == GLFW_PRESS;
+    }
 }
 
-void RayTracer::LoadScene(const uint32_t sceneIndex) {
-	auto[models, textures] = SceneList::AllScenes[sceneIndex].second(cameraInitialSate_);
+void RayTracer::loadScene(const uint32_t scene_index) {
+    auto[models, textures] = SceneList::allScenes[scene_index].second(camera_initial_sate_);
 
-	// If there are no texture, add a dummy one. It makes the pipeline setup a lot easier.
-	if (textures.empty()) {
-		textures.push_back(Assets::Texture::LoadTexture("../resources/textures/white.png", Vulkan::SamplerConfig()));
-	}
+    // If there are no texture, add a dummy one. It makes the pipeline setup a lot easier.
+    if (textures.empty()) {
+        textures.push_back(assets::Texture::LoadTexture("../resources/textures/white.png", vulkan::SamplerConfig()));
+    }
 
-	scene_ = std::make_unique<Assets::Scene>(CommandPool(), std::move(models), std::move(textures), true);
-	sceneIndex_ = sceneIndex;
+    scene_ = std::make_unique<assets::Scene>(commandPool(), std::move(models), std::move(textures), true);
+    scene_index_ = scene_index;
 
-	userSettings_.FieldOfView = cameraInitialSate_.FieldOfView;
-	userSettings_.Aperture = cameraInitialSate_.Aperture;
-	userSettings_.FocusDistance = cameraInitialSate_.FocusDistance;
-	userSettings_.GammaCorrection = cameraInitialSate_.GammaCorrection;
+    user_settings_.fieldOfView = camera_initial_sate_.fieldOfView;
+    user_settings_.aperture = camera_initial_sate_.aperture;
+    user_settings_.focusDistance = camera_initial_sate_.focusDistance;
+    user_settings_.gammaCorrection = camera_initial_sate_.gammaCorrection;
 
-	cameraX_ = 0;
-	cameraY_ = 0;
+    camera_x_ = 0;
+    camera_y_ = 0;
 
-	periodTotalFrames_ = 0;
-	resetAccumulation_ = true;
+    period_total_frames_ = 0;
+    reset_accumulation_ = true;
 }
 
-void RayTracer::CheckAndUpdateBenchmarkState(double prevTime) {
-	if (!userSettings_.Benchmark) {
-		return;
-	}
+void RayTracer::checkAndUpdateBenchmarkState(double prev_time) {
+    if (!user_settings_.benchmark) {
+        return;
+    }
 
-	// Initialise scene benchmark timers
-	if (periodTotalFrames_ == 0) {
-		std::cout << std::endl;
-		std::cout << "Benchmark: Start scene #" << sceneIndex_ << " '" << SceneList::AllScenes[sceneIndex_].first << "'"
-				  << std::endl;
-		sceneInitialTime_ = time_;
-		periodInitialTime_ = time_;
-	}
+    // Initialise scene benchmark timers
+    if (period_total_frames_ == 0) {
+        std::cout << std::endl;
+        std::cout << "Benchmark: Start scene #" << scene_index_ << " '" << SceneList::allScenes[scene_index_].first << "'"
+                  << std::endl;
+        scene_initial_time_ = time_;
+        period_initial_time_ = time_;
+    }
 
-	// Print out the frame rate at regular intervals.
-	{
-		const double period = 5;
-		const double prevTotalTime = prevTime - periodInitialTime_;
-		const double totalTime = time_ - periodInitialTime_;
+    // Print out the frame rate at regular intervals.
+    {
+        const double period = 5;
+        const double prev_total_time = prev_time - period_initial_time_;
+        const double total_time = time_ - period_initial_time_;
 
-		if (periodTotalFrames_ != 0
-			&& static_cast<uint64_t>(prevTotalTime / period) != static_cast<uint64_t>(totalTime / period)) {
-			std::cout << "Benchmark: " << periodTotalFrames_ / totalTime << " fps" << std::endl;
-			periodInitialTime_ = time_;
-			periodTotalFrames_ = 0;
-		}
+        if (period_total_frames_ != 0
+            && static_cast<uint64_t>(prev_total_time / period) != static_cast<uint64_t>(total_time / period)) {
+            std::cout << "Benchmark: " << period_total_frames_ / total_time << " fps" << std::endl;
+            period_initial_time_ = time_;
+            period_total_frames_ = 0;
+        }
 
-		periodTotalFrames_++;
-	}
+        period_total_frames_++;
+    }
 
-	// If in benchmark mode, bail out from the scene if we've reached the time or sample limit.
-	{
-		const bool timeLimitReached =
-			periodTotalFrames_ != 0 && Window().Time() - sceneInitialTime_ > userSettings_.BenchmarkMaxTime;
-		const bool sampleLimitReached = numberOfSamples_ == 0;
+    // If in benchmark mode, bail out from the scene if we've reached the time or sample limit.
+    {
+        const bool time_limit_reached =
+            period_total_frames_ != 0 && window().time() - scene_initial_time_ > user_settings_.benchmarkMaxTime;
+        const bool sample_limit_reached = number_of_samples_ == 0;
 
-		if (timeLimitReached || sampleLimitReached) {
-			if (!userSettings_.BenchmarkNextScenes
-				|| static_cast<size_t>(userSettings_.SceneIndex) == SceneList::AllScenes.size() - 1) {
-				Window().Close();
-			}
+        if (time_limit_reached || sample_limit_reached) {
+            if (!user_settings_.benchmarkNextScenes
+                || static_cast<size_t>(user_settings_.sceneIndex) == SceneList::allScenes.size() - 1) {
+                window().close();
+            }
 
-			std::cout << std::endl;
-			userSettings_.SceneIndex += 1;
-		}
-	}
+            std::cout << std::endl;
+            user_settings_.sceneIndex += 1;
+        }
+    }
 }
 
-void RayTracer::CheckFramebufferSize() const {
-	// Check the framebuffer size when requesting a fullscreen window, as it's not guaranteed to match.
-	const auto& cfg = Window().Config();
-	const auto fbSize = Window().FramebufferSize();
+void RayTracer::checkFramebufferSize() const {
+    // Check the framebuffer size when requesting a fullscreen window, as it's not guaranteed to match.
+    const auto& cfg = window().config();
+    const auto fb_size = window().framebufferSize();
 
-	if (userSettings_.Benchmark && cfg.Fullscreen && (fbSize.width != cfg.Width || fbSize.height != cfg.Height)) {
-		std::ostringstream out;
-		out << "framebuffer fullscreen size mismatch (requested: ";
-		out << cfg.Width << "x" << cfg.Height;
-		out << ", got: ";
-		out << fbSize.width << "x" << fbSize.height << ")";
+    if (user_settings_.benchmark && cfg.fullscreen && (fb_size.width != cfg.width || fb_size.height != cfg.height)) {
+        std::ostringstream out;
+        out << "framebuffer fullscreen size mismatch (requested: ";
+        out << cfg.width << "x" << cfg.height;
+        out << ", got: ";
+        out << fb_size.width << "x" << fb_size.height << ")";
 
 //		Throw(std::runtime_error(out.str()));
-	}
+    }
 }
