@@ -11,7 +11,7 @@ namespace assets {
 class Model final {
 public:
 
-    static Model LoadModel(const std::string& filename);
+    static Model loadModel(const std::string& filename);
     static Model CreateCornellBox(const float scale);
     static Model CreateBox(const glm::vec3& p0, const glm::vec3& p1, const Material& material);
     static Model CreateSphere(const glm::vec3& center, float radius, const Material& material, bool isProcedural);

@@ -8,18 +8,15 @@ layout(binding = 3) readonly uniform UniformBufferObjectStruct { UniformBufferOb
 
 layout(location = 0) rayPayloadInNV RayPayload Ray;
 
-void main()
-{
-	if (Camera.HasSky)
-	{
-		// Sky color
-		const float t = 0.5*(normalize(gl_WorldRayDirectionNV).y + 1);
-		const vec3 skyColor = mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+void main() {
+    if (Camera.HasSky) {
+        // Sky color
+        const float t = 0.5*(normalize(gl_WorldRayDirectionNV).y + 1);
+        const vec3 skyColor = mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
 
-		Ray.ColorAndDistance = vec4(skyColor, -1);
-	}
-	else
-	{
-		Ray.ColorAndDistance = vec4(0, 0, 0, -1);
-	}
+        Ray.ColorAndDistance = vec4(skyColor, -1);
+    }
+    else {
+        Ray.ColorAndDistance = vec4(0, 0, 0, -1);
+    }
 }

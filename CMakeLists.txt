@@ -7,7 +7,7 @@ include(cmake/configure_build_type.cmake)
 include(cmake/configure_optix.cmake)
 
 mark_as_advanced(CUDA_SDK_ROOT_DIR)
-
+set(optix_LIBRARY "")
 
 # On Linux, default to Release if not specified.
 if (UNIX AND NOT CMAKE_BUILD_TYPE)
@@ -37,8 +37,8 @@ if (WIN32)
         endif ()
     endforeach ()
 
-    add_compile_options("/std:c++17")
-    add_compile_options("/MP")
+#    add_compile_options("/std:c++17")
+#    add_compile_options("/MP")
 
 endif ()
 
@@ -57,11 +57,12 @@ endif ()
 find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(glfw3 REQUIRED)
 find_package(Vulkan REQUIRED)
+find_package(OptiX REQUIRED)
 
 IF (NOT Vulkan_FOUND)
     message(FATAL_ERROR "Could not find Vulkan library!")
 ELSE ()
-    message(STATUS ${Vulkan_LIBRARY})
+    message(STATUS "Vulkan library: " ${Vulkan_LIBRARY})
 ENDIF ()
 
 find_program(Vulkan_GLSLANG_VALIDATOR
@@ -72,6 +73,7 @@ find_program(Vulkan_GLSLANG_VALIDATOR
 if (NOT Vulkan_GLSLANG_VALIDATOR)
     message(FATAL_ERROR "glslangValidator not found!")
 endif ()
+
 
 set(MAIN_PROJECT "Lift")
 add_subdirectory(resources)

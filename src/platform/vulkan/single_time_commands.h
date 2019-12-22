@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VulkanError.h"
+#include "core/utilities.h"
 #include "command_buffers.h"
 #include "command_pool.h"
 #include "device.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VulkanError.h"
+#include "core/utilities.h"
 #include <memory>
 
 namespace vulkan {

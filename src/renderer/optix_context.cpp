@@ -1,7 +1,5 @@
 #include "optix_context.h"
 #include "pch.h"
-#include <optix.h>
-#include <optix_stubs.h>
 #include <cuda/vec_math.h>
 
 #include "cuda_buffer.h"

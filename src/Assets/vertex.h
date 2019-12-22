@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Utilities/Glm.hpp"
-#include "vulkan/VulkanError.h"
+#include "core/glm.h"
+#include "core/utilities.h"
 #include <array>
 
 namespace assets {

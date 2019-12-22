@@ -1,6 +1,6 @@
 #pragma once
 
-#include "platform/vulkan/VulkanError.h"
+#include "core/utilities.h"
 
 namespace vulkan {
 class Buffer;

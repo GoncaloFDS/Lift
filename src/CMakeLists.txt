@@ -1,6 +1,16 @@
 set(EXTERNAL_DIR ../external)
 set(exe_name ${MAIN_PROJECT})
 
+set(src_files_core
+        core/glm.h
+        core/stb_image_impl.cpp
+        core/stb_image_impl.h
+        events/application_event.h
+        events/event.h
+        events/key_event.h
+        events/mouse_event.h
+        )
+
 set(src_files_assets
         assets/cornell_box.cpp
         assets/cornell_box.h
@@ -25,14 +35,6 @@ set(src_files_imgui
         ImGui/imgui_impl_glfw.h
         ImGui/imgui_impl_vulkan.cpp
         ImGui/imgui_impl_vulkan.h
-        )
-
-set(src_files_utilities
-        Utilities/Console.cpp
-        Utilities/Console.hpp
-        Utilities/Glm.hpp
-        Utilities/StbImage.cpp
-        Utilities/StbImage.hpp
         )
 
 set(src_files_vulkan
@@ -88,8 +90,8 @@ set(src_files_vulkan
         platform/vulkan/surface.h
         platform/vulkan/swap_chain.cpp
         platform/vulkan/swap_chain.h
-        platform/vulkan/VulkanError.cpp
-        platform/vulkan/VulkanError.h
+        core/utilities.cpp
+        core/utilities.h
         platform/vulkan/window.cpp
         platform/vulkan/window.h
         platform/vulkan/window_properties.h
@@ -127,12 +129,12 @@ set(src_files
         user_settings.h
         )
 
-source_group("Assets" FILES ${src_files_assets})
-source_group("ImGui" FILES ${src_files_imgui})
-source_group("Utilities" FILES ${src_files_utilities})
-source_group("Vulkan" FILES ${src_files_vulkan})
-source_group("Vulkan.RayTracing" FILES ${src_files_vulkan_raytracing})
-source_group("Main" FILES ${src_files})
+source_group("assets" FILES ${src_files_assets})
+source_group("core" FILES ${src_files_core})
+source_group("imGui" FILES ${src_files_imgui})
+source_group("vulkan" FILES ${src_files_vulkan})
+source_group("vulkan rayTracing" FILES ${src_files_vulkan_raytracing})
+source_group("main" FILES ${src_files})
 
 include_directories(.)
 include_directories(./platform)
@@ -140,25 +142,16 @@ include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${glfw3_INCLUDE_DIRS})
 include_directories(${glm_INCLUDE_DIRS})
 include_directories(${Vulkan_INCLUDE_DIRS})
+include_directories(${OptiX_INCLUDE})
+include_directories(${EXTERNAL_DIR}/imgui)
+include_directories(${EXTERNAL_DIR}/tinygltf)
+include_directories(${EXTERNAL_DIR}/tinyobj)
+include_directories(${EXTERNAL_DIR}/spdlog/include)
+include_directories(${EXTERNAL_DIR}/glm)
+include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 link_directories(${Vulkan_LIBRARY})
 
-find_package(OptiX REQUIRED)
-include_directories(
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${OptiX_INCLUDE})
-
-include_directories(
-        src/
-        ${EXTERNAL_DIR}/tinygltf
-        ${EXTERNAL_DIR}/tinyobj)
-
-link_libraries(
-        ${optix_LIBRARY}
-        ${CUDA_LIBRARIES}
-        ${CUDA_CUDA_LIBRARIES})
-
-#Cuda
-include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
+message(STATUS "Optix include dir: " ${OptiX_INCLUDE})
 
 #ImGUI
 add_library(imgui
@@ -172,29 +165,19 @@ add_library(imgui
         ${EXTERNAL_DIR}/imgui/imstb_textedit.h
         ${EXTERNAL_DIR}/imgui/imstb_truetype.h
         ${EXTERNAL_DIR}/imgui/imgui_demo.cpp)
-include_directories(${EXTERNAL_DIR}/imgui)
-
-#spdlog
-#include_directories(${EXTERNAL_DIR}/spdlog/include)
-
-#glm
-include_directories(${EXTERNAL_DIR}/glm)
-
-#boost
 
 add_executable(${exe_name}
         ${src_files_assets}
         ${src_files_imgui}
-        ${src_files_utilities}
+        ${src_files_core}
         ${src_files_vulkan}
         ${src_files_vulkan_raytracing}
         ${src_files}
         )
 
-#add_compile_definitions(LF_DEBUG)
-#add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 set_target_properties(${exe_name} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-target_link_libraries(${exe_name} PRIVATE ${Boost_LIBRARIES} glfw imgui spdlog ${Vulkan_LIBRARIES})
+target_link_libraries(${exe_name} ${Boost_LIBRARIES} glfw imgui spdlog ${Vulkan_LIBRARIES} ${optix_LIBRARY} ${CUDA_LIBRARIES} ${CUDA_CUDA_LIBRARY})
+
 add_dependencies(${exe_name} Assets)
 
 

@@ -2,6 +2,8 @@
 #include "enumerate.h"
 #include "window.h"
 #include <algorithm>
+#include <string.h>
+#include <stdio.h>
 
 namespace vulkan {
 

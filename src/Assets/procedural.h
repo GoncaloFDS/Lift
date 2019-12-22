@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utilities/Glm.hpp"
+#include "core/glm.h"
 #include <utility>
 
 namespace assets {

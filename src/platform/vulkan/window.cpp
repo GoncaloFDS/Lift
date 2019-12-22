@@ -1,5 +1,5 @@
 #include "window.h"
-#include "Utilities/StbImage.hpp"
+#include "core/stb_image_impl.h"
 #include <iostream>
 
 namespace vulkan {

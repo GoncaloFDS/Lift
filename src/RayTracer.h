@@ -20,7 +20,7 @@ protected:
     void drawFrame() override;
     void render(VkCommandBuffer command_buffer, uint32_t image_index) override;
 
-    void onKey(int key, int scancode, int action, int mods) override;
+    void onKey(int key, int scan_code, int action, int mods) override;
     void onCursorPosition(double xpos, double ypos) override;
     void onMouseButton(int button, int action, int mods) override;
 

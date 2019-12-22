@@ -2,7 +2,6 @@
 #include "cornell_box.h"
 #include "procedural.h"
 #include "sphere.h"
-#include "Utilities/Console.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_inverse.hpp>
@@ -40,35 +39,33 @@ private:
 
 namespace assets {
 
-Model Model::LoadModel(const std::string& filename) {
+Model Model::loadModel(const std::string& filename) {
     std::cout << "Loading '" << filename << "'... " << std::flush;
 
     const auto timer = std::chrono::high_resolution_clock::now();
-    const std::string materialPath = std::filesystem::path(filename).parent_path().string();
+    const std::string material_path = std::filesystem::path(filename).parent_path().string();
 
-    tinyobj::attrib_t objAttrib;
-    std::vector<tinyobj::shape_t> objShapes;
-    std::vector<tinyobj::material_t> objMaterials;
+    tinyobj::attrib_t obj_attrib;
+    std::vector<tinyobj::shape_t> obj_shapes;
+    std::vector<tinyobj::material_t> obj_materials;
     std::string warn;
     std::string err;
 
     if (!tinyobj::LoadObj(
-        &objAttrib, &objShapes, &objMaterials, &warn, &err,
+        &obj_attrib, &obj_shapes, &obj_materials, &warn, &err,
         filename.c_str(),
-        materialPath.c_str())) {
+        material_path.c_str())) {
         LF_ASSERT(std::runtime_error("failed to load model '" + filename + "':\n" + err));
     }
 
     if (!warn.empty()) {
-        Utilities::Console::Write(Utilities::Severity::Warning, [&warn]() {
-            std::cout << "\nWARNING: " << warn << std::flush;
-        });
+        std::cout << "\nWARNING: " << warn << std::flush;
     }
 
     // Materials
     std::vector<Material> materials;
 
-    for (const auto& material : objMaterials) {
+    for (const auto& material : obj_materials) {
         Material m{};
 
         m.Diffuse = vec4(material.diffuse[0], material.diffuse[1], material.diffuse[2], 1.0);
@@ -89,10 +86,10 @@ Model Model::LoadModel(const std::string& filename) {
     // Geometry
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
-    std::unordered_map<Vertex, uint32_t> uniqueVertices(objAttrib.vertices.size());
+    std::unordered_map<Vertex, uint32_t> uniqueVertices(obj_attrib.vertices.size());
     size_t faceId = 0;
 
-    for (const auto& shape : objShapes) {
+    for (const auto& shape : obj_shapes) {
         const auto& mesh = shape.mesh;
 
         for (const auto& index : mesh.indices) {
@@ -100,23 +97,23 @@ Model Model::LoadModel(const std::string& filename) {
 
             vertex.Position =
                 {
-                    objAttrib.vertices[3 * index.vertex_index + 0],
-                    objAttrib.vertices[3 * index.vertex_index + 1],
-                    objAttrib.vertices[3 * index.vertex_index + 2],
+                    obj_attrib.vertices[3 * index.vertex_index + 0],
+                    obj_attrib.vertices[3 * index.vertex_index + 1],
+                    obj_attrib.vertices[3 * index.vertex_index + 2],
                 };
 
             vertex.Normal =
                 {
-                    objAttrib.normals[3 * index.normal_index + 0],
-                    objAttrib.normals[3 * index.normal_index + 1],
-                    objAttrib.normals[3 * index.normal_index + 2]
+                    obj_attrib.normals[3 * index.normal_index + 0],
+                    obj_attrib.normals[3 * index.normal_index + 1],
+                    obj_attrib.normals[3 * index.normal_index + 2]
                 };
 
-            if (!objAttrib.texcoords.empty()) {
+            if (!obj_attrib.texcoords.empty()) {
                 vertex.TexCoord =
                     {
-                        objAttrib.texcoords[2 * index.texcoord_index + 0],
-                        1 - objAttrib.texcoords[2 * index.texcoord_index + 1]
+                        obj_attrib.texcoords[2 * index.texcoord_index + 0],
+                        1 - obj_attrib.texcoords[2 * index.texcoord_index + 1]
                     };
             }
 
@@ -134,7 +131,7 @@ Model Model::LoadModel(const std::string& filename) {
     const auto elapsed = std::chrono::duration<float, std::chrono::seconds::period>(
         std::chrono::high_resolution_clock::now() - timer).count();
 
-    std::cout << "(" << objAttrib.vertices.size() << " vertices, " << uniqueVertices.size() << " unique vertices, "
+    std::cout << "(" << obj_attrib.vertices.size() << " vertices, " << uniqueVertices.size() << " unique vertices, "
               << materials.size() << " materials) ";
     std::cout << elapsed << "s" << std::endl;
 

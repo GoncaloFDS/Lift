@@ -1,6 +1,5 @@
 
 #include "platform/vulkan/enumerate.h"
-#include "Utilities/Console.hpp"
 #include "properties.h"
 #include "RayTracer.h"
 
@@ -14,37 +13,24 @@ void setVulkanDevice(vulkan::Application& application);
 }
 
 int main(int argc, const char* argv[]) noexcept {
-    try {
-        const Options options(argc, argv);
-        const UserSettings user_settings = createUserSettings(options);
-        const vulkan::WindowProperties window_properties{
-            "Lift",
-            options.width,
-            options.height,
-            options.benchmark && options.fullscreen,
-            options.fullscreen,
-            !options.fullscreen
-        };
+    const Options options(argc, argv);
+    const UserSettings user_settings = createUserSettings(options);
+    const vulkan::WindowProperties window_properties{
+        "Lift",
+        options.width,
+        options.height,
+        options.benchmark && options.fullscreen,
+        options.fullscreen,
+        !options.fullscreen
+    };
 
-        RayTracer application(user_settings, window_properties, options.vSync);
+    RayTracer application(user_settings, window_properties, options.vSync);
 
-        setVulkanDevice(application);
+    setVulkanDevice(application);
 
-        application.run();
+    application.run();
 
-        return EXIT_SUCCESS;
-    }
-
-    catch (const std::exception& exception) {
-    }
-
-    catch (...) {
-        Utilities::Console::Write(Utilities::Severity::Fatal, []() {
-            std::cerr << "FATAL: caught unhandled exception" << std::endl;
-        });
-    }
-
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
 
 namespace {
@@ -72,31 +58,7 @@ UserSettings createUserSettings(const Options& options) {
 
 void setVulkanDevice(vulkan::Application& application) {
     const auto& physical_devices = application.physicalDevices();
-    const auto
-        result = std::find_if(physical_devices.begin(), physical_devices.end(), [](const VkPhysicalDevice& device) {
-        // We want a device with geometry shader support.
-        VkPhysicalDeviceFeatures deviceFeatures;
-        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-
-        if (!deviceFeatures.geometryShader) {
-            return false;
-        }
-
-        // We want a device with a graphics queue.
-        const auto queue_families = vulkan::getEnumerateVector(device, vkGetPhysicalDeviceQueueFamilyProperties);
-        const auto has_graphics_queue =
-            std::find_if(queue_families.begin(), queue_families.end(), [](const VkQueueFamilyProperties& queueFamily) {
-                return queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT;
-            });
-
-        return has_graphics_queue != queue_families.end();
-    });
-
-    if (result == physical_devices.end()) {
-//        Throw(std::runtime_error("cannot find a suitable device"));
-    }
-
-    application.setPhysicalDevice(*result);
+    application.setPhysicalDevice(physical_devices[0]);
 }
 
 }

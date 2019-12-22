@@ -14,17 +14,17 @@ layout(location = 3) in flat int FragMaterialIndex;
 
 layout(location = 0) out vec4 OutColor;
 
-void main() 
+void main()
 {
-	const int textureId = Materials[FragMaterialIndex].DiffuseTextureId;
-	const vec3 lightVector = normalize(vec3(5, 4, 3));
-	const float d = max(dot(lightVector, normalize(FragNormal)), 0.2);
-	
-	vec3 c = FragColor * d;
-	if (textureId >= 0)
-	{
-		c *= texture(TextureSamplers[textureId], FragTexCoord).rgb;
-	}
+    const int textureId = Materials[FragMaterialIndex].DiffuseTextureId;
+    const vec3 lightVector = normalize(vec3(5, 4, 3));
+    const float d = max(dot(lightVector, normalize(FragNormal)), 0.2);
+
+    vec3 c = FragColor * d;
+    if (textureId >= 0)
+    {
+        c *= texture(TextureSamplers[textureId], FragTexCoord).rgb;
+    }
 
     OutColor = vec4(c, 1);
 }

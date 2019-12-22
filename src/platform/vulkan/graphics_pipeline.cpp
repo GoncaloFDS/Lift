@@ -159,8 +159,8 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
     render_pass_ = std::make_unique<class RenderPass>(swap_chain, depth_buffer, true, true);
 
     // Load shaders.
-    const ShaderModule vert_shader(device, "../resources/shaders/Graphics.vert.spv");
-    const ShaderModule frag_shader(device, "../resources/shaders/Graphics.frag.spv");
+    const ShaderModule vert_shader(device, "../resources/shaders/graphics.vert.spv");
+    const ShaderModule frag_shader(device, "../resources/shaders/graphics.frag.spv");
 
     VkPipelineShaderStageCreateInfo shader_stages[] = {
         vert_shader.createShaderStage(VK_SHADER_STAGE_VERTEX_BIT),

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VulkanError.h"
+#include "core/utilities.h"
 
 namespace vulkan {
 class DepthBuffer;

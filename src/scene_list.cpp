@@ -33,7 +33,7 @@ SceneAssets SceneList::cubeAndSpheres(CameraInitialSate& camera) {
     std::vector<Model> models;
     std::vector<Texture> textures;
 
-    models.push_back(Model::LoadModel("../resources/models/cube_multi.obj"));
+    models.push_back(Model::loadModel("../resources/models/cube_multi.obj"));
     models.push_back(Model::CreateSphere(vec3(1, 0, 0), 0.5, Material::metallic(vec3(0.7f, 0.5f, 0.8f), 0.2f), true));
     models.push_back(Model::CreateSphere(vec3(-1, 0, 0), 0.5, Material::dielectric(1.5f), true));
     models.push_back(Model::CreateSphere(vec3(0, 1, 0), 0.5, Material::lambertian(vec3(1.0f), 0), true));
@@ -210,7 +210,7 @@ SceneAssets SceneList::lucyInOneWeekend(CameraInitialSate& camera) {
         }
     }
 
-    auto lucy_0 = Model::LoadModel("../resources/models/lucy.obj");
+    auto lucy_0 = Model::loadModel("../resources/models/lucy.obj");
     auto lucy_1 = lucy_0;
     auto lucy_2 = lucy_0;
 
@@ -273,7 +273,7 @@ SceneAssets SceneList::cornellBoxLucy(CameraInitialSate& camera) {
     const auto i = mat4(1);
     const auto sphere =
         Model::CreateSphere(vec3(555 - 130, 165.0f, -165.0f / 2 - 65), 80.0f, Material::dielectric(1.5f), true);
-    auto lucy_0 = Model::LoadModel("../resources/models/lucy.obj");
+    auto lucy_0 = Model::loadModel("../resources/models/lucy.obj");
 
     lucy_0.Transform(rotate(scale(translate(i, vec3(555 - 300 - 165 / 2, -9, -295 - 165 / 2)), vec3(0.6f)),
                             radians(75.0f), vec3(0, 1, 0)));

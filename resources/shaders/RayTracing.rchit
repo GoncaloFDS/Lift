@@ -16,18 +16,15 @@ layout(binding = 8) uniform sampler2D[] TextureSamplers;
 hitAttributeNV vec2 HitAttributes;
 rayPayloadInNV RayPayload Ray;
 
-vec2 Mix(vec2 a, vec2 b, vec2 c, vec3 barycentrics)
-{
+vec2 Mix(vec2 a, vec2 b, vec2 c, vec3 barycentrics) {
 	return a * barycentrics.x + b * barycentrics.y + c * barycentrics.z;
 }
 
-vec3 Mix(vec3 a, vec3 b, vec3 c, vec3 barycentrics) 
-{
+vec3 Mix(vec3 a, vec3 b, vec3 c, vec3 barycentrics) {
     return a * barycentrics.x + b * barycentrics.y + c * barycentrics.z;
 }
 
-void main()
-{
+void main() {
 	// Get the material.
 	const uvec2 offsets = Offsets[gl_InstanceCustomIndexNV];
 	const uint indexOffset = offsets.x;

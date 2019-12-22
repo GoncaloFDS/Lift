@@ -1,5 +1,5 @@
 #include "texture.h"
-#include "Utilities/StbImage.hpp"
+#include "core/stb_image_impl.h"
 #include <chrono>
 #include <iostream>
 #include <core.h>

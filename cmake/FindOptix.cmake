@@ -163,7 +163,7 @@ macro(OptiX_check_same_path libA libB)
       # to the ${libB}.
       get_filename_component(_optix_name_of_${libA} "${${libA}_LIBRARY}" NAME)
       if(EXISTS "${_optix_path_to_${libB}}/${_optix_name_of_${libA}}")
-        message(WARNING " ${libA} library found next to ${libB} library that is not being used.  Due to the way we are using rpath, the copy of ${libA} next to ${libB} will be used during loading instead of the one you intended.  Consider putting the libraries in the same directory or moving ${_optix_path_to_${libB}}/${_optix_name_of_${libA} out of the way.")
+        message(WARNING " ${libA} library found next to ${libB} library that is not being used.  Due to the way we are using rpath, the copy of ${libA} next to ${libB} will be used during loading instead of the one you intended.  Consider putting the libraries in the same directory or moving ${_optix_path_to_${libB}}/${_optix_name_of_${libA}} out of the way.")
       endif()
     endif()
     set( _${libA}_rpath "-Wl,-rpath,${_optix_path_to_${libA}}" )

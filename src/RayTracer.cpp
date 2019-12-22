@@ -135,17 +135,14 @@ void RayTracer::render(VkCommandBuffer command_buffer, uint32_t image_index) {
     if (user_settings_.isRayTraced) {
         const auto extent = swapChain().extent();
 
-        stats.rayRate = static_cast<float>(
-            double(extent.width * extent.height) * number_of_samples_
-                / (delta_time * 1000000000));
-
+        stats.rayRate = static_cast<float>( double(extent.width * extent.height) * number_of_samples_ / (delta_time * 1000000000));
         stats.totalSamples = total_number_of_samples_;
     }
 
     user_interface_->render(command_buffer, swapChainFrameBuffer(image_index), stats);
 }
 
-void RayTracer::onKey(int key, int scancode, int action, int mods) {
+void RayTracer::onKey(int key, int scan_code, int action, int mods) {
     if (user_interface_->wantsToCaptureKeyboard()) {
         return;
     }

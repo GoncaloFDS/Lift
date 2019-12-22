@@ -1,7 +1,7 @@
 #pragma once
 
 #include "acceleration_structure.h"
-#include "Utilities/Glm.hpp"
+#include "core/glm.h"
 #include <vector>
 
 namespace vulkan::ray_tracing {

@@ -108,8 +108,8 @@ void Application::createSwapChain() {
                                                                   getScene(),
                                                                   is_wire_frame_);
 
-    for (const auto& imageView : swap_chain_->imageViews()) {
-        swap_chain_framebuffers_.emplace_back(*imageView, graphics_pipeline_->renderPass());
+    for (const auto& image_view : swap_chain_->imageViews()) {
+        swap_chain_framebuffers_.emplace_back(*image_view, graphics_pipeline_->renderPass());
     }
 
     command_buffers_ =

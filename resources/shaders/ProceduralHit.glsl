@@ -1,5 +1,3 @@
-
-struct ProceduralHit
-{
-	vec3 NormalAndObjectId
+struct ProceduralHit {
+    vec3 NormalAndObjectId;
 };

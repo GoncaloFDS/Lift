@@ -1,7 +1,7 @@
 #pragma once
 
 #include "window_properties.h"
-#include "VulkanError.h"
+#include "core/utilities.h"
 #include <functional>
 #include <vector>
 
