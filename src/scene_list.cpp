@@ -12,12 +12,10 @@ using assets::Texture;
 
 const std::vector<std::pair<std::string, std::function<SceneAssets(SceneList::CameraInitialSate&)>>>
     SceneList::allScenes = {
-    {"Cube And Spheres", cubeAndSpheres},
-    {"Ray Tracing In One Weekend", rayTracingInOneWeekend},
-    {"Planets In One Weekend", planetsInOneWeekend},
-    {"Lucy In One Weekend", lucyInOneWeekend},
     {"Cornell Box", cornellBox},
     {"Cornell Box & Lucy", cornellBoxLucy},
+    {"Ray Tracing In One Weekend", rayTracingInOneWeekend},
+    {"Lucy In One Weekend", lucyInOneWeekend},
 };
 
 SceneAssets SceneList::cubeAndSpheres(CameraInitialSate& camera) {
@@ -101,66 +99,6 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialSate& camera) {
                                          isProc));
 
     return std::forward_as_tuple(std::move(models), std::vector<Texture>());
-}
-
-SceneAssets SceneList::planetsInOneWeekend(CameraInitialSate& camera) {
-    // Same as RayTracingInOneWeekend but using textures.
-
-    camera.modelView = lookAt(vec3(13, 2, 3), vec3(0, 0, 0), vec3(0, 1, 0));
-    camera.fieldOfView = 20;
-    camera.aperture = 0.1f;
-    camera.focusDistance = 10.0f;
-    camera.gammaCorrection = true;
-    camera.hasSky = true;
-
-    const bool is_proc = true;
-
-    std::mt19937 engine(42);
-    auto random = std::bind(std::uniform_real_distribution<float>(), engine);
-
-    std::vector<Model> models;
-    std::vector<Texture> textures;
-
-    models.push_back(Model::CreateSphere(vec3(0, -1000, 0),
-                                         1000,
-                                         Material::lambertian(vec3(0.5f, 0.5f, 0.5f)),
-                                         is_proc));
-
-    for (int a = -11; a < 11; ++a) {
-        for (int b = -11; b < 11; ++b) {
-            const float choose_mat = random();
-            const vec3 center(a + 0.9f * random(), 0.2f, b + 0.9f * random());
-
-            if (length(center - vec3(4, 0.2f, 0)) > 0.9) {
-                if (choose_mat < 0.8f) // Diffuse
-                {
-                    models.push_back(Model::CreateSphere(center, 0.2f, Material::lambertian(vec3(
-                        random() * random(),
-                        random() * random(),
-                        random() * random())), is_proc));
-                } else if (choose_mat < 0.95f) // Metal
-                {
-                    models.push_back(Model::CreateSphere(center, 0.2f, Material::metallic(
-                        vec3(0.5f * (1 + random()), 0.5f * (1 + random()), 0.5f * (1 + random())),
-                        0.5f * random()), is_proc));
-                } else // Glass
-                {
-                    models.push_back(Model::CreateSphere(center, 0.2f, Material::dielectric(1.5f), is_proc));
-                }
-            }
-        }
-    }
-
-    models.push_back(Model::CreateSphere(vec3(0, 1, 0), 1.0f, Material::metallic(vec3(1.0f), 0.1f, 2), is_proc));
-    models.push_back(Model::CreateSphere(vec3(-4, 1, 0), 1.0f, Material::lambertian(vec3(1.0f), 0), is_proc));
-    models.push_back(Model::CreateSphere(vec3(4, 1, 0), 1.0f, Material::metallic(vec3(1.0f), 0.0f, 1), is_proc));
-
-    textures.push_back(Texture::LoadTexture("../resources/textures/2k_mars.jpg", vulkan::SamplerConfig()));
-    textures.push_back(Texture::LoadTexture("../resources/textures/2k_moon.jpg", vulkan::SamplerConfig()));
-    textures.push_back(Texture::LoadTexture("../resources/textures/land_ocean_ice_cloud_2048.png",
-                                            vulkan::SamplerConfig()));
-
-    return std::forward_as_tuple(std::move(models), std::move(textures));
 }
 
 SceneAssets SceneList::lucyInOneWeekend(CameraInitialSate& camera) {

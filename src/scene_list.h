@@ -26,7 +26,6 @@ public:
 
     static SceneAssets cubeAndSpheres(CameraInitialSate& camera);
     static SceneAssets rayTracingInOneWeekend(CameraInitialSate& camera);
-    static SceneAssets planetsInOneWeekend(CameraInitialSate& camera);
     static SceneAssets lucyInOneWeekend(CameraInitialSate& camera);
     static SceneAssets cornellBox(CameraInitialSate& camera);
     static SceneAssets cornellBoxLucy(CameraInitialSate& camera);

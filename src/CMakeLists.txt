@@ -35,6 +35,8 @@ set(src_files_imgui
         ImGui/imgui_impl_glfw.h
         ImGui/imgui_impl_vulkan.cpp
         ImGui/imgui_impl_vulkan.h
+        imgui/imgui_layer.cpp
+        imgui/imgui_layer.h
         )
 
 set(src_files_vulkan
@@ -124,8 +126,6 @@ set(src_files
         RayTracer.h
         scene_list.cpp
         scene_list.h
-        imgui_layer.cpp
-        imgui_layer.h
         user_settings.h
         )
 
