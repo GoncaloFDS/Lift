@@ -5,6 +5,8 @@ set(src_files_core
         core/glm.h
         core/stb_image_impl.cpp
         core/stb_image_impl.h
+        core/log.cpp
+        core/log.h
         events/application_event.h
         events/event.h
         events/key_event.h
@@ -40,8 +42,8 @@ set(src_files_imgui
         )
 
 set(src_files_vulkan
-        platform/vulkan/Application.cpp
-        platform/vulkan/Application.h
+        platform/vulkan/application.cpp
+        platform/vulkan/application.h
         platform/vulkan/buffer.cpp
         platform/vulkan/buffer.h
         platform/vulkan/command_buffers.cpp
@@ -100,30 +102,28 @@ set(src_files_vulkan
         )
 
 set(src_files_vulkan_raytracing
-        platform/vulkan/rayTracing/acceleration_structure.cpp
-        platform/vulkan/rayTracing/acceleration_structure.h
-        platform/vulkan/rayTracing/application.cpp
-        platform/vulkan/rayTracing/application.h
-        platform/vulkan/rayTracing/blas.cpp
-        platform/vulkan/rayTracing/blas.h
-        platform/vulkan/rayTracing/device_procedures.cpp
-        platform/vulkan/rayTracing/device_procedures.h
-        platform/vulkan/rayTracing/ray_tracing_pipeline.cpp
-        platform/vulkan/rayTracing/ray_tracing_pipeline.h
-        platform/vulkan/rayTracing/ray_tracing_properties.cpp
-        platform/vulkan/rayTracing/ray_tracing_properties.h
-        platform/vulkan/rayTracing/shader_binding_table.cpp
-        platform/vulkan/rayTracing/shader_binding_table.h
-        platform/vulkan/rayTracing/tlas.cpp
-        platform/vulkan/rayTracing/tlas.h
+        platform/vulkan/acceleration_structure.cpp
+        platform/vulkan/acceleration_structure.h
+        platform/vulkan/blas.cpp
+        platform/vulkan/blas.h
+        platform/vulkan/device_procedures.cpp
+        platform/vulkan/device_procedures.h
+        platform/vulkan/ray_tracing_pipeline.cpp
+        platform/vulkan/ray_tracing_pipeline.h
+        platform/vulkan/ray_tracing_properties.cpp
+        platform/vulkan/ray_tracing_properties.h
+        platform/vulkan/shader_binding_table.cpp
+        platform/vulkan/shader_binding_table.h
+        platform/vulkan/tlas.cpp
+        platform/vulkan/tlas.h
         )
 
 set(src_files
         main.cpp
         properties.cpp
         properties.h
-        RayTracer.cpp
-        RayTracer.h
+        ray_tracer.cpp
+        ray_tracer.h
         scene_list.cpp
         scene_list.h
         user_settings.h
@@ -137,7 +137,12 @@ source_group("vulkan rayTracing" FILES ${src_files_vulkan_raytracing})
 source_group("main" FILES ${src_files})
 
 include_directories(.)
+include_directories(./core)
+include_directories(./events)
+include_directories(./imgui)
 include_directories(./platform)
+include_directories(./renderer)
+include_directories(./scene)
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${glfw3_INCLUDE_DIRS})
 include_directories(${glm_INCLUDE_DIRS})

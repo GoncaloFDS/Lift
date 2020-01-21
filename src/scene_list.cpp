@@ -164,9 +164,9 @@ SceneAssets SceneList::lucyInOneWeekend(CameraInitialSate& camera) {
     lucy_2.Transform(rotate(scale(translate(i, vec3(4, -0.08f, 0)), vec3(scale_factor)),
                             radians(90.0f), vec3(0, 1, 0)));
 
-    lucy_0.SetMaterial(Material::dielectric(1.5f));
-    lucy_1.SetMaterial(Material::lambertian(vec3(0.4f, 0.2f, 0.1f)));
-    lucy_2.SetMaterial(Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.05f));
+    lucy_0.setMaterial(Material::dielectric(1.5f));
+    lucy_1.setMaterial(Material::lambertian(vec3(0.4f, 0.2f, 0.1f)));
+    lucy_2.setMaterial(Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.05f));
 
     models.push_back(std::move(lucy_0));
     models.push_back(std::move(lucy_1));

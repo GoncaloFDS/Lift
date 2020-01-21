@@ -1,20 +1,12 @@
+#include <pch.h>
 #include "model.h"
 #include "cornell_box.h"
 #include "procedural.h"
 #include "sphere.h"
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/matrix_inverse.hpp>
-#include <glm/gtx/hash.hpp>
+#include <filesystem>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
-#include <chrono>
-#include <filesystem>
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-#include <core.h>
 
 using namespace glm;
 
@@ -40,7 +32,7 @@ private:
 namespace assets {
 
 Model Model::loadModel(const std::string& filename) {
-    std::cout << "Loading '" << filename << "'... " << std::flush;
+    LF_WARN("Loading model {0}", filename);
 
     const auto timer = std::chrono::high_resolution_clock::now();
     const std::string material_path = std::filesystem::path(filename).parent_path().string();
@@ -55,7 +47,7 @@ Model Model::loadModel(const std::string& filename) {
         &obj_attrib, &obj_shapes, &obj_materials, &warn, &err,
         filename.c_str(),
         material_path.c_str())) {
-        LF_ASSERT(std::runtime_error("failed to load model '" + filename + "':\n" + err));
+        LF_ASSERT(false, "failed to load model");
     }
 
     if (!warn.empty()) {
@@ -237,11 +229,11 @@ Model Model::CreateSphere(const vec3& center, float radius, const Material& mate
                 n1,
                 n0 * std::cos(i0));
 
-            const vec2 texCoord(
+            const vec2 tex_coord(
                 static_cast<float>(i) / slices,
                 static_cast<float>(j) / stacks);
 
-            vertices.push_back(Vertex{position, normal, texCoord, 0});
+            vertices.push_back(Vertex{position, normal, tex_coord, 0});
         }
     }
 
@@ -269,10 +261,8 @@ Model Model::CreateSphere(const vec3& center, float radius, const Material& mate
         isProcedural ? new Sphere(center, radius) : nullptr);
 }
 
-void Model::SetMaterial(const Material& material) {
-    if (materials_.size() != 1) {
-        LF_ASSERT(std::runtime_error("cannot change material on a multi-material model"));
-    }
+void Model::setMaterial(const Material& material) {
+    LF_ASSERT(materials_.size() == 1, ("cannot change material on a multi-material model"));
 
     materials_[0] = material;
 }

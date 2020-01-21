@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "descriptor_set_manager.h"
 #include "descriptor_pool.h"
 #include "descriptor_set_layout.h"
@@ -17,7 +18,7 @@ DescriptorSetManager::DescriptorSetManager(const Device& device,
 
     for (const auto& binding : descriptor_bindings) {
         if (!binding_types.insert(std::make_pair(binding.Binding, binding.Type)).second) {
-            LF_ASSERT(std::invalid_argument("binding collision"));
+            LF_ASSERT(false, "");
         }
     }
 

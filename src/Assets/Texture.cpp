@@ -3,20 +3,19 @@
 #include <chrono>
 #include <iostream>
 #include <core.h>
+#include <pch.h>
 
 namespace assets {
 
-Texture Texture::LoadTexture(const std::string& filename, const vulkan::SamplerConfig& samplerConfig) {
-    std::cout << "Loading '" << filename << "'... " << std::flush;
+Texture Texture::LoadTexture(const std::string& filename, const vulkan::SamplerConfig& sampler_config) {
+    LF_WARN("Loading texture {0}", filename);
     const auto timer = std::chrono::high_resolution_clock::now();
 
     // Load the texture in normal host memory.
     int width, height, channels;
     const auto pixels = stbi_load(filename.c_str(), &width, &height, &channels, STBI_rgb_alpha);
 
-    if (!pixels) {
-        LF_ASSERT(std::runtime_error("failed to load texture image '" + filename + "'"));
-    }
+    LF_ASSERT(pixels, "failed to load texture image '{0}'", filename);
 
     const auto elapsed = std::chrono::duration<float, std::chrono::seconds::period>(
         std::chrono::high_resolution_clock::now() - timer).count();

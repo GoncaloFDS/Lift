@@ -1,3 +1,4 @@
+#include "pch.h"
 #include <memory>
 #include <stdexcept>
 #include <core.h>
@@ -28,7 +29,8 @@ VkFormat findSupportedFormat(const Device& device,
         }
     }
 
-    LF_ASSERT(std::runtime_error("failed to find supported format"));
+    LF_ASSERT(false, "failed to find supported format");
+    return VkFormat{};
 }
 
 VkFormat findDepthFormat(const Device& device) {

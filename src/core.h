@@ -22,21 +22,21 @@ constexpr auto bit(T x) -> T {
 #define GL_CHECK(x) \
         (x); \
         while (GLenum error = glGetError()) { \
-            LF_ERROR("[OpenGL Error] {0}", error);    \
-            LF_ERROR("\tFile: {0}", __FILE__);    \
-            LF_ERROR("\tLine: {0}", __LINE__);    \
+            LF_ERROR("[OpenGL Error] {0}", error); \
+            LF_ERROR("\tFile: {0}", __FILE__); \
+            LF_ERROR("\tLine: {0}", __LINE__); \
         }
 #else
 #define GL_CHECK(x) (x);
 #endif
 
 #ifdef LF_DEBUG
-#define OPTIX_CHECK(call) {                                                                   \
-    OptixResult res = call;                                                                     \
-    if( res != OPTIX_SUCCESS ) {                                                                \
+#define OPTIX_CHECK(call) { \
+    OptixResult res = call; \
+    if( res != OPTIX_SUCCESS ) { \
         LF_FATAL("Optix call {0} failed with code {1} (line {2})", #call, res, __LINE__ ); \
-        exit( 2 );                                                                              \
-    }                                                                                            \
+        exit( 2 ); \
+    } \
 }
 #else
 #define OPTIX_CHECK(call) ( call );

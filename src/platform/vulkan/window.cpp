@@ -1,6 +1,7 @@
 #include "window.h"
 #include "core/stb_image_impl.h"
 #include <iostream>
+#include <pch.h>
 
 namespace vulkan {
 
@@ -35,12 +36,15 @@ Window::Window(const WindowProperties& config) :
     config_(config) {
     glfwSetErrorCallback(glfwErrorCallback);
 
+    LF_INFO("Creating window {0} ({1}, {2})", config.title, config.width, config.height);
     if (!glfwInit()) {
-//		Throw(std::runtime_error("glfwInit() failed"));
+        LF_ASSERT(false, "glfwInit failed");
+        return;
     }
 
     if (!glfwVulkanSupported()) {
-//		Throw(std::runtime_error("glfwVulkanSupported() failed"));
+        LF_ASSERT(false, "Vulkan is not supported by glfw context")
+        return;
     }
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -49,18 +53,7 @@ Window::Window(const WindowProperties& config) :
     const auto monitor = config.fullscreen ? glfwGetPrimaryMonitor() : nullptr;
 
     window_ = glfwCreateWindow(config.width, config.height, config.title.c_str(), monitor, nullptr);
-    if (window_ == nullptr) {
-//		Throw(std::runtime_error("failed to create window"));
-    }
-
-    GLFWimage icon;
-    icon.pixels = stbi_load("../resources/textures/vulkan.png", &icon.width, &icon.height, nullptr, 4);
-    if (icon.pixels == nullptr) {
-//		Throw(std::runtime_error("failed to load icon"));
-    }
-
-    glfwSetWindowIcon(window_, 1, &icon);
-    stbi_image_free(icon.pixels);
+    LF_ASSERT(window_, "Failed to create a Window");
 
     if (config.cursorDisabled) {
         glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -83,9 +76,9 @@ Window::~Window() {
 }
 
 std::vector<const char*> Window::getRequiredInstanceExtensions() {
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    return std::vector<const char*>(glfwExtensions, glfwExtensions + glfwExtensionCount);
+    uint32_t glfw_extension_count = 0;
+    const char** glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
+    return std::vector<const char*>(glfw_extensions, glfw_extensions + glfw_extension_count);
 }
 
 float Window::contentScale() const {

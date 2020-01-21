@@ -69,8 +69,9 @@ void lift::WindowsWindow::init(const WindowProperties& props) {
     properties_.x = props.x;
     properties_.y = props.y;
 
-    LF_INFO("Creating window {0} ({1}, {2})", props.title, props.width, props.height);
+//    lift::Log::trace("Creating window {0} ({1}, {2})", props.title, props.width, props.height);
 
+    LF_TRACE("Creating window {0} ({1}, {2})", props.title, props.width, props.height);
     if (k_GlfwInitialized) {
         glfwTerminate();
     }

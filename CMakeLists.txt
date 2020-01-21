@@ -9,6 +9,8 @@ include(cmake/configure_optix.cmake)
 mark_as_advanced(CUDA_SDK_ROOT_DIR)
 set(optix_LIBRARY "")
 
+add_compile_definitions(LF_DEBUG)
+
 # On Linux, default to Release if not specified.
 if (UNIX AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Specifies the build type on single-configuration generators" FORCE)

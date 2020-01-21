@@ -1,7 +1,8 @@
+#include "pch.h"
 #include "properties.h"
 #include "scene_list.h"
+#include "core.h"
 #include <boost/program_options.hpp>
-#include <iostream>
 
 using namespace boost::program_options;
 
@@ -51,13 +52,6 @@ Options::Options(const int argc, const char* argv[]) {
     store(command_line_parser(argc, argv).options(desc).positional(positional).run(), vm);
     notify(vm);
 
-    if (vm.count("help")) {
-        std::cout << desc << std::endl;
-//		Throw(Help());
-    }
-
-    if (sceneIndex >= SceneList::allScenes.size()) {
-//		Throw(std::out_of_range("scene index is too large"));
-    }
+    LF_ASSERT(sceneIndex < SceneList::allScenes.size(), "Scene index is too large");
 }
 

@@ -7,6 +7,7 @@
 #include <functional>
 #include <utility>
 
+#include <chrono>
 #include <string>
 #include <cstdio>
 #include <sstream>
@@ -17,6 +18,7 @@
 #include <map>
 #include <unordered_set>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
@@ -27,11 +29,13 @@
 #include <glm/ext/scalar_constants.hpp> // glm::pi
 #include <glm/gtc/type_ptr.hpp> // value_ptr
 #include <glm/ext.hpp> // glm::to_string
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtx/hash.hpp>
 
 using namespace glm;
 
-#include "core/io/log.h"
-#include "core/os/key_codes.h"
+#include "core/log.h"
+#include "core/key_codes.h"
 #include "core/util.h"
 
 

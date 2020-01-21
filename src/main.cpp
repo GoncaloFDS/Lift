@@ -1,11 +1,7 @@
-
-#include "platform/vulkan/enumerate.h"
+#include <platform/vulkan/enumerate.h>
+#include "pch.h"
 #include "properties.h"
-#include "RayTracer.h"
-
-#include <algorithm>
-#include <cstdlib>
-#include <iostream>
+#include "ray_tracer.h"
 
 namespace {
 UserSettings createUserSettings(const Options& options);
@@ -13,6 +9,8 @@ void setVulkanDevice(vulkan::Application& application);
 }
 
 int main(int argc, const char* argv[]) noexcept {
+    lift::Log::init();
+    LF_WARN("Initialized Log");
     const Options options(argc, argv);
     const UserSettings user_settings = createUserSettings(options);
     const vulkan::WindowProperties window_properties{
@@ -58,7 +56,27 @@ UserSettings createUserSettings(const Options& options) {
 
 void setVulkanDevice(vulkan::Application& application) {
     const auto& physical_devices = application.physicalDevices();
-    application.setPhysicalDevice(physical_devices[0]);
+    const auto result = std::find_if(physical_devices.begin(), physical_devices.end(), [](const VkPhysicalDevice& device) {
+        // We want a device with geometry shader support.
+        VkPhysicalDeviceFeatures device_features;
+        vkGetPhysicalDeviceFeatures(device, &device_features);
+
+        if (!device_features.geometryShader) {
+            return false;
+        }
+
+        // We want a device with a graphics queue.
+        const auto queue_families = vulkan::getEnumerateVector(device, vkGetPhysicalDeviceQueueFamilyProperties);
+        const auto has_graphics_queue =
+            std::find_if(queue_families.begin(), queue_families.end(), [](const VkQueueFamilyProperties& queue_family) {
+                return queue_family.queueCount > 0 && queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT;
+            });
+
+        return has_graphics_queue != queue_families.end();
+    });
+
+    LF_ASSERT(result != physical_devices.end(), "Cannot find a suitable device");
+    application.setPhysicalDevice(*result);
 }
 
 }

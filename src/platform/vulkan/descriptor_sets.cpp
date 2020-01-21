@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "descriptor_sets.h"
 #include "descriptor_pool.h"
 #include "descriptor_set_layout.h"
@@ -98,10 +99,7 @@ void DescriptorSets::updateDescriptors(const std::vector<VkWriteDescriptorSet>& 
 
 VkDescriptorType DescriptorSets::getBindingType(uint32_t binding) const {
     const auto it = binding_types_.find(binding);
-    if (it == binding_types_.end()) {
-        LF_ASSERT(std::invalid_argument("binding not found"));
-    }
-
+    LF_ASSERT(it != binding_types_.end(), "binding not found");
     return it->second;
 }
 

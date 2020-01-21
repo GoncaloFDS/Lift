@@ -24,7 +24,7 @@ public:
     Model(Model&&) = default;
     ~Model() = default;
 
-    void SetMaterial(const Material& material);
+    void setMaterial(const Material& material);
     void Transform(const glm::mat4& transform);
 
     const std::vector<Vertex>& Vertices() const { return vertices_; }

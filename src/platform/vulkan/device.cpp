@@ -1,10 +1,10 @@
+#include "pch.h"
 #include "device.h"
 #include "enumerate.h"
 #include "instance.h"
 #include "surface.h"
 #include <algorithm>
 #include <set>
-#include <string>
 #include <stdexcept>
 #include <core.h>
 
@@ -22,9 +22,7 @@ std::vector<VkQueueFamilyProperties>::const_iterator findQueue(const std::vector
                                              && !(queue_family.queueFlags & excluded_bits);
                                      });
 
-    if (family == queue_families.end()) {
-        LF_ASSERT(std::runtime_error("found no matching " + name + " queue"));
-    }
+    LF_ASSERT(family != queue_families.end(), "found no matching {0} queue", name);
 
     return family;
 }
@@ -58,9 +56,7 @@ Device::Device(VkPhysicalDevice physical_device, const class Surface& surface)
             return queue_family.queueCount > 0 && present_support;
         });
 
-    if (present_family == queue_families.end()) {
-        LF_ASSERT(std::runtime_error("found no presentation queue"));
-    }
+    LF_ASSERT(present_family != queue_families.end(), "Found no presentation Queue");
 
     graphics_family_index_ = static_cast<uint32_t>(graphics_family - queue_families.begin());
     compute_family_index_ = static_cast<uint32_t>(compute_family - queue_families.begin());
@@ -131,8 +127,7 @@ void Device::waitIdle() const {
 }
 
 void Device::checkRequiredExtensions(VkPhysicalDevice physical_device) {
-    const auto available_extensions =
-        getEnumerateVector(physical_device, static_cast<const char*>(nullptr), vkEnumerateDeviceExtensionProperties);
+    const auto available_extensions = getEnumerateVector(physical_device, static_cast<const char*>(nullptr), vkEnumerateDeviceExtensionProperties);
     std::set<std::string> required_extensions(required_extensions_.begin(), required_extensions_.end());
 
     for (const auto& extension : available_extensions) {
@@ -152,7 +147,7 @@ void Device::checkRequiredExtensions(VkPhysicalDevice physical_device) {
             first = false;
         }
 
-        LF_ASSERT(std::runtime_error("missing required extensions: " + extensions));
+        LF_ASSERT(false, "missing required extensions: {0}", extensions);
     }
 }
 
