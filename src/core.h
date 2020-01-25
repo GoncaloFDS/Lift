@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef LF_DEBUG
+#ifndef NDEBUG
 #define LF_ENABLE_ASSERTS
 #endif
 

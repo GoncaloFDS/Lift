@@ -13,7 +13,7 @@ AccelerationStructure::AccelerationStructure(const class DeviceProcedures& devic
     vulkanCheck(device_procedures.vkCreateAccelerationStructureNV(device_.handle(),
                                                                   &create_info,
                                                                   nullptr,
-                                                                  &accelerationStructure_),
+                                                                  &acceleration_structure_),
                 "create acceleration structure");
 }
 
@@ -21,14 +21,14 @@ AccelerationStructure::AccelerationStructure(AccelerationStructure&& other) noex
     device_procedures_(other.device_procedures_),
     allow_update_(other.allow_update_),
     device_(other.device_),
-    accelerationStructure_(other.accelerationStructure_) {
-    other.accelerationStructure_ = nullptr;
+    acceleration_structure_(other.acceleration_structure_) {
+    other.acceleration_structure_ = nullptr;
 }
 
 AccelerationStructure::~AccelerationStructure() {
-    if (accelerationStructure_ != nullptr) {
-        device_procedures_.vkDestroyAccelerationStructureNV(device_.handle(), accelerationStructure_, nullptr);
-        accelerationStructure_ = nullptr;
+    if (acceleration_structure_ != nullptr) {
+        device_procedures_.vkDestroyAccelerationStructureNV(device_.handle(), acceleration_structure_, nullptr);
+        acceleration_structure_ = nullptr;
     }
 }
 
@@ -36,7 +36,7 @@ AccelerationStructure::MemoryRequirements AccelerationStructure::getMemoryRequir
     VkAccelerationStructureMemoryRequirementsInfoNV memoryRequirementsInfo{};
     memoryRequirementsInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV;
     memoryRequirementsInfo.pNext = nullptr;
-    memoryRequirementsInfo.accelerationStructure = accelerationStructure_;
+    memoryRequirementsInfo.accelerationStructure = acceleration_structure_;
 
     // If the descriptor already contains the geometry info, so we can directly compute the estimated size and required scratch memory.
     VkMemoryRequirements2 memoryRequirements = {};
@@ -85,9 +85,9 @@ AccelerationStructure::MemoryRequirements AccelerationStructure::getTotalRequire
     AccelerationStructure::MemoryRequirements total{};
 
     for (const auto& req : requirements) {
-        total.Result.size += req.Result.size;
-        total.Build.size += req.Build.size;
-        total.Update.size += req.Update.size;
+        total.result.size += req.result.size;
+        total.build.size += req.build.size;
+        total.update.size += req.update.size;
     }
 
     return total;

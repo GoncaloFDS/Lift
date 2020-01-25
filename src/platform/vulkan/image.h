@@ -20,6 +20,7 @@ public:
     Image(Image&& other) noexcept;
     ~Image();
 
+    [[nodiscard]] VkImage handle() const { return image_; }
     [[nodiscard]] const class Device& device() const { return device_; }
     [[nodiscard]] VkExtent2D extent() const { return extent_; }
     [[nodiscard]] VkFormat format() const { return format_; }
@@ -37,7 +38,8 @@ private:
     const VkFormat format_;
     VkImageLayout image_layout_;
 
-VULKAN_HANDLE(VkImage, image_)
+private:
+    VkImage image_{};
 };
 
 }

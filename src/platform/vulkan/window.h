@@ -1,41 +1,43 @@
 #pragma once
 
-#include "window_properties.h"
+#include "window_data.h"
 #include "core/utilities.h"
 #include <functional>
 #include <vector>
 
 namespace vulkan {
 
+using EventCallbackFn = std::function<void(Event&)>;
+
 class Window final {
 public:
-    explicit Window(const WindowProperties& config);
+    explicit Window(const WindowData& config);
     ~Window();
 
-    [[nodiscard]] const WindowProperties& config() const { return config_; }
+    [[nodiscard]] const WindowData& config() const { return config_; }
     [[nodiscard]] GLFWwindow* handle() const { return window_; }
 
-    static std::vector<const char*> getRequiredInstanceExtensions() ;
+    [[nodiscard]] static std::vector<const char*> getRequiredInstanceExtensions();
     [[nodiscard]] float contentScale() const;
-    static double time() ;
+    [[nodiscard]] static double time();
     [[nodiscard]] VkExtent2D framebufferSize() const;
     [[nodiscard]] VkExtent2D windowSize() const;
 
     std::function<void()> drawFrame;
 
-    std::function<void(int key, int scancode, int action, int mods)> onKey;
-    std::function<void(double xpos, double ypos)> onCursorPosition;
-    std::function<void(int button, int action, int mods)> onMouseButton;
+    [[nodiscard]] bool isMinimized() const;
 
     void close() const;
-    [[nodiscard]] bool isMinimized() const;
     void run() const;
     static void waitForEvents() ;
 
+    void setEventCallbackFn(const EventCallbackFn& callback);
+
 private:
 
-    const WindowProperties config_;
+    WindowData config_;
     GLFWwindow* window_{};
+
 };
 
 }

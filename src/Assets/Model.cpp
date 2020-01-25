@@ -15,10 +15,10 @@ template<>
 struct hash<assets::Vertex> final {
     size_t operator()(assets::Vertex const& vertex) const noexcept {
         return
-            combine(hash<vec3>()(vertex.Position),
-                    combine(hash<vec3>()(vertex.Normal),
-                            combine(hash<vec2>()(vertex.TexCoord),
-                                    hash<int>()(vertex.MaterialIndex))));
+            combine(hash<vec3>()(vertex.position),
+                    combine(hash<vec3>()(vertex.normal),
+                            combine(hash<vec2>()(vertex.texCoord),
+                                    hash<int>()(vertex.materialIndex))));
     }
 
 private:
@@ -59,8 +59,8 @@ Model Model::loadModel(const std::string& filename) {
     for (const auto& material : obj_materials) {
         Material m{};
 
-        m.Diffuse = vec4(material.diffuse[0], material.diffuse[1], material.diffuse[2], 1.0);
-        m.DiffuseTextureId = -1;
+        m.diffuse = vec4(material.diffuse[0], material.diffuse[1], material.diffuse[2], 1.0);
+        m.diffuseTextureId = -1;
 
         materials.emplace_back(m);
     }
@@ -68,8 +68,8 @@ Model Model::loadModel(const std::string& filename) {
     if (materials.empty()) {
         Material m{};
 
-        m.Diffuse = vec4(0.7f, 0.7f, 0.7f, 1.0);
-        m.DiffuseTextureId = -1;
+        m.diffuse = vec4(0.7f, 0.7f, 0.7f, 1.0);
+        m.diffuseTextureId = -1;
 
         materials.emplace_back(m);
     }
@@ -86,26 +86,26 @@ Model Model::loadModel(const std::string& filename) {
         for (const auto& index : mesh.indices) {
             Vertex vertex = {};
 
-            vertex.Position = {
+            vertex.position = {
                 obj_attrib.vertices[3 * index.vertex_index + 0],
                 obj_attrib.vertices[3 * index.vertex_index + 1],
                 obj_attrib.vertices[3 * index.vertex_index + 2],
             };
 
-            vertex.Normal = {
+            vertex.normal = {
                 obj_attrib.normals[3 * index.normal_index + 0],
                 obj_attrib.normals[3 * index.normal_index + 1],
                 obj_attrib.normals[3 * index.normal_index + 2]
             };
 
             if (!obj_attrib.texcoords.empty()) {
-                vertex.TexCoord = {
+                vertex.texCoord = {
                     obj_attrib.texcoords[2 * index.texcoord_index + 0],
                     1 - obj_attrib.texcoords[2 * index.texcoord_index + 1]
                 };
             }
 
-            vertex.MaterialIndex = std::max(0, mesh.material_ids[face_id++ / 3]);
+            vertex.materialIndex = std::max(0, mesh.material_ids[face_id++ / 3]);
 
             if (unique_vertices.count(vertex) == 0) {
                 unique_vertices[vertex] = static_cast<uint32_t>(vertices.size());
@@ -119,8 +119,9 @@ Model Model::loadModel(const std::string& filename) {
     const auto elapsed = std::chrono::duration<float, std::chrono::seconds::period>(
         std::chrono::high_resolution_clock::now() - timer).count();
 
-    LF_INFO("Loaded model {0} with {1} vertices and {2} materials",
+    LF_INFO("Loaded model {0} in {1} -> {2} vertices and {3} materials",
             filename,
+            elapsed,
             obj_attrib.vertices.size(),
             materials.size());
 
@@ -132,7 +133,7 @@ Model Model::createCornellBox(const float scale) {
     std::vector<uint32_t> indices;
     std::vector<Material> materials;
 
-    CornellBox::Create(scale, vertices, indices, materials);
+    CornellBox::create(scale, vertices, indices, materials);
 
     return Model(std::move(vertices),
                  std::move(indices),
@@ -187,7 +188,7 @@ Model Model::createBox(const vec3& p0, const vec3& p1, const Material& material)
                  nullptr);
 }
 
-Model Model::createSphere(const vec3& center, float radius, const Material& material, const bool isProcedural) {
+Model Model::createSphere(const vec3& center, float radius, const Material& material, const bool is_procedural) {
     const int slices = 32;
     const int stacks = 16;
 
@@ -248,7 +249,7 @@ Model Model::createSphere(const vec3& center, float radius, const Material& mate
     return Model(std::move(vertices),
                  std::move(indices),
                  std::vector<Material>{material},
-                 isProcedural ? new Sphere(center, radius) : nullptr);
+                 is_procedural ? new Sphere(center, radius) : nullptr);
 }
 
 void Model::setMaterial(const Material& material) {
@@ -261,8 +262,8 @@ void Model::transform(const mat4& transform) {
     const auto inverse_transpose = inverseTranspose(transform);
 
     for (auto& vertex : vertices_) {
-        vertex.Position = transform * vec4(vertex.Position, 1);
-        vertex.Normal = inverse_transpose * vec4(vertex.Normal, 0);
+        vertex.position = transform * vec4(vertex.position, 1);
+        vertex.normal = inverse_transpose * vec4(vertex.normal, 0);
     }
 }
 

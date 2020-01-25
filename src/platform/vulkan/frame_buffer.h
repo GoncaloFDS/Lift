@@ -17,6 +17,7 @@ public:
     FrameBuffer(FrameBuffer&& other) noexcept;
     ~FrameBuffer();
 
+    [[nodiscard]] VkFramebuffer handle() const { return framebuffer_; }
     [[nodiscard]] const class ImageView& imageView() const { return image_view_; }
     [[nodiscard]] const class RenderPass& renderPass() const { return render_pass_; }
 
@@ -24,8 +25,7 @@ private:
 
     const class ImageView& image_view_;
     const class RenderPass& render_pass_;
-
-VULKAN_HANDLE(VkFramebuffer, framebuffer_)
+    VkFramebuffer framebuffer_{};
 };
 
 }

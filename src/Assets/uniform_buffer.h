@@ -13,18 +13,18 @@ namespace assets {
 class UniformBufferObject {
 public:
 
-    glm::mat4 ModelView;
-    glm::mat4 Projection;
-    glm::mat4 ModelViewInverse;
-    glm::mat4 ProjectionInverse;
-    float Aperture;
-    float FocusDistance;
-    uint32_t TotalNumberOfSamples;
-    uint32_t NumberOfSamples;
-    uint32_t NumberOfBounces;
-    uint32_t RandomSeed;
-    uint32_t GammaCorrection; // bool
-    uint32_t HasSky; // bool
+    glm::mat4 modelView;
+    glm::mat4 projection;
+    glm::mat4 modelViewInverse;
+    glm::mat4 projectionInverse;
+    float aperture;
+    float focusDistance;
+    uint32_t totalNumberOfSamples;
+    uint32_t numberOfSamples;
+    uint32_t numberOfBounces;
+    uint32_t randomSeed;
+    uint32_t gammaCorrection; // bool
+    uint32_t hasSky; // bool
 };
 
 class UniformBuffer {
@@ -38,9 +38,9 @@ public:
     UniformBuffer(UniformBuffer&& other) noexcept;
     ~UniformBuffer();
 
-    const vulkan::Buffer& Buffer() const { return *buffer_; }
+    [[nodiscard]] const vulkan::Buffer& buffer() const { return *buffer_; }
 
-    void SetValue(const UniformBufferObject& ubo);
+    void setValue(const UniformBufferObject& ubo);
 
 private:
 

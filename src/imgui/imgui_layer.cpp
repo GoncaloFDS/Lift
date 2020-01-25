@@ -16,14 +16,8 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_vulkan.h"
 
-#include <array>
-#include <memory>
-#include <core.h>
-
-namespace {
 void checkVulkanResultCallback(const VkResult err) {
     LF_ASSERT(err == VK_SUCCESS, "ImGui Vulkan Error: {0}", vulkan::toString(err));
-}
 }
 
 ImguiLayer::ImguiLayer(vulkan::CommandPool& command_pool,

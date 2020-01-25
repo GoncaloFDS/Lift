@@ -8,41 +8,36 @@
 
 namespace vulkan {
 
-namespace {
-VkAccelerationStructureCreateInfoNV GetCreateInfo(const size_t instanceCount, const bool allowUpdate) {
-    const auto flags = allowUpdate
+VkAccelerationStructureCreateInfoNV getCreateInfo(const size_t instance_count, const bool allow_update) {
+    const auto flags = allow_update
                        ? VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_NV
                        : VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_NV;
 
-    VkAccelerationStructureCreateInfoNV structureInfo = {};
-    structureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV;
-    structureInfo.pNext = nullptr;
-    structureInfo.info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
-    structureInfo.info.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_NV;
-    structureInfo.info.flags = flags;
-    structureInfo.compactedSize = 0;
-    structureInfo.info.instanceCount = static_cast<uint32_t>(instanceCount);
-    structureInfo.info.geometryCount = 0; // Since this is a top-level AS, it does not contain any geometry
-    structureInfo.info.pGeometries = nullptr;
+    VkAccelerationStructureCreateInfoNV structure_info = {};
+    structure_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV;
+    structure_info.pNext = nullptr;
+    structure_info.info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV;
+    structure_info.info.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_NV;
+    structure_info.info.flags = flags;
+    structure_info.compactedSize = 0;
+    structure_info.info.instanceCount = static_cast<uint32_t>(instance_count);
+    structure_info.info.geometryCount = 0; // Since this is a top-level AS, it does not contain any geometry
+    structure_info.info.pGeometries = nullptr;
 
-    return structureInfo;
-}
+    return structure_info;
 }
 
 TopLevelAccelerationStructure::TopLevelAccelerationStructure(
     const class DeviceProcedures& device_procedures,
     const std::vector<VkGeometryInstance>& geometry_instances,
-    const bool allow_update) :
-    AccelerationStructure(device_procedures, GetCreateInfo(geometry_instances.size(), allow_update)),
-    geometry_instances_(geometry_instances) {
+    const bool allow_update) : AccelerationStructure(device_procedures,
+                                                     getCreateInfo(geometry_instances.size(), allow_update)),
+                               geometry_instances_(geometry_instances) {
 }
 
 TopLevelAccelerationStructure::TopLevelAccelerationStructure(TopLevelAccelerationStructure&& other) noexcept :
     AccelerationStructure(std::move(other)),
     geometry_instances_(std::move(other.geometry_instances_)) {
-}
-
-TopLevelAccelerationStructure::~TopLevelAccelerationStructure() {
 }
 
 void TopLevelAccelerationStructure::generate(

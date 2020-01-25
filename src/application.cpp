@@ -1,56 +1,165 @@
 #include <pch.h>
+#include "vulkan/window.h"
+#include "vulkan/swap_chain.h"
+#include "vulkan/device.h"
+#include "assets/texture.h"
+#include "user_settings.h"
+#include "imgui/imgui_layer.h"
 #include "application.h"
-#include "platform/vulkan/swap_chain.h"
 #include "platform/vulkan/single_time_commands.h"
 #include "platform/vulkan/pipeline_layout.h"
 #include "platform/vulkan/image_view.h"
 #include "platform/vulkan/image_memory_barrier.h"
 #include "platform/vulkan/image.h"
 #include "platform/vulkan/buffer.h"
-#include "tlas.h"
-#include "shader_binding_table.h"
-#include "ray_tracing_pipeline.h"
-#include "device_procedures.h"
-#include "blas.h"
-#include "depth_buffer.h"
-#include "device.h"
-#include "fence.h"
-#include "frame_buffer.h"
-#include "graphics_pipeline.h"
-#include "instance.h"
-#include "pipeline_layout.h"
-#include "render_pass.h"
-#include "semaphore.h"
-#include "surface.h"
-#include "swap_chain.h"
-#include "window.h"
+#include "platform/vulkan/tlas.h"
+#include "platform/vulkan/shader_binding_table.h"
+#include "platform/vulkan/ray_tracing_pipeline.h"
+#include "platform/vulkan/device_procedures.h"
+#include "platform/vulkan/blas.h"
+#include "platform/vulkan/depth_buffer.h"
+#include "platform/vulkan/fence.h"
+#include "platform/vulkan/graphics_pipeline.h"
+#include "platform/vulkan/instance.h"
+#include "platform/vulkan/render_pass.h"
+#include "platform/vulkan/semaphore.h"
+#include "platform/vulkan/surface.h"
 #include "assets/model.h"
 #include "assets/scene.h"
 #include "assets/uniform_buffer.h"
 #include <events/application_event.h>
 #include <events/mouse_event.h>
 #include <events/key_event.h>
-#include "ray_tracing_properties.h"
+#include "platform/vulkan/ray_tracing_properties.h"
+#include "core/input.h"
+
+void vulkan::Application::timeRender(VkCommandBuffer command_buffer, uint32_t image_index) {
+    // Record delta time between calls to Render.
+    const auto prev_time = time_;
+    time_ = window().time();
+    const auto delta_time = time_ - prev_time;
+
+    // Check the current state of the benchmark, update it for the new frame.
+    checkAndUpdateBenchmarkState(prev_time);
+
+    // Render the scene
+    if (user_settings_.isRayTraced) {
+        render(command_buffer, image_index);
+    } else {
+        rasterize(command_buffer, image_index);
+    }
+
+    // Render the UI
+    Statistics stats = {};
+    stats.framebufferSize = window().framebufferSize();
+    stats.frameRate = static_cast<float>(1 / delta_time);
+
+    if (user_settings_.isRayTraced) {
+        const auto extent = swapChain().extent();
+
+        stats.rayRate =
+            static_cast<float>( double(extent.width * extent.height) * number_of_samples_ / (delta_time * 1000000000));
+        stats.totalSamples = total_number_of_samples_;
+    }
+
+    user_interface_->render(command_buffer, swapChainFrameBuffer(image_index), stats);
+}
+
+void vulkan::Application::loadScene(const uint32_t scene_index) {
+    auto[models, textures] = SceneList::allScenes[scene_index].second(camera_initial_sate_);
+
+    LF_WARN("Loading Scene {0}", SceneList::allScenes[scene_index].first.c_str());
+
+    if (textures.empty()) {
+        textures.push_back(assets::Texture::loadTexture("../resources/textures/white.png", SamplerConfig()));
+    }
+
+    scene_ = std::make_unique<assets::Scene>(commandPool(), std::move(models), std::move(textures), true);
+    scene_index_ = scene_index;
+
+    user_settings_.fieldOfView = camera_initial_sate_.fieldOfView;
+    user_settings_.aperture = camera_initial_sate_.aperture;
+    user_settings_.focusDistance = camera_initial_sate_.focusDistance;
+    user_settings_.gammaCorrection = camera_initial_sate_.gammaCorrection;
+
+    camera_x_ = 0;
+    camera_y_ = 0;
+
+    period_total_frames_ = 0;
+    reset_accumulation_ = true;
+}
+
+void vulkan::Application::checkAndUpdateBenchmarkState(double prev_time) {
+    if (!user_settings_.benchmark) {
+        return;
+    }
+
+    // Initialise scene benchmark timers
+    if (period_total_frames_ == 0) {
+        std::cout << std::endl;
+        std::cout << "Benchmark: Start scene #" << scene_index_ << " '" << SceneList::allScenes[scene_index_].first
+                  << "'"
+                  << std::endl;
+        scene_initial_time_ = time_;
+        period_initial_time_ = time_;
+    }
+
+    // Print out the frame rate at regular intervals.
+    {
+        const double period = 5;
+        const double prev_total_time = prev_time - period_initial_time_;
+        const double total_time = time_ - period_initial_time_;
+
+        if (period_total_frames_ != 0
+            && static_cast<uint64_t>(prev_total_time / period) != static_cast<uint64_t>(total_time / period)) {
+            std::cout << "Benchmark: " << period_total_frames_ / total_time << " fps" << std::endl;
+            period_initial_time_ = time_;
+            period_total_frames_ = 0;
+        }
+
+        period_total_frames_++;
+    }
+
+    // If in benchmark mode, bail out from the scene if we've reached the time or sample limit.
+    {
+        const bool time_limit_reached =
+            period_total_frames_ != 0 && window().time() - scene_initial_time_ > user_settings_.benchmarkMaxTime;
+        const bool sample_limit_reached = number_of_samples_ == 0;
+
+        if (time_limit_reached || sample_limit_reached) {
+            if (!user_settings_.benchmarkNextScenes
+                || static_cast<size_t>(user_settings_.sceneIndex) == SceneList::allScenes.size() - 1) {
+                window().close();
+            }
+
+            std::cout << std::endl;
+            user_settings_.sceneIndex += 1;
+        }
+    }
+}
 
 namespace vulkan {
 
 #ifdef NDEBUG
-const bool enable_validation_layers = false;
+const auto k_validation_layers = std::vector<const char*>();
 #else
-const bool enable_validation_layers = true;
+const auto k_validation_layers = std::vector<const char*>{"VK_LAYER_KHRONOS_validation"};
 #endif
 
-Application::Application(const WindowProperties& window_properties, const bool vsync) :
-    vsync_(vsync) {
-    const auto validation_layers = enable_validation_layers ? std::vector<const char*>{"VK_LAYER_KHRONOS_validation"}
-                                                            : std::vector<const char*>();
+Application::Application(const UserSettings& user_settings, const WindowData& window_properties, const bool vsync) :
+    user_settings_(user_settings), vsync_(vsync) {
+    const auto validation_layers = k_validation_layers;
 
     window_ = std::make_unique<Window>(window_properties);
+    window_->setEventCallbackFn(LF_BIND_EVENT_FN(Application::onEvent));
     instance_ = std::make_unique<Instance>(*window_, validation_layers);
     surface_ = std::make_unique<Surface>(*instance_);
+
+    checkFramebufferSize();
 }
 
 Application::~Application() {
+    scene_.reset();
     deleteSwapChain();
 
     deleteAccelerationStructures();
@@ -64,8 +173,39 @@ Application::~Application() {
     window_.reset();
 }
 
+assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D extent) const {
+    const auto camera_rot_x = static_cast<float>(camera_y_ / 300.0);
+    const auto camera_rot_y = static_cast<float>(camera_x_ / 300.0);
+
+    const auto& init = camera_initial_sate_;
+    const auto view = init.modelView;
+    const auto model = glm::rotate(mat4(1.0f), camera_rot_y * radians(90.0f), vec3(0.0f, 1.0f, 0.0f)) *
+        glm::rotate(mat4(1.0f), camera_rot_x * radians(90.0f), vec3(1.0f, 0.0f, 0.0f));
+
+    assets::UniformBufferObject ubo = {};
+    ubo.modelView = view * model;
+    ubo.projection = perspective(radians(user_settings_.fieldOfView),
+                                 extent.width / static_cast<float>(extent.height),
+                                 0.1f,
+                                 10000.0f);
+    ubo.projection[1][1] *=
+        -1; // Inverting Y for vulkan, https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
+    ubo.modelViewInverse = glm::inverse(ubo.modelView);
+    ubo.projectionInverse = glm::inverse(ubo.projection);
+    ubo.aperture = user_settings_.aperture;
+    ubo.focusDistance = user_settings_.focusDistance;
+    ubo.totalNumberOfSamples = total_number_of_samples_;
+    ubo.numberOfSamples = number_of_samples_;
+    ubo.numberOfBounces = user_settings_.numberOfBounces;
+    ubo.randomSeed = 1;
+    ubo.gammaCorrection = user_settings_.gammaCorrection;
+    ubo.hasSky = init.hasSky;
+
+    return ubo;
+}
+
 void Application::createAccelerationStructures() {
-    LF_TRACE("Building acceleration structures...");
+    LF_INFO("Building acceleration structures...");
     const auto timer = std::chrono::high_resolution_clock::now();
 
     SingleTimeCommands::submit(commandPool(), [this](VkCommandBuffer command_buffer) {
@@ -193,19 +333,17 @@ void Application::createBottomLevelStructures(VkCommandBuffer command_buffer) {
     std::vector<AccelerationStructure::MemoryRequirements> requirements;
 
     for (const auto& model : scene.models()) {
-        const auto vertex_count = static_cast<uint32_t>(model.NumberOfVertices());
-        const auto index_count = static_cast<uint32_t>(model.NumberOfIndices());
-        const std::vector<VkGeometryNV> geometries =
-            {
-                model.Procedural()
-                ? BottomLevelAccelerationStructure::createGeometryAabb(scene, aabb_offset, 1, true)
-                : BottomLevelAccelerationStructure::createGeometry(scene,
-                                                                   vertex_offset,
-                                                                   vertex_count,
-                                                                   index_offset,
-                                                                   index_count,
-                                                                   true)
-            };
+        const auto vertex_count = static_cast<uint32_t>(model.vertexCount());
+        const auto index_count = static_cast<uint32_t>(model.indexCount());
+        const std::vector<VkGeometryNV> geometries = {
+            model.procedural() ? BottomLevelAccelerationStructure::createGeometryAabb(scene, aabb_offset, 1, true)
+                               : BottomLevelAccelerationStructure::createGeometry(scene,
+                                                                                  vertex_offset,
+                                                                                  vertex_count,
+                                                                                  index_offset,
+                                                                                  index_count,
+                                                                                  true)
+        };
 
         bottom_as_.emplace_back(*device_procedures_, geometries, false);
         requirements.push_back(bottom_as_.back().getMemoryRequirements());
@@ -218,11 +356,11 @@ void Application::createBottomLevelStructures(VkCommandBuffer command_buffer) {
     // Allocate the structure memory.
     const auto total = AccelerationStructure::getTotalRequirements(requirements);
 
-    bottom_buffer_ = std::make_unique<Buffer>(device(), total.Result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
+    bottom_buffer_ = std::make_unique<Buffer>(device(), total.result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
     bottom_buffer_memory_ =
         std::make_unique<DeviceMemory>(bottom_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
-    bottom_scratch_buffer_ = std::make_unique<Buffer>(device(), total.Build.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
+    bottom_scratch_buffer_ = std::make_unique<Buffer>(device(), total.build.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
     bottom_scratch_buffer_memory_ = std::make_unique<DeviceMemory>(bottom_scratch_buffer_->allocateMemory(
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
@@ -237,8 +375,8 @@ void Application::createBottomLevelStructures(VkCommandBuffer command_buffer) {
                                *bottom_buffer_memory_,
                                result_offset,
                                false);
-        result_offset += requirements[i].Result.size;
-        scratch_offset += requirements[i].Build.size;
+        result_offset += requirements[i].result.size;
+        scratch_offset += requirements[i].build.size;
     }
 }
 
@@ -255,7 +393,7 @@ void Application::createTopLevelStructures(VkCommandBuffer command_buffer) {
 
     for (const auto& model : scene.models()) {
         geometry_instances.push_back(TopLevelAccelerationStructure::createGeometryInstance(
-            bottom_as_[instance_id], mat4(1), instance_id, model.Procedural() ? 1 : 0));
+            bottom_as_[instance_id], mat4(1), instance_id, model.procedural() ? 1 : 0));
         instance_id++;
     }
 
@@ -265,11 +403,11 @@ void Application::createTopLevelStructures(VkCommandBuffer command_buffer) {
     // Allocate the structure memory.
     const auto total = AccelerationStructure::getTotalRequirements(requirements);
 
-    top_buffer_ = std::make_unique<Buffer>(device(), total.Result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
+    top_buffer_ = std::make_unique<Buffer>(device(), total.result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
     top_buffer_memory_ =
         std::make_unique<DeviceMemory>(top_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
-    top_scratch_buffer_ = std::make_unique<Buffer>(device(), total.Build.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
+    top_scratch_buffer_ = std::make_unique<Buffer>(device(), total.build.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
     top_scratch_buffer_memory_ = std::make_unique<DeviceMemory>(top_scratch_buffer_->allocateMemory(
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
@@ -341,10 +479,10 @@ void Application::run() {
 
     current_frame_ = 0;
 
-    window_->drawFrame = [this]() { drawFrame(); };
-    window_->onKey = [this](int key, int scan_code, int action, int mods) { onKey(key, scan_code, action, mods); };
-    window_->onCursorPosition = [this](double xpos, double ypos) { onCursorPosition(xpos, ypos); };
-    window_->onMouseButton = [this](int button, int action, int mods) { onMouseButton(button, action, mods); };
+    window_->drawFrame = [this]() {
+        prepareFrame();
+        drawFrame();
+    };
     window_->run();
     device_->waitIdle();
 }
@@ -352,10 +490,11 @@ void Application::run() {
 void Application::onDeviceSet() {
     properties_ = std::make_unique<RayTracingProperties>(device());
     device_procedures_ = std::make_unique<DeviceProcedures>(device());
+    loadScene(user_settings_.sceneIndex);
+    createAccelerationStructures();
 }
 
 void Application::createSwapChain() {
-    // Wait until the window is visible.
     while (window_->isMinimized()) {
         window_->waitForEvents();
     }
@@ -396,9 +535,8 @@ void Application::createSwapChain() {
 
     const std::vector<ShaderBindingTable::Entry> ray_gen_programs = {{ray_tracing_pipeline_->rayGenShaderIndex(), {}}};
     const std::vector<ShaderBindingTable::Entry> miss_programs = {{ray_tracing_pipeline_->missShaderIndex(), {}}};
-    const std::vector<ShaderBindingTable::Entry> hit_groups = {
-        {ray_tracing_pipeline_->triangleHitGroupIndex(), {}},
-        {ray_tracing_pipeline_->proceduralHitGroupIndex(), {}}};
+    const std::vector<ShaderBindingTable::Entry> hit_groups = {{ray_tracing_pipeline_->triangleHitGroupIndex(), {}},
+                                                               {ray_tracing_pipeline_->proceduralHitGroupIndex(), {}}};
 
     shader_binding_table_ = std::make_unique<ShaderBindingTable>(*device_procedures_,
                                                                  *ray_tracing_pipeline_,
@@ -407,11 +545,15 @@ void Application::createSwapChain() {
                                                                  miss_programs,
                                                                  hit_groups);
 
-//    cudaFree(nullptr);
-//    optixInit();
+    user_interface_ = std::make_unique<ImguiLayer>(commandPool(), swapChain(), depthBuffer(), user_settings_);
+    reset_accumulation_ = true;
+
+    checkFramebufferSize();
+
 }
 
 void Application::deleteSwapChain() {
+    user_interface_.reset();
     shader_binding_table_.reset();
     ray_tracing_pipeline_.reset();
     output_image_view_.reset();
@@ -429,6 +571,35 @@ void Application::deleteSwapChain() {
     image_available_semaphores_.clear();
     depth_buffer_.reset();
     swap_chain_.reset();
+}
+
+void vulkan::Application::prepareFrame() {
+    // Check if the scene has been changed by the user.
+    if (scene_index_ != static_cast<uint32_t>(user_settings_.sceneIndex)) {
+        device().waitIdle();
+        deleteSwapChain();
+        deleteAccelerationStructures();
+        loadScene(user_settings_.sceneIndex);
+        createAccelerationStructures();
+        createSwapChain();
+        return;
+    }
+
+    // Check if the accumulation buffer needs to be reset.
+    if (reset_accumulation_ ||
+        user_settings_.requiresAccumulationReset(previous_settings_) ||
+        !user_settings_.accumulateRays) {
+        total_number_of_samples_ = 0;
+        reset_accumulation_ = false;
+    }
+
+    previous_settings_ = user_settings_;
+
+    // Keep track of our sample count.
+    number_of_samples_ = clamp(user_settings_.maxNumberOfSamples - total_number_of_samples_,
+                               0u, user_settings_.numberOfSamples);
+    total_number_of_samples_ += number_of_samples_;
+
 }
 
 void Application::drawFrame() {
@@ -458,7 +629,7 @@ void Application::drawFrame() {
     }
 
     const auto command_buffer = command_buffers_->begin(image_index);
-    render(command_buffer, image_index);
+    timeRender(command_buffer, image_index);
     command_buffers_->end(image_index);
 
     updateUniformBuffer(image_index);
@@ -506,59 +677,59 @@ void Application::drawFrame() {
     current_frame_ = (current_frame_ + 1) % in_flight_fences_.size();
 }
 
-//void Application::render(VkCommandBuffer command_buffer, uint32_t image_index) {
-//    std::array<VkClearValue, 2> clear_values = {};
-//    clear_values[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
-//    clear_values[1].depthStencil = {1.0f, 0};
-//
-//    VkRenderPassBeginInfo render_pass_info = {};
-//    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-//    render_pass_info.renderPass = graphics_pipeline_->renderPass().handle();
-//    render_pass_info.framebuffer = swap_chain_framebuffers_[image_index].handle();
-//    render_pass_info.renderArea.offset = {0, 0};
-//    render_pass_info.renderArea.extent = swap_chain_->extent();
-//    render_pass_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
-//    render_pass_info.pClearValues = clear_values.data();
-//
-//    vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
-//    {
-//        const auto& scene = getScene();
-//
-//        VkDescriptorSet descriptor_sets[] = {graphics_pipeline_->descriptorSet(image_index)};
-//        VkBuffer vertex_buffers[] = {scene.vertexBuffer().handle()};
-//        const VkBuffer index_buffer = scene.indexBuffer().handle();
-//        VkDeviceSize offsets[] = {0};
-//
-//        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_->handle());
-//        vkCmdBindDescriptorSets(command_buffer,
-//                                VK_PIPELINE_BIND_POINT_GRAPHICS,
-//                                graphics_pipeline_->pipelineLayout().handle(),
-//                                0,
-//                                1,
-//                                descriptor_sets,
-//                                0,
-//                                nullptr);
-//        vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
-//        vkCmdBindIndexBuffer(command_buffer, index_buffer, 0, VK_INDEX_TYPE_UINT32);
-//
-//        uint32_t vertex_offset = 0;
-//        uint32_t index_offset = 0;
-//
-//        for (const auto& model : scene.Models()) {
-//            const auto vertex_count = static_cast<uint32_t>(model.NumberOfVertices());
-//            const auto index_count = static_cast<uint32_t>(model.NumberOfIndices());
-//
-//            vkCmdDrawIndexed(command_buffer, index_count, 1, index_offset, vertex_offset, 0);
-//
-//            vertex_offset += vertex_count;
-//            index_offset += index_count;
-//        }
-//    }
-//    vkCmdEndRenderPass(command_buffer);
-//}
+void Application::rasterize(VkCommandBuffer command_buffer, uint32_t image_index) {
+    std::array<VkClearValue, 2> clear_values = {};
+    clear_values[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
+    clear_values[1].depthStencil = {1.0f, 0};
+
+    VkRenderPassBeginInfo render_pass_info = {};
+    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    render_pass_info.renderPass = graphics_pipeline_->renderPass().handle();
+    render_pass_info.framebuffer = swap_chain_framebuffers_[image_index].handle();
+    render_pass_info.renderArea.offset = {0, 0};
+    render_pass_info.renderArea.extent = swap_chain_->extent();
+    render_pass_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
+    render_pass_info.pClearValues = clear_values.data();
+
+    vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
+    {
+        const auto& scene = getScene();
+
+        VkDescriptorSet descriptor_sets[] = {graphics_pipeline_->descriptorSet(image_index)};
+        VkBuffer vertex_buffers[] = {scene.vertexBuffer().handle()};
+        const VkBuffer index_buffer = scene.indexBuffer().handle();
+        VkDeviceSize offsets[] = {0};
+
+        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_->handle());
+        vkCmdBindDescriptorSets(command_buffer,
+                                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                graphics_pipeline_->pipelineLayout().handle(),
+                                0,
+                                1,
+                                descriptor_sets,
+                                0,
+                                nullptr);
+        vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
+        vkCmdBindIndexBuffer(command_buffer, index_buffer, 0, VK_INDEX_TYPE_UINT32);
+
+        uint32_t vertex_offset = 0;
+        uint32_t index_offset = 0;
+
+        for (const auto& model : scene.models()) {
+            const auto vertex_count = static_cast<uint32_t>(model.vertexCount());
+            const auto index_count = static_cast<uint32_t>(model.indexCount());
+
+            vkCmdDrawIndexed(command_buffer, index_count, 1, index_offset, vertex_offset, 0);
+
+            vertex_offset += vertex_count;
+            index_offset += index_count;
+        }
+    }
+    vkCmdEndRenderPass(command_buffer);
+}
 
 void Application::updateUniformBuffer(const uint32_t image_index) {
-    uniform_buffers_[image_index].SetValue(getUniformBufferObject(swap_chain_->extent()));
+    uniform_buffers_[image_index].setValue(getUniformBufferObject(swap_chain_->extent()));
 }
 
 void Application::recreateSwapChain() {
@@ -569,6 +740,7 @@ void Application::recreateSwapChain() {
 
 void Application::onEvent(Event& event) {
     EventDispatcher dispatcher(event);
+    dispatcher.dispatch<WindowCloseEvent>(LF_BIND_EVENT_FN(Application::onWindowClose));
     dispatcher.dispatch<WindowResizeEvent>(LF_BIND_EVENT_FN(Application::onWindowResize));
     dispatcher.dispatch<WindowMinimizeEvent>(LF_BIND_EVENT_FN(Application::onWindowMinimize));
 
@@ -581,30 +753,79 @@ void Application::onEvent(Event& event) {
 
 bool Application::onWindowClose(WindowCloseEvent& e) {
     is_running_ = false;
-    LF_TRACE(e.toString());
+    LF_INFO(e.toString());
     return false;
 }
 
 bool Application::onWindowResize(WindowResizeEvent& e) {
     if (e.height() && e.width()) {
+        LF_INFO(e.toString());
+    }
+    return false;
+}
+
+bool Application::onWindowMinimize(WindowMinimizeEvent& e) {
+    return false;
+}
+
+bool Application::onMouseMove(MouseMovedEvent& e) {
+    if (Input::isKeyPressed(LF_MOUSE_BUTTON_1)) {
+        camera_x_ += static_cast<float>(e.x() - mouse_x_);
+        camera_y_ += static_cast<float>(e.y() - mouse_y_);
+
+        reset_accumulation_ = true;
+    }
+    mouse_x_ = e.x();
+    mouse_y_ = e.y();
+    return false;
+}
+
+bool Application::onMouseScroll(MouseScrolledEvent& e) {
+    return false;
+}
+
+bool Application::onKeyPress(KeyPressedEvent& e) {
+    if (user_interface_->wantsToCaptureKeyboard()) {
+        return true;
+    }
+    switch (e.keyCode()) {
+        case LF_KEY_ESCAPE:
+            window().close();
+            break;
+        case LF_KEY_F1:
+            user_settings_.showSettings = !user_settings_.showSettings;
+            break;
+        case LF_KEY_F2:
+            user_settings_.showOverlay = !user_settings_.showOverlay;
+            break;
+        case LF_KEY_F3:
+            user_settings_.isRayTraced = !user_settings_.isRayTraced;
+            break;
+        default:
+            break;
 
     }
     return false;
 }
-bool Application::onWindowMinimize(WindowMinimizeEvent& e) {
-    LF_TRACE(e.toString());
-    return false;
-}
-bool Application::onMouseMove(MouseMovedEvent& e) {
-    return false;
-}
-bool Application::onMouseScroll(MouseScrolledEvent& e) {
-    return false;
-}
-bool Application::onKeyPress(KeyPressedEvent& e) {
-    return false;
-}
+
 bool Application::onKeyRelease(KeyReleasedEvent& e) {
     return false;
 }
+
+void Application::checkFramebufferSize() const {
+    // Check the framebuffer size when requesting a fullscreen window, as it's not guaranteed to match.
+    const auto& cfg = window().config();
+    const auto fb_size = window().framebufferSize();
+
+    if (user_settings_.benchmark && cfg.fullscreen && (fb_size.width != cfg.width || fb_size.height != cfg.height)) {
+        std::ostringstream out;
+        out << "framebuffer fullscreen size mismatch (requested: ";
+        out << cfg.width << "x" << cfg.height;
+        out << ", got: ";
+        out << fb_size.width << "x" << fb_size.height << ")";
+
+        LF_ASSERT(false, "framebuffer fullscreen size mismatch (requested: ");
+    }
+}
+
 }

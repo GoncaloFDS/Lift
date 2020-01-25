@@ -11,6 +11,7 @@ public:
     Device(VkPhysicalDevice physical_device, const Surface& surface);
     ~Device();
 
+    [[nodiscard]] VkDevice handle() const { return device_; }
     [[nodiscard]] VkPhysicalDevice physicalDevice() const { return physical_device_; }
     [[nodiscard]] const class Surface& surface() const { return surface_; }
 
@@ -27,14 +28,15 @@ public:
 
 private:
 
-    static void checkRequiredExtensions(VkPhysicalDevice physical_device) ;
+    static void checkRequiredExtensions(VkPhysicalDevice physical_device);
 
     static const std::vector<const char*> required_extensions_;
 
     const VkPhysicalDevice physical_device_;
     const class Surface& surface_;
 
-VULKAN_HANDLE(VkDevice, device_)
+private:
+    VkDevice device_{};
 
     uint32_t graphics_family_index_{};
     uint32_t compute_family_index_{};

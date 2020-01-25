@@ -11,6 +11,8 @@ set(src_files_core
         events/event.h
         events/key_event.h
         events/mouse_event.h
+        core/input.cpp
+        core/input.h
         )
 
 set(src_files_assets
@@ -42,8 +44,8 @@ set(src_files_imgui
         )
 
 set(src_files_vulkan
-        platform/vulkan/application.cpp
-        platform/vulkan/application.h
+        application.cpp
+        application.h
         platform/vulkan/buffer.cpp
         platform/vulkan/buffer.h
         platform/vulkan/command_buffers.cpp
@@ -98,7 +100,7 @@ set(src_files_vulkan
         core/utilities.h
         platform/vulkan/window.cpp
         platform/vulkan/window.h
-        platform/vulkan/window_properties.h
+        platform/vulkan/window_data.h
         )
 
 set(src_files_vulkan_raytracing
@@ -122,8 +124,6 @@ set(src_files
         main.cpp
         properties.cpp
         properties.h
-        ray_tracer.cpp
-        ray_tracer.h
         scene_list.cpp
         scene_list.h
         user_settings.h

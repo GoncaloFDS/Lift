@@ -16,13 +16,14 @@ public:
     Semaphore(Semaphore&& other) noexcept;
     ~Semaphore();
 
+    [[nodiscard]] VkSemaphore handle() const { return semaphore_; }
     [[nodiscard]] const Device& device() const { return device_; }
 
 private:
+    VkSemaphore semaphore_{};
 
     const class Device& device_;
 
-VULKAN_HANDLE(VkSemaphore, semaphore_)
 };
 
 }

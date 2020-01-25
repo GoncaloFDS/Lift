@@ -10,7 +10,6 @@
 
 namespace vulkan {
 
-namespace {
 std::vector<VkQueueFamilyProperties>::const_iterator findQueue(const std::vector<VkQueueFamilyProperties>& queue_families,
                                                                const std::string& name,
                                                                const VkQueueFlags required_bits,
@@ -25,8 +24,6 @@ std::vector<VkQueueFamilyProperties>::const_iterator findQueue(const std::vector
     LF_ASSERT(family != queue_families.end(), "found no matching {0} queue", name);
 
     return family;
-}
-
 }
 
 const std::vector<const char*> Device::required_extensions_ = {
@@ -64,13 +61,12 @@ Device::Device(VkPhysicalDevice physical_device, const class Surface& surface)
     transfer_family_index_ = static_cast<uint32_t>(transfer_family - queue_families.begin());
 
     // Queues can be the same
-    const std::set<uint32_t> unique_queue_families =
-        {
-            graphics_family_index_,
-            compute_family_index_,
-            present_family_index_,
-            transfer_family_index_
-        };
+    const std::set<uint32_t> unique_queue_families = {
+        graphics_family_index_,
+        compute_family_index_,
+        present_family_index_,
+        transfer_family_index_
+    };
 
     // Create queues
     float queue_priority = 1.0f;
@@ -127,7 +123,8 @@ void Device::waitIdle() const {
 }
 
 void Device::checkRequiredExtensions(VkPhysicalDevice physical_device) {
-    const auto available_extensions = getEnumerateVector(physical_device, static_cast<const char*>(nullptr), vkEnumerateDeviceExtensionProperties);
+    const auto available_extensions =
+        getEnumerateVector(physical_device, static_cast<const char*>(nullptr), vkEnumerateDeviceExtensionProperties);
     std::set<std::string> required_extensions(required_extensions_.begin(), required_extensions_.end());
 
     for (const auto& extension : available_extensions) {

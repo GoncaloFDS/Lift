@@ -67,14 +67,14 @@ RenderPass::RenderPass(const class SwapChain& swap_chain,
     render_pass_info.dependencyCount = 1;
     render_pass_info.pDependencies = &dependency;
 
-    vulkanCheck(vkCreateRenderPass(swap_chain_.device().handle(), &render_pass_info, nullptr, &renderPass_),
+    vulkanCheck(vkCreateRenderPass(swap_chain_.device().handle(), &render_pass_info, nullptr, &render_pass_),
                 "create render pass");
 }
 
 RenderPass::~RenderPass() {
-    if (renderPass_ != nullptr) {
-        vkDestroyRenderPass(swap_chain_.device().handle(), renderPass_, nullptr);
-        renderPass_ = nullptr;
+    if (render_pass_ != nullptr) {
+        vkDestroyRenderPass(swap_chain_.device().handle(), render_pass_, nullptr);
+        render_pass_ = nullptr;
     }
 }
 

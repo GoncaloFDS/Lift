@@ -11,11 +11,12 @@ public:
     PipelineLayout(const Device& device, const DescriptorSetLayout& descriptor_set_layout);
     ~PipelineLayout();
 
+    [[nodiscard]] VkPipelineLayout handle() const { return pipeline_layout_; }
+
 private:
-
     const Device& device_;
+    VkPipelineLayout pipeline_layout_{};
 
-VULKAN_HANDLE(VkPipelineLayout, pipelineLayout_)
 };
 
 }

@@ -1,16 +1,18 @@
 #pragma once
 
-#include "frame_buffer.h"
-#include "window_properties.h"
-#include "platform/vulkan/application.h"
-#include "ray_tracing_properties.h"
+#include "platform/vulkan/frame_buffer.h"
+#include "platform/vulkan/window_data.h"
+#include "application.h"
+#include "platform/vulkan/ray_tracing_properties.h"
 #include <vector>
 #include <memory>
 #include <events/event.h>
 #include <events/application_event.h>
 #include <events/mouse_event.h>
 #include <events/key_event.h>
-#include "acceleration_structure.h"
+#include "platform/vulkan/acceleration_structure.h"
+#include "scene_list.h"
+#include "user_settings.h"
 
 using namespace lift;
 
@@ -30,11 +32,11 @@ class ImageView;
 
 namespace vulkan {
 
-
 class Application {
 
+    
 public:
-    virtual ~Application();
+    ~Application();
 
     [[nodiscard]] const std::vector<VkExtensionProperties>& extensions() const;
     [[nodiscard]] const std::vector<VkPhysicalDevice>& physicalDevices() const;
@@ -42,7 +44,7 @@ public:
     void setPhysicalDevice(VkPhysicalDevice physical_device);
     void run();
 
-    Application(const WindowProperties& window_properties, const bool vsync);
+    Application(const UserSettings& user_settings, const WindowData& window_properties, bool vsync);
 protected:
 
     [[nodiscard]] const class Window& window() const { return *window_; }
@@ -54,32 +56,29 @@ protected:
     [[nodiscard]] const class GraphicsPipeline& graphicsPipeline() const { return *graphics_pipeline_; }
     [[nodiscard]] const class FrameBuffer& swapChainFrameBuffer(const size_t i) const { return swap_chain_framebuffers_[i]; }
 
-    [[nodiscard]] virtual const assets::Scene& getScene() const = 0;
-    [[nodiscard]] virtual assets::UniformBufferObject getUniformBufferObject(VkExtent2D extent) const = 0;
+    void onDeviceSet();
+    void createSwapChain();
+    void deleteSwapChain();
+    void prepareFrame();
+    void drawFrame();
+    void render(VkCommandBuffer command_buffer, uint32_t image_index);
+    void timeRender(VkCommandBuffer command_buffer, uint32_t image_index);
 
-    virtual void onDeviceSet();
-    virtual void createSwapChain();
-    virtual void deleteSwapChain();
-    virtual void drawFrame();
-    virtual void render(VkCommandBuffer command_buffer, uint32_t image_index);
-
-    virtual void onEvent(Event& event);
-    virtual bool onWindowClose(WindowCloseEvent& e);
-    virtual bool onWindowResize(WindowResizeEvent& e);
-    virtual bool onWindowMinimize(WindowMinimizeEvent& e);
-    virtual bool onMouseMove(MouseMovedEvent& e);
-    virtual bool onMouseScroll(MouseScrolledEvent& e);
-    virtual bool onKeyPress(KeyPressedEvent& e);
-    virtual bool onKeyRelease(KeyReleasedEvent& e);
-
-    virtual void onKey(int key, int scancode, int action, int mods) {}
-    virtual void onCursorPosition(double xpos, double ypos) {}
-    virtual void onMouseButton(int button, int action, int mods) {}
+    void onEvent(Event& event);
+    bool onWindowClose(WindowCloseEvent& e);
+    bool onWindowResize(WindowResizeEvent& e);
+    bool onWindowMinimize(WindowMinimizeEvent& e);
+    bool onMouseMove(MouseMovedEvent& e);
+    bool onMouseScroll(MouseScrolledEvent& e);
+    bool onKeyPress(KeyPressedEvent& e);
+    bool onKeyRelease(KeyReleasedEvent& e);
 
     bool is_wire_frame_{};
 
     void createAccelerationStructures();
     void deleteAccelerationStructures();
+    [[nodiscard]] const assets::Scene& getScene() const { return *scene_; }
+    [[nodiscard]] assets::UniformBufferObject getUniformBufferObject(VkExtent2D extent) const;
 private:
 
     void updateUniformBuffer(uint32_t image_index);
@@ -129,6 +128,31 @@ private:
 
     size_t current_frame_{};
     bool is_running_{};
+    
+    uint32_t scene_index_{};
+    UserSettings user_settings_{};
+    UserSettings previous_settings_{};
+    SceneList::CameraInitialSate camera_initial_sate_{};
+    std::unique_ptr<const assets::Scene> scene_;
+    std::unique_ptr<class ImguiLayer> user_interface_;
+    float camera_x_{};
+    float camera_y_{};
+    double time_{};
+    uint32_t total_number_of_samples_{};
+    uint32_t number_of_samples_{};
+    bool reset_accumulation_{};
+
+    float mouse_x_{};
+    float mouse_y_{};
+
+// Benchmark stats
+    double scene_initial_time_{};
+    double period_initial_time_{};
+    uint32_t period_total_frames_{};
+    void loadScene(uint32_t scene_index);
+    void checkAndUpdateBenchmarkState(double prev_time);
+    void checkFramebufferSize() const;
+    void rasterize(VkCommandBuffer command_buffer, uint32_t image_index);
 };
 
 }

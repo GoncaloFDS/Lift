@@ -18,7 +18,6 @@
 #include <map>
 #include <unordered_set>
 
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
@@ -32,10 +31,8 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/hash.hpp>
 
-using namespace glm;
-
 #include "core/log.h"
 #include "core/key_codes.h"
-#include "core/util.h"
 
-
+using namespace glm;
+using namespace lift;

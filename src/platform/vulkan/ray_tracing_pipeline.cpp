@@ -80,7 +80,7 @@ RayTracingPipeline::RayTracingPipeline(
 
         // Uniform buffer
         VkDescriptorBufferInfo uniformBufferInfo = {};
-        uniformBufferInfo.buffer = uniform_buffers[i].Buffer().handle();
+        uniformBufferInfo.buffer = uniform_buffers[i].buffer().handle();
         uniformBufferInfo.range = VK_WHOLE_SIZE;
 
         // Vertex buffer

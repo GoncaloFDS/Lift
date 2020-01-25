@@ -16,9 +16,9 @@ class AccelerationStructure {
 public:
 
     struct MemoryRequirements {
-        VkMemoryRequirements Result;
-        VkMemoryRequirements Build;
-        VkMemoryRequirements Update;
+        VkMemoryRequirements result;
+        VkMemoryRequirements build;
+        VkMemoryRequirements update;
     };
 
     AccelerationStructure(const AccelerationStructure&) = delete;
@@ -28,6 +28,7 @@ public:
     AccelerationStructure(AccelerationStructure&& other) noexcept;
     virtual ~AccelerationStructure();
 
+    [[nodiscard]] VkAccelerationStructureNV handle() const { return acceleration_structure_; }
     [[nodiscard]] const class Device& device() const { return device_; }
     [[nodiscard]] const class DeviceProcedures& deviceProcedures() const { return device_procedures_; }
 
@@ -49,7 +50,7 @@ private:
 
     const class Device& device_;
 
-VULKAN_HANDLE(VkAccelerationStructureNV, accelerationStructure_)
+    VkAccelerationStructureNV acceleration_structure_{};
 };
 
 }

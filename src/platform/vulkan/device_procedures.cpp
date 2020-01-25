@@ -4,7 +4,6 @@
 
 namespace vulkan {
 
-namespace {
 template<class Func>
 Func getProcedure(const Device& device, const char* const name) {
     const auto func = reinterpret_cast<Func>(vkGetDeviceProcAddr(device.handle(), name));
@@ -13,7 +12,6 @@ Func getProcedure(const Device& device, const char* const name) {
     }
 
     return func;
-}
 }
 
 DeviceProcedures::DeviceProcedures(const class Device& device) :

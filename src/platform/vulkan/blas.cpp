@@ -8,7 +8,6 @@
 
 namespace vulkan {
 
-namespace {
 VkAccelerationStructureCreateInfoNV getCreateInfo(const std::vector<VkGeometryNV>& geometries, const bool allowUpdate) {
     const auto flags = allowUpdate
                        ? VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_NV
@@ -26,7 +25,6 @@ VkAccelerationStructureCreateInfoNV getCreateInfo(const std::vector<VkGeometryNV
     structure_info.info.pGeometries = geometries.data();
 
     return structure_info;
-}
 }
 
 BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(

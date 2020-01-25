@@ -16,6 +16,7 @@ public:
     DeviceMemory(DeviceMemory&& other) noexcept;
     ~DeviceMemory();
 
+    [[nodiscard]] VkDeviceMemory handle() const { return memory_; }
     [[nodiscard]] const class Device& device() const { return device_; }
 
     void* map(size_t offset, size_t size);
@@ -26,8 +27,7 @@ private:
     [[nodiscard]] uint32_t findMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties) const;
 
     const class Device& device_;
-
-VULKAN_HANDLE(VkDeviceMemory, memory_)
+    VkDeviceMemory memory_{};
 };
 
 }

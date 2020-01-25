@@ -11,16 +11,13 @@ using assets::Model;
 using assets::Texture;
 
 const std::vector<std::pair<std::string, std::function<SceneAssets(SceneList::CameraInitialSate&)>>>
-    SceneList::allScenes = {
-    {"Cornell Box", cornellBox},
-    {"Cornell Box & Lucy", cornellBoxLucy},
-    {"Ray Tracing In One Weekend", rayTracingInOneWeekend},
-    {"Lucy In One Weekend", lucyInOneWeekend},
+    SceneList::allScenes = {{"Cornell Box", cornellBox},
+                            {"Cornell Box & Lucy", cornellBoxLucy},
+                            {"Ray Tracing In One Weekend", rayTracingInOneWeekend},
+                            {"Lucy In One Weekend", lucyInOneWeekend},
 };
 
 SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialSate& camera) {
-    // Final scene from Ray Tracing In One Weekend book.
-
     camera.modelView = lookAt(vec3(13, 2, 3), vec3(0, 0, 0), vec3(0, 1, 0));
     camera.fieldOfView = 20;
     camera.aperture = 0.1f;
@@ -78,8 +75,6 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialSate& camera) {
 }
 
 SceneAssets SceneList::lucyInOneWeekend(CameraInitialSate& camera) {
-    // Same as RayTracingInOneWeekend but using the Lucy 3D model.
-
     camera.modelView = lookAt(vec3(13, 2, 3), vec3(0, 1.0, 0), vec3(0, 1, 0));
     camera.fieldOfView = 20;
     camera.aperture = 0.05f;
@@ -184,13 +179,16 @@ SceneAssets SceneList::cornellBoxLucy(CameraInitialSate& camera) {
     camera.gammaCorrection = true;
     camera.hasSky = false;
 
-    const auto i = mat4(1);
-    const auto sphere =
-        Model::createSphere(vec3(555 - 130, 165.0f, -165.0f / 2 - 65), 80.0f, Material::dielectric(1.5f), true);
+    const auto sphere = Model::createSphere(vec3(555 - 130, 165.0f, -165.0f / 2 - 65),
+                                            80.0f,
+                                            Material::dielectric(1.5f),
+                                            true);
     auto lucy_0 = Model::loadModel("../resources/models/lucy.obj");
 
-    lucy_0.transform(rotate(scale(translate(i, vec3(555 - 300 - 165 / 2, -9, -295 - 165 / 2)), vec3(0.6f)),
-                            radians(75.0f), vec3(0, 1, 0)));
+    lucy_0.transform(rotate(scale(translate(mat4(1), vec3(555 - 300 - 165 / 2, -9, -295 - 165 / 2)), vec3(0.6f)),
+                            radians(75.0f),
+                            vec3(0, 1, 0)));
+    lucy_0.setMaterial(Material::dielectric(1.5f));
 
     std::vector<Model> models;
     models.push_back(Model::createCornellBox(555));

@@ -15,14 +15,14 @@ PipelineLayout::PipelineLayout(const Device& device, const DescriptorSetLayout& 
     pipeline_layout_info.pushConstantRangeCount = 0; // Optional
     pipeline_layout_info.pPushConstantRanges = nullptr; // Optional
 
-    vulkanCheck(vkCreatePipelineLayout(device_.handle(), &pipeline_layout_info, nullptr, &pipelineLayout_),
+    vulkanCheck(vkCreatePipelineLayout(device_.handle(), &pipeline_layout_info, nullptr, &pipeline_layout_),
                 "create pipeline layout");
 }
 
 PipelineLayout::~PipelineLayout() {
-    if (pipelineLayout_ != nullptr) {
-        vkDestroyPipelineLayout(device_.handle(), pipelineLayout_, nullptr);
-        pipelineLayout_ = nullptr;
+    if (pipeline_layout_ != nullptr) {
+        vkDestroyPipelineLayout(device_.handle(), pipeline_layout_, nullptr);
+        pipeline_layout_ = nullptr;
     }
 }
 

@@ -22,8 +22,8 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
                                    const assets::Scene& scene,
                                    const bool is_wire_frame) : swap_chain_(swap_chain), is_wire_frame_(is_wire_frame) {
     const auto& device = swap_chain.device();
-    const auto binding_description = assets::Vertex::GetBindingDescription();
-    const auto attribute_descriptions = assets::Vertex::GetAttributeDescriptions();
+    const auto binding_description = assets::Vertex::getBindingDescription();
+    const auto attribute_descriptions = assets::Vertex::getAttributeDescriptions();
 
     VkPipelineVertexInputStateCreateInfo vertex_input_info = {};
     vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -127,7 +127,7 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
     for (uint32_t i = 0; i != swap_chain.images().size(); ++i) {
         // Uniform buffer
         VkDescriptorBufferInfo uniform_buffer_info = {};
-        uniform_buffer_info.buffer = uniform_buffers[i].Buffer().handle();
+        uniform_buffer_info.buffer = uniform_buffers[i].buffer().handle();
         uniform_buffer_info.range = VK_WHOLE_SIZE;
 
         // Material buffer

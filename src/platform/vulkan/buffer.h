@@ -12,6 +12,7 @@ public:
     Buffer(const Device& device, size_t size, VkBufferUsageFlags usage);
     ~Buffer();
 
+    [[nodiscard]] VkBuffer handle() const { return buffer_; }
     [[nodiscard]] const class Device& device() const { return device_; }
 
     DeviceMemory allocateMemory(VkMemoryPropertyFlags properties);
@@ -22,8 +23,7 @@ public:
 private:
 
     const class Device& device_;
-
-VULKAN_HANDLE(VkBuffer, buffer_)
+    VkBuffer buffer_{};
 };
 
 }

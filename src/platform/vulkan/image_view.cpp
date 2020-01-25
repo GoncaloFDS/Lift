@@ -25,14 +25,14 @@ ImageView::ImageView(const class Device& device,
     create_info.subresourceRange.baseArrayLayer = 0;
     create_info.subresourceRange.layerCount = 1;
 
-    vulkanCheck(vkCreateImageView(device_.handle(), &create_info, nullptr, &imageView_),
+    vulkanCheck(vkCreateImageView(device_.handle(), &create_info, nullptr, &image_view_),
                 "create image view");
 }
 
 ImageView::~ImageView() {
-    if (imageView_ != nullptr) {
-        vkDestroyImageView(device_.handle(), imageView_, nullptr);
-        imageView_ = nullptr;
+    if (image_view_ != nullptr) {
+        vkDestroyImageView(device_.handle(), image_view_, nullptr);
+        image_view_ = nullptr;
     }
 }
 

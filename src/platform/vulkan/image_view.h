@@ -10,6 +10,7 @@ public:
     explicit ImageView(const Device& device, VkImage image, VkFormat format, VkImageAspectFlags aspect_flags);
     ~ImageView();
 
+    [[nodiscard]] VkImageView handle() const { return image_view_; }
     [[nodiscard]] const Device& device() const { return device_; }
 
 private:
@@ -18,7 +19,8 @@ private:
     const VkImage image_;
     const VkFormat format_;
 
-VULKAN_HANDLE(VkImageView, imageView_)
+private:
+    VkImageView image_view_{};
 };
 
 }

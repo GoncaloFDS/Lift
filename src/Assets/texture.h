@@ -13,20 +13,18 @@ public:
     Texture& operator=(const Texture&) = delete;
     Texture& operator=(Texture&&) = delete;
 
-    Texture() = default;
-    Texture(const Texture&) = default;
     Texture(Texture&&) = default;
     ~Texture() = default;
 
-    const unsigned char* Pixels() const { return pixels_.get(); }
-    int Width() const { return width_; }
-    int Height() const { return height_; }
+    [[nodiscard]] const unsigned char* pixels() const { return pixels_.get(); }
+    [[nodiscard]] int width() const { return width_; }
+    [[nodiscard]] int height() const { return height_; }
 
 private:
 
     Texture(int width, int height, int channels, unsigned char* pixels);
 
-    vulkan::SamplerConfig samplerConfig_;
+    vulkan::SamplerConfig sampler_config_;
     int width_;
     int height_;
     int channels_;

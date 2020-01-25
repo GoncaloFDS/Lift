@@ -11,11 +11,11 @@ public:
     DescriptorSetLayout(const Device& device, const std::vector<DescriptorBinding>& descriptor_bindings);
     ~DescriptorSetLayout();
 
+    [[nodiscard]]VkDescriptorSetLayout handle() const { return layout_; }
+
 private:
 
     const Device& device_;
-
-VULKAN_HANDLE(VkDescriptorSetLayout, layout_)
+    VkDescriptorSetLayout layout_{};
 };
-
 }

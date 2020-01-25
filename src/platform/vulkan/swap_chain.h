@@ -14,6 +14,7 @@ public:
     SwapChain(const Device& device, bool vsync);
     ~SwapChain();
 
+    [[nodiscard]] VkSwapchainKHR handle() const { return swap_chain_; }
     [[nodiscard]] VkPhysicalDevice physicalDevice() const { return physical_device_; }
     [[nodiscard]] const class Device& device() const { return device_; }
     [[nodiscard]] uint32_t minImageCount() const { return min_image_count_; }
@@ -39,7 +40,7 @@ private:
     const VkPhysicalDevice physical_device_;
     const class Device& device_;
 
-VULKAN_HANDLE(VkSwapchainKHR, swapChain_)
+    VkSwapchainKHR swap_chain_{};
 
     uint32_t min_image_count_;
     VkFormat format_;

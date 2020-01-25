@@ -15,6 +15,6 @@ public:
 
     Procedural() = default;
     virtual ~Procedural() = default;;
-    virtual std::pair<glm::vec3, glm::vec3> BoundingBox() const = 0;
+    virtual std::pair<glm::vec3, glm::vec3> boundingBox() const = 0;
 };
 }

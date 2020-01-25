@@ -10,8 +10,8 @@ public:
         : position_x_(x), position_y_(y) {
     }
 
-    [[nodiscard]] auto getX() const -> float { return position_x_; }
-    [[nodiscard]] auto getY() const -> float { return position_y_; }
+    [[nodiscard]] auto x() const -> float { return position_x_; }
+    [[nodiscard]] auto y() const -> float { return position_y_; }
 
     [[nodiscard]] auto toString() const -> std::string override {
         std::stringstream ss;

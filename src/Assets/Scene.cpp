@@ -12,8 +12,6 @@
 
 namespace assets {
 
-namespace {
-
 template<class T>
 void copyFromStagingBuffer(vulkan::CommandPool& command_pool,
 						   vulkan::Buffer& dst_buffer,
@@ -54,8 +52,6 @@ void createDeviceBuffer(
 	copyFromStagingBuffer(command_pool, *buffer, content);
 }
 
-}
-
 Scene::Scene(vulkan::CommandPool& command_pool,
 			 std::vector<Model>&& models,
 			 std::vector<Texture>&& textures,
@@ -76,18 +72,18 @@ Scene::Scene(vulkan::CommandPool& command_pool,
 
 		offsets.emplace_back(index_offset, vertex_offset);
 
-		vertices.insert(vertices.end(), model.Vertices().begin(), model.Vertices().end());
-		indices.insert(indices.end(), model.Indices().begin(), model.Indices().end());
-		materials.insert(materials.end(), model.Materials().begin(), model.Materials().end());
+		vertices.insert(vertices.end(), model.vertices().begin(), model.vertices().end());
+		indices.insert(indices.end(), model.indices().begin(), model.indices().end());
+		materials.insert(materials.end(), model.materials().begin(), model.materials().end());
 
 		for (size_t i = vertex_offset; i != vertices.size(); ++i) {
-			vertices[i].MaterialIndex += material_offset;
+			vertices[i].materialIndex += material_offset;
 		}
 
-		const auto sphere = dynamic_cast<const Sphere*>(model.Procedural());
+		const auto sphere = dynamic_cast<const Sphere*>(model.procedural());
 		if (sphere != nullptr) {
-			aabbs.push_back(sphere->BoundingBox());
-			procedurals.emplace_back(sphere->Center, sphere->Radius);
+			aabbs.push_back(sphere->boundingBox());
+			procedurals.emplace_back(sphere->center, sphere->radius);
 		} else {
 			aabbs.emplace_back();
 			procedurals.emplace_back();
@@ -131,8 +127,8 @@ Scene::Scene(vulkan::CommandPool& command_pool,
 
 	for (size_t i = 0; i != textures_.size(); ++i) {
 		texture_images_.emplace_back(new TextureImage(command_pool, textures_[i]));
-		texture_image_view_handles_[i] = texture_images_[i]->ImageView().handle();
-		texture_sampler_handles_[i] = texture_images_[i]->Sampler().handle();
+		texture_image_view_handles_[i] = texture_images_[i]->imageView().handle();
+		texture_sampler_handles_[i] = texture_images_[i]->sampler().handle();
 	}
 }
 

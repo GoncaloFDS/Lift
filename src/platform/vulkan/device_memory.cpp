@@ -52,7 +52,7 @@ uint32_t DeviceMemory::findMemoryType(const uint32_t type_filter, const VkMemory
     }
 
     LF_ASSERT(false, "failed to find suitable memory type");
-//	Throw(std::runtime_error("failed to find suitable memory type"));
+    return 0;
 }
 
 }

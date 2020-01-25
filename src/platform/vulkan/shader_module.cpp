@@ -15,14 +15,14 @@ ShaderModule::ShaderModule(const class Device& device, const std::vector<char>& 
     create_info.codeSize = code.size();
     create_info.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-    vulkanCheck(vkCreateShaderModule(device.handle(), &create_info, nullptr, &shaderModule_),
+    vulkanCheck(vkCreateShaderModule(device.handle(), &create_info, nullptr, &shader_module_),
                 "create shader module");
 }
 
 ShaderModule::~ShaderModule() {
-    if (shaderModule_ != nullptr) {
-        vkDestroyShaderModule(device_.handle(), shaderModule_, nullptr);
-        shaderModule_ = nullptr;
+    if (shader_module_ != nullptr) {
+        vkDestroyShaderModule(device_.handle(), shader_module_, nullptr);
+        shader_module_ = nullptr;
     }
 }
 
@@ -30,7 +30,7 @@ VkPipelineShaderStageCreateInfo ShaderModule::createShaderStage(VkShaderStageFla
     VkPipelineShaderStageCreateInfo create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     create_info.stage = stage;
-    create_info.module = shaderModule_;
+    create_info.module = shader_module_;
     create_info.pName = "main";
 
     return create_info;

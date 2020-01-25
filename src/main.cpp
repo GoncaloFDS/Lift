@@ -1,28 +1,30 @@
 #include <platform/vulkan/enumerate.h>
 #include "pch.h"
 #include "properties.h"
-#include "ray_tracer.h"
+#include "application.h"
+#include "vulkan/window.h"
+#include "user_settings.h"
+#include "assets/model.h"
+#include "assets/scene.h"
+#include "assets/texture.h"
+#include "assets/uniform_buffer.h"
 
-namespace {
 UserSettings createUserSettings(const Options& options);
 void setVulkanDevice(vulkan::Application& application);
-}
 
 int main(int argc, const char* argv[]) noexcept {
     lift::Log::init();
     LF_WARN("Initialized Log");
     const Options options(argc, argv);
     const UserSettings user_settings = createUserSettings(options);
-    const vulkan::WindowProperties window_properties{
-        "Lift",
-        options.width,
-        options.height,
-        options.benchmark && options.fullscreen,
-        options.fullscreen,
-        !options.fullscreen
-    };
+    const vulkan::WindowData window_properties{"Lift",
+                                               options.width,
+                                               options.height,
+                                               options.benchmark && options.fullscreen,
+                                               options.fullscreen,
+                                               !options.fullscreen};
 
-    RayTracer application(user_settings, window_properties, options.vSync);
+    vulkan::Application application(user_settings, window_properties, options.vSync);
 
     setVulkanDevice(application);
 
@@ -30,8 +32,6 @@ int main(int argc, const char* argv[]) noexcept {
 
     return EXIT_SUCCESS;
 }
-
-namespace {
 
 UserSettings createUserSettings(const Options& options) {
     UserSettings user_settings{};
@@ -57,7 +57,6 @@ UserSettings createUserSettings(const Options& options) {
 void setVulkanDevice(vulkan::Application& application) {
     const auto& physical_devices = application.physicalDevices();
     const auto result = std::find_if(physical_devices.begin(), physical_devices.end(), [](const VkPhysicalDevice& device) {
-        // We want a device with geometry shader support.
         VkPhysicalDeviceFeatures device_features;
         vkGetPhysicalDeviceFeatures(device, &device_features);
 
@@ -65,7 +64,6 @@ void setVulkanDevice(vulkan::Application& application) {
             return false;
         }
 
-        // We want a device with a graphics queue.
         const auto queue_families = vulkan::getEnumerateVector(device, vkGetPhysicalDeviceQueueFamilyProperties);
         const auto has_graphics_queue =
             std::find_if(queue_families.begin(), queue_families.end(), [](const VkQueueFamilyProperties& queue_family) {
@@ -79,4 +77,3 @@ void setVulkanDevice(vulkan::Application& application) {
     application.setPhysicalDevice(*result);
 }
 
-}

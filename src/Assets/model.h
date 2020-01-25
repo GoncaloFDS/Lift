@@ -12,9 +12,9 @@ class Model final {
 public:
 
     static Model loadModel(const std::string& filename);
-    static Model createCornellBox(const float scale);
+    static Model createCornellBox(float scale);
     static Model createBox(const glm::vec3& p0, const glm::vec3& p1, const Material& material);
-    static Model createSphere(const glm::vec3& center, float radius, const Material& material, const bool isProcedural);
+    static Model createSphere(const glm::vec3& center, float radius, const Material& material, bool is_procedural);
 
     Model& operator=(const Model&) = delete;
     Model& operator=(Model&&) = delete;
@@ -27,15 +27,15 @@ public:
     void setMaterial(const Material& material);
     void transform(const glm::mat4& transform);
 
-    const std::vector<Vertex>& Vertices() const { return vertices_; }
-    const std::vector<uint32_t>& Indices() const { return indices_; }
-    const std::vector<Material>& Materials() const { return materials_; }
+    [[nodiscard]] const std::vector<Vertex>& vertices() const { return vertices_; }
+    [[nodiscard]] const std::vector<uint32_t>& indices() const { return indices_; }
+    [[nodiscard]] const std::vector<Material>& materials() const { return materials_; }
 
-    const class Procedural* Procedural() const { return procedural_.get(); }
+    [[nodiscard]] const class Procedural* procedural() const { return procedural_.get(); }
 
-    uint32_t NumberOfVertices() const { return static_cast<uint32_t>(vertices_.size()); }
-    uint32_t NumberOfIndices() const { return static_cast<uint32_t>(indices_.size()); }
-    uint32_t NumberOfMaterials() const { return static_cast<uint32_t>(materials_.size()); }
+    [[nodiscard]] uint32_t vertexCount() const { return static_cast<uint32_t>(vertices_.size()); }
+    [[nodiscard]] uint32_t indexCount() const { return static_cast<uint32_t>(indices_.size()); }
+    [[nodiscard]] uint32_t materialCount() const { return static_cast<uint32_t>(materials_.size()); }
 
 private:
 

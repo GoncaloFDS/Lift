@@ -21,14 +21,14 @@ DescriptorPool::DescriptorPool(const vulkan::Device& device,
     pool_info.pPoolSizes = pool_sizes.data();
     pool_info.maxSets = static_cast<uint32_t>(max_sets);
 
-    vulkanCheck(vkCreateDescriptorPool(device.handle(), &pool_info, nullptr, &descriptorPool_),
+    vulkanCheck(vkCreateDescriptorPool(device.handle(), &pool_info, nullptr, &descriptor_pool_),
                 "create descriptor pool");
 }
 
 DescriptorPool::~DescriptorPool() {
-    if (descriptorPool_ != nullptr) {
-        vkDestroyDescriptorPool(device_.handle(), descriptorPool_, nullptr);
-        descriptorPool_ = nullptr;
+    if (descriptor_pool_ != nullptr) {
+        vkDestroyDescriptorPool(device_.handle(), descriptor_pool_, nullptr);
+        descriptor_pool_ = nullptr;
     }
 }
 

@@ -19,8 +19,8 @@ class ShaderBindingTable final {
 public:
 
     struct Entry {
-        uint32_t GroupIndex;
-        std::vector<unsigned char> InlineData;
+        uint32_t groupIndex;
+        std::vector<unsigned char> inlineData;
     };
     ShaderBindingTable(const DeviceProcedures& device_procedures,
                        const RayTracingPipeline& ray_tracing_pipeline,

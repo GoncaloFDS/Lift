@@ -11,6 +11,7 @@ public:
     Instance(const Window& window, const std::vector<const char*>& validation_layers);
     ~Instance();
 
+    [[nodiscard]] VkInstance handle() const { return instance_; }
     [[nodiscard]] const class Window& window() const { return window_; }
 
     [[nodiscard]] const std::vector<VkExtensionProperties>& extensions() const { return extensions_; }
@@ -27,11 +28,12 @@ private:
     const class Window& window_;
     const std::vector<const char*> validation_layers_;
 
-VULKAN_HANDLE(VkInstance, instance_)
+private:
+    VkInstance instance_{};
 
     std::vector<VkPhysicalDevice> physical_devices_;
     std::vector<VkExtensionProperties> extensions_;
-    void checkVulkanMinimumVersion(const uint32_t min_version);
+    void checkVulkanMinimumVersion(uint32_t min_version);
 };
 
 }

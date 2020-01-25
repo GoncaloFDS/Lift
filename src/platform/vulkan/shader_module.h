@@ -13,6 +13,7 @@ public:
     ShaderModule(const Device& device, const std::vector<char>& code);
     ~ShaderModule();
 
+    [[nodiscard]]VkShaderModule handle() const { return shader_module_; }
     [[nodiscard]] const Device& device() const { return device_; }
 
     [[nodiscard]] VkPipelineShaderStageCreateInfo createShaderStage(VkShaderStageFlagBits stage) const;
@@ -22,8 +23,8 @@ private:
     static std::vector<char> readFile(const std::string& filename);
 
     const class Device& device_;
+    VkShaderModule shader_module_{};
 
-VULKAN_HANDLE(VkShaderModule, shaderModule_)
 };
 
 }

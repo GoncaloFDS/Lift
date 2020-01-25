@@ -29,13 +29,13 @@ public:
     Sampler(const Device& device, const SamplerConfig& config);
     ~Sampler();
 
+    [[nodiscard]] VkSampler handle() const { return sampler_; }
     [[nodiscard]] const class Device& device() const { return device_; }
 
 private:
 
     const class Device& device_;
-
-VULKAN_HANDLE(VkSampler, sampler_)
+    VkSampler sampler_{};
 };
 
 }

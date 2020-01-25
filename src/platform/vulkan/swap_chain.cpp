@@ -53,13 +53,13 @@ SwapChain::SwapChain(const class Device& device, const bool vsync) :
         create_info.pQueueFamilyIndices = nullptr; // Optional
     }
 
-    vulkanCheck(vkCreateSwapchainKHR(device.handle(), &create_info, nullptr, &swapChain_),
+    vulkanCheck(vkCreateSwapchainKHR(device.handle(), &create_info, nullptr, &swap_chain_),
                 "create swap chain!");
 
     min_image_count_ = details.capabilities.minImageCount;
     format_ = surface_format.format;
     extent_ = extent;
-    images_ = getEnumerateVector(device_.handle(), swapChain_, vkGetSwapchainImagesKHR);
+    images_ = getEnumerateVector(device_.handle(), swap_chain_, vkGetSwapchainImagesKHR);
     image_views_.reserve(images_.size());
 
     for (const auto image : images_) {
@@ -70,9 +70,9 @@ SwapChain::SwapChain(const class Device& device, const bool vsync) :
 SwapChain::~SwapChain() {
     image_views_.clear();
 
-    if (swapChain_ != nullptr) {
-        vkDestroySwapchainKHR(device_.handle(), swapChain_, nullptr);
-        swapChain_ = nullptr;
+    if (swap_chain_ != nullptr) {
+        vkDestroySwapchainKHR(device_.handle(), swap_chain_, nullptr);
+        swap_chain_ = nullptr;
     }
 }
 

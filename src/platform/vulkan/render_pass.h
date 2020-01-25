@@ -14,15 +14,16 @@ public:
                bool clear_depth_buffer);
     ~RenderPass();
 
+    [[nodiscard]] VkRenderPass handle() const { return render_pass_; }
     [[nodiscard]] const class SwapChain& swapChain() const { return swap_chain_; }
     [[nodiscard]] const class DepthBuffer& depthBuffer() const { return depth_buffer_; }
 
 private:
+    VkRenderPass render_pass_{};
 
     const class SwapChain& swap_chain_;
     const class DepthBuffer& depth_buffer_;
 
-VULKAN_HANDLE(VkRenderPass, renderPass_)
 };
 
 }

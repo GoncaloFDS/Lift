@@ -11,7 +11,6 @@
 
 namespace vulkan {
 
-namespace {
 VkFormat findSupportedFormat(const Device& device,
                              const std::vector<VkFormat>& candidates,
                              const VkImageTiling tiling,
@@ -40,7 +39,6 @@ VkFormat findDepthFormat(const Device& device) {
         VK_IMAGE_TILING_OPTIMAL,
         VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
     );
-}
 }
 
 DepthBuffer::DepthBuffer(CommandPool& command_pool, const VkExtent2D extent) :

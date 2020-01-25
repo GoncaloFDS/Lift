@@ -31,6 +31,8 @@ public:
                        const assets::Scene& scene);
     ~RayTracingPipeline();
 
+    [[nodiscard]] VkPipeline handle() const { return pipeline_; }
+
     [[nodiscard]] uint32_t rayGenShaderIndex() const { return ray_gen_index_; }
     [[nodiscard]] uint32_t missShaderIndex() const { return miss_index_; }
     [[nodiscard]] uint32_t triangleHitGroupIndex() const { return triangle_hit_group_index_; }
@@ -40,10 +42,9 @@ public:
     [[nodiscard]] const class PipelineLayout& pipelineLayout() const { return *pipeline_layout_; }
 
 private:
+    VkPipeline pipeline_{};
 
     const SwapChain& swap_chain_;
-
-VULKAN_HANDLE(VkPipeline, pipeline_)
 
     std::unique_ptr<DescriptorSetManager> descriptor_set_manager_;
     std::unique_ptr<class PipelineLayout> pipeline_layout_;

@@ -34,7 +34,7 @@ public:
                                   const std::vector<VkGeometryInstance>& geometry_instances,
                                   bool allow_update);
     TopLevelAccelerationStructure(TopLevelAccelerationStructure&& other) noexcept;
-    ~TopLevelAccelerationStructure() override;
+    ~TopLevelAccelerationStructure() override = default;
 
     [[nodiscard]] const std::vector<VkGeometryInstance>& geometryInstances() const { return geometry_instances_; }
 
