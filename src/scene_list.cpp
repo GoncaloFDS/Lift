@@ -18,30 +18,6 @@ const std::vector<std::pair<std::string, std::function<SceneAssets(SceneList::Ca
     {"Lucy In One Weekend", lucyInOneWeekend},
 };
 
-SceneAssets SceneList::cubeAndSpheres(CameraInitialSate& camera) {
-    // Basic test scene.
-
-    camera.modelView = translate(mat4(1), vec3(0, 0, -2));
-    camera.fieldOfView = 90;
-    camera.aperture = 0.05f;
-    camera.focusDistance = 2.0f;
-    camera.gammaCorrection = false;
-    camera.hasSky = true;
-
-    std::vector<Model> models;
-    std::vector<Texture> textures;
-
-    models.push_back(Model::loadModel("../resources/models/cube_multi.obj"));
-    models.push_back(Model::CreateSphere(vec3(1, 0, 0), 0.5, Material::metallic(vec3(0.7f, 0.5f, 0.8f), 0.2f), true));
-    models.push_back(Model::CreateSphere(vec3(-1, 0, 0), 0.5, Material::dielectric(1.5f), true));
-    models.push_back(Model::CreateSphere(vec3(0, 1, 0), 0.5, Material::lambertian(vec3(1.0f), 0), true));
-
-    textures.push_back(Texture::LoadTexture("../resources/textures/land_ocean_ice_cloud_2048.png",
-                                            vulkan::SamplerConfig()));
-
-    return std::forward_as_tuple(std::move(models), std::move(textures));
-}
-
 SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialSate& camera) {
     // Final scene from Ray Tracing In One Weekend book.
 
@@ -59,7 +35,7 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialSate& camera) {
 
     std::vector<Model> models;
 
-    models.push_back(Model::CreateSphere(vec3(0, -1000, 0),
+    models.push_back(Model::createSphere(vec3(0, -1000, 0),
                                          1000,
                                          Material::lambertian(vec3(0.5f, 0.5f, 0.5f)),
                                          isProc));
@@ -72,28 +48,28 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialSate& camera) {
             if (length(center - vec3(4, 0.2f, 0)) > 0.9) {
                 if (choose_mat < 0.8f) // Diffuse
                 {
-                    models.push_back(Model::CreateSphere(center, 0.2f, Material::lambertian(vec3(
+                    models.push_back(Model::createSphere(center, 0.2f, Material::lambertian(vec3(
                         random() * random(),
                         random() * random(),
                         random() * random())),
                                                          isProc));
                 } else if (choose_mat < 0.95f) // Metal
                 {
-                    models.push_back(Model::CreateSphere(center, 0.2f, Material::metallic(
+                    models.push_back(Model::createSphere(center, 0.2f, Material::metallic(
                         vec3(0.5f * (1 + random()), 0.5f * (1 + random()), 0.5f * (1 + random())),
                         0.5f * random()),
                                                          isProc));
                 } else // Glass
                 {
-                    models.push_back(Model::CreateSphere(center, 0.2f, Material::dielectric(1.5f), isProc));
+                    models.push_back(Model::createSphere(center, 0.2f, Material::dielectric(1.5f), isProc));
                 }
             }
         }
     }
 
-    models.push_back(Model::CreateSphere(vec3(0, 1, 0), 1.0f, Material::dielectric(1.5f), isProc));
-    models.push_back(Model::CreateSphere(vec3(-4, 1, 0), 1.0f, Material::lambertian(vec3(0.4f, 0.2f, 0.1f)), isProc));
-    models.push_back(Model::CreateSphere(vec3(4, 1, 0),
+    models.push_back(Model::createSphere(vec3(0, 1, 0), 1.0f, Material::dielectric(1.5f), isProc));
+    models.push_back(Model::createSphere(vec3(-4, 1, 0), 1.0f, Material::lambertian(vec3(0.4f, 0.2f, 0.1f)), isProc));
+    models.push_back(Model::createSphere(vec3(4, 1, 0),
                                          1.0f,
                                          Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.0f),
                                          isProc));
@@ -118,7 +94,7 @@ SceneAssets SceneList::lucyInOneWeekend(CameraInitialSate& camera) {
 
     std::vector<Model> models;
 
-    models.push_back(Model::CreateSphere(vec3(0, -1000, 0),
+    models.push_back(Model::createSphere(vec3(0, -1000, 0),
                                          1000,
                                          Material::lambertian(vec3(0.5f, 0.5f, 0.5f)),
                                          is_proc));
@@ -131,18 +107,18 @@ SceneAssets SceneList::lucyInOneWeekend(CameraInitialSate& camera) {
             if (length(center - vec3(4, 0.2f, 0)) > 0.9) {
                 if (choose_mat < 0.8f) // Diffuse
                 {
-                    models.push_back(Model::CreateSphere(center, 0.2f, Material::lambertian(vec3(
+                    models.push_back(Model::createSphere(center, 0.2f, Material::lambertian(vec3(
                         random() * random(),
                         random() * random(),
                         random() * random())), is_proc));
                 } else if (choose_mat < 0.95f) // Metal
                 {
-                    models.push_back(Model::CreateSphere(center, 0.2f, Material::metallic(
+                    models.push_back(Model::createSphere(center, 0.2f, Material::metallic(
                         vec3(0.5f * (1 + random()), 0.5f * (1 + random()), 0.5f * (1 + random())),
                         0.5f * random()), is_proc));
                 } else // Glass
                 {
-                    models.push_back(Model::CreateSphere(center, 0.2f, Material::dielectric(1.5f), is_proc));
+                    models.push_back(Model::createSphere(center, 0.2f, Material::dielectric(1.5f), is_proc));
                 }
             }
         }
@@ -155,13 +131,13 @@ SceneAssets SceneList::lucyInOneWeekend(CameraInitialSate& camera) {
     const auto i = mat4(1);
     const float scale_factor = 0.0035f;
 
-    lucy_0.Transform(rotate(scale(translate(i, vec3(0, -0.08f, 0)), vec3(scale_factor)),
+    lucy_0.transform(rotate(scale(translate(i, vec3(0, -0.08f, 0)), vec3(scale_factor)),
                             radians(90.0f), vec3(0, 1, 0)));
 
-    lucy_1.Transform(rotate(scale(translate(i, vec3(-4, -0.08f, 0)), vec3(scale_factor)),
+    lucy_1.transform(rotate(scale(translate(i, vec3(-4, -0.08f, 0)), vec3(scale_factor)),
                             radians(90.0f), vec3(0, 1, 0)));
 
-    lucy_2.Transform(rotate(scale(translate(i, vec3(4, -0.08f, 0)), vec3(scale_factor)),
+    lucy_2.transform(rotate(scale(translate(i, vec3(4, -0.08f, 0)), vec3(scale_factor)),
                             radians(90.0f), vec3(0, 1, 0)));
 
     lucy_0.setMaterial(Material::dielectric(1.5f));
@@ -186,14 +162,14 @@ SceneAssets SceneList::cornellBox(CameraInitialSate& camera) {
     const auto i = mat4(1);
     const auto white = Material::lambertian(vec3(0.73f, 0.73f, 0.73f));
 
-    auto box_0 = Model::CreateBox(vec3(0, 0, -165), vec3(165, 165, 0), white);
-    auto box_1 = Model::CreateBox(vec3(0, 0, -165), vec3(165, 330, 0), white);
+    auto box_0 = Model::createBox(vec3(0, 0, -165), vec3(165, 165, 0), white);
+    auto box_1 = Model::createBox(vec3(0, 0, -165), vec3(165, 330, 0), white);
 
-    box_0.Transform(rotate(translate(i, vec3(555 - 130 - 165, 0, -65)), radians(-18.0f), vec3(0, 1, 0)));
-    box_1.Transform(rotate(translate(i, vec3(555 - 265 - 165, 0, -295)), radians(15.0f), vec3(0, 1, 0)));
+    box_0.transform(rotate(translate(i, vec3(555 - 130 - 165, 0, -65)), radians(-18.0f), vec3(0, 1, 0)));
+    box_1.transform(rotate(translate(i, vec3(555 - 265 - 165, 0, -295)), radians(15.0f), vec3(0, 1, 0)));
 
     std::vector<Model> models;
-    models.push_back(Model::CreateCornellBox(555));
+    models.push_back(Model::createCornellBox(555));
     models.push_back(box_0);
     models.push_back(box_1);
 
@@ -210,14 +186,14 @@ SceneAssets SceneList::cornellBoxLucy(CameraInitialSate& camera) {
 
     const auto i = mat4(1);
     const auto sphere =
-        Model::CreateSphere(vec3(555 - 130, 165.0f, -165.0f / 2 - 65), 80.0f, Material::dielectric(1.5f), true);
+        Model::createSphere(vec3(555 - 130, 165.0f, -165.0f / 2 - 65), 80.0f, Material::dielectric(1.5f), true);
     auto lucy_0 = Model::loadModel("../resources/models/lucy.obj");
 
-    lucy_0.Transform(rotate(scale(translate(i, vec3(555 - 300 - 165 / 2, -9, -295 - 165 / 2)), vec3(0.6f)),
+    lucy_0.transform(rotate(scale(translate(i, vec3(555 - 300 - 165 / 2, -9, -295 - 165 / 2)), vec3(0.6f)),
                             radians(75.0f), vec3(0, 1, 0)));
 
     std::vector<Model> models;
-    models.push_back(Model::CreateCornellBox(555));
+    models.push_back(Model::createCornellBox(555));
     models.push_back(sphere);
     models.push_back(lucy_0);
 

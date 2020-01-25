@@ -10,7 +10,7 @@ AccelerationStructure::AccelerationStructure(const class DeviceProcedures& devic
     device_procedures_(device_procedures),
     allow_update_(create_info.info.flags & VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_NV),
     device_(device_procedures.device()) {
-    vulkanCheck(device_procedures.vkCreateAccelerationStructureNV(device_.Handle(),
+    vulkanCheck(device_procedures.vkCreateAccelerationStructureNV(device_.handle(),
                                                                   &create_info,
                                                                   nullptr,
                                                                   &accelerationStructure_),
@@ -27,7 +27,7 @@ AccelerationStructure::AccelerationStructure(AccelerationStructure&& other) noex
 
 AccelerationStructure::~AccelerationStructure() {
     if (accelerationStructure_ != nullptr) {
-        device_procedures_.vkDestroyAccelerationStructureNV(device_.Handle(), accelerationStructure_, nullptr);
+        device_procedures_.vkDestroyAccelerationStructureNV(device_.handle(), accelerationStructure_, nullptr);
         accelerationStructure_ = nullptr;
     }
 }
@@ -41,19 +41,19 @@ AccelerationStructure::MemoryRequirements AccelerationStructure::getMemoryRequir
     // If the descriptor already contains the geometry info, so we can directly compute the estimated size and required scratch memory.
     VkMemoryRequirements2 memoryRequirements = {};
     memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_NV;
-    device_procedures_.vkGetAccelerationStructureMemoryRequirementsNV(device_.Handle(),
+    device_procedures_.vkGetAccelerationStructureMemoryRequirementsNV(device_.handle(),
                                                                       &memoryRequirementsInfo,
                                                                       &memoryRequirements);
     const auto resultRequirements = memoryRequirements.memoryRequirements;
 
     memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_NV;
-    device_procedures_.vkGetAccelerationStructureMemoryRequirementsNV(device_.Handle(),
+    device_procedures_.vkGetAccelerationStructureMemoryRequirementsNV(device_.handle(),
                                                                       &memoryRequirementsInfo,
                                                                       &memoryRequirements);
     const auto buildRequirements = memoryRequirements.memoryRequirements;
 
     memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_UPDATE_SCRATCH_NV;
-    device_procedures_.vkGetAccelerationStructureMemoryRequirementsNV(device_.Handle(),
+    device_procedures_.vkGetAccelerationStructureMemoryRequirementsNV(device_.handle(),
                                                                       &memoryRequirementsInfo,
                                                                       &memoryRequirements);
     const auto updateRequirements = memoryRequirements.memoryRequirements;

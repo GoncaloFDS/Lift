@@ -24,50 +24,50 @@ public:
     Scene& operator=(const Scene&) = delete;
     Scene& operator=(Scene&&) = delete;
 
-    Scene(vulkan::CommandPool& commandPool,
+    Scene(vulkan::CommandPool& command_pool,
           std::vector<Model>&& models,
           std::vector<Texture>&& textures,
-          bool usedForRayTracing);
+          bool used_for_ray_tracing);
     ~Scene();
 
-    const std::vector<Model>& Models() const { return models_; }
-    bool HasProcedurals() const { return static_cast<bool>(proceduralBuffer_); }
+    [[nodiscard]] const std::vector<Model>& models() const { return models_; }
+    [[nodiscard]] bool hasProcedurals() const { return static_cast<bool>(procedural_buffer_); }
 
-    const vulkan::Buffer& VertexBuffer() const { return *vertexBuffer_; }
-    const vulkan::Buffer& IndexBuffer() const { return *indexBuffer_; }
-    const vulkan::Buffer& MaterialBuffer() const { return *materialBuffer_; }
-    const vulkan::Buffer& OffsetsBuffer() const { return *offsetBuffer_; }
-    const vulkan::Buffer& AabbBuffer() const { return *aabbBuffer_; }
-    const vulkan::Buffer& ProceduralBuffer() const { return *proceduralBuffer_; }
-    const std::vector<VkImageView> TextureImageViews() const { return textureImageViewHandles_; }
-    const std::vector<VkSampler> TextureSamplers() const { return textureSamplerHandles_; }
+    [[nodiscard]] const vulkan::Buffer& vertexBuffer() const { return *vertex_buffer_; }
+    [[nodiscard]] const vulkan::Buffer& indexBuffer() const { return *index_buffer_; }
+    [[nodiscard]] const vulkan::Buffer& materialBuffer() const { return *material_buffer_; }
+    [[nodiscard]] const vulkan::Buffer& offsetsBuffer() const { return *offset_buffer_; }
+    [[nodiscard]] const vulkan::Buffer& aabbBuffer() const { return *aabb_buffer_; }
+    [[nodiscard]] const vulkan::Buffer& proceduralBuffer() const { return *procedural_buffer_; }
+    [[nodiscard]] std::vector<VkImageView> textureImageViews() const { return texture_image_view_handles_; }
+    [[nodiscard]] std::vector<VkSampler> textureSamplers() const { return texture_sampler_handles_; }
 
 private:
 
     const std::vector<Model> models_;
     const std::vector<Texture> textures_;
 
-    std::unique_ptr<vulkan::Buffer> vertexBuffer_;
-    std::unique_ptr<vulkan::DeviceMemory> vertexBufferMemory_;
+    std::unique_ptr<vulkan::Buffer> vertex_buffer_;
+    std::unique_ptr<vulkan::DeviceMemory> vertex_buffer_memory_;
 
-    std::unique_ptr<vulkan::Buffer> indexBuffer_;
-    std::unique_ptr<vulkan::DeviceMemory> indexBufferMemory_;
+    std::unique_ptr<vulkan::Buffer> index_buffer_;
+    std::unique_ptr<vulkan::DeviceMemory> index_buffer_memory_;
 
-    std::unique_ptr<vulkan::Buffer> materialBuffer_;
-    std::unique_ptr<vulkan::DeviceMemory> materialBufferMemory_;
+    std::unique_ptr<vulkan::Buffer> material_buffer_;
+    std::unique_ptr<vulkan::DeviceMemory> material_buffer_memory_;
 
-    std::unique_ptr<vulkan::Buffer> offsetBuffer_;
-    std::unique_ptr<vulkan::DeviceMemory> offsetBufferMemory_;
+    std::unique_ptr<vulkan::Buffer> offset_buffer_;
+    std::unique_ptr<vulkan::DeviceMemory> offset_buffer_memory_;
 
-    std::unique_ptr<vulkan::Buffer> aabbBuffer_;
-    std::unique_ptr<vulkan::DeviceMemory> aabbBufferMemory_;
+    std::unique_ptr<vulkan::Buffer> aabb_buffer_;
+    std::unique_ptr<vulkan::DeviceMemory> aabb_buffer_memory_;
 
-    std::unique_ptr<vulkan::Buffer> proceduralBuffer_;
-    std::unique_ptr<vulkan::DeviceMemory> proceduralBufferMemory_;
+    std::unique_ptr<vulkan::Buffer> procedural_buffer_;
+    std::unique_ptr<vulkan::DeviceMemory> procedural_buffer_memory_;
 
-    std::vector<std::unique_ptr<TextureImage>> textureImages_;
-    std::vector<VkImageView> textureImageViewHandles_;
-    std::vector<VkSampler> textureSamplerHandles_;
+    std::vector<std::unique_ptr<TextureImage>> texture_images_;
+    std::vector<VkImageView> texture_image_view_handles_;
+    std::vector<VkSampler> texture_sampler_handles_;
 };
 
 }

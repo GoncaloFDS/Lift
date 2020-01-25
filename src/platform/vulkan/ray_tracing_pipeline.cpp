@@ -47,7 +47,7 @@ RayTracingPipeline::RayTracingPipeline(
             {7, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
 
             // Textures and image samplers
-            {8, static_cast<uint32_t>(scene.TextureSamplers().size()), VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            {8, static_cast<uint32_t>(scene.textureSamplers().size()), VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
              VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
 
             // The Procedural buffer.
@@ -61,7 +61,7 @@ RayTracingPipeline::RayTracingPipeline(
 
     for (uint32_t i = 0; i != swap_chain.images().size(); ++i) {
         // Top level acceleration structure.
-        const auto accelerationStructureHandle = acceleration_structure.Handle();
+        const auto accelerationStructureHandle = acceleration_structure.handle();
         VkWriteDescriptorSetAccelerationStructureNV structureInfo = {};
         structureInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV;
         structureInfo.pNext = nullptr;
@@ -70,47 +70,47 @@ RayTracingPipeline::RayTracingPipeline(
 
         // Accumulation image
         VkDescriptorImageInfo accumulationImageInfo = {};
-        accumulationImageInfo.imageView = accumulation_image_view.Handle();
+        accumulationImageInfo.imageView = accumulation_image_view.handle();
         accumulationImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
         // Output image
         VkDescriptorImageInfo outputImageInfo = {};
-        outputImageInfo.imageView = output_image_view.Handle();
+        outputImageInfo.imageView = output_image_view.handle();
         outputImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
         // Uniform buffer
         VkDescriptorBufferInfo uniformBufferInfo = {};
-        uniformBufferInfo.buffer = uniform_buffers[i].Buffer().Handle();
+        uniformBufferInfo.buffer = uniform_buffers[i].Buffer().handle();
         uniformBufferInfo.range = VK_WHOLE_SIZE;
 
         // Vertex buffer
         VkDescriptorBufferInfo vertexBufferInfo = {};
-        vertexBufferInfo.buffer = scene.VertexBuffer().Handle();
+        vertexBufferInfo.buffer = scene.vertexBuffer().handle();
         vertexBufferInfo.range = VK_WHOLE_SIZE;
 
         // Index buffer
         VkDescriptorBufferInfo indexBufferInfo = {};
-        indexBufferInfo.buffer = scene.IndexBuffer().Handle();
+        indexBufferInfo.buffer = scene.indexBuffer().handle();
         indexBufferInfo.range = VK_WHOLE_SIZE;
 
         // Material buffer
         VkDescriptorBufferInfo materialBufferInfo = {};
-        materialBufferInfo.buffer = scene.MaterialBuffer().Handle();
+        materialBufferInfo.buffer = scene.materialBuffer().handle();
         materialBufferInfo.range = VK_WHOLE_SIZE;
 
         // Offsets buffer
         VkDescriptorBufferInfo offsetsBufferInfo = {};
-        offsetsBufferInfo.buffer = scene.OffsetsBuffer().Handle();
+        offsetsBufferInfo.buffer = scene.offsetsBuffer().handle();
         offsetsBufferInfo.range = VK_WHOLE_SIZE;
 
         // Image and texture samplers.
-        std::vector<VkDescriptorImageInfo> imageInfos(scene.TextureSamplers().size());
+        std::vector<VkDescriptorImageInfo> imageInfos(scene.textureSamplers().size());
 
         for (size_t t = 0; t != imageInfos.size(); ++t) {
             auto& imageInfo = imageInfos[t];
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = scene.TextureImageViews()[t];
-            imageInfo.sampler = scene.TextureSamplers()[t];
+            imageInfo.imageView = scene.textureImageViews()[t];
+            imageInfo.sampler = scene.textureSamplers()[t];
         }
 
         std::vector<VkWriteDescriptorSet> descriptorWrites =
@@ -129,8 +129,8 @@ RayTracingPipeline::RayTracingPipeline(
         // Procedural buffer (optional)
         VkDescriptorBufferInfo proceduralBufferInfo = {};
 
-        if (scene.HasProcedurals()) {
-            proceduralBufferInfo.buffer = scene.ProceduralBuffer().Handle();
+        if (scene.hasProcedurals()) {
+            proceduralBufferInfo.buffer = scene.proceduralBuffer().handle();
             proceduralBufferInfo.range = VK_WHOLE_SIZE;
 
             descriptorWrites.push_back(descriptorSets.bind(i, 9, proceduralBufferInfo));
@@ -216,11 +216,11 @@ RayTracingPipeline::RayTracingPipeline(
     pipelineInfo.groupCount = static_cast<uint32_t>(groups.size());
     pipelineInfo.pGroups = groups.data();
     pipelineInfo.maxRecursionDepth = 1;
-    pipelineInfo.layout = pipeline_layout_->Handle();
+    pipelineInfo.layout = pipeline_layout_->handle();
     pipelineInfo.basePipelineHandle = nullptr;
     pipelineInfo.basePipelineIndex = 0;
 
-    vulkanCheck(device_procedures.vkCreateRayTracingPipelinesNV(device.Handle(),
+    vulkanCheck(device_procedures.vkCreateRayTracingPipelinesNV(device.handle(),
                                                                 nullptr,
                                                                 1,
                                                                 &pipelineInfo,
@@ -231,7 +231,7 @@ RayTracingPipeline::RayTracingPipeline(
 
 RayTracingPipeline::~RayTracingPipeline() {
     if (pipeline_ != nullptr) {
-        vkDestroyPipeline(swap_chain_.device().Handle(), pipeline_, nullptr);
+        vkDestroyPipeline(swap_chain_.device().handle(), pipeline_, nullptr);
         pipeline_ = nullptr;
     }
 

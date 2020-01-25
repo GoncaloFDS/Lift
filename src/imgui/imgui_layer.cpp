@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "imgui_layer.h"
 #include "scene_list.h"
 #include "user_settings.h"
@@ -17,12 +18,11 @@
 
 #include <array>
 #include <memory>
+#include <core.h>
 
 namespace {
 void checkVulkanResultCallback(const VkResult err) {
-    if (err != VK_SUCCESS) {
-//			Throw(std::runtime_error(std::string("ImGui vulkan error (") + vulkan::ToString(err) + ")"));
-    }
+    LF_ASSERT(err == VK_SUCCESS, "ImGui Vulkan Error: {0}", vulkan::toString(err));
 }
 }
 
@@ -41,52 +41,52 @@ ImguiLayer::ImguiLayer(vulkan::CommandPool& command_pool,
     descriptor_pool_ = std::make_unique<vulkan::DescriptorPool>(device, descriptor_bindings, 1);
     render_pass_ = std::make_unique<vulkan::RenderPass>(swap_chain, depth_buffer, false, false);
 
-    // Initialise ImGui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    // Initialise ImGui GLFW adapter
     if (!ImGui_ImplGlfw_InitForVulkan(window.handle(), false)) {
-//		Throw(std::runtime_error("failed to initialise ImGui GLFW adapter"));
+        LF_ASSERT(false, "Failed to initialize Glfw -> Imgui");
+        return;
     }
 
     // Initialise ImGui vulkan adapter
     ImGui_ImplVulkan_InitInfo vulkan_init = {};
-    vulkan_init.Instance = device.surface().instance().Handle();
+    vulkan_init.Instance = device.surface().instance().handle();
     vulkan_init.PhysicalDevice = device.physicalDevice();
-    vulkan_init.Device = device.Handle();
+    vulkan_init.Device = device.handle();
     vulkan_init.QueueFamily = device.graphicsFamilyIndex();
     vulkan_init.Queue = device.graphicsQueue();
     vulkan_init.PipelineCache = nullptr;
-    vulkan_init.DescriptorPool = descriptor_pool_->Handle();
+    vulkan_init.DescriptorPool = descriptor_pool_->handle();
     vulkan_init.MinImageCount = swap_chain.minImageCount();
     vulkan_init.ImageCount = static_cast<uint32_t>(swap_chain.images().size());
     vulkan_init.Allocator = nullptr;
     vulkan_init.CheckVkResultFn = checkVulkanResultCallback;
 
-    if (!ImGui_ImplVulkan_Init(&vulkan_init, render_pass_->Handle())) {
-//		Throw(std::runtime_error("failed to initialise ImGui vulkan adapter"));
+    if (!ImGui_ImplVulkan_Init(&vulkan_init, render_pass_->handle())) {
+        LF_ASSERT(false, "Failed to initialize Vulkan -> Imgui");
+        return;
     }
 
     auto& io = ImGui::GetIO();
 
-    // No ini file.
     io.IniFilename = nullptr;
 
-    // Window scaling and style.
     const auto scale_factor = window.contentScale();
 
     ImGui::StyleColorsDark();
     ImGui::GetStyle().ScaleAllSizes(scale_factor);
 
-    // Upload ImGui fonts
-    if (!io.Fonts->AddFontFromFileTTF("../resources/fonts/Cousine-Regular.ttf", 13 * scale_factor)) {
-//		Throw(std::runtime_error("failed to load ImGui font"));
+    const std::string& font_path = "../resources/fonts/Cousine-Regular.ttf";
+    if (!io.Fonts->AddFontFromFileTTF(font_path.c_str(), 13 * scale_factor)) {
+        LF_ASSERT(false, "Failed to load font {0}", font_path);
+        return;
     }
 
     vulkan::SingleTimeCommands::submit(command_pool, [](VkCommandBuffer command_buffer) {
         if (!ImGui_ImplVulkan_CreateFontsTexture(command_buffer)) {
-//			Throw(std::runtime_error("failed to create ImGui font textures"));
+            LF_ASSERT(false, "Failed create ImGUi font textures");
+            return;
         }
     });
 
@@ -108,7 +108,7 @@ void ImguiLayer::render(VkCommandBuffer command_buffer,
 
     drawSettings();
     drawOverlay(statistics);
-    //ImGui::ShowStyleEditor();
+//    ImGui::ShowStyleEditor();
     ImGui::Render();
 
     std::array<VkClearValue, 2> clear_values = {};
@@ -117,8 +117,8 @@ void ImguiLayer::render(VkCommandBuffer command_buffer,
 
     VkRenderPassBeginInfo render_pass_info = {};
     render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    render_pass_info.renderPass = render_pass_->Handle();
-    render_pass_info.framebuffer = frame_buffer.Handle();
+    render_pass_info.renderPass = render_pass_->handle();
+    render_pass_info.framebuffer = frame_buffer.handle();
     render_pass_info.renderArea.offset = {0, 0};
     render_pass_info.renderArea.extent = render_pass_->swapChain().extent();
     render_pass_info.clearValueCount = 0;// static_cast<uint32_t>(clearValues.size());
@@ -144,8 +144,8 @@ void ImguiLayer::drawSettings() {
 
     const float distance = 10.0f;
     const ImVec2 pos = ImVec2(distance, distance);
-    const ImVec2 posPivot = ImVec2(0.0f, 0.0f);
-    ImGui::SetNextWindowPos(pos, ImGuiCond_Always, posPivot);
+    const ImVec2 pos_pivot = ImVec2(0.0f, 0.0f);
+    ImGui::SetNextWindowPos(pos, ImGuiCond_Always, pos_pivot);
 
     const auto flags = ImGuiWindowFlags_AlwaysAutoResize |
         ImGuiWindowFlags_NoCollapse |
@@ -160,19 +160,11 @@ void ImguiLayer::drawSettings() {
             scenes.push_back(scene.first.c_str());
         }
 
-        ImGui::Text("Help");
-        ImGui::Separator();
-        ImGui::BulletText("Press F1 to toggle Settings.");
-        ImGui::BulletText("Press F2 to toggle Statistics.");
-        ImGui::BulletText("Press R to toggle ray tracing.");
-        ImGui::NewLine();
-
         ImGui::Text("Scene");
         ImGui::Separator();
         ImGui::PushItemWidth(-1);
         ImGui::Combo("", &settings().sceneIndex, scenes.data(), static_cast<int>(scenes.size()));
         ImGui::PopItemWidth();
-        ImGui::Checkbox("Show statistics overlay", &settings().showOverlay);
         ImGui::NewLine();
 
         ImGui::Text("Ray Tracing");
@@ -185,12 +177,8 @@ void ImguiLayer::drawSettings() {
         ImGui::SliderScalar("Bounces", ImGuiDataType_U32, &settings().numberOfBounces, &min, &max);
         ImGui::NewLine();
 
-        ImGui::Text("Camera");
-        ImGui::Separator();
-        ImGui::SliderFloat("FoV", &settings().fieldOfView, 10.0f, 90.0f, "%.0f");
-        ImGui::SliderFloat("Aperture", &settings().aperture, 0.0f, 1.0f, "%.2f");
-        ImGui::SliderFloat("Focus", &settings().focusDistance, 0.1f, 20.0f, "%.1f");
         ImGui::Checkbox("Apply gamma correction", &settings().gammaCorrection);
+        ImGui::Checkbox("Show statistics", &settings().showOverlay);
         ImGui::NewLine();
     }
     ImGui::End();

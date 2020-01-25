@@ -4,12 +4,16 @@
 #include <algorithm>
 #include <string.h>
 #include <stdio.h>
+#include <pch.h>
 
 namespace vulkan {
 
 Instance::Instance(const class Window& window, const std::vector<const char*>& validation_layers) :
     window_(window),
     validation_layers_(validation_layers) {
+
+    const uint32_t minimum_version = VK_API_VERSION_1_1;
+    checkVulkanMinimumVersion(minimum_version);
 
     auto extensions = window.getRequiredInstanceExtensions();
 
@@ -23,6 +27,9 @@ Instance::Instance(const class Window& window, const std::vector<const char*>& v
     app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     app_info.pApplicationName = "Lift";
     app_info.pEngineName = "Lift Engine";
+    app_info.apiVersion = minimum_version;
+    app_info.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
+    app_info.engineVersion = VK_MAKE_VERSION(0, 0, 1);
 
     VkInstanceCreateInfo create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -55,6 +62,18 @@ void Instance::getVulkanDevices() {
 
 void Instance::getVulkanExtensions() {
     getEnumerateVector(static_cast<const char*>(nullptr), vkEnumerateInstanceExtensionProperties, extensions_);
+}
+
+void Instance::checkVulkanMinimumVersion(const uint32_t min_version) {
+    uint32_t version;
+    vulkanCheck(vkEnumerateInstanceVersion(&version),
+          "query instance version");
+
+
+    if (min_version > version) {
+        LF_ERROR("Vulkan requires at least Version 1.1.0");
+
+    }
 }
 
 void Instance::checkVulkanValidationLayerSupport(const std::vector<const char*>& validation_layers) {

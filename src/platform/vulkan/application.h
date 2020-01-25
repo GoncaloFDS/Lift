@@ -42,7 +42,7 @@ public:
     void setPhysicalDevice(VkPhysicalDevice physical_device);
     void run();
 
-    Application(const WindowProperties& window_properties, bool vsync, bool enable_validation_layers);
+    Application(const WindowProperties& window_properties, const bool vsync);
 protected:
 
     [[nodiscard]] const class Window& window() const { return *window_; }

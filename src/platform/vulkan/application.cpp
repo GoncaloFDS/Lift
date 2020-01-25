@@ -34,9 +34,13 @@
 
 namespace vulkan {
 
-Application::Application(const WindowProperties& window_properties,
-                         const bool vsync,
-                         const bool enable_validation_layers) :
+#ifdef NDEBUG
+const bool enable_validation_layers = false;
+#else
+const bool enable_validation_layers = true;
+#endif
+
+Application::Application(const WindowProperties& window_properties, const bool vsync) :
     vsync_(vsync) {
     const auto validation_layers = enable_validation_layers ? std::vector<const char*>{"VK_LAYER_KHRONOS_validation"}
                                                             : std::vector<const char*>();
@@ -49,15 +53,15 @@ Application::Application(const WindowProperties& window_properties,
 Application::~Application() {
     deleteSwapChain();
 
+    deleteAccelerationStructures();
+    device_procedures_.reset();
+    properties_.reset();
     command_pool_.reset();
+
     device_.reset();
     surface_.reset();
     instance_.reset();
     window_.reset();
-
-    deleteAccelerationStructures();
-    device_procedures_.reset();
-    properties_.reset();
 }
 
 void Application::createAccelerationStructures() {
@@ -108,16 +112,16 @@ void Application::render(VkCommandBuffer command_buffer, uint32_t image_index) {
     subresource_range.baseArrayLayer = 0;
     subresource_range.layerCount = 1;
 
-    ImageMemoryBarrier::insert(command_buffer, accumulation_image_->Handle(), subresource_range, 0,
+    ImageMemoryBarrier::insert(command_buffer, accumulation_image_->handle(), subresource_range, 0,
                                VK_ACCESS_SHADER_WRITE_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 
-    ImageMemoryBarrier::insert(command_buffer, output_image_->Handle(), subresource_range, 0,
+    ImageMemoryBarrier::insert(command_buffer, output_image_->handle(), subresource_range, 0,
                                VK_ACCESS_SHADER_WRITE_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 
-    vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV, ray_tracing_pipeline_->Handle());
+    vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV, ray_tracing_pipeline_->handle());
     vkCmdBindDescriptorSets(command_buffer,
                             VK_PIPELINE_BIND_POINT_RAY_TRACING_NV,
-                            ray_tracing_pipeline_->pipelineLayout().Handle(),
+                            ray_tracing_pipeline_->pipelineLayout().handle(),
                             0,
                             1,
                             descriptor_sets,
@@ -125,12 +129,12 @@ void Application::render(VkCommandBuffer command_buffer, uint32_t image_index) {
                             nullptr);
 
     device_procedures_->vkCmdTraceRaysNV(command_buffer,
-                                         shader_binding_table_->buffer().Handle(),
+                                         shader_binding_table_->buffer().handle(),
                                          shader_binding_table_->rayGenOffset(),
-                                         shader_binding_table_->buffer().Handle(),
+                                         shader_binding_table_->buffer().handle(),
                                          shader_binding_table_->missOffset(),
                                          shader_binding_table_->missEntrySize(),
-                                         shader_binding_table_->buffer().Handle(),
+                                         shader_binding_table_->buffer().handle(),
                                          shader_binding_table_->hitGroupOffset(),
                                          shader_binding_table_->hitGroupEntrySize(),
                                          nullptr,
@@ -141,7 +145,7 @@ void Application::render(VkCommandBuffer command_buffer, uint32_t image_index) {
                                          1);
 
     ImageMemoryBarrier::insert(command_buffer,
-                               output_image_->Handle(),
+                               output_image_->handle(),
                                subresource_range,
                                VK_ACCESS_SHADER_WRITE_BIT,
                                VK_ACCESS_TRANSFER_READ_BIT,
@@ -164,7 +168,7 @@ void Application::render(VkCommandBuffer command_buffer, uint32_t image_index) {
     copy_region.extent = {extent.width, extent.height, 1};
 
     vkCmdCopyImage(command_buffer,
-                   output_image_->Handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                   output_image_->handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                    swapChain().images()[image_index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                    1, &copy_region);
 
@@ -188,7 +192,7 @@ void Application::createBottomLevelStructures(VkCommandBuffer command_buffer) {
 
     std::vector<AccelerationStructure::MemoryRequirements> requirements;
 
-    for (const auto& model : scene.Models()) {
+    for (const auto& model : scene.models()) {
         const auto vertex_count = static_cast<uint32_t>(model.NumberOfVertices());
         const auto index_count = static_cast<uint32_t>(model.NumberOfIndices());
         const std::vector<VkGeometryNV> geometries =
@@ -249,7 +253,7 @@ void Application::createTopLevelStructures(VkCommandBuffer command_buffer) {
     // Hit group 1: procedurals
     uint32_t instance_id = 0;
 
-    for (const auto& model : scene.Models()) {
+    for (const auto& model : scene.models()) {
         geometry_instances.push_back(TopLevelAccelerationStructure::createGeometryInstance(
             bottom_as_[instance_id], mat4(1), instance_id, model.Procedural() ? 1 : 0));
         instance_id++;
@@ -299,7 +303,7 @@ void vulkan::Application::createOutputImage() {
     accumulation_image_memory_ =
         std::make_unique<DeviceMemory>(accumulation_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
     accumulation_image_view_ = std::make_unique<ImageView>(device(),
-                                                           accumulation_image_->Handle(),
+                                                           accumulation_image_->handle(),
                                                            VK_FORMAT_R32G32B32A32_SFLOAT,
                                                            VK_IMAGE_ASPECT_COLOR_BIT);
 
@@ -311,7 +315,7 @@ void vulkan::Application::createOutputImage() {
     output_image_memory_ =
         std::make_unique<DeviceMemory>(output_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
     output_image_view_ =
-        std::make_unique<ImageView>(device(), output_image_->Handle(), format, VK_IMAGE_ASPECT_COLOR_BIT);
+        std::make_unique<ImageView>(device(), output_image_->handle(), format, VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
 const std::vector<VkExtensionProperties>& Application::extensions() const {
@@ -431,14 +435,14 @@ void Application::drawFrame() {
     const auto no_timeout = std::numeric_limits<uint64_t>::max();
 
     auto& in_flight_fence = in_flight_fences_[current_frame_];
-    const auto image_available_semaphore = image_available_semaphores_[current_frame_].Handle();
-    const auto render_finished_semaphore = render_finished_semaphores_[current_frame_].Handle();
+    const auto image_available_semaphore = image_available_semaphores_[current_frame_].handle();
+    const auto render_finished_semaphore = render_finished_semaphores_[current_frame_].handle();
 
     in_flight_fence.wait(no_timeout);
 
     uint32_t image_index;
-    auto result = vkAcquireNextImageKHR(device_->Handle(),
-                                        swap_chain_->Handle(),
+    auto result = vkAcquireNextImageKHR(device_->handle(),
+                                        swap_chain_->handle(),
                                         no_timeout,
                                         image_available_semaphore,
                                         nullptr,
@@ -480,7 +484,7 @@ void Application::drawFrame() {
     vulkanCheck(vkQueueSubmit(device_->graphicsQueue(), 1, &submit_info, in_flight_fence.handle()),
                 "submit draw command buffer");
 
-    VkSwapchainKHR swap_chains[] = {swap_chain_->Handle()};
+    VkSwapchainKHR swap_chains[] = {swap_chain_->handle()};
     VkPresentInfoKHR present_info = {};
     present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     present_info.waitSemaphoreCount = 1;
@@ -509,8 +513,8 @@ void Application::drawFrame() {
 //
 //    VkRenderPassBeginInfo render_pass_info = {};
 //    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-//    render_pass_info.renderPass = graphics_pipeline_->renderPass().Handle();
-//    render_pass_info.framebuffer = swap_chain_framebuffers_[image_index].Handle();
+//    render_pass_info.renderPass = graphics_pipeline_->renderPass().handle();
+//    render_pass_info.framebuffer = swap_chain_framebuffers_[image_index].handle();
 //    render_pass_info.renderArea.offset = {0, 0};
 //    render_pass_info.renderArea.extent = swap_chain_->extent();
 //    render_pass_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
@@ -521,14 +525,14 @@ void Application::drawFrame() {
 //        const auto& scene = getScene();
 //
 //        VkDescriptorSet descriptor_sets[] = {graphics_pipeline_->descriptorSet(image_index)};
-//        VkBuffer vertex_buffers[] = {scene.VertexBuffer().Handle()};
-//        const VkBuffer index_buffer = scene.IndexBuffer().Handle();
+//        VkBuffer vertex_buffers[] = {scene.vertexBuffer().handle()};
+//        const VkBuffer index_buffer = scene.indexBuffer().handle();
 //        VkDeviceSize offsets[] = {0};
 //
-//        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_->Handle());
+//        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_->handle());
 //        vkCmdBindDescriptorSets(command_buffer,
 //                                VK_PIPELINE_BIND_POINT_GRAPHICS,
-//                                graphics_pipeline_->pipelineLayout().Handle(),
+//                                graphics_pipeline_->pipelineLayout().handle(),
 //                                0,
 //                                1,
 //                                descriptor_sets,

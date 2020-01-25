@@ -24,7 +24,7 @@ Sampler::Sampler(const class Device& device, const SamplerConfig& config) :
 	samplerInfo.minLod = config.minLod;
 	samplerInfo.maxLod = config.maxLod;
 
-	if (vkCreateSampler(device.Handle(), &samplerInfo, nullptr, &sampler_) != VK_SUCCESS)
+	if (vkCreateSampler(device.handle(), &samplerInfo, nullptr, &sampler_) != VK_SUCCESS)
 	{
 //		Throw(std::runtime_error("failed to create sampler"));
     }
@@ -32,7 +32,7 @@ Sampler::Sampler(const class Device& device, const SamplerConfig& config) :
 
 Sampler::~Sampler() {
     if (sampler_ != nullptr) {
-        vkDestroySampler(device_.Handle(), sampler_, nullptr);
+        vkDestroySampler(device_.handle(), sampler_, nullptr);
         sampler_ = nullptr;
     }
 }

@@ -13,7 +13,7 @@ namespace vulkan {
 SwapChain::SwapChain(const class Device& device, const bool vsync) :
     physical_device_(device.physicalDevice()),
     device_(device) {
-    const auto details = querySwapChainSupport(device.physicalDevice(), device.surface().Handle());
+    const auto details = querySwapChainSupport(device.physicalDevice(), device.surface().handle());
     if (details.formats.empty() || details.presentModes.empty()) {
 //		throw std::runtime_error("empty swap chain support");
     }
@@ -28,7 +28,7 @@ SwapChain::SwapChain(const class Device& device, const bool vsync) :
 
     VkSwapchainCreateInfoKHR create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    create_info.surface = surface.Handle();
+    create_info.surface = surface.handle();
     create_info.minImageCount = image_count;
     create_info.imageFormat = surface_format.format;
     create_info.imageColorSpace = surface_format.colorSpace;
@@ -53,13 +53,13 @@ SwapChain::SwapChain(const class Device& device, const bool vsync) :
         create_info.pQueueFamilyIndices = nullptr; // Optional
     }
 
-    vulkanCheck(vkCreateSwapchainKHR(device.Handle(), &create_info, nullptr, &swapChain_),
+    vulkanCheck(vkCreateSwapchainKHR(device.handle(), &create_info, nullptr, &swapChain_),
                 "create swap chain!");
 
     min_image_count_ = details.capabilities.minImageCount;
     format_ = surface_format.format;
     extent_ = extent;
-    images_ = getEnumerateVector(device_.Handle(), swapChain_, vkGetSwapchainImagesKHR);
+    images_ = getEnumerateVector(device_.handle(), swapChain_, vkGetSwapchainImagesKHR);
     image_views_.reserve(images_.size());
 
     for (const auto image : images_) {
@@ -71,7 +71,7 @@ SwapChain::~SwapChain() {
     image_views_.clear();
 
     if (swapChain_ != nullptr) {
-        vkDestroySwapchainKHR(device_.Handle(), swapChain_, nullptr);
+        vkDestroySwapchainKHR(device_.handle(), swapChain_, nullptr);
         swapChain_ = nullptr;
     }
 }

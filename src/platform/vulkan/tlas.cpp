@@ -59,7 +59,7 @@ void TopLevelAccelerationStructure::generate(
 //		throw std::invalid_argument("cannot update readonly structure");
     }
 
-    const VkAccelerationStructureNV previousStructure = update_only ? Handle() : nullptr;
+    const VkAccelerationStructureNV previousStructure = update_only ? handle() : nullptr;
 
     // Copy the instance descriptors into the provider buffer.
     const auto instancesBufferSize = geometry_instances_.size() * sizeof(VkGeometryInstance);
@@ -70,13 +70,13 @@ void TopLevelAccelerationStructure::generate(
     VkBindAccelerationStructureMemoryInfoNV bindInfo = {};
     bindInfo.sType = VK_STRUCTURE_TYPE_BIND_ACCELERATION_STRUCTURE_MEMORY_INFO_NV;
     bindInfo.pNext = nullptr;
-    bindInfo.accelerationStructure = Handle();
-    bindInfo.memory = result_memory.Handle();
+    bindInfo.accelerationStructure = handle();
+    bindInfo.memory = result_memory.handle();
     bindInfo.memoryOffset = result_offset;
     bindInfo.deviceIndexCount = 0;
     bindInfo.pDeviceIndices = nullptr;
 
-    vulkanCheck(device_procedures_.vkBindAccelerationStructureMemoryNV(device().Handle(), 1, &bindInfo),
+    vulkanCheck(device_procedures_.vkBindAccelerationStructureMemoryNV(device().handle(), 1, &bindInfo),
                 "bind acceleration structure");
 
     // Build the actual bottom-level acceleration structure
@@ -96,12 +96,12 @@ void TopLevelAccelerationStructure::generate(
     device_procedures_.vkCmdBuildAccelerationStructureNV(
         command_buffer,
         &buildInfo,
-        instance_buffer.Handle(),
+        instance_buffer.handle(),
         instance_offset,
         update_only,
-        Handle(),
+        handle(),
         previousStructure,
-        scratch_buffer.Handle(),
+        scratch_buffer.handle(),
         scratch_offset);
 }
 
@@ -114,8 +114,8 @@ VkGeometryInstance TopLevelAccelerationStructure::createGeometryInstance(
     const auto& deviceProcedures = bottom_level_as.deviceProcedures();
 
     uint64_t accelerationStructureHandle;
-    vulkanCheck(deviceProcedures.vkGetAccelerationStructureHandleNV(device.Handle(),
-                                                                    bottom_level_as.Handle(),
+    vulkanCheck(deviceProcedures.vkGetAccelerationStructureHandleNV(device.handle(),
+                                                                    bottom_level_as.handle(),
                                                                     sizeof(uint64_t),
                                                                     &accelerationStructureHandle),
                 "get acceleration structure handle");

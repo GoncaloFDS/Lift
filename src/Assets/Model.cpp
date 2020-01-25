@@ -15,15 +15,15 @@ template<>
 struct hash<assets::Vertex> final {
     size_t operator()(assets::Vertex const& vertex) const noexcept {
         return
-            Combine(hash<vec3>()(vertex.Position),
-                    Combine(hash<vec3>()(vertex.Normal),
-                            Combine(hash<vec2>()(vertex.TexCoord),
+            combine(hash<vec3>()(vertex.Position),
+                    combine(hash<vec3>()(vertex.Normal),
+                            combine(hash<vec2>()(vertex.TexCoord),
                                     hash<int>()(vertex.MaterialIndex))));
     }
 
 private:
 
-    static size_t Combine(size_t hash0, size_t hash1) {
+    static size_t combine(size_t hash0, size_t hash1) {
         return hash0 ^ (hash1 + 0x9e3779b9 + (hash0 << 6) + (hash0 >> 2));
     }
 };
@@ -51,10 +51,9 @@ Model Model::loadModel(const std::string& filename) {
     }
 
     if (!warn.empty()) {
-        std::cout << "\nWARNING: " << warn << std::flush;
+        LF_ERROR("Model Load: {0}", warn);
     }
 
-    // Materials
     std::vector<Material> materials;
 
     for (const auto& material : obj_materials) {
@@ -78,8 +77,8 @@ Model Model::loadModel(const std::string& filename) {
     // Geometry
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
-    std::unordered_map<Vertex, uint32_t> uniqueVertices(obj_attrib.vertices.size());
-    size_t faceId = 0;
+    std::unordered_map<Vertex, uint32_t> unique_vertices(obj_attrib.vertices.size());
+    size_t face_id = 0;
 
     for (const auto& shape : obj_shapes) {
         const auto& mesh = shape.mesh;
@@ -87,116 +86,108 @@ Model Model::loadModel(const std::string& filename) {
         for (const auto& index : mesh.indices) {
             Vertex vertex = {};
 
-            vertex.Position =
-                {
-                    obj_attrib.vertices[3 * index.vertex_index + 0],
-                    obj_attrib.vertices[3 * index.vertex_index + 1],
-                    obj_attrib.vertices[3 * index.vertex_index + 2],
-                };
+            vertex.Position = {
+                obj_attrib.vertices[3 * index.vertex_index + 0],
+                obj_attrib.vertices[3 * index.vertex_index + 1],
+                obj_attrib.vertices[3 * index.vertex_index + 2],
+            };
 
-            vertex.Normal =
-                {
-                    obj_attrib.normals[3 * index.normal_index + 0],
-                    obj_attrib.normals[3 * index.normal_index + 1],
-                    obj_attrib.normals[3 * index.normal_index + 2]
-                };
+            vertex.Normal = {
+                obj_attrib.normals[3 * index.normal_index + 0],
+                obj_attrib.normals[3 * index.normal_index + 1],
+                obj_attrib.normals[3 * index.normal_index + 2]
+            };
 
             if (!obj_attrib.texcoords.empty()) {
-                vertex.TexCoord =
-                    {
-                        obj_attrib.texcoords[2 * index.texcoord_index + 0],
-                        1 - obj_attrib.texcoords[2 * index.texcoord_index + 1]
-                    };
+                vertex.TexCoord = {
+                    obj_attrib.texcoords[2 * index.texcoord_index + 0],
+                    1 - obj_attrib.texcoords[2 * index.texcoord_index + 1]
+                };
             }
 
-            vertex.MaterialIndex = std::max(0, mesh.material_ids[faceId++ / 3]);
+            vertex.MaterialIndex = std::max(0, mesh.material_ids[face_id++ / 3]);
 
-            if (uniqueVertices.count(vertex) == 0) {
-                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+            if (unique_vertices.count(vertex) == 0) {
+                unique_vertices[vertex] = static_cast<uint32_t>(vertices.size());
                 vertices.push_back(vertex);
             }
 
-            indices.push_back(uniqueVertices[vertex]);
+            indices.push_back(unique_vertices[vertex]);
         }
     }
 
     const auto elapsed = std::chrono::duration<float, std::chrono::seconds::period>(
         std::chrono::high_resolution_clock::now() - timer).count();
 
-    std::cout << "(" << obj_attrib.vertices.size() << " vertices, " << uniqueVertices.size() << " unique vertices, "
-              << materials.size() << " materials) ";
-    std::cout << elapsed << "s" << std::endl;
+    LF_INFO("Loaded model {0} with {1} vertices and {2} materials",
+            filename,
+            obj_attrib.vertices.size(),
+            materials.size());
 
     return Model(std::move(vertices), std::move(indices), std::move(materials), nullptr);
 }
 
-Model Model::CreateCornellBox(const float scale) {
+Model Model::createCornellBox(const float scale) {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     std::vector<Material> materials;
 
     CornellBox::Create(scale, vertices, indices, materials);
 
-    return Model(
-        std::move(vertices),
-        std::move(indices),
-        std::move(materials),
-        nullptr
-    );
+    return Model(std::move(vertices),
+                 std::move(indices),
+                 std::move(materials),
+                 nullptr);
 }
 
-Model Model::CreateBox(const vec3& p0, const vec3& p1, const Material& material) {
-    std::vector<Vertex> vertices =
-        {
-            Vertex{vec3(p0.x, p0.y, p0.z), vec3(-1, 0, 0), vec2(0), 0},
-            Vertex{vec3(p0.x, p0.y, p1.z), vec3(-1, 0, 0), vec2(0), 0},
-            Vertex{vec3(p0.x, p1.y, p1.z), vec3(-1, 0, 0), vec2(0), 0},
-            Vertex{vec3(p0.x, p1.y, p0.z), vec3(-1, 0, 0), vec2(0), 0},
+Model Model::createBox(const vec3& p0, const vec3& p1, const Material& material) {
+    std::vector<Vertex> vertices = {
+        Vertex{vec3(p0.x, p0.y, p0.z), vec3(-1, 0, 0), vec2(0), 0},
+        Vertex{vec3(p0.x, p0.y, p1.z), vec3(-1, 0, 0), vec2(0), 0},
+        Vertex{vec3(p0.x, p1.y, p1.z), vec3(-1, 0, 0), vec2(0), 0},
+        Vertex{vec3(p0.x, p1.y, p0.z), vec3(-1, 0, 0), vec2(0), 0},
 
-            Vertex{vec3(p1.x, p0.y, p1.z), vec3(1, 0, 0), vec2(0), 0},
-            Vertex{vec3(p1.x, p0.y, p0.z), vec3(1, 0, 0), vec2(0), 0},
-            Vertex{vec3(p1.x, p1.y, p0.z), vec3(1, 0, 0), vec2(0), 0},
-            Vertex{vec3(p1.x, p1.y, p1.z), vec3(1, 0, 0), vec2(0), 0},
+        Vertex{vec3(p1.x, p0.y, p1.z), vec3(1, 0, 0), vec2(0), 0},
+        Vertex{vec3(p1.x, p0.y, p0.z), vec3(1, 0, 0), vec2(0), 0},
+        Vertex{vec3(p1.x, p1.y, p0.z), vec3(1, 0, 0), vec2(0), 0},
+        Vertex{vec3(p1.x, p1.y, p1.z), vec3(1, 0, 0), vec2(0), 0},
 
-            Vertex{vec3(p1.x, p0.y, p0.z), vec3(0, 0, -1), vec2(0), 0},
-            Vertex{vec3(p0.x, p0.y, p0.z), vec3(0, 0, -1), vec2(0), 0},
-            Vertex{vec3(p0.x, p1.y, p0.z), vec3(0, 0, -1), vec2(0), 0},
-            Vertex{vec3(p1.x, p1.y, p0.z), vec3(0, 0, -1), vec2(0), 0},
+        Vertex{vec3(p1.x, p0.y, p0.z), vec3(0, 0, -1), vec2(0), 0},
+        Vertex{vec3(p0.x, p0.y, p0.z), vec3(0, 0, -1), vec2(0), 0},
+        Vertex{vec3(p0.x, p1.y, p0.z), vec3(0, 0, -1), vec2(0), 0},
+        Vertex{vec3(p1.x, p1.y, p0.z), vec3(0, 0, -1), vec2(0), 0},
 
-            Vertex{vec3(p0.x, p0.y, p1.z), vec3(0, 0, 1), vec2(0), 0},
-            Vertex{vec3(p1.x, p0.y, p1.z), vec3(0, 0, 1), vec2(0), 0},
-            Vertex{vec3(p1.x, p1.y, p1.z), vec3(0, 0, 1), vec2(0), 0},
-            Vertex{vec3(p0.x, p1.y, p1.z), vec3(0, 0, 1), vec2(0), 0},
+        Vertex{vec3(p0.x, p0.y, p1.z), vec3(0, 0, 1), vec2(0), 0},
+        Vertex{vec3(p1.x, p0.y, p1.z), vec3(0, 0, 1), vec2(0), 0},
+        Vertex{vec3(p1.x, p1.y, p1.z), vec3(0, 0, 1), vec2(0), 0},
+        Vertex{vec3(p0.x, p1.y, p1.z), vec3(0, 0, 1), vec2(0), 0},
 
-            Vertex{vec3(p0.x, p0.y, p0.z), vec3(0, -1, 0), vec2(0), 0},
-            Vertex{vec3(p1.x, p0.y, p0.z), vec3(0, -1, 0), vec2(0), 0},
-            Vertex{vec3(p1.x, p0.y, p1.z), vec3(0, -1, 0), vec2(0), 0},
-            Vertex{vec3(p0.x, p0.y, p1.z), vec3(0, -1, 0), vec2(0), 0},
+        Vertex{vec3(p0.x, p0.y, p0.z), vec3(0, -1, 0), vec2(0), 0},
+        Vertex{vec3(p1.x, p0.y, p0.z), vec3(0, -1, 0), vec2(0), 0},
+        Vertex{vec3(p1.x, p0.y, p1.z), vec3(0, -1, 0), vec2(0), 0},
+        Vertex{vec3(p0.x, p0.y, p1.z), vec3(0, -1, 0), vec2(0), 0},
 
-            Vertex{vec3(p1.x, p1.y, p0.z), vec3(0, 1, 0), vec2(0), 0},
-            Vertex{vec3(p0.x, p1.y, p0.z), vec3(0, 1, 0), vec2(0), 0},
-            Vertex{vec3(p0.x, p1.y, p1.z), vec3(0, 1, 0), vec2(0), 0},
-            Vertex{vec3(p1.x, p1.y, p1.z), vec3(0, 1, 0), vec2(0), 0},
-        };
+        Vertex{vec3(p1.x, p1.y, p0.z), vec3(0, 1, 0), vec2(0), 0},
+        Vertex{vec3(p0.x, p1.y, p0.z), vec3(0, 1, 0), vec2(0), 0},
+        Vertex{vec3(p0.x, p1.y, p1.z), vec3(0, 1, 0), vec2(0), 0},
+        Vertex{vec3(p1.x, p1.y, p1.z), vec3(0, 1, 0), vec2(0), 0},
+    };
 
-    std::vector<uint32_t> indices =
-        {
-            0, 1, 2, 0, 2, 3,
-            4, 5, 6, 4, 6, 7,
-            8, 9, 10, 8, 10, 11,
-            12, 13, 14, 12, 14, 15,
-            16, 17, 18, 16, 18, 19,
-            20, 21, 22, 20, 22, 23
-        };
+    std::vector<uint32_t> indices = {0, 1, 2, 0, 2, 3,
+                                     4, 5, 6, 4, 6, 7,
+                                     8, 9, 10, 8, 10, 11,
+                                     12, 13, 14, 12, 14, 15,
+                                     16, 17, 18, 16, 18, 19,
+                                     20, 21, 22, 20, 22, 23
+    };
 
-    return Model(
-        std::move(vertices),
-        std::move(indices),
-        std::vector<Material>{material},
-        nullptr);
+    return Model(std::move(vertices),
+                 std::move(indices),
+                 std::vector<Material>{material},
+                 nullptr);
 }
 
-Model Model::CreateSphere(const vec3& center, float radius, const Material& material, const bool isProcedural) {
+Model Model::createSphere(const vec3& center, float radius, const Material& material, const bool isProcedural) {
     const int slices = 32;
     const int stacks = 16;
 
@@ -254,11 +245,10 @@ Model Model::CreateSphere(const vec3& center, float radius, const Material& mate
         }
     }
 
-    return Model(
-        std::move(vertices),
-        std::move(indices),
-        std::vector<Material>{material},
-        isProcedural ? new Sphere(center, radius) : nullptr);
+    return Model(std::move(vertices),
+                 std::move(indices),
+                 std::vector<Material>{material},
+                 isProcedural ? new Sphere(center, radius) : nullptr);
 }
 
 void Model::setMaterial(const Material& material) {
@@ -267,12 +257,12 @@ void Model::setMaterial(const Material& material) {
     materials_[0] = material;
 }
 
-void Model::Transform(const mat4& transform) {
-    const auto transformIT = inverseTranspose(transform);
+void Model::transform(const mat4& transform) {
+    const auto inverse_transpose = inverseTranspose(transform);
 
     for (auto& vertex : vertices_) {
         vertex.Position = transform * vec4(vertex.Position, 1);
-        vertex.Normal = transformIT * vec4(vertex.Normal, 0);
+        vertex.Normal = inverse_transpose * vec4(vertex.Normal, 0);
     }
 }
 

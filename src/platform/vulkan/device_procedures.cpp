@@ -7,7 +7,7 @@ namespace vulkan {
 namespace {
 template<class Func>
 Func getProcedure(const Device& device, const char* const name) {
-    const auto func = reinterpret_cast<Func>(vkGetDeviceProcAddr(device.Handle(), name));
+    const auto func = reinterpret_cast<Func>(vkGetDeviceProcAddr(device.handle(), name));
     if (func == nullptr) {
         LF_ASSERT(false, "bad procedure");
     }

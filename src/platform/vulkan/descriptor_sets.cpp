@@ -16,17 +16,17 @@ DescriptorSets::DescriptorSets(const DescriptorPool& descriptor_pool,
     : descriptor_pool_(descriptor_pool),
       binding_types_(std::move(binding_types)) {
 
-    std::vector<VkDescriptorSetLayout> layouts(size, layout.Handle());
+    std::vector<VkDescriptorSetLayout> layouts(size, layout.handle());
 
     VkDescriptorSetAllocateInfo alloc_info = {};
     alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    alloc_info.descriptorPool = descriptor_pool.Handle();
+    alloc_info.descriptorPool = descriptor_pool.handle();
     alloc_info.descriptorSetCount = static_cast<uint32_t>(size);
     alloc_info.pSetLayouts = layouts.data();
 
     descriptor_sets_.resize(size);
 
-    vulkanCheck(vkAllocateDescriptorSets(descriptor_pool.device().Handle(), &alloc_info, descriptor_sets_.data()),
+    vulkanCheck(vkAllocateDescriptorSets(descriptor_pool.device().handle(), &alloc_info, descriptor_sets_.data()),
                 "allocate descriptor sets");
 }
 
@@ -34,8 +34,8 @@ DescriptorSets::~DescriptorSets() {
     //if (!descriptorSets_.empty())
     //{
     //	vkFreeDescriptorSets(
-    //		descriptorPool_.device().Handle(),
-    //		descriptorPool_.Handle(),
+    //		descriptorPool_.device().handle(),
+    //		descriptorPool_.handle(),
     //		static_cast<uint32_t>(descriptorSets_.size()),
     //		descriptorSets_.data());
 
@@ -92,7 +92,7 @@ VkWriteDescriptorSet DescriptorSets::bind(uint32_t index,
 }
 
 void DescriptorSets::updateDescriptors(const std::vector<VkWriteDescriptorSet>& descriptor_writes) {
-    vkUpdateDescriptorSets(descriptor_pool_.device().Handle(),
+    vkUpdateDescriptorSets(descriptor_pool_.device().handle(),
                            static_cast<uint32_t>(descriptor_writes.size()),
                            descriptor_writes.data(), 0, nullptr);
 }

@@ -11,19 +11,10 @@
 #include <iostream>
 #include <memory>
 
-namespace {
-const bool EnableValidationLayers =
-#ifdef NDEBUG
-    false;
-#else
-true;
-#endif
-}
-
 RayTracer::RayTracer(const UserSettings& user_settings,
                      const vulkan::WindowProperties& window_properties,
                      const bool vsync)
-    : Application(window_properties, vsync, EnableValidationLayers), user_settings_(user_settings) {
+    : Application(window_properties, vsync), user_settings_(user_settings) {
     checkFramebufferSize();
 }
 
@@ -46,7 +37,8 @@ assets::UniformBufferObject RayTracer::getUniformBufferObject(VkExtent2D extent)
                                       extent.width / static_cast<float>(extent.height),
                                       0.1f,
                                       10000.0f);
-    ubo.Projection[1][1] *= -1; // Inverting Y for vulkan, https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
+    ubo.Projection[1][1] *=
+        -1; // Inverting Y for vulkan, https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
     ubo.ModelViewInverse = glm::inverse(ubo.ModelView);
     ubo.ProjectionInverse = glm::inverse(ubo.Projection);
     ubo.Aperture = user_settings_.aperture;
@@ -106,8 +98,8 @@ void RayTracer::drawFrame() {
     previous_settings_ = user_settings_;
 
     // Keep track of our sample count.
-    number_of_samples_ =
-        glm::clamp(user_settings_.maxNumberOfSamples - total_number_of_samples_, 0u, user_settings_.numberOfSamples);
+    number_of_samples_ = glm::clamp(user_settings_.maxNumberOfSamples - total_number_of_samples_,
+                                    0u, user_settings_.numberOfSamples);
     total_number_of_samples_ += number_of_samples_;
 
     Application::drawFrame();
@@ -133,7 +125,8 @@ void RayTracer::render(VkCommandBuffer command_buffer, uint32_t image_index) {
     if (user_settings_.isRayTraced) {
         const auto extent = swapChain().extent();
 
-        stats.rayRate = static_cast<float>( double(extent.width * extent.height) * number_of_samples_ / (delta_time * 1000000000));
+        stats.rayRate =
+            static_cast<float>( double(extent.width * extent.height) * number_of_samples_ / (delta_time * 1000000000));
         stats.totalSamples = total_number_of_samples_;
     }
 
@@ -203,9 +196,10 @@ void RayTracer::onMouseButton(const int button, const int action, const int mods
 void RayTracer::loadScene(const uint32_t scene_index) {
     auto[models, textures] = SceneList::allScenes[scene_index].second(camera_initial_sate_);
 
-    // If there are no texture, add a dummy one. It makes the pipeline setup a lot easier.
+    LF_WARN("Loading Scene {0}", SceneList::allScenes[scene_index].first.c_str());
+
     if (textures.empty()) {
-        textures.push_back(assets::Texture::LoadTexture("../resources/textures/white.png", vulkan::SamplerConfig()));
+        textures.push_back(assets::Texture::loadTexture("../resources/textures/white.png", vulkan::SamplerConfig()));
     }
 
     scene_ = std::make_unique<assets::Scene>(commandPool(), std::move(models), std::move(textures), true);
@@ -231,7 +225,8 @@ void RayTracer::checkAndUpdateBenchmarkState(double prev_time) {
     // Initialise scene benchmark timers
     if (period_total_frames_ == 0) {
         std::cout << std::endl;
-        std::cout << "Benchmark: Start scene #" << scene_index_ << " '" << SceneList::allScenes[scene_index_].first << "'"
+        std::cout << "Benchmark: Start scene #" << scene_index_ << " '" << SceneList::allScenes[scene_index_].first
+                  << "'"
                   << std::endl;
         scene_initial_time_ = time_;
         period_initial_time_ = time_;

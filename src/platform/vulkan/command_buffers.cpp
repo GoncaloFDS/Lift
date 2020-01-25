@@ -8,20 +8,20 @@ CommandBuffers::CommandBuffers(CommandPool& command_pool, const uint32_t size) :
     command_pool_(command_pool) {
     VkCommandBufferAllocateInfo alloc_info = {};
     alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    alloc_info.commandPool = command_pool.Handle();
+    alloc_info.commandPool = command_pool.handle();
     alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     alloc_info.commandBufferCount = size;
 
     command_buffers_.resize(size);
 
-    vulkanCheck(vkAllocateCommandBuffers(command_pool.device().Handle(), &alloc_info, command_buffers_.data()),
+    vulkanCheck(vkAllocateCommandBuffers(command_pool.device().handle(), &alloc_info, command_buffers_.data()),
                 "allocate command buffers");
 }
 
 CommandBuffers::~CommandBuffers() {
     if (!command_buffers_.empty()) {
-        vkFreeCommandBuffers(command_pool_.device().Handle(),
-                             command_pool_.Handle(),
+        vkFreeCommandBuffers(command_pool_.device().handle(),
+                             command_pool_.handle(),
                              static_cast<uint32_t>(command_buffers_.size()),
                              command_buffers_.data());
         command_buffers_.clear();

@@ -36,7 +36,7 @@ Window::Window(const WindowProperties& config) :
     config_(config) {
     glfwSetErrorCallback(glfwErrorCallback);
 
-    LF_INFO("Creating window {0} ({1}, {2})", config.title, config.width, config.height);
+    LF_INFO("Creating window {0} -> {1}x{2}", config.title, config.width, config.height);
     if (!glfwInit()) {
         LF_ASSERT(false, "glfwInit failed");
         return;

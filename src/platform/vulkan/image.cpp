@@ -37,7 +37,7 @@ Image::Image(const class Device& device,
     image_info.samples = VK_SAMPLE_COUNT_1_BIT;
     image_info.flags = 0; // Optional
 
-    vulkanCheck(vkCreateImage(device.Handle(), &image_info, nullptr, &image_),
+    vulkanCheck(vkCreateImage(device.handle(), &image_info, nullptr, &image_),
                 "create image");
 }
 
@@ -53,7 +53,7 @@ Image::Image(Image&& other) noexcept
 
 Image::~Image() {
     if (image_ != nullptr) {
-        vkDestroyImage(device_.Handle(), image_, nullptr);
+        vkDestroyImage(device_.handle(), image_, nullptr);
         image_ = nullptr;
     }
 }
@@ -62,7 +62,7 @@ DeviceMemory Image::allocateMemory(const VkMemoryPropertyFlags properties) const
     const auto requirements = getMemoryRequirements();
     DeviceMemory memory(device_, requirements.size, requirements.memoryTypeBits, properties);
 
-    vulkanCheck(vkBindImageMemory(device_.Handle(), image_, memory.Handle(), 0),
+    vulkanCheck(vkBindImageMemory(device_.handle(), image_, memory.handle(), 0),
                 "bind image memory");
 
     return memory;
@@ -70,7 +70,7 @@ DeviceMemory Image::allocateMemory(const VkMemoryPropertyFlags properties) const
 
 VkMemoryRequirements Image::getMemoryRequirements() const {
     VkMemoryRequirements requirements;
-    vkGetImageMemoryRequirements(device_.Handle(), image_, &requirements);
+    vkGetImageMemoryRequirements(device_.handle(), image_, &requirements);
     return requirements;
 }
 
@@ -146,7 +146,7 @@ void Image::copyFrom(CommandPool& command_pool, const Buffer& buffer) {
         region.imageExtent = {extent_.width, extent_.height, 1};
 
         vkCmdCopyBufferToImage(command_buffer,
-                               buffer.Handle(),
+                               buffer.handle(),
                                image_,
                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                1,

@@ -84,8 +84,8 @@ ShaderBindingTable::ShaderBindingTable(
     std::vector<uint8_t> shaderHandleStorage(groupCount * handleSize);
 
     vulkanCheck(device_procedures.vkGetRayTracingShaderGroupHandlesNV(
-        device.Handle(),
-        ray_tracing_pipeline.Handle(),
+        device.handle(),
+        ray_tracing_pipeline.handle(),
         0, static_cast<uint32_t>(groupCount),
         shaderHandleStorage.size(),
         shaderHandleStorage.data()),

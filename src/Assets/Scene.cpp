@@ -8,58 +8,60 @@
 #include "platform/vulkan/image_view.h"
 #include "platform/vulkan/sampler.h"
 #include <cstring>
+#include <memory>
 
 namespace assets {
 
 namespace {
 
 template<class T>
-void CopyFromStagingBuffer(vulkan::CommandPool& commandPool, vulkan::Buffer& dstBuffer, const std::vector<T>& content) {
-	const auto& device = commandPool.device();
-	const auto contentSize = sizeof(content[0]) * content.size();
+void copyFromStagingBuffer(vulkan::CommandPool& command_pool,
+						   vulkan::Buffer& dst_buffer,
+						   const std::vector<T>& content) {
+	const auto& device = command_pool.device();
+	const auto content_size = sizeof(content[0]) * content.size();
 
 	// Create a temporary host-visible staging buffer.
-	auto stagingBuffer = std::make_unique<vulkan::Buffer>(device, contentSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
-	auto stagingBufferMemory =
-        stagingBuffer->allocateMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	auto staging_buffer = std::make_unique<vulkan::Buffer>(device, content_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+	auto staging_buffer_memory =
+		staging_buffer->allocateMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 	// Copy the host data into the staging buffer.
-	const auto data = stagingBufferMemory.map(0, contentSize);
-	std::memcpy(data, content.data(), contentSize);
-    stagingBufferMemory.unmap();
+	const auto data = staging_buffer_memory.map(0, content_size);
+	std::memcpy(data, content.data(), content_size);
+	staging_buffer_memory.unmap();
 
 	// Copy the staging buffer to the device buffer.
-    dstBuffer.copyFrom(commandPool, *stagingBuffer, contentSize);
+	dst_buffer.copyFrom(command_pool, *staging_buffer, content_size);
 
 	// Delete the buffer before the memory
-	stagingBuffer.reset();
+	staging_buffer.reset();
 }
 
 template<class T>
-void CreateDeviceBuffer(
-    vulkan::CommandPool& commandPool,
-    const VkBufferUsageFlags usage,
-    const std::vector<T>& content,
-    std::unique_ptr<vulkan::Buffer>& buffer,
-    std::unique_ptr<vulkan::DeviceMemory>& memory) {
-	const auto& device = commandPool.device();
-	const auto contentSize = sizeof(content[0]) * content.size();
+void createDeviceBuffer(
+	vulkan::CommandPool& command_pool,
+	const VkBufferUsageFlags usage,
+	const std::vector<T>& content,
+	std::unique_ptr<vulkan::Buffer>& buffer,
+	std::unique_ptr<vulkan::DeviceMemory>& memory) {
+	const auto& device = command_pool.device();
+	const auto content_size = sizeof(content[0]) * content.size();
 
-	buffer.reset(new vulkan::Buffer(device, contentSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage));
-	memory.reset(new vulkan::DeviceMemory(buffer->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)));
+	buffer = std::make_unique<vulkan::Buffer>(device, content_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage);
+	memory = std::make_unique<vulkan::DeviceMemory>(buffer->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
-	CopyFromStagingBuffer(commandPool, *buffer, content);
+	copyFromStagingBuffer(command_pool, *buffer, content);
 }
 
 }
 
-Scene::Scene(vulkan::CommandPool& commandPool,
-             std::vector<Model>&& models,
-             std::vector<Texture>&& textures,
-             bool usedForRayTracing) :
+Scene::Scene(vulkan::CommandPool& command_pool,
+			 std::vector<Model>&& models,
+			 std::vector<Texture>&& textures,
+			 bool used_for_ray_tracing) :
 	models_(std::move(models)),
 	textures_(std::move(textures)) {
-	// Concatenate all the models
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 	std::vector<Material> materials;
@@ -68,24 +70,20 @@ Scene::Scene(vulkan::CommandPool& commandPool,
 	std::vector<glm::uvec2> offsets;
 
 	for (const auto& model : models_) {
-		// Remember the index, vertex offsets.
-		const auto indexOffset = static_cast<uint32_t>(indices.size());
-		const auto vertexOffset = static_cast<uint32_t>(vertices.size());
-		const auto materialOffset = static_cast<uint32_t>(materials.size());
+		const auto index_offset = static_cast<uint32_t>(indices.size());
+		const auto vertex_offset = static_cast<uint32_t>(vertices.size());
+		const auto material_offset = static_cast<uint32_t>(materials.size());
 
-		offsets.emplace_back(indexOffset, vertexOffset);
+		offsets.emplace_back(index_offset, vertex_offset);
 
-		// Copy model data one after the other.
 		vertices.insert(vertices.end(), model.Vertices().begin(), model.Vertices().end());
 		indices.insert(indices.end(), model.Indices().begin(), model.Indices().end());
 		materials.insert(materials.end(), model.Materials().begin(), model.Materials().end());
 
-		// Adjust the material id.
-		for (size_t i = vertexOffset; i != vertices.size(); ++i) {
-			vertices[i].MaterialIndex += materialOffset;
+		for (size_t i = vertex_offset; i != vertices.size(); ++i) {
+			vertices[i].MaterialIndex += material_offset;
 		}
 
-		// Add optional procedurals.
 		const auto sphere = dynamic_cast<const Sphere*>(model.Procedural());
 		if (sphere != nullptr) {
 			aabbs.push_back(sphere->BoundingBox());
@@ -96,56 +94,64 @@ Scene::Scene(vulkan::CommandPool& commandPool,
 		}
 	}
 
-	const auto flag = usedForRayTracing ? VK_BUFFER_USAGE_STORAGE_BUFFER_BIT : 0;
+	const auto flag = used_for_ray_tracing ? VK_BUFFER_USAGE_STORAGE_BUFFER_BIT : 0;
 
-	CreateDeviceBuffer(commandPool,
+	createDeviceBuffer(command_pool,
 					   VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | flag,
 					   vertices,
-					   vertexBuffer_,
-					   vertexBufferMemory_);
-	CreateDeviceBuffer(commandPool, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | flag, indices, indexBuffer_, indexBufferMemory_);
-	CreateDeviceBuffer(commandPool,
+					   vertex_buffer_,
+					   vertex_buffer_memory_);
+	createDeviceBuffer(command_pool,
+					   VK_BUFFER_USAGE_INDEX_BUFFER_BIT | flag,
+					   indices,
+					   index_buffer_,
+					   index_buffer_memory_);
+	createDeviceBuffer(command_pool,
 					   VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
 					   materials,
-					   materialBuffer_,
-					   materialBufferMemory_);
-	CreateDeviceBuffer(commandPool, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, offsets, offsetBuffer_, offsetBufferMemory_);
+					   material_buffer_,
+					   material_buffer_memory_);
+	createDeviceBuffer(command_pool,
+					   VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+					   offsets,
+					   offset_buffer_,
+					   offset_buffer_memory_);
 
-	CreateDeviceBuffer(commandPool, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, aabbs, aabbBuffer_, aabbBufferMemory_);
-	CreateDeviceBuffer(commandPool,
+	createDeviceBuffer(command_pool, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, aabbs, aabb_buffer_, aabb_buffer_memory_);
+	createDeviceBuffer(command_pool,
 					   VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
 					   procedurals,
-					   proceduralBuffer_,
-					   proceduralBufferMemory_);
+					   procedural_buffer_,
+					   procedural_buffer_memory_);
 
 	// Upload all textures
-	textureImages_.reserve(textures_.size());
-	textureImageViewHandles_.resize(textures_.size());
-	textureSamplerHandles_.resize(textures_.size());
+	texture_images_.reserve(textures_.size());
+	texture_image_view_handles_.resize(textures_.size());
+	texture_sampler_handles_.resize(textures_.size());
 
 	for (size_t i = 0; i != textures_.size(); ++i) {
-		textureImages_.emplace_back(new TextureImage(commandPool, textures_[i]));
-		textureImageViewHandles_[i] = textureImages_[i]->ImageView().Handle();
-		textureSamplerHandles_[i] = textureImages_[i]->Sampler().Handle();
+		texture_images_.emplace_back(new TextureImage(command_pool, textures_[i]));
+		texture_image_view_handles_[i] = texture_images_[i]->ImageView().handle();
+		texture_sampler_handles_[i] = texture_images_[i]->Sampler().handle();
 	}
 }
 
 Scene::~Scene() {
-	textureSamplerHandles_.clear();
-	textureImageViewHandles_.clear();
-	textureImages_.clear();
-	proceduralBuffer_.reset();
-	proceduralBufferMemory_.reset(); // release memory after bound buffer has been destroyed
-	aabbBuffer_.reset();
-	aabbBufferMemory_.reset(); // release memory after bound buffer has been destroyed
-	offsetBuffer_.reset();
-	offsetBufferMemory_.reset(); // release memory after bound buffer has been destroyed
-	materialBuffer_.reset();
-	materialBufferMemory_.reset(); // release memory after bound buffer has been destroyed
-	indexBuffer_.reset();
-	indexBufferMemory_.reset(); // release memory after bound buffer has been destroyed
-	vertexBuffer_.reset();
-	vertexBufferMemory_.reset(); // release memory after bound buffer has been destroyed
+	texture_sampler_handles_.clear();
+	texture_image_view_handles_.clear();
+	texture_images_.clear();
+	procedural_buffer_.reset();
+	procedural_buffer_memory_.reset();
+	aabb_buffer_.reset();
+	aabb_buffer_memory_.reset();
+	offset_buffer_.reset();
+	offset_buffer_memory_.reset();
+	material_buffer_.reset();
+	material_buffer_memory_.reset();
+	index_buffer_.reset();
+	index_buffer_memory_.reset();
+	vertex_buffer_.reset();
+	vertex_buffer_memory_.reset();
 }
 
 }

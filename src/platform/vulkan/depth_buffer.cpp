@@ -53,7 +53,7 @@ DepthBuffer::DepthBuffer(CommandPool& command_pool, const VkExtent2D extent) :
                                      VK_IMAGE_TILING_OPTIMAL,
                                      VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
     image_memory_ = std::make_unique<DeviceMemory>(image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
-    image_view_ = std::make_unique<class ImageView>(device, image_->Handle(), format_, VK_IMAGE_ASPECT_DEPTH_BIT);
+    image_view_ = std::make_unique<class ImageView>(device, image_->handle(), format_, VK_IMAGE_ASPECT_DEPTH_BIT);
 
     image_->transitionImageLayout(command_pool, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 }

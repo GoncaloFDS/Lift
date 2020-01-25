@@ -15,13 +15,13 @@ ShaderModule::ShaderModule(const class Device& device, const std::vector<char>& 
     create_info.codeSize = code.size();
     create_info.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-    vulkanCheck(vkCreateShaderModule(device.Handle(), &create_info, nullptr, &shaderModule_),
+    vulkanCheck(vkCreateShaderModule(device.handle(), &create_info, nullptr, &shaderModule_),
                 "create shader module");
 }
 
 ShaderModule::~ShaderModule() {
     if (shaderModule_ != nullptr) {
-        vkDestroyShaderModule(device_.Handle(), shaderModule_, nullptr);
+        vkDestroyShaderModule(device_.handle(), shaderModule_, nullptr);
         shaderModule_ = nullptr;
     }
 }

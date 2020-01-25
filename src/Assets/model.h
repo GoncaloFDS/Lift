@@ -12,9 +12,9 @@ class Model final {
 public:
 
     static Model loadModel(const std::string& filename);
-    static Model CreateCornellBox(const float scale);
-    static Model CreateBox(const glm::vec3& p0, const glm::vec3& p1, const Material& material);
-    static Model CreateSphere(const glm::vec3& center, float radius, const Material& material, bool isProcedural);
+    static Model createCornellBox(const float scale);
+    static Model createBox(const glm::vec3& p0, const glm::vec3& p1, const Material& material);
+    static Model createSphere(const glm::vec3& center, float radius, const Material& material, const bool isProcedural);
 
     Model& operator=(const Model&) = delete;
     Model& operator=(Model&&) = delete;
@@ -25,7 +25,7 @@ public:
     ~Model() = default;
 
     void setMaterial(const Material& material);
-    void Transform(const glm::mat4& transform);
+    void transform(const glm::mat4& transform);
 
     const std::vector<Vertex>& Vertices() const { return vertices_; }
     const std::vector<uint32_t>& Indices() const { return indices_; }

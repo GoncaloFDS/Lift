@@ -8,7 +8,7 @@ Semaphore::Semaphore(const class Device& device) :
     VkSemaphoreCreateInfo semaphore_info = {};
     semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    vulkanCheck(vkCreateSemaphore(device.Handle(), &semaphore_info, nullptr, &semaphore_),
+    vulkanCheck(vkCreateSemaphore(device.handle(), &semaphore_info, nullptr, &semaphore_),
                 "create semaphores");
 }
 
@@ -20,7 +20,7 @@ Semaphore::Semaphore(Semaphore&& other) noexcept :
 
 Semaphore::~Semaphore() {
     if (semaphore_ != nullptr) {
-        vkDestroySemaphore(device_.Handle(), semaphore_, nullptr);
+        vkDestroySemaphore(device_.handle(), semaphore_, nullptr);
         semaphore_ = nullptr;
     }
 }

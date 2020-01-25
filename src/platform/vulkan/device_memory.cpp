@@ -14,7 +14,7 @@ DeviceMemory::DeviceMemory(const class Device& device,
     alloc_info.allocationSize = size;
     alloc_info.memoryTypeIndex = findMemoryType(memory_type_bits, properties);
 
-    vulkanCheck(vkAllocateMemory(device.Handle(), &alloc_info, nullptr, &memory_),
+    vulkanCheck(vkAllocateMemory(device.handle(), &alloc_info, nullptr, &memory_),
                 "allocate memory");
 }
 
@@ -24,21 +24,21 @@ DeviceMemory::DeviceMemory(DeviceMemory&& other) noexcept : device_(other.device
 
 DeviceMemory::~DeviceMemory() {
     if (memory_ != nullptr) {
-        vkFreeMemory(device_.Handle(), memory_, nullptr);
+        vkFreeMemory(device_.handle(), memory_, nullptr);
         memory_ = nullptr;
     }
 }
 
 void* DeviceMemory::map(const size_t offset, const size_t size) {
     void* data;
-    vulkanCheck(vkMapMemory(device_.Handle(), memory_, offset, size, 0, &data),
+    vulkanCheck(vkMapMemory(device_.handle(), memory_, offset, size, 0, &data),
                 "map memory");
 
     return data;
 }
 
 void DeviceMemory::unmap() {
-    vkUnmapMemory(device_.Handle(), memory_);
+    vkUnmapMemory(device_.handle(), memory_);
 }
 
 uint32_t DeviceMemory::findMemoryType(const uint32_t type_filter, const VkMemoryPropertyFlags properties) const {

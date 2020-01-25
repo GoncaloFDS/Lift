@@ -52,7 +52,7 @@ Device::Device(VkPhysicalDevice physical_device, const class Surface& surface)
         std::find_if(queue_families.begin(), queue_families.end(), [&](const VkQueueFamilyProperties& queue_family) {
             VkBool32 present_support = false;
             const uint32_t i = static_cast<uint32_t>(&*queue_families.cbegin() - &queue_family);
-            vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface.Handle(), &present_support);
+            vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface.handle(), &present_support);
             return queue_family.queueCount > 0 && present_support;
         });
 

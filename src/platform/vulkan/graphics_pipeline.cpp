@@ -116,7 +116,7 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
     std::vector<DescriptorBinding> descriptor_bindings = {
         {0, 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
         {1, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT},
-        {2, static_cast<uint32_t>(scene.TextureSamplers().size()), VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+        {2, static_cast<uint32_t>(scene.textureSamplers().size()), VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
          VK_SHADER_STAGE_FRAGMENT_BIT}
     };
 
@@ -127,22 +127,22 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
     for (uint32_t i = 0; i != swap_chain.images().size(); ++i) {
         // Uniform buffer
         VkDescriptorBufferInfo uniform_buffer_info = {};
-        uniform_buffer_info.buffer = uniform_buffers[i].Buffer().Handle();
+        uniform_buffer_info.buffer = uniform_buffers[i].Buffer().handle();
         uniform_buffer_info.range = VK_WHOLE_SIZE;
 
         // Material buffer
         VkDescriptorBufferInfo material_buffer_info = {};
-        material_buffer_info.buffer = scene.MaterialBuffer().Handle();
+        material_buffer_info.buffer = scene.materialBuffer().handle();
         material_buffer_info.range = VK_WHOLE_SIZE;
 
         // Image and texture samplers
-        std::vector<VkDescriptorImageInfo> imageInfos(scene.TextureSamplers().size());
+        std::vector<VkDescriptorImageInfo> imageInfos(scene.textureSamplers().size());
 
         for (size_t t = 0; t != imageInfos.size(); ++t) {
             auto& image_info = imageInfos[t];
             image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            image_info.imageView = scene.TextureImageViews()[t];
-            image_info.sampler = scene.TextureSamplers()[t];
+            image_info.imageView = scene.textureImageViews()[t];
+            image_info.sampler = scene.textureSamplers()[t];
         }
 
         const std::vector<VkWriteDescriptorSet> descriptor_writes = {
@@ -182,17 +182,17 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
     pipeline_info.pDynamicState = nullptr; // Optional
     pipeline_info.basePipelineHandle = nullptr; // Optional
     pipeline_info.basePipelineIndex = -1; // Optional
-    pipeline_info.layout = pipeline_layout_->Handle();
-    pipeline_info.renderPass = render_pass_->Handle();
+    pipeline_info.layout = pipeline_layout_->handle();
+    pipeline_info.renderPass = render_pass_->handle();
     pipeline_info.subpass = 0;
 
-    vulkanCheck(vkCreateGraphicsPipelines(device.Handle(), nullptr, 1, &pipeline_info, nullptr, &pipeline_),
+    vulkanCheck(vkCreateGraphicsPipelines(device.handle(), nullptr, 1, &pipeline_info, nullptr, &pipeline_),
                 "create graphics pipeline");
 }
 
 GraphicsPipeline::~GraphicsPipeline() {
     if (pipeline_ != nullptr) {
-        vkDestroyPipeline(swap_chain_.device().Handle(), pipeline_, nullptr);
+        vkDestroyPipeline(swap_chain_.device().handle(), pipeline_, nullptr);
         pipeline_ = nullptr;
     }
 

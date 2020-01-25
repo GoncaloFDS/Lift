@@ -12,20 +12,20 @@ FrameBuffer::FrameBuffer(const class ImageView& image_view, const class RenderPa
     : image_view_(image_view), render_pass_(render_pass) {
 
     std::array<VkImageView, 2> attachments = {
-            image_view.Handle(),
-            render_pass.depthBuffer().imageView().Handle()
+            image_view.handle(),
+            render_pass.depthBuffer().imageView().handle()
         };
 
     VkFramebufferCreateInfo framebuffer_info = {};
     framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebuffer_info.renderPass = render_pass.Handle();
+    framebuffer_info.renderPass = render_pass.handle();
     framebuffer_info.attachmentCount = static_cast<uint32_t>(attachments.size());
     framebuffer_info.pAttachments = attachments.data();
     framebuffer_info.width = render_pass.swapChain().extent().width;
     framebuffer_info.height = render_pass.swapChain().extent().height;
     framebuffer_info.layers = 1;
 
-    vulkanCheck(vkCreateFramebuffer(image_view_.device().Handle(), &framebuffer_info, nullptr, &framebuffer_),
+    vulkanCheck(vkCreateFramebuffer(image_view_.device().handle(), &framebuffer_info, nullptr, &framebuffer_),
                 "create framebuffer");
 }
 
@@ -38,7 +38,7 @@ FrameBuffer::FrameBuffer(FrameBuffer&& other) noexcept :
 
 FrameBuffer::~FrameBuffer() {
     if (framebuffer_ != nullptr) {
-        vkDestroyFramebuffer(image_view_.device().Handle(), framebuffer_, nullptr);
+        vkDestroyFramebuffer(image_view_.device().handle(), framebuffer_, nullptr);
         framebuffer_ = nullptr;
     }
 }

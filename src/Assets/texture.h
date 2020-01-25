@@ -8,7 +8,7 @@ namespace assets {
 class Texture final {
 public:
 
-    static Texture LoadTexture(const std::string& filename, const vulkan::SamplerConfig& sampler_config);
+    static Texture loadTexture(const std::string& filename, const vulkan::SamplerConfig& sampler_config);
 
     Texture& operator=(const Texture&) = delete;
     Texture& operator=(Texture&&) = delete;

@@ -10,7 +10,7 @@
 
 #define VULKAN_HANDLE(VulkanHandleType, name) \
 public: \
-    VulkanHandleType Handle() const { return name; } \
+    VulkanHandleType handle() const { return name; } \
 private: \
     VulkanHandleType name{};
 

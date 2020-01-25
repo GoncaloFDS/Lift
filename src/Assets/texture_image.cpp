@@ -29,7 +29,7 @@ TextureImage::TextureImage(vulkan::CommandPool& commandPool, const Texture& text
                                                         static_cast<uint32_t>(texture.Height())},
                                              VK_FORMAT_R8G8B8A8_UNORM);
     imageMemory_ = std::make_unique<vulkan::DeviceMemory>(image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
-    imageView_ = std::make_unique<vulkan::ImageView>(device, image_->Handle(), image_->format(), VK_IMAGE_ASPECT_COLOR_BIT);
+    imageView_ = std::make_unique<vulkan::ImageView>(device, image_->handle(), image_->format(), VK_IMAGE_ASPECT_COLOR_BIT);
     sampler_ = std::make_unique<vulkan::Sampler>(device, vulkan::SamplerConfig());
 
     // Transfer the data to device side.

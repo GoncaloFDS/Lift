@@ -31,6 +31,7 @@ VULKAN_HANDLE(VkInstance, instance_)
 
     std::vector<VkPhysicalDevice> physical_devices_;
     std::vector<VkExtensionProperties> extensions_;
+    void checkVulkanMinimumVersion(const uint32_t min_version);
 };
 
 }
