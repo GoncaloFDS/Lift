@@ -211,19 +211,16 @@ Model Model::createSphere(const vec3& center, float radius, const Material& mate
         for (int i = 0; i <= slices; ++i) {
             const float i0 = 2 * pi * i / slices;
 
-            const vec3 position(
-                center.x + v * std::sin(i0),
-                center.y + z,
-                center.z + v * std::cos(i0));
+            const vec3 position(center.x + v * std::sin(i0),
+                                center.y + z,
+                                center.z + v * std::cos(i0));
 
-            const vec3 normal(
-                n0 * std::sin(i0),
-                n1,
-                n0 * std::cos(i0));
+            const vec3 normal(n0 * std::sin(i0),
+                              n1,
+                              n0 * std::cos(i0));
 
-            const vec2 tex_coord(
-                static_cast<float>(i) / slices,
-                static_cast<float>(j) / stacks);
+            const vec2 tex_coord(static_cast<float>(i) / slices,
+                                 static_cast<float>(j) / stacks);
 
             vertices.push_back(Vertex{position, normal, tex_coord, 0});
         }

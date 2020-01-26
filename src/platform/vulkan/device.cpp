@@ -118,8 +118,7 @@ Device::~Device() {
 }
 
 void Device::waitIdle() const {
-    vulkanCheck(vkDeviceWaitIdle(device_),
-                "wait for device idle");
+    vulkanCheck(vkDeviceWaitIdle(device_), "wait for device idle");
 }
 
 void Device::checkRequiredExtensions(VkPhysicalDevice physical_device) {

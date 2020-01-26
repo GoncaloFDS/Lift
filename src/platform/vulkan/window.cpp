@@ -33,16 +33,16 @@ Window::Window(const WindowData& config) :
 
     const auto monitor = config.fullscreen ? glfwGetPrimaryMonitor() : nullptr;
 
-    window_ = glfwCreateWindow(config.width, config.height, config.title.c_str(), monitor, nullptr);
-    LF_ASSERT(window_, "Failed to create a Window");
+    handle_ = glfwCreateWindow(config.width, config.height, config.title.c_str(), monitor, nullptr);
+    LF_ASSERT(handle_, "Failed to create a Window");
 
     if (config.cursorDisabled) {
-        glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(handle_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 
-    glfwSetWindowUserPointer(window_, &config_);
+    glfwSetWindowUserPointer(handle_, &config_);
 
-    glfwSetWindowSizeCallback(window_, [](GLFWwindow* window, int width, int height) {
+    glfwSetWindowSizeCallback(handle_, [](GLFWwindow* window, int width, int height) {
         WindowData& config = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
         config.width = width;
         config.height = height;
@@ -51,29 +51,31 @@ Window::Window(const WindowData& config) :
         config.eventCallbackFn(event);
     });
 
-    glfwSetWindowCloseCallback(window_, [](GLFWwindow* window) {
+    glfwSetWindowCloseCallback(handle_, [](GLFWwindow* window) {
         WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
         WindowCloseEvent event;
         data.eventCallbackFn(event);
     });
 
-    glfwSetWindowIconifyCallback(window_, [](GLFWwindow* window, int iconified) {
+    glfwSetWindowIconifyCallback(handle_, [](GLFWwindow* window, int iconified) {
         WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
         WindowMinimizeEvent event(iconified);
         data.eventCallbackFn(event);
     });
 
-    glfwSetKeyCallback(window_, [](GLFWwindow* window, int key, int scan_code, const int action, int mods) {
+    glfwSetKeyCallback(handle_, [](GLFWwindow* window, int key, int scan_code, const int action, int mods) {
         WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
         switch (action) {
             case GLFW_PRESS: {
+                Input::registerKey(key);
                 KeyPressedEvent event(key, 0);
                 data.eventCallbackFn(event);
                 break;
             }
             case GLFW_RELEASE: {
+                Input::unregisterKey(key);
                 KeyReleasedEvent event(key);
                 data.eventCallbackFn(event);
                 break;
@@ -87,14 +89,14 @@ Window::Window(const WindowData& config) :
         }
     });
 
-    glfwSetCharCallback(window_, [](GLFWwindow* window, const uint32_t key_code) {
+    glfwSetCharCallback(handle_, [](GLFWwindow* window, const uint32_t key_code) {
         WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
         KeyTypedEvent event(key_code);
         data.eventCallbackFn(event);
     });
 
-    glfwSetMouseButtonCallback(window_, [](GLFWwindow* window, int button, int action, int mods) {
+    glfwSetMouseButtonCallback(handle_, [](GLFWwindow* window, int button, int action, int mods) {
         WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
         switch (action) {
@@ -113,14 +115,14 @@ Window::Window(const WindowData& config) :
         }
     });
 
-    glfwSetScrollCallback(window_, [](GLFWwindow* window, const double x_offset, const double y_offset) {
+    glfwSetScrollCallback(handle_, [](GLFWwindow* window, const double x_offset, const double y_offset) {
         WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
         MouseScrolledEvent event(static_cast<float>(x_offset), static_cast<float>(y_offset));
         data.eventCallbackFn(event);
     });
 
-    glfwSetCursorPosCallback(window_, [](GLFWwindow* window, const double x_pos, const double y_pos) {
+    glfwSetCursorPosCallback(handle_, [](GLFWwindow* window, const double x_pos, const double y_pos) {
         WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
         MouseMovedEvent event(static_cast<float>(x_pos), static_cast<float>(y_pos));
@@ -129,9 +131,9 @@ Window::Window(const WindowData& config) :
 }
 
 Window::~Window() {
-    if (window_ != nullptr) {
-        glfwDestroyWindow(window_);
-        window_ = nullptr;
+    if (handle_ != nullptr) {
+        glfwDestroyWindow(handle_);
+        handle_ = nullptr;
     }
 
     glfwTerminate();
@@ -147,7 +149,7 @@ std::vector<const char*> Window::getRequiredInstanceExtensions() {
 float Window::contentScale() const {
     float xscale;
     float yscale;
-    glfwGetWindowContentScale(window_, &xscale, &yscale);
+    glfwGetWindowContentScale(handle_, &xscale, &yscale);
 
     return xscale;
 }
@@ -158,35 +160,23 @@ double Window::time() {
 
 VkExtent2D Window::framebufferSize() const {
     int width, height;
-    glfwGetFramebufferSize(window_, &width, &height);
+    glfwGetFramebufferSize(handle_, &width, &height);
     return VkExtent2D{static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 }
 
 VkExtent2D Window::windowSize() const {
     int width, height;
-    glfwGetWindowSize(window_, &width, &height);
+    glfwGetWindowSize(handle_, &width, &height);
     return VkExtent2D{static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 }
 
 void Window::close() const {
-    glfwSetWindowShouldClose(window_, 1);
+    glfwSetWindowShouldClose(handle_, 1);
 }
 
 bool Window::isMinimized() const {
     const auto size = framebufferSize();
     return size.height == 0 && size.width == 0;
-}
-
-void Window::run() const {
-    glfwSetTime(0.0);
-
-    while (!glfwWindowShouldClose(window_)) {
-        glfwPollEvents();
-
-        if (drawFrame) {
-            drawFrame();
-        }
-    }
 }
 
 void Window::waitForEvents() {
@@ -195,6 +185,10 @@ void Window::waitForEvents() {
 
 void Window::setEventCallbackFn(const EventCallbackFn& callback) {
     config_.eventCallbackFn = callback;
+}
+
+void Window::poolEvents() {
+    glfwPollEvents();
 }
 
 }

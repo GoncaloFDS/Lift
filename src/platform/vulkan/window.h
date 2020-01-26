@@ -15,7 +15,7 @@ public:
     ~Window();
 
     [[nodiscard]] const WindowData& config() const { return config_; }
-    [[nodiscard]] GLFWwindow* handle() const { return window_; }
+    [[nodiscard]] GLFWwindow* handle() const { return handle_; }
 
     [[nodiscard]] static std::vector<const char*> getRequiredInstanceExtensions();
     [[nodiscard]] float contentScale() const;
@@ -23,20 +23,18 @@ public:
     [[nodiscard]] VkExtent2D framebufferSize() const;
     [[nodiscard]] VkExtent2D windowSize() const;
 
-    std::function<void()> drawFrame;
-
     [[nodiscard]] bool isMinimized() const;
 
     void close() const;
-    void run() const;
-    static void waitForEvents() ;
+    static void waitForEvents();
+    void poolEvents();
 
     void setEventCallbackFn(const EventCallbackFn& callback);
 
 private:
 
     WindowData config_;
-    GLFWwindow* window_{};
+    GLFWwindow* handle_{};
 
 };
 

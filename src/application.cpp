@@ -6,34 +6,34 @@
 #include "user_settings.h"
 #include "imgui/imgui_layer.h"
 #include "application.h"
-#include "platform/vulkan/single_time_commands.h"
-#include "platform/vulkan/pipeline_layout.h"
-#include "platform/vulkan/image_view.h"
-#include "platform/vulkan/image_memory_barrier.h"
-#include "platform/vulkan/image.h"
-#include "platform/vulkan/buffer.h"
-#include "platform/vulkan/tlas.h"
-#include "platform/vulkan/shader_binding_table.h"
-#include "platform/vulkan/ray_tracing_pipeline.h"
-#include "platform/vulkan/device_procedures.h"
-#include "platform/vulkan/blas.h"
-#include "platform/vulkan/depth_buffer.h"
-#include "platform/vulkan/fence.h"
-#include "platform/vulkan/graphics_pipeline.h"
-#include "platform/vulkan/instance.h"
-#include "platform/vulkan/render_pass.h"
-#include "platform/vulkan/semaphore.h"
-#include "platform/vulkan/surface.h"
+#include "vulkan/single_time_commands.h"
+#include "vulkan/pipeline_layout.h"
+#include "vulkan/image_view.h"
+#include "vulkan/image_memory_barrier.h"
+#include "vulkan/image.h"
+#include "vulkan/buffer.h"
+#include "vulkan/tlas.h"
+#include "vulkan/shader_binding_table.h"
+#include "vulkan/ray_tracing_pipeline.h"
+#include "vulkan/device_procedures.h"
+#include "vulkan/blas.h"
+#include "vulkan/depth_buffer.h"
+#include "vulkan/fence.h"
+#include "vulkan/graphics_pipeline.h"
+#include "vulkan/instance.h"
+#include "vulkan/render_pass.h"
+#include "vulkan/semaphore.h"
+#include "vulkan/surface.h"
 #include "assets/model.h"
 #include "assets/scene.h"
 #include "assets/uniform_buffer.h"
 #include <events/application_event.h>
 #include <events/mouse_event.h>
 #include <events/key_event.h>
-#include "platform/vulkan/ray_tracing_properties.h"
+#include "vulkan/ray_tracing_properties.h"
 #include "core/input.h"
 
-void vulkan::Application::timeRender(VkCommandBuffer command_buffer, uint32_t image_index) {
+void lift::Application::timeRender(VkCommandBuffer command_buffer, uint32_t image_index) {
     // Record delta time between calls to Render.
     const auto prev_time = time_;
     time_ = window().time();
@@ -65,7 +65,7 @@ void vulkan::Application::timeRender(VkCommandBuffer command_buffer, uint32_t im
     user_interface_->render(command_buffer, swapChainFrameBuffer(image_index), stats);
 }
 
-void vulkan::Application::loadScene(const uint32_t scene_index) {
+void lift::Application::loadScene(const uint32_t scene_index) {
     auto[models, textures] = SceneList::allScenes[scene_index].second(camera_initial_sate_);
 
     LF_WARN("Loading Scene {0}", SceneList::allScenes[scene_index].first.c_str());
@@ -89,7 +89,7 @@ void vulkan::Application::loadScene(const uint32_t scene_index) {
     reset_accumulation_ = true;
 }
 
-void vulkan::Application::checkAndUpdateBenchmarkState(double prev_time) {
+void lift::Application::checkAndUpdateBenchmarkState(double prev_time) {
     if (!user_settings_.benchmark) {
         return;
     }
@@ -138,7 +138,8 @@ void vulkan::Application::checkAndUpdateBenchmarkState(double prev_time) {
     }
 }
 
-namespace vulkan {
+namespace lift {
+using namespace vulkan;
 
 #ifdef NDEBUG
 const auto k_validation_layers = std::vector<const char*>();
@@ -147,7 +148,10 @@ const auto k_validation_layers = std::vector<const char*>{"VK_LAYER_KHRONOS_vali
 #endif
 
 Application::Application(const UserSettings& user_settings, const WindowData& window_properties, const bool vsync) :
-    user_settings_(user_settings), vsync_(vsync) {
+    user_settings_(user_settings),
+    vsync_(vsync),
+    is_running_(true) {
+
     const auto validation_layers = k_validation_layers;
 
     window_ = std::make_unique<Window>(window_properties);
@@ -428,7 +432,7 @@ void Application::createTopLevelStructures(VkCommandBuffer command_buffer) {
                         false);
 }
 
-void vulkan::Application::createOutputImage() {
+void lift::Application::createOutputImage() {
     const auto extent = swapChain().extent();
     const auto format = swapChain().format();
     const auto tiling = VK_IMAGE_TILING_OPTIMAL;
@@ -479,11 +483,15 @@ void Application::run() {
 
     current_frame_ = 0;
 
-    window_->drawFrame = [this]() {
+    while (is_running_) {
+        window_->poolEvents();
+
         prepareFrame();
+
         drawFrame();
-    };
-    window_->run();
+
+    }
+    
     device_->waitIdle();
 }
 
@@ -573,7 +581,7 @@ void Application::deleteSwapChain() {
     swap_chain_.reset();
 }
 
-void vulkan::Application::prepareFrame() {
+void lift::Application::prepareFrame() {
     // Check if the scene has been changed by the user.
     if (scene_index_ != static_cast<uint32_t>(user_settings_.sceneIndex)) {
         device().waitIdle();

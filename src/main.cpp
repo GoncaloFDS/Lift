@@ -10,7 +10,7 @@
 #include "assets/uniform_buffer.h"
 
 UserSettings createUserSettings(const Options& options);
-void setVulkanDevice(vulkan::Application& application);
+void setVulkanDevice(lift::Application& application);
 
 int main(int argc, const char* argv[]) noexcept {
     lift::Log::init();
@@ -24,7 +24,7 @@ int main(int argc, const char* argv[]) noexcept {
                                                options.fullscreen,
                                                !options.fullscreen};
 
-    vulkan::Application application(user_settings, window_properties, options.vSync);
+    lift::Application application(user_settings, window_properties, options.vSync);
 
     setVulkanDevice(application);
 
@@ -54,7 +54,7 @@ UserSettings createUserSettings(const Options& options) {
     return user_settings;
 }
 
-void setVulkanDevice(vulkan::Application& application) {
+void setVulkanDevice(lift::Application& application) {
     const auto& physical_devices = application.physicalDevices();
     const auto result = std::find_if(physical_devices.begin(), physical_devices.end(), [](const VkPhysicalDevice& device) {
         VkPhysicalDeviceFeatures device_features;

@@ -1,20 +1,20 @@
 #pragma once
 
-#include "platform/vulkan/frame_buffer.h"
-#include "platform/vulkan/window_data.h"
-#include "application.h"
-#include "platform/vulkan/ray_tracing_properties.h"
 #include <vector>
 #include <memory>
-#include <events/event.h>
-#include <events/application_event.h>
-#include <events/mouse_event.h>
-#include <events/key_event.h>
+#include "vulkan/frame_buffer.h"
+#include "vulkan/window_data.h"
+#include "application.h"
+#include "platform/vulkan/ray_tracing_properties.h"
+#include "events/event.h"
+#include "events/application_event.h"
+#include "events/mouse_event.h"
+#include "events/key_event.h"
 #include "platform/vulkan/acceleration_structure.h"
 #include "scene_list.h"
 #include "user_settings.h"
 
-using namespace lift;
+using namespace vulkan;
 
 namespace assets {
 class Scene;
@@ -28,14 +28,22 @@ class Buffer;
 class DeviceMemory;
 class Image;
 class ImageView;
+class Instance;
+class Semaphore;
+class Fence;
+class BottomLevelAccelerationStructure;
+class TopLevelAccelerationStructure;
+class RayTracingPipeline;
+class ShaderBindingTable;
+class GraphicsPipeline;
+class Surface;
 }
 
-namespace vulkan {
+namespace lift {
 
 class Application {
-
-    
 public:
+    Application(const UserSettings& user_settings, const WindowData& window_properties, bool vsync);
     ~Application();
 
     [[nodiscard]] const std::vector<VkExtensionProperties>& extensions() const;
@@ -44,7 +52,6 @@ public:
     void setPhysicalDevice(VkPhysicalDevice physical_device);
     void run();
 
-    Application(const UserSettings& user_settings, const WindowData& window_properties, bool vsync);
 protected:
 
     [[nodiscard]] const class Window& window() const { return *window_; }
@@ -88,29 +95,29 @@ private:
     void createOutputImage();
 
     const bool vsync_;
-    std::unique_ptr<class Window> window_;
-    std::unique_ptr<class Instance> instance_;
-    std::unique_ptr<class Surface> surface_;
-    std::unique_ptr<class Device> device_;
-    std::unique_ptr<class SwapChain> swap_chain_;
+    std::unique_ptr<Window> window_;
+    std::unique_ptr<Instance> instance_;
+    std::unique_ptr<Surface> surface_;
+    std::unique_ptr<Device> device_;
+    std::unique_ptr<SwapChain> swap_chain_;
     std::vector<assets::UniformBuffer> uniform_buffers_;
-    std::unique_ptr<class DepthBuffer> depth_buffer_;
-    std::unique_ptr<class GraphicsPipeline> graphics_pipeline_;
-    std::vector<class FrameBuffer> swap_chain_framebuffers_;
-    std::unique_ptr<class CommandPool> command_pool_;
-    std::unique_ptr<class CommandBuffers> command_buffers_;
-    std::vector<class Semaphore> image_available_semaphores_;
-    std::vector<class Semaphore> render_finished_semaphores_;
-    std::vector<class Fence> in_flight_fences_;
+    std::unique_ptr<DepthBuffer> depth_buffer_;
+    std::unique_ptr<GraphicsPipeline> graphics_pipeline_;
+    std::vector<FrameBuffer> swap_chain_framebuffers_;
+    std::unique_ptr<CommandPool> command_pool_;
+    std::unique_ptr<CommandBuffers> command_buffers_;
+    std::vector<Semaphore> image_available_semaphores_;
+    std::vector<Semaphore> render_finished_semaphores_;
+    std::vector<Fence> in_flight_fences_;
 
-    std::unique_ptr<class RayTracingProperties> properties_;
-    std::unique_ptr<class DeviceProcedures> device_procedures_;
-    std::vector<class BottomLevelAccelerationStructure> bottom_as_;
+    std::unique_ptr<RayTracingProperties> properties_;
+    std::unique_ptr<DeviceProcedures> device_procedures_;
+    std::vector<BottomLevelAccelerationStructure> bottom_as_;
     std::unique_ptr<Buffer> bottom_buffer_;
     std::unique_ptr<DeviceMemory> bottom_buffer_memory_;
     std::unique_ptr<Buffer> bottom_scratch_buffer_;
     std::unique_ptr<DeviceMemory> bottom_scratch_buffer_memory_;
-    std::vector<class TopLevelAccelerationStructure> top_as_;
+    std::vector<TopLevelAccelerationStructure> top_as_;
     std::unique_ptr<Buffer> top_buffer_;
     std::unique_ptr<DeviceMemory> top_buffer_memory_;
     std::unique_ptr<Buffer> top_scratch_buffer_;
@@ -123,12 +130,12 @@ private:
     std::unique_ptr<Image> output_image_;
     std::unique_ptr<DeviceMemory> output_image_memory_;
     std::unique_ptr<ImageView> output_image_view_;
-    std::unique_ptr<class RayTracingPipeline> ray_tracing_pipeline_;
-    std::unique_ptr<class ShaderBindingTable> shader_binding_table_;
+    std::unique_ptr<RayTracingPipeline> ray_tracing_pipeline_;
+    std::unique_ptr<ShaderBindingTable> shader_binding_table_;
 
     size_t current_frame_{};
     bool is_running_{};
-    
+
     uint32_t scene_index_{};
     UserSettings user_settings_{};
     UserSettings previous_settings_{};
