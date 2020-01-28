@@ -1,9 +1,9 @@
 #include "tlas.h"
 #include "blas.h"
 #include "device_procedures.h"
-#include "platform/vulkan/buffer.h"
-#include "platform/vulkan/device.h"
-#include "platform/vulkan/device_memory.h"
+#include "vulkan/buffer.h"
+#include "vulkan/device.h"
+#include "vulkan/device_memory.h"
 #include <cstring>
 
 namespace vulkan {

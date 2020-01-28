@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "device_procedures.h"
-#include "platform/vulkan/device.h"
+#include "vulkan/device.h"
 
 namespace vulkan {
 

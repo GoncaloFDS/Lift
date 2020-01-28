@@ -1,5 +1,5 @@
 #include "ray_tracing_properties.h"
-#include "platform/vulkan/device.h"
+#include "vulkan/device.h"
 
 namespace vulkan {
 

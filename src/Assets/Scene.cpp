@@ -3,10 +3,10 @@
 #include "sphere.h"
 #include "texture.h"
 #include "texture_image.h"
-#include "platform/vulkan/buffer.h"
-#include "platform/vulkan/command_pool.h"
-#include "platform/vulkan/image_view.h"
-#include "platform/vulkan/sampler.h"
+#include "vulkan/buffer.h"
+#include "vulkan/command_pool.h"
+#include "vulkan/image_view.h"
+#include "vulkan/sampler.h"
 #include <cstring>
 #include <memory>
 

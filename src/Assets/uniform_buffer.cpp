@@ -1,5 +1,5 @@
 #include "uniform_buffer.h"
-#include "platform/vulkan/buffer.h"
+#include "vulkan/buffer.h"
 #include <cstring>
 #include <memory>
 

@@ -1,6 +1,6 @@
 #include "acceleration_structure.h"
 #include "device_procedures.h"
-#include "platform/vulkan/device.h"
+#include "vulkan/device.h"
 #undef MemoryBarrier
 
 namespace vulkan {

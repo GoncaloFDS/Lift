@@ -20,6 +20,7 @@ struct Statistics final {
     uint32_t totalSamples;
 };
 
+class ImGuiData;
 class ImguiLayer {
 public:
     ImguiLayer(vulkan::CommandPool& command_pool,

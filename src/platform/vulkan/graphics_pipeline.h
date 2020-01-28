@@ -24,7 +24,7 @@ public:
                      bool is_wire_frame);
     ~GraphicsPipeline();
 
-    [[nodiscard]]VkPipeline handle() const { return pipeline_; }
+    [[nodiscard]] VkPipeline handle() const { return pipeline_; }
 
     [[nodiscard]] VkDescriptorSet descriptorSet(uint32_t index) const;
     [[nodiscard]] bool isWireFrame() const { return is_wire_frame_; }

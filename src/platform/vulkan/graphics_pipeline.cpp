@@ -120,7 +120,8 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
          VK_SHADER_STAGE_FRAGMENT_BIT}
     };
 
-    descriptor_set_manager_ = std::make_unique<DescriptorSetManager>(device, descriptor_bindings, uniform_buffers.size());
+    descriptor_set_manager_ =
+        std::make_unique<DescriptorSetManager>(device, descriptor_bindings, uniform_buffers.size());
 
     auto& descriptor_sets = descriptor_set_manager_->descriptorSets();
 
@@ -136,10 +137,10 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
         material_buffer_info.range = VK_WHOLE_SIZE;
 
         // Image and texture samplers
-        std::vector<VkDescriptorImageInfo> imageInfos(scene.textureSamplers().size());
+        std::vector<VkDescriptorImageInfo> image_infos(scene.textureSamplers().size());
 
-        for (size_t t = 0; t != imageInfos.size(); ++t) {
-            auto& image_info = imageInfos[t];
+        for (size_t t = 0; t != image_infos.size(); ++t) {
+            auto& image_info = image_infos[t];
             image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             image_info.imageView = scene.textureImageViews()[t];
             image_info.sampler = scene.textureSamplers()[t];
@@ -148,7 +149,7 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
         const std::vector<VkWriteDescriptorSet> descriptor_writes = {
             descriptor_sets.bind(i, 0, uniform_buffer_info),
             descriptor_sets.bind(i, 1, material_buffer_info),
-            descriptor_sets.bind(i, 2, *imageInfos.data(), static_cast<uint32_t>(imageInfos.size()))
+            descriptor_sets.bind(i, 2, *image_infos.data(), static_cast<uint32_t>(image_infos.size()))
         };
 
         descriptor_sets.updateDescriptors(descriptor_writes);
@@ -186,7 +187,12 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
     pipeline_info.renderPass = render_pass_->handle();
     pipeline_info.subpass = 0;
 
-    vulkanCheck(vkCreateGraphicsPipelines(device.handle(), nullptr, 1, &pipeline_info, nullptr, &pipeline_),
+    vulkanCheck(vkCreateGraphicsPipelines(device.handle(),
+                                          nullptr,
+                                          1,
+                                          &pipeline_info,
+                                          nullptr,
+                                          &pipeline_),
                 "create graphics pipeline");
 }
 

@@ -2,9 +2,9 @@
 #include "device_procedures.h"
 #include "assets/scene.h"
 #include "assets/vertex.h"
-#include "platform/vulkan/buffer.h"
-#include "platform/vulkan/device.h"
-#include "platform/vulkan/single_time_commands.h"
+#include "vulkan/buffer.h"
+#include "vulkan/device.h"
+#include "vulkan/single_time_commands.h"
 
 namespace vulkan {
 

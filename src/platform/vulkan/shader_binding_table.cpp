@@ -2,9 +2,9 @@
 #include "device_procedures.h"
 #include "ray_tracing_pipeline.h"
 #include "ray_tracing_properties.h"
-#include "platform/vulkan/buffer.h"
-#include "platform/vulkan/device.h"
-#include "platform/vulkan/device_memory.h"
+#include "vulkan/buffer.h"
+#include "vulkan/device.h"
+#include "vulkan/device_memory.h"
 #include <algorithm>
 #include <cstring>
 #include <memory>
