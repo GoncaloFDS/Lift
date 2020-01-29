@@ -208,7 +208,7 @@ GraphicsPipeline::~GraphicsPipeline() {
 }
 
 VkDescriptorSet GraphicsPipeline::descriptorSet(const uint32_t index) const {
-    return descriptor_set_manager_->descriptorSets().Handle(index);
+    return descriptor_set_manager_->descriptorSets().handle(index);
 }
 
 }

@@ -1,9 +1,9 @@
 #version 460
 #extension GL_GOOGLE_include_directive : require
 #extension GL_NV_ray_tracing : require
-#include "Random.glsl"
-#include "RayPayload.glsl"
-#include "UniformBufferObject.glsl"
+#include "random.glsl"
+#include "ray_payload.glsl"
+#include "uniform_buffer_object.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureNV Scene;
 layout(binding = 1, rgba32f) uniform image2D AccumulationImage;

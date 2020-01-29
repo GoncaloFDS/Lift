@@ -28,202 +28,199 @@ RayTracingPipeline::RayTracingPipeline(
     swap_chain_(swap_chain) {
     // Create descriptor pool/sets.
     const auto& device = swap_chain.device();
-    const std::vector<DescriptorBinding> descriptorBindings =
-        {
-            // Top level acceleration structure.
-            {0, 1, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV, VK_SHADER_STAGE_RAYGEN_BIT_NV},
+    const std::vector<DescriptorBinding> descriptor_bindings = {
+        // Top level acceleration structure.
+        {0, 1, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV, VK_SHADER_STAGE_RAYGEN_BIT_NV},
 
-            // Image accumulation & output
-            {1, 1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_NV},
-            {2, 1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_NV},
+        // Image accumulation & output
+        {1, 1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_NV},
+        {2, 1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_NV},
 
-            // Camera information & co
-            {3, 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_NV | VK_SHADER_STAGE_MISS_BIT_NV},
+        // Camera information & co
+        {3, 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_NV | VK_SHADER_STAGE_MISS_BIT_NV},
 
-            // Vertex buffer, Index buffer, Material buffer, Offset buffer
-            {4, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
-            {5, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
-            {6, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
-            {7, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
+        // Vertex buffer, Index buffer, Material buffer, Offset buffer
+        {4, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
+        {5, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
+        {6, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
+        {7, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
 
-            // Textures and image samplers
-            {8, static_cast<uint32_t>(scene.textureSamplers().size()), VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-             VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
+        // Textures and image samplers
+        {8, static_cast<uint32_t>(scene.textureSamplers().size()), VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+         VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
 
-            // The Procedural buffer.
-            {9, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-             VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV | VK_SHADER_STAGE_INTERSECTION_BIT_NV}
-        };
+        // The Procedural buffer.
+        {9, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+         VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV | VK_SHADER_STAGE_INTERSECTION_BIT_NV}
+    };
 
-    descriptor_set_manager_ = std::make_unique<DescriptorSetManager>(device, descriptorBindings, uniform_buffers.size());
+    descriptor_set_manager_ =
+        std::make_unique<DescriptorSetManager>(device, descriptor_bindings, uniform_buffers.size());
 
-    auto& descriptorSets = descriptor_set_manager_->descriptorSets();
+    auto& descriptor_sets = descriptor_set_manager_->descriptorSets();
 
     for (uint32_t i = 0; i != swap_chain.images().size(); ++i) {
         // Top level acceleration structure.
-        const auto accelerationStructureHandle = acceleration_structure.handle();
-        VkWriteDescriptorSetAccelerationStructureNV structureInfo = {};
-        structureInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV;
-        structureInfo.pNext = nullptr;
-        structureInfo.accelerationStructureCount = 1;
-        structureInfo.pAccelerationStructures = &accelerationStructureHandle;
+        const auto acceleration_structure_handle = acceleration_structure.handle();
+        VkWriteDescriptorSetAccelerationStructureNV structure_info = {};
+        structure_info.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV;
+        structure_info.pNext = nullptr;
+        structure_info.accelerationStructureCount = 1;
+        structure_info.pAccelerationStructures = &acceleration_structure_handle;
 
         // Accumulation image
-        VkDescriptorImageInfo accumulationImageInfo = {};
-        accumulationImageInfo.imageView = accumulation_image_view.handle();
-        accumulationImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+        VkDescriptorImageInfo accumulation_image_info = {};
+        accumulation_image_info.imageView = accumulation_image_view.handle();
+        accumulation_image_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
         // Output image
-        VkDescriptorImageInfo outputImageInfo = {};
-        outputImageInfo.imageView = output_image_view.handle();
-        outputImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+        VkDescriptorImageInfo output_image_info = {};
+        output_image_info.imageView = output_image_view.handle();
+        output_image_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
         // Uniform buffer
-        VkDescriptorBufferInfo uniformBufferInfo = {};
-        uniformBufferInfo.buffer = uniform_buffers[i].buffer().handle();
-        uniformBufferInfo.range = VK_WHOLE_SIZE;
+        VkDescriptorBufferInfo uniform_buffer_info = {};
+        uniform_buffer_info.buffer = uniform_buffers[i].buffer().handle();
+        uniform_buffer_info.range = VK_WHOLE_SIZE;
 
         // Vertex buffer
-        VkDescriptorBufferInfo vertexBufferInfo = {};
-        vertexBufferInfo.buffer = scene.vertexBuffer().handle();
-        vertexBufferInfo.range = VK_WHOLE_SIZE;
+        VkDescriptorBufferInfo vertex_buffer_info = {};
+        vertex_buffer_info.buffer = scene.vertexBuffer().handle();
+        vertex_buffer_info.range = VK_WHOLE_SIZE;
 
         // Index buffer
-        VkDescriptorBufferInfo indexBufferInfo = {};
-        indexBufferInfo.buffer = scene.indexBuffer().handle();
-        indexBufferInfo.range = VK_WHOLE_SIZE;
+        VkDescriptorBufferInfo index_buffer_info = {};
+        index_buffer_info.buffer = scene.indexBuffer().handle();
+        index_buffer_info.range = VK_WHOLE_SIZE;
 
         // Material buffer
-        VkDescriptorBufferInfo materialBufferInfo = {};
-        materialBufferInfo.buffer = scene.materialBuffer().handle();
-        materialBufferInfo.range = VK_WHOLE_SIZE;
+        VkDescriptorBufferInfo material_buffer_info = {};
+        material_buffer_info.buffer = scene.materialBuffer().handle();
+        material_buffer_info.range = VK_WHOLE_SIZE;
 
         // Offsets buffer
-        VkDescriptorBufferInfo offsetsBufferInfo = {};
-        offsetsBufferInfo.buffer = scene.offsetsBuffer().handle();
-        offsetsBufferInfo.range = VK_WHOLE_SIZE;
+        VkDescriptorBufferInfo offsets_buffer_info = {};
+        offsets_buffer_info.buffer = scene.offsetsBuffer().handle();
+        offsets_buffer_info.range = VK_WHOLE_SIZE;
 
         // Image and texture samplers.
-        std::vector<VkDescriptorImageInfo> imageInfos(scene.textureSamplers().size());
+        std::vector<VkDescriptorImageInfo> image_infos(scene.textureSamplers().size());
 
-        for (size_t t = 0; t != imageInfos.size(); ++t) {
-            auto& imageInfo = imageInfos[t];
-            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = scene.textureImageViews()[t];
-            imageInfo.sampler = scene.textureSamplers()[t];
+        for (size_t t = 0; t != image_infos.size(); ++t) {
+            auto& image_info = image_infos[t];
+            image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            image_info.imageView = scene.textureImageViews()[t];
+            image_info.sampler = scene.textureSamplers()[t];
         }
 
-        std::vector<VkWriteDescriptorSet> descriptorWrites =
-            {
-                descriptorSets.bind(i, 0, structureInfo),
-                descriptorSets.bind(i, 1, accumulationImageInfo),
-                descriptorSets.bind(i, 2, outputImageInfo),
-                descriptorSets.bind(i, 3, uniformBufferInfo),
-                descriptorSets.bind(i, 4, vertexBufferInfo),
-                descriptorSets.bind(i, 5, indexBufferInfo),
-                descriptorSets.bind(i, 6, materialBufferInfo),
-                descriptorSets.bind(i, 7, offsetsBufferInfo),
-                descriptorSets.bind(i, 8, *imageInfos.data(), static_cast<uint32_t>(imageInfos.size()))
-            };
+        std::vector<VkWriteDescriptorSet> descriptor_writes = {
+            descriptor_sets.bind(i, 0, structure_info),
+            descriptor_sets.bind(i, 1, accumulation_image_info),
+            descriptor_sets.bind(i, 2, output_image_info),
+            descriptor_sets.bind(i, 3, uniform_buffer_info),
+            descriptor_sets.bind(i, 4, vertex_buffer_info),
+            descriptor_sets.bind(i, 5, index_buffer_info),
+            descriptor_sets.bind(i, 6, material_buffer_info),
+            descriptor_sets.bind(i, 7, offsets_buffer_info),
+            descriptor_sets.bind(i, 8, *image_infos.data(), static_cast<uint32_t>(image_infos.size()))
+        };
 
         // Procedural buffer (optional)
-        VkDescriptorBufferInfo proceduralBufferInfo = {};
+        VkDescriptorBufferInfo procedural_buffer_info = {};
 
         if (scene.hasProcedurals()) {
-            proceduralBufferInfo.buffer = scene.proceduralBuffer().handle();
-            proceduralBufferInfo.range = VK_WHOLE_SIZE;
+            procedural_buffer_info.buffer = scene.proceduralBuffer().handle();
+            procedural_buffer_info.range = VK_WHOLE_SIZE;
 
-            descriptorWrites.push_back(descriptorSets.bind(i, 9, proceduralBufferInfo));
+            descriptor_writes.push_back(descriptor_sets.bind(i, 9, procedural_buffer_info));
         }
 
-        descriptorSets.updateDescriptors(descriptorWrites);
+        descriptor_sets.updateDescriptors(descriptor_writes);
     }
 
     pipeline_layout_ = std::make_unique<class PipelineLayout>(device, descriptor_set_manager_->descriptorSetLayout());
 
     // Load shaders.
-    const ShaderModule rayGenShader(device, "../resources/shaders/RayTracing.rgen.spv");
-    const ShaderModule missShader(device, "../resources/shaders/RayTracing.rmiss.spv");
-    const ShaderModule closestHitShader(device, "../resources/shaders/RayTracing.rchit.spv");
-    const ShaderModule proceduralClosestHitShader(device, "../resources/shaders/RayTracing.Procedural.rchit.spv");
-    const ShaderModule proceduralIntersectionShader(device, "../resources/shaders/RayTracing.Procedural.rint.spv");
+    const ShaderModule ray_gen_shader(device, "../resources/shaders/path.rgen.spv");
+    const ShaderModule miss_shader(device, "../resources/shaders/path.rmiss.spv");
+    const ShaderModule closest_hit_shader(device, "../resources/shaders/path.rchit.spv");
+    const ShaderModule procedural_closest_hit_shader(device, "../resources/shaders/path.procedural.rchit.spv");
+    const ShaderModule procedural_intersection_shader(device, "../resources/shaders/path.procedural.rint.spv");
 
-    std::vector<VkPipelineShaderStageCreateInfo> shaderStages =
-        {
-            rayGenShader.createShaderStage(VK_SHADER_STAGE_RAYGEN_BIT_NV),
-            missShader.createShaderStage(VK_SHADER_STAGE_MISS_BIT_NV),
-            closestHitShader.createShaderStage(VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV),
-            proceduralClosestHitShader.createShaderStage(VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV),
-            proceduralIntersectionShader.createShaderStage(VK_SHADER_STAGE_INTERSECTION_BIT_NV)
-        };
+    std::vector<VkPipelineShaderStageCreateInfo> shader_stages = {
+        ray_gen_shader.createShaderStage(VK_SHADER_STAGE_RAYGEN_BIT_NV),
+        miss_shader.createShaderStage(VK_SHADER_STAGE_MISS_BIT_NV),
+        closest_hit_shader.createShaderStage(VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV),
+        procedural_closest_hit_shader.createShaderStage(VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV),
+        procedural_intersection_shader.createShaderStage(VK_SHADER_STAGE_INTERSECTION_BIT_NV)
+    };
 
     // Shader groups
-    VkRayTracingShaderGroupCreateInfoNV rayGenGroupInfo = {};
-    rayGenGroupInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
-    rayGenGroupInfo.pNext = nullptr;
-    rayGenGroupInfo.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
-    rayGenGroupInfo.generalShader = 0;
-    rayGenGroupInfo.closestHitShader = VK_SHADER_UNUSED_NV;
-    rayGenGroupInfo.anyHitShader = VK_SHADER_UNUSED_NV;
-    rayGenGroupInfo.intersectionShader = VK_SHADER_UNUSED_NV;
+    VkRayTracingShaderGroupCreateInfoNV ray_gen_group_info = {};
+    ray_gen_group_info.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
+    ray_gen_group_info.pNext = nullptr;
+    ray_gen_group_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
+    ray_gen_group_info.generalShader = 0;
+    ray_gen_group_info.closestHitShader = VK_SHADER_UNUSED_NV;
+    ray_gen_group_info.anyHitShader = VK_SHADER_UNUSED_NV;
+    ray_gen_group_info.intersectionShader = VK_SHADER_UNUSED_NV;
     ray_gen_index_ = 0;
 
-    VkRayTracingShaderGroupCreateInfoNV missGroupInfo = {};
-    missGroupInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
-    missGroupInfo.pNext = nullptr;
-    missGroupInfo.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
-    missGroupInfo.generalShader = 1;
-    missGroupInfo.closestHitShader = VK_SHADER_UNUSED_NV;
-    missGroupInfo.anyHitShader = VK_SHADER_UNUSED_NV;
-    missGroupInfo.intersectionShader = VK_SHADER_UNUSED_NV;
+    VkRayTracingShaderGroupCreateInfoNV miss_group_info = {};
+    miss_group_info.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
+    miss_group_info.pNext = nullptr;
+    miss_group_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_NV;
+    miss_group_info.generalShader = 1;
+    miss_group_info.closestHitShader = VK_SHADER_UNUSED_NV;
+    miss_group_info.anyHitShader = VK_SHADER_UNUSED_NV;
+    miss_group_info.intersectionShader = VK_SHADER_UNUSED_NV;
     miss_index_ = 1;
 
-    VkRayTracingShaderGroupCreateInfoNV triangleHitGroupInfo = {};
-    triangleHitGroupInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
-    triangleHitGroupInfo.pNext = nullptr;
-    triangleHitGroupInfo.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
-    triangleHitGroupInfo.generalShader = VK_SHADER_UNUSED_NV;
-    triangleHitGroupInfo.closestHitShader = 2;
-    triangleHitGroupInfo.anyHitShader = VK_SHADER_UNUSED_NV;
-    triangleHitGroupInfo.intersectionShader = VK_SHADER_UNUSED_NV;
+    VkRayTracingShaderGroupCreateInfoNV triangle_hit_group_info = {};
+    triangle_hit_group_info.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
+    triangle_hit_group_info.pNext = nullptr;
+    triangle_hit_group_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
+    triangle_hit_group_info.generalShader = VK_SHADER_UNUSED_NV;
+    triangle_hit_group_info.closestHitShader = 2;
+    triangle_hit_group_info.anyHitShader = VK_SHADER_UNUSED_NV;
+    triangle_hit_group_info.intersectionShader = VK_SHADER_UNUSED_NV;
     triangle_hit_group_index_ = 2;
 
-    VkRayTracingShaderGroupCreateInfoNV proceduralHitGroupInfo = {};
-    proceduralHitGroupInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
-    proceduralHitGroupInfo.pNext = nullptr;
-    proceduralHitGroupInfo.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_NV;
-    proceduralHitGroupInfo.generalShader = VK_SHADER_UNUSED_NV;
-    proceduralHitGroupInfo.closestHitShader = 3;
-    proceduralHitGroupInfo.anyHitShader = VK_SHADER_UNUSED_NV;
-    proceduralHitGroupInfo.intersectionShader = 4;
+    VkRayTracingShaderGroupCreateInfoNV procedural_hit_group_info = {};
+    procedural_hit_group_info.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
+    procedural_hit_group_info.pNext = nullptr;
+    procedural_hit_group_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_NV;
+    procedural_hit_group_info.generalShader = VK_SHADER_UNUSED_NV;
+    procedural_hit_group_info.closestHitShader = 3;
+    procedural_hit_group_info.anyHitShader = VK_SHADER_UNUSED_NV;
+    procedural_hit_group_info.intersectionShader = 4;
     procedural_hit_group_index_ = 3;
 
-    std::vector<VkRayTracingShaderGroupCreateInfoNV> groups =
-        {
-            rayGenGroupInfo,
-            missGroupInfo,
-            triangleHitGroupInfo,
-            proceduralHitGroupInfo,
-        };
+    std::vector<VkRayTracingShaderGroupCreateInfoNV> groups = {
+        ray_gen_group_info,
+        miss_group_info,
+        triangle_hit_group_info,
+        procedural_hit_group_info,
+    };
 
     // Create graphic pipeline
-    VkRayTracingPipelineCreateInfoNV pipelineInfo = {};
-    pipelineInfo.sType = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV;
-    pipelineInfo.pNext = nullptr;
-    pipelineInfo.flags = 0;
-    pipelineInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
-    pipelineInfo.pStages = shaderStages.data();
-    pipelineInfo.groupCount = static_cast<uint32_t>(groups.size());
-    pipelineInfo.pGroups = groups.data();
-    pipelineInfo.maxRecursionDepth = 1;
-    pipelineInfo.layout = pipeline_layout_->handle();
-    pipelineInfo.basePipelineHandle = nullptr;
-    pipelineInfo.basePipelineIndex = 0;
+    VkRayTracingPipelineCreateInfoNV pipeline_info = {};
+    pipeline_info.sType = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV;
+    pipeline_info.pNext = nullptr;
+    pipeline_info.flags = 0;
+    pipeline_info.stageCount = static_cast<uint32_t>(shader_stages.size());
+    pipeline_info.pStages = shader_stages.data();
+    pipeline_info.groupCount = static_cast<uint32_t>(groups.size());
+    pipeline_info.pGroups = groups.data();
+    pipeline_info.maxRecursionDepth = 1;
+    pipeline_info.layout = pipeline_layout_->handle();
+    pipeline_info.basePipelineHandle = nullptr;
+    pipeline_info.basePipelineIndex = 0;
 
     vulkanCheck(device_procedures.vkCreateRayTracingPipelinesNV(device.handle(),
                                                                 nullptr,
                                                                 1,
-                                                                &pipelineInfo,
+                                                                &pipeline_info,
                                                                 nullptr,
                                                                 &pipeline_),
                 "create ray tracing pipeline");
@@ -240,7 +237,7 @@ RayTracingPipeline::~RayTracingPipeline() {
 }
 
 VkDescriptorSet RayTracingPipeline::descriptorSet(uint32_t index) const {
-    return descriptor_set_manager_->descriptorSets().Handle(index);
+    return descriptor_set_manager_->descriptorSets().handle(index);
 }
 
 }

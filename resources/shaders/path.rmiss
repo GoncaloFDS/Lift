@@ -1,8 +1,8 @@
 #version 460
 #extension GL_GOOGLE_include_directive : require
 #extension GL_NV_ray_tracing : require
-#include "RayPayload.glsl"
-#include "UniformBufferObject.glsl"
+#include "ray_payload.glsl"
+#include "uniform_buffer_object.glsl"
 
 layout(binding = 3) readonly uniform UniformBufferObjectStruct { UniformBufferObject Camera; };
 

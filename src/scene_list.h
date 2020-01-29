@@ -15,7 +15,7 @@ typedef std::tuple<std::vector<assets::Model>, std::vector<assets::Texture>> Sce
 class SceneList final {
 public:
 
-    struct CameraInitialSate {
+    struct CameraInitialState {
         glm::mat4 modelView;
         float fieldOfView;
         float aperture;
@@ -24,10 +24,10 @@ public:
         bool hasSky;
     };
 
-    static SceneAssets rayTracingInOneWeekend(CameraInitialSate& camera);
-    static SceneAssets lucyInOneWeekend(CameraInitialSate& camera);
-    static SceneAssets cornellBox(CameraInitialSate& camera);
-    static SceneAssets cornellBoxLucy(CameraInitialSate& camera);
+    static SceneAssets rayTracingInOneWeekend(CameraInitialState& camera);
+    static SceneAssets lucyInOneWeekend(CameraInitialState& camera);
+    static SceneAssets cornellBox(CameraInitialState& camera);
+    static SceneAssets cornellBoxLucy(CameraInitialState& camera);
 
-    static const std::vector<std::pair<std::string, std::function<SceneAssets(CameraInitialSate&)>>> allScenes;
+    static const std::vector<std::pair<std::string, std::function<SceneAssets(CameraInitialState&)>>> allScenes;
 };

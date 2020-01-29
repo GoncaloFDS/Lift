@@ -114,7 +114,7 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     const auto camera_rot_x = static_cast<float>(camera_y_ / 300.0);
     const auto camera_rot_y = static_cast<float>(camera_x_ / 300.0);
 
-    const auto& init = camera_initial_sate_;
+    const auto& init = camera_initial_state_;
     const auto view = init.modelView;
     const auto model = glm::rotate(mat4(1.0f), camera_rot_y * radians(90.0f), vec3(0.0f, 1.0f, 0.0f)) *
         glm::rotate(mat4(1.0f), camera_rot_x * radians(90.0f), vec3(1.0f, 0.0f, 0.0f));
@@ -206,7 +206,7 @@ void lift::Application::onUpdate() {
 }
 
 void Application::loadScene(const uint32_t scene_index) {
-    auto[models, textures] = SceneList::allScenes[scene_index].second(camera_initial_sate_);
+    auto[models, textures] = SceneList::allScenes[scene_index].second(camera_initial_state_);
 
     LF_WARN("Loading Scene {0}", SceneList::allScenes[scene_index].first.c_str());
 
@@ -220,10 +220,10 @@ void Application::loadScene(const uint32_t scene_index) {
                                              true);
     scene_index_ = scene_index;
 
-    user_settings_.fieldOfView = camera_initial_sate_.fieldOfView;
-    user_settings_.aperture = camera_initial_sate_.aperture;
-    user_settings_.focusDistance = camera_initial_sate_.focusDistance;
-    user_settings_.gammaCorrection = camera_initial_sate_.gammaCorrection;
+    user_settings_.fieldOfView = camera_initial_state_.fieldOfView;
+    user_settings_.aperture = camera_initial_state_.aperture;
+    user_settings_.focusDistance = camera_initial_state_.focusDistance;
+    user_settings_.gammaCorrection = camera_initial_state_.gammaCorrection;
 
     camera_x_ = 0;
     camera_y_ = 0;

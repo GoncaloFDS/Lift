@@ -20,7 +20,7 @@ public:
 
     ~DescriptorSets();
 
-    [[nodiscard]] VkDescriptorSet Handle(uint32_t index) const { return descriptor_sets_[index]; }
+    [[nodiscard]] VkDescriptorSet handle(uint32_t index) const { return descriptor_sets_[index]; }
 
     [[nodiscard]] VkWriteDescriptorSet bind(uint32_t index,
                                             uint32_t binding,

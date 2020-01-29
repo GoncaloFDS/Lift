@@ -87,7 +87,7 @@ private:
     uint32_t scene_index_{};
     UserSettings user_settings_{};
     UserSettings previous_settings_{};
-    SceneList::CameraInitialSate camera_initial_sate_{};
+    SceneList::CameraInitialState camera_initial_state_{};
     std::unique_ptr<assets::Scene> scene_;
     std::unique_ptr<ImguiLayer> user_interface_;
     float camera_x_{};

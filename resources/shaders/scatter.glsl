@@ -1,5 +1,5 @@
 #include "Random.glsl"
-#include "RayPayload.glsl"
+#include "ray_payload.glsl"
 
 // Polynomial approximation by Christophe Schlick
 float Schlick(const float cosine, const float refractionIndex) {
