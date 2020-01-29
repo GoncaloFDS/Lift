@@ -465,8 +465,6 @@ void Renderer::init(VkPhysicalDevice physical_device, assets::Scene& scene) {
     command_pool_ = std::make_unique<CommandPool>(*device_, device_->graphicsFamilyIndex(), true);
 
     onDeviceSet();
-//    createSwapChain(scene);
-
 }
 
 void Renderer::onDeviceSet() {

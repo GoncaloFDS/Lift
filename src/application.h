@@ -2,6 +2,8 @@
 
 #include <vector>
 #include <memory>
+#include <assets/camera.h>
+#include <imgui/imgui_layer.h>
 #include "vulkan/frame_buffer.h"
 #include "vulkan/window_data.h"
 #include "vulkan/ray_tracing_properties.h"
@@ -36,6 +38,7 @@ class RayTracingPipeline;
 class ShaderBindingTable;
 class GraphicsPipeline;
 class Surface;
+class Window;
 }
 
 namespace lift {
@@ -53,11 +56,7 @@ public:
     void setPhysicalDevice(VkPhysicalDevice physical_device);
     void run();
 
-protected:
-
-    [[nodiscard]] const class Window& window() const { return *window_; }
-
-
+private:
     void onEvent(Event& event);
     bool onWindowClose(WindowCloseEvent& e);
     bool onWindowResize(WindowResizeEvent& e);
@@ -67,24 +66,30 @@ protected:
     bool onKeyPress(KeyPressedEvent& e);
     bool onKeyRelease(KeyReleasedEvent& e);
 
-    bool is_wire_frame_{};
+    void loadScene(uint32_t scene_index);
+    void checkAndUpdateBenchmarkState(double prev_time);
+
+    void onUpdate();
+    void deleteSwapChain();
+    void createSwapChain();
 
 private:
-
     const bool vsync_;
     std::unique_ptr<Window> window_;
     std::unique_ptr<Instance> instance_;
     std::unique_ptr<class Renderer> renderer_;
+    std::unique_ptr<Camera> camera_;
 
     size_t current_frame_{};
     bool is_running_{};
+    bool is_wire_frame_{};
 
     uint32_t scene_index_{};
     UserSettings user_settings_{};
     UserSettings previous_settings_{};
     SceneList::CameraInitialSate camera_initial_sate_{};
     std::unique_ptr<assets::Scene> scene_;
-    std::unique_ptr<class ImguiLayer> user_interface_;
+    std::unique_ptr<ImguiLayer> user_interface_;
     float camera_x_{};
     float camera_y_{};
     double time_{};
@@ -100,13 +105,6 @@ private:
     double period_initial_time_{};
     uint32_t period_total_frames_{};
 
-    void loadScene(uint32_t scene_index);
-    void checkAndUpdateBenchmarkState(double prev_time);
-    void checkFramebufferSize() const;
-
-    void onUpdate();
-    void deleteSwapChain();
-    void createSwapChain();
 };
 
 }

@@ -1,15 +1,15 @@
 #include <pch.h>
+#include "application.h"
+
 #include "vulkan/window.h"
 #include "vulkan/swap_chain.h"
 #include "vulkan/device.h"
 #include "assets/texture.h"
 #include "user_settings.h"
 #include "imgui/imgui_layer.h"
-#include "application.h"
 #include "vulkan/single_time_commands.h"
 #include "vulkan/pipeline_layout.h"
 #include "vulkan/image_view.h"
-#include "vulkan/image_memory_barrier.h"
 #include "vulkan/image.h"
 #include "vulkan/buffer.h"
 #include "vulkan/tlas.h"
@@ -26,6 +26,7 @@
 #include "vulkan/surface.h"
 #include "assets/model.h"
 #include "assets/scene.h"
+#include "assets/camera.h"
 #include "assets/uniform_buffer.h"
 #include "core/input.h"
 #include "renderer.h"
@@ -51,8 +52,6 @@ Application::Application(const UserSettings& user_settings, const WindowData& wi
 
     instance_ = std::make_unique<Instance>(*window_, validation_layers);
     renderer_ = std::make_unique<Renderer>(*instance_, vsync);
-
-    checkFramebufferSize();
 }
 
 Application::~Application() {
@@ -73,7 +72,7 @@ void Application::run() {
             continue;
 
         const auto prev_time = time_;
-        time_ = window().time();
+        time_ = window_->time();
         const auto delta_time = time_ - prev_time;
 
         onUpdate();
@@ -92,7 +91,7 @@ void Application::run() {
 
         // Render the UI
         Statistics stats = {};
-        stats.framebufferSize = window().framebufferSize();
+        stats.framebufferSize = window_->framebufferSize();
         stats.frameRate = static_cast<float>(1 / delta_time);
 
         if (user_settings_.isRayTraced) {
@@ -171,9 +170,6 @@ void Application::createSwapChain() {
                                                    renderer_->depthBuffer(),
                                                    user_settings_);
     reset_accumulation_ = true;
-
-    checkFramebufferSize();
-
 }
 
 void Application::deleteSwapChain() {
@@ -203,7 +199,6 @@ void lift::Application::onUpdate() {
 
     previous_settings_ = user_settings_;
 
-    // Keep track of our sample count.
     number_of_samples_ = clamp(user_settings_.maxNumberOfSamples - total_number_of_samples_,
                                0u, user_settings_.numberOfSamples);
     total_number_of_samples_ += number_of_samples_;
@@ -296,7 +291,7 @@ bool Application::onKeyPress(KeyPressedEvent& e) {
     }
     switch (e.keyCode()) {
         case LF_KEY_ESCAPE:
-            window().close();
+            window_->close();
             break;
         case LF_KEY_F1:
             user_settings_.showSettings = !user_settings_.showSettings;
@@ -316,22 +311,6 @@ bool Application::onKeyPress(KeyPressedEvent& e) {
 
 bool Application::onKeyRelease(KeyReleasedEvent& e) {
     return false;
-}
-
-void Application::checkFramebufferSize() const {
-    // Check the framebuffer size when requesting a fullscreen window, as it's not guaranteed to match.
-    const auto& cfg = window().config();
-    const auto fb_size = window().framebufferSize();
-
-    if (user_settings_.benchmark && cfg.fullscreen && (fb_size.width != cfg.width || fb_size.height != cfg.height)) {
-        std::ostringstream out;
-        out << "framebuffer fullscreen size mismatch (requested: ";
-        out << cfg.width << "x" << cfg.height;
-        out << ", got: ";
-        out << fb_size.width << "x" << fb_size.height << ")";
-
-        LF_ASSERT(false, "framebuffer fullscreen size mismatch (requested: ");
-    }
 }
 
 void lift::Application::checkAndUpdateBenchmarkState(double prev_time) {
@@ -368,13 +347,13 @@ void lift::Application::checkAndUpdateBenchmarkState(double prev_time) {
     // If in benchmark mode, bail out from the scene if we've reached the time or sample limit.
     {
         const bool time_limit_reached =
-            period_total_frames_ != 0 && window().time() - scene_initial_time_ > user_settings_.benchmarkMaxTime;
+            period_total_frames_ != 0 && window_->time() - scene_initial_time_ > user_settings_.benchmarkMaxTime;
         const bool sample_limit_reached = number_of_samples_ == 0;
 
         if (time_limit_reached || sample_limit_reached) {
             if (!user_settings_.benchmarkNextScenes
                 || static_cast<size_t>(user_settings_.sceneIndex) == SceneList::allScenes.size() - 1) {
-                window().close();
+                window_->close();
             }
 
             std::cout << std::endl;

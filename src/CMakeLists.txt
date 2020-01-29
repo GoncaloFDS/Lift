@@ -13,6 +13,8 @@ set(src_files_core
         events/mouse_event.h
         core/input.cpp
         core/input.h
+        core/timer.cpp
+        core/timer.h
         )
 
 set(src_files_assets
@@ -32,6 +34,8 @@ set(src_files_assets
         assets/uniform_buffer.cpp
         assets/uniform_buffer.h
         assets/vertex.h
+        assets/camera.cpp
+        assets/camera.h
         )
 
 set(src_files_imgui

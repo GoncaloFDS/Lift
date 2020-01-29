@@ -25,7 +25,7 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialSate& camera) {
     camera.gammaCorrection = true;
     camera.hasSky = true;
 
-    const bool isProc = true;
+    const bool is_procedural = true;
 
     std::mt19937 engine(42);
     auto random = std::bind(std::uniform_real_distribution<float>(), engine);
@@ -35,7 +35,7 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialSate& camera) {
     models.push_back(Model::createSphere(vec3(0, -1000, 0),
                                          1000,
                                          Material::lambertian(vec3(0.5f, 0.5f, 0.5f)),
-                                         isProc));
+                                         is_procedural));
 
     for (int a = -11; a < 11; ++a) {
         for (int b = -11; b < 11; ++b) {
@@ -49,27 +49,27 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialSate& camera) {
                         random() * random(),
                         random() * random(),
                         random() * random())),
-                                                         isProc));
+                                                         is_procedural));
                 } else if (choose_mat < 0.95f) // Metal
                 {
                     models.push_back(Model::createSphere(center, 0.2f, Material::metallic(
                         vec3(0.5f * (1 + random()), 0.5f * (1 + random()), 0.5f * (1 + random())),
                         0.5f * random()),
-                                                         isProc));
+                                                         is_procedural));
                 } else // Glass
                 {
-                    models.push_back(Model::createSphere(center, 0.2f, Material::dielectric(1.5f), isProc));
+                    models.push_back(Model::createSphere(center, 0.2f, Material::dielectric(1.5f), is_procedural));
                 }
             }
         }
     }
 
-    models.push_back(Model::createSphere(vec3(0, 1, 0), 1.0f, Material::dielectric(1.5f), isProc));
-    models.push_back(Model::createSphere(vec3(-4, 1, 0), 1.0f, Material::lambertian(vec3(0.4f, 0.2f, 0.1f)), isProc));
+    models.push_back(Model::createSphere(vec3(0, 1, 0), 1.0f, Material::dielectric(1.5f), is_procedural));
+    models.push_back(Model::createSphere(vec3(-4, 1, 0), 1.0f, Material::lambertian(vec3(0.4f, 0.2f, 0.1f)), is_procedural));
     models.push_back(Model::createSphere(vec3(4, 1, 0),
                                          1.0f,
                                          Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.0f),
-                                         isProc));
+                                         is_procedural));
 
     return std::forward_as_tuple(std::move(models), std::vector<Texture>());
 }
@@ -82,7 +82,7 @@ SceneAssets SceneList::lucyInOneWeekend(CameraInitialSate& camera) {
     camera.gammaCorrection = true;
     camera.hasSky = true;
 
-    const bool is_proc = true;
+    const bool is_procedural = true;
 
     std::mt19937 engine(42);
     auto random = std::bind(std::uniform_real_distribution<float>(), engine);
@@ -92,7 +92,7 @@ SceneAssets SceneList::lucyInOneWeekend(CameraInitialSate& camera) {
     models.push_back(Model::createSphere(vec3(0, -1000, 0),
                                          1000,
                                          Material::lambertian(vec3(0.5f, 0.5f, 0.5f)),
-                                         is_proc));
+                                         is_procedural));
 
     for (int a = -11; a < 11; ++a) {
         for (int b = -11; b < 11; ++b) {
@@ -105,15 +105,15 @@ SceneAssets SceneList::lucyInOneWeekend(CameraInitialSate& camera) {
                     models.push_back(Model::createSphere(center, 0.2f, Material::lambertian(vec3(
                         random() * random(),
                         random() * random(),
-                        random() * random())), is_proc));
+                        random() * random())), is_procedural));
                 } else if (choose_mat < 0.95f) // Metal
                 {
                     models.push_back(Model::createSphere(center, 0.2f, Material::metallic(
                         vec3(0.5f * (1 + random()), 0.5f * (1 + random()), 0.5f * (1 + random())),
-                        0.5f * random()), is_proc));
+                        0.5f * random()), is_procedural));
                 } else // Glass
                 {
-                    models.push_back(Model::createSphere(center, 0.2f, Material::dielectric(1.5f), is_proc));
+                    models.push_back(Model::createSphere(center, 0.2f, Material::dielectric(1.5f), is_procedural));
                 }
             }
         }
