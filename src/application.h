@@ -4,6 +4,7 @@
 #include <memory>
 #include <assets/camera.h>
 #include <imgui/imgui_layer.h>
+#include <denoiser/denoiser_optix.h>
 #include "vulkan/frame_buffer.h"
 #include "vulkan/window_data.h"
 #include "vulkan/ray_tracing_properties.h"
@@ -78,7 +79,8 @@ private:
     std::unique_ptr<Window> window_;
     std::unique_ptr<Instance> instance_;
     std::unique_ptr<class Renderer> renderer_;
-    std::unique_ptr<Camera> camera_;
+	std::unique_ptr<DenoiserOptix> denoiser_;
+	std::unique_ptr<Camera> camera_;
 
     size_t current_frame_{};
     bool is_running_{};

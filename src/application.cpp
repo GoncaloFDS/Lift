@@ -30,6 +30,7 @@
 #include "assets/uniform_buffer.h"
 #include "core/input.h"
 #include "renderer.h"
+#include "denoiser/denoiser_optix.h"
 
 namespace lift {
 using namespace vulkan;
@@ -52,6 +53,8 @@ Application::Application(const UserSettings& user_settings, const WindowData& wi
 
     instance_ = std::make_unique<Instance>(*window_, validation_layers);
     renderer_ = std::make_unique<Renderer>(*instance_, vsync);
+    denoiser_ = std::make_unique<DenoiserOptix>();
+    denoiser_->initOptix();
 }
 
 Application::~Application() {
