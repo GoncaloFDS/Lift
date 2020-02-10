@@ -29,7 +29,7 @@ foreach (OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
 endforeach ()
 
 if (WIN32)
-
+    add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
     add_definitions(-DUNICODE -D_UNICODE)
     add_definitions(-DWIN32_LEAN_AND_MEAN)
 
@@ -39,8 +39,8 @@ if (WIN32)
         endif ()
     endforeach ()
 
-#    add_compile_options("/std:c++17")
-#    add_compile_options("/MP")
+    #    add_compile_options("/std:c++17")
+    #    add_compile_options("/MP")
 
 endif ()
 

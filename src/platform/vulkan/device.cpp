@@ -1,4 +1,6 @@
 #include "pch.h"
+#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_win32.h>
 #include "device.h"
 #include "enumerate.h"
 #include "instance.h"
@@ -28,7 +30,17 @@ std::vector<VkQueueFamilyProperties>::const_iterator findQueue(const std::vector
 
 const std::vector<const char*> Device::required_extensions_ = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-    VK_NV_RAY_TRACING_EXTENSION_NAME
+    VK_NV_RAY_TRACING_EXTENSION_NAME,
+    VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+    VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+    VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+    VK_NV_RAY_TRACING_EXTENSION_NAME,
+    VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME,
+    VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME,
+    VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME,
+    VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME,
+    VK_KHR_EXTERNAL_FENCE_EXTENSION_NAME,
+    VK_KHR_EXTERNAL_FENCE_WIN32_EXTENSION_NAME
 };
 
 Device::Device(VkPhysicalDevice physical_device, const class Surface& surface)

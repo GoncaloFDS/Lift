@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <pch.h>
+#include <vulkan/vulkan_win32.h>
 
 namespace vulkan {
 
@@ -12,7 +13,7 @@ Instance::Instance(const class Window& window, const std::vector<const char*>& v
     window_(window),
     validation_layers_(validation_layers) {
 
-    const uint32_t minimum_version = VK_API_VERSION_1_1;
+    const uint32_t minimum_version = VK_API_VERSION_1_2;
     checkVulkanMinimumVersion(minimum_version);
 
     auto extensions = window.getRequiredInstanceExtensions();
@@ -22,6 +23,13 @@ Instance::Instance(const class Window& window, const std::vector<const char*>& v
     if (!validation_layers.empty()) {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
+
+    extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+    extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+    extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+    extensions.push_back(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME);
+    extensions.push_back(VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME);
+    extensions.push_back(VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME);
 
     VkApplicationInfo app_info = {};
     app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;

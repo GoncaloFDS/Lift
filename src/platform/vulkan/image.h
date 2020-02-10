@@ -2,6 +2,8 @@
 
 #include "core/utilities.h"
 #include "device_memory.h"
+#include <vulkan/vulkan.hpp>
+
 
 namespace vulkan {
 class Buffer;
@@ -28,18 +30,23 @@ public:
     [[nodiscard]] DeviceMemory allocateMemory(VkMemoryPropertyFlags properties) const;
     [[nodiscard]] VkMemoryRequirements getMemoryRequirements() const;
 
-    void transitionImageLayout(CommandPool& command_pool, VkImageLayout new_layout);
-    void copyFrom(CommandPool& command_pool, const Buffer& buffer);
+//    void transitionImageLayout(CommandPool& command_pool, VkImageLayout new_layout);
+    void transitionImageLayout(CommandPool& command_pool, const vk::ImageLayout new_layout);
+    void copyFromBuffer(CommandPool& command_pool, const vk::Buffer& buffer);
+    void copyToBuffer(CommandPool& command_pool, const vk::Buffer& buffer);
+
+private:
+    vk::AccessFlags accessFlagsForLayout(vk::ImageLayout layout);
+    vk::PipelineStageFlags pipelineStageForLayout(vk::ImageLayout layout);
 
 private:
 
     const class Device& device_;
     const VkExtent2D extent_;
     const VkFormat format_;
-    VkImageLayout image_layout_;
-
-private:
+    vk::ImageLayout image_layout_;
     VkImage image_{};
+
 };
 
 }

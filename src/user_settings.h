@@ -13,6 +13,7 @@ struct UserSettings final {
 
     // Renderer
     bool isRayTraced{};
+    bool isDenoised{};
     bool accumulateRays{};
     uint32_t numberOfSamples{};
     uint32_t numberOfBounces{};

@@ -1,5 +1,6 @@
 #include <assets/scene.h>
 #include "pch.h"
+#include <vulkan/vulkan.hpp>
 #include "renderer.h"
 #include "vulkan/swap_chain.h"
 #include "vulkan/device.h"
@@ -25,12 +26,16 @@
 #include "vulkan/surface.h"
 #include "assets/model.h"
 #include "assets/uniform_buffer.h"
+#include "vulkan/extensions_vk.h"
 
 namespace lift {
 using namespace vulkan;
 
 Renderer::Renderer(const Instance& instance, bool vsync) {
+
     surface_ = std::make_unique<Surface>(instance);
+    denoiser_ = std::make_unique<DenoiserOptix>();
+    denoiser_->initOptix();
 }
 
 Renderer::~Renderer() {
@@ -145,13 +150,24 @@ void Renderer::traceCommand(VkCommandBuffer command_buffer, uint32_t image_index
     subresource_range.baseArrayLayer = 0;
     subresource_range.layerCount = 1;
 
-    ImageMemoryBarrier::insert(command_buffer, accumulation_image_->handle(), subresource_range, 0,
-                               VK_ACCESS_SHADER_WRITE_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+    ImageMemoryBarrier::insert(command_buffer,
+                               accumulation_image_->handle(),
+                               subresource_range,
+                               0,
+                               VK_ACCESS_SHADER_WRITE_BIT,
+                               VK_IMAGE_LAYOUT_UNDEFINED,
+                               VK_IMAGE_LAYOUT_GENERAL);
 
-    ImageMemoryBarrier::insert(command_buffer, output_image_->handle(), subresource_range, 0,
-                               VK_ACCESS_SHADER_WRITE_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+    ImageMemoryBarrier::insert(command_buffer,
+                               output_image_->handle(),
+                               subresource_range,
+                               0,
+                               VK_ACCESS_SHADER_WRITE_BIT,
+                               VK_IMAGE_LAYOUT_UNDEFINED,
+                               VK_IMAGE_LAYOUT_GENERAL);
 
-    vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV, ray_tracing_pipeline_->handle());
+    vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_NV,
+                      ray_tracing_pipeline_->handle());
     vkCmdBindDescriptorSets(command_buffer,
                             VK_PIPELINE_BIND_POINT_RAY_TRACING_NV,
                             ray_tracing_pipeline_->pipelineLayout().handle(),
@@ -208,6 +224,7 @@ void Renderer::traceCommand(VkCommandBuffer command_buffer, uint32_t image_index
                    1,
                    &copy_region);
 
+
     ImageMemoryBarrier::insert(command_buffer,
                                swapChain().images()[image_index],
                                subresource_range,
@@ -215,6 +232,14 @@ void Renderer::traceCommand(VkCommandBuffer command_buffer, uint32_t image_index
                                0,
                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
+    ImageMemoryBarrier::insert(command_buffer,
+                               output_image_->handle(),
+                               subresource_range,
+                               VK_ACCESS_SHADER_WRITE_BIT,
+                               VK_ACCESS_TRANSFER_READ_BIT,
+                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               VK_IMAGE_LAYOUT_GENERAL);
 }
 
 void Renderer::rasterizeCommand(VkCommandBuffer command_buffer, uint32_t image_index, assets::Scene& scene) {
@@ -265,6 +290,10 @@ void Renderer::rasterizeCommand(VkCommandBuffer command_buffer, uint32_t image_i
         }
     }
     vkCmdEndRenderPass(command_buffer);
+}
+
+void Renderer::denoiseImage() {
+    denoiser_->denoiseImage(*device_, current_command_buffer_, *command_pool_, *output_image_, *denoised_image_);
 }
 
 void Renderer::createAccelerationStructures(assets::Scene& scene) {
@@ -413,6 +442,7 @@ void Renderer::createOutputImage() {
     const auto format = swapChain().format();
     const auto tiling = VK_IMAGE_TILING_OPTIMAL;
 
+    /////////////
     accumulation_image_ = std::make_unique<Image>(device(),
                                                   extent,
                                                   VK_FORMAT_R32G32B32A32_SFLOAT,
@@ -425,6 +455,7 @@ void Renderer::createOutputImage() {
                                                            VK_FORMAT_R32G32B32A32_SFLOAT,
                                                            VK_IMAGE_ASPECT_COLOR_BIT);
 
+    /////////////
     output_image_ = std::make_unique<Image>(device(),
                                             extent,
                                             format,
@@ -434,6 +465,18 @@ void Renderer::createOutputImage() {
         std::make_unique<DeviceMemory>(output_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
     output_image_view_ =
         std::make_unique<ImageView>(device(), output_image_->handle(), format, VK_IMAGE_ASPECT_COLOR_BIT);
+
+    /////////////
+    denoised_image_ = std::make_unique<Image>(device(),
+                                              extent,
+                                              VK_FORMAT_R32G32B32A32_SFLOAT,
+                                              tiling,
+                                              VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+    denoised_image_memory_ =
+        std::make_unique<DeviceMemory>(denoised_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+//    denoised_image_view_ =
+//        std::make_unique<ImageView>(device(), denoised_image_->handle(), format, VK_IMAGE_ASPECT_COLOR_BIT);
+
 }
 
 void Renderer::createRayTracingPipeline(assets::Scene& scene) {
@@ -458,13 +501,14 @@ void Renderer::createRayTracingPipeline(assets::Scene& scene) {
                                                                  hit_groups);
 }
 
-void Renderer::init(VkPhysicalDevice physical_device, assets::Scene& scene) {
+void Renderer::init(VkPhysicalDevice physical_device, assets::Scene& scene, Instance& instance) {
     LF_ASSERT(!device_, "physical device has already been set");
 
     device_ = std::make_unique<Device>(physical_device, *surface_);
     command_pool_ = std::make_unique<CommandPool>(*device_, device_->graphicsFamilyIndex(), true);
 
     onDeviceSet();
+    load_VK_EXTENSION_SUBSET(instance.handle(), vkGetInstanceProcAddr, device_->handle(), vkGetDeviceProcAddr);
 }
 
 void Renderer::onDeviceSet() {
@@ -532,6 +576,21 @@ void Renderer::waitDeviceIdle() {
 
 void Renderer::updateUniformBuffer(const uint32_t image_index, assets::UniformBufferObject ubo) {
     uniform_buffers_[image_index].setValue(ubo);
+}
+
+//void Renderer::vulkanToCuda(Buffer& output_buffer) {
+//    accumulation_image_->transitionImageLayout(commandPool(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+//    accumulation_image_->copyToBuffer(commandPool(), output_buffer);
+//    accumulation_image_->transitionImageLayout(commandPool(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+//}
+//
+//void Renderer::cudaToVulkan(Buffer& input_buffer) {
+//    accumulation_image_->transitionImageLayout(commandPool(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+//    accumulation_image_->copyFromBuffer(commandPool(), input_buffer);
+//    accumulation_image_->transitionImageLayout(commandPool(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+//}
+void Renderer::setupDenoiser() {
+    denoiser_->setup(*device_, 0);
 }
 
 }

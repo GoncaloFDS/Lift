@@ -7,6 +7,7 @@
 #include "vulkan/sampler.h"
 #include <cstring>
 #include <memory>
+#include "vulkan/vulkan.hpp"
 
 namespace assets {
 
@@ -36,9 +37,9 @@ TextureImage::TextureImage(vulkan::CommandPool& command_pool, const Texture& tex
     sampler_ = std::make_unique<vulkan::Sampler>(device, vulkan::SamplerConfig());
 
     // Transfer the data to device side.
-    image_->transitionImageLayout(command_pool, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    image_->copyFrom(command_pool, *staging_buffer);
-    image_->transitionImageLayout(command_pool, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    image_->transitionImageLayout(command_pool, vk::ImageLayout::eTransferDstOptimal);
+	image_->copyFromBuffer(command_pool, vk::Buffer{staging_buffer->handle()});
+    image_->transitionImageLayout(command_pool, vk::ImageLayout::eShaderReadOnlyOptimal);
 
     // Delete the buffer before the memory
     staging_buffer.reset();

@@ -77,9 +77,9 @@ private:
 private:
     const bool vsync_;
     std::unique_ptr<Window> window_;
-    std::unique_ptr<Instance> instance_;
     std::unique_ptr<class Renderer> renderer_;
-	std::unique_ptr<DenoiserOptix> denoiser_;
+
+    std::unique_ptr<Instance> instance_;
 	std::unique_ptr<Camera> camera_;
 
     size_t current_frame_{};

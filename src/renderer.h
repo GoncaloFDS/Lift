@@ -4,6 +4,7 @@
 #include <memory>
 #include <vulkan/vulkan.h>
 #include <imgui/imgui_layer.h>
+#include <denoiser/denoiser_optix.h>
 #include "vulkan/ray_tracing_properties.h"
 #include "vulkan/device_procedures.h"
 
@@ -52,6 +53,8 @@ public:
     void traceCommand(VkCommandBuffer command_buffer, uint32_t image_index, assets::Scene& scene);
     void rasterizeCommand(VkCommandBuffer command_buffer, uint32_t image_index, assets::Scene& scene);
 
+    void denoiseImage();
+
     void createRayTracingPipeline(assets::Scene& scene);
     void createSwapChain(assets::Scene& scene);
     void deleteSwapChain();
@@ -62,7 +65,8 @@ public:
 
     void waitDeviceIdle();
 
-    void init(VkPhysicalDevice physical_device, assets::Scene& scene);
+    void init(VkPhysicalDevice physical_device, assets::Scene& scene, Instance& instance);
+    void setupDenoiser();
 
     void updateUniformBuffer(uint32_t image_index, assets::UniformBufferObject ubo);
 
@@ -110,12 +114,19 @@ private:
     std::unique_ptr<DeviceMemory> top_scratch_buffer_memory_;
     std::unique_ptr<Buffer> instances_buffer_;
     std::unique_ptr<DeviceMemory> instances_buffer_memory_;
+
     std::unique_ptr<Image> accumulation_image_;
     std::unique_ptr<DeviceMemory> accumulation_image_memory_;
     std::unique_ptr<ImageView> accumulation_image_view_;
+
     std::unique_ptr<Image> output_image_;
     std::unique_ptr<DeviceMemory> output_image_memory_;
     std::unique_ptr<ImageView> output_image_view_;
+
+    std::unique_ptr<Image> denoised_image_;
+    std::unique_ptr<DeviceMemory> denoised_image_memory_;
+    std::unique_ptr<ImageView> denoised_image_view_;
+
     std::unique_ptr<RayTracingPipeline> ray_tracing_pipeline_;
     std::unique_ptr<ShaderBindingTable> shader_binding_table_;
 
@@ -128,6 +139,8 @@ private:
     uint32_t current_image_index_;
     VkSemaphore current_image_available_semaphore_;
     VkSemaphore current_render_finished_semaphore_;
+
+    std::unique_ptr<DenoiserOptix> denoiser_;
 };
 
 }

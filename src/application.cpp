@@ -53,8 +53,7 @@ Application::Application(const UserSettings& user_settings, const WindowData& wi
 
     instance_ = std::make_unique<Instance>(*window_, validation_layers);
     renderer_ = std::make_unique<Renderer>(*instance_, vsync);
-    denoiser_ = std::make_unique<DenoiserOptix>();
-    denoiser_->initOptix();
+
 }
 
 Application::~Application() {
@@ -68,6 +67,7 @@ Application::~Application() {
 void Application::run() {
     current_frame_ = 0;
 
+    renderer_->setupDenoiser();
     while (is_running_) {
         window_->poolEvents();
 
@@ -88,6 +88,9 @@ void Application::run() {
 
         if (user_settings_.isRayTraced) {
             renderer_->trace(*scene_);
+            if(user_settings_.isDenoised) {
+                renderer_->denoiseImage();
+            }
         } else {
             renderer_->render(*scene_);
         }
@@ -153,7 +156,7 @@ const std::vector<VkPhysicalDevice>& Application::physicalDevices() const {
 }
 
 void Application::setPhysicalDevice(VkPhysicalDevice physical_device) {
-    renderer_->init(physical_device, *scene_);
+    renderer_->init(physical_device, *scene_, *instance_);
     loadScene(user_settings_.sceneIndex);
 
     renderer_->createAccelerationStructures(*scene_);

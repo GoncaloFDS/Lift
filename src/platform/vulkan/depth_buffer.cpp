@@ -8,6 +8,7 @@
 #include "device_memory.h"
 #include "image.h"
 #include "image_view.h"
+#include <vulkan/vulkan.hpp>
 
 namespace vulkan {
 
@@ -53,7 +54,7 @@ DepthBuffer::DepthBuffer(CommandPool& command_pool, const VkExtent2D extent) :
     image_memory_ = std::make_unique<DeviceMemory>(image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
     image_view_ = std::make_unique<class ImageView>(device, image_->handle(), format_, VK_IMAGE_ASPECT_DEPTH_BIT);
 
-    image_->transitionImageLayout(command_pool, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+    image_->transitionImageLayout(command_pool, vk::ImageLayout::eDepthStencilAttachmentOptimal);
 }
 
 DepthBuffer::~DepthBuffer() {
