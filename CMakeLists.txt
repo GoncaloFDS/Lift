@@ -55,6 +55,9 @@ if (UNIX)
     add_compile_options("-fvisibility=hidden")
 
 endif ()
+if (MSVC)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif ()
 
 find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(glfw3 REQUIRED)

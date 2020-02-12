@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <string.h>
 #include <stdio.h>
-#include <pch.h>
+
 #include <vulkan/vulkan_win32.h>
 
 namespace vulkan {

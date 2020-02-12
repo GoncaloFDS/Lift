@@ -1,6 +1,7 @@
-#include "pch.h"
+
 #include "device_memory.h"
 #include "device.h"
+#include <core.h>
 
 namespace vulkan {
 

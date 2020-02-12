@@ -1,4 +1,4 @@
-#include "pch.h"
+
 #include "descriptor_sets.h"
 #include "descriptor_pool.h"
 #include "descriptor_set_layout.h"

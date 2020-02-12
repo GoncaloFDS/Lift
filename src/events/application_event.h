@@ -1,8 +1,8 @@
 #pragma once
 
 #include "event.h"
+#include <sstream>
 
-namespace lift {
 class WindowResizeEvent : public Event {
 public:
     WindowResizeEvent(unsigned int width, unsigned int height)
@@ -85,4 +85,3 @@ public:
     [[nodiscard]] auto getCategoryFlags() const -> int override { return EVENT_CATEGORY_APPLICATION; }
 
 };
-}

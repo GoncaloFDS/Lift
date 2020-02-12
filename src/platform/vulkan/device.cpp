@@ -1,4 +1,4 @@
-#include "pch.h"
+
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_win32.h>
 #include "device.h"

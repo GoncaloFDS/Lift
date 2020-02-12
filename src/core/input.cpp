@@ -1,7 +1,7 @@
-#include "pch.h"
+
 #include  "input.h"
 
-std::unordered_map<int, bool> lift::Input::pressed_keys_{};
+std::unordered_map<int, bool> Input::pressed_keys_{};
 
 bool Input::isKeyPressed(int key_code) {
     return pressed_keys_[key_code];

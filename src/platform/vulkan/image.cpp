@@ -1,4 +1,4 @@
-#include "pch.h"
+
 #include "image.h"
 #include "buffer.h"
 #include "depth_buffer.h"

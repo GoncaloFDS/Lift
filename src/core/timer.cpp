@@ -1,4 +1,4 @@
-#include "pch.h"
+
 #include "timer.h"
 
 std::chrono::system_clock::time_point Timer::k_begin_{};

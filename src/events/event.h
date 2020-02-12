@@ -1,9 +1,8 @@
 #pragma once
 
-#include "pch.h"
+
 #include "core.h"
 
-namespace lift {
 // Events are immediately dispatched
 // TODO buffer events in an event bus and process them
 // during the "event" part of the update stage
@@ -79,4 +78,3 @@ inline auto operator<<(std::ostream& os, const Event& e) -> std::ostream& {
     return os << e.toString();
 }
 
-}

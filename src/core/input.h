@@ -3,8 +3,6 @@
 #include <memory>
 #include <unordered_map>
 
-namespace lift {
-
 class Input {
 public:
     static bool isKeyPressed(int key_code);
@@ -14,8 +12,7 @@ public:
     static void unregisterKey(int key_code);
 
 private:
-    static std::unique_ptr<lift::Input> s_input_;
+    static std::unique_ptr<Input> s_input_;
     static std::unordered_map<int, bool> pressed_keys_;
 };
 
-}

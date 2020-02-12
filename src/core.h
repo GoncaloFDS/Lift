@@ -1,5 +1,7 @@
 #pragma once
 
+#include "log.h"
+
 #ifndef NDEBUG
 #define LF_ENABLE_ASSERTS
 #endif

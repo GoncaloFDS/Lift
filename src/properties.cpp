@@ -1,4 +1,4 @@
-#include "pch.h"
+
 #include "properties.h"
 #include "scene_list.h"
 #include "core.h"

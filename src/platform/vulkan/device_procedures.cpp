@@ -1,17 +1,16 @@
-#include "pch.h"
+
 #include "device_procedures.h"
 #include "vulkan/device.h"
+#include <core.h>
 
 namespace vulkan {
 
 template<class Func>
-Func getProcedure(const Device& device, const char* const name) {
-    const auto func = reinterpret_cast<Func>(vkGetDeviceProcAddr(device.handle(), name));
-    if (func == nullptr) {
-        LF_ASSERT(false, "bad procedure");
-    }
+Func getProcedure(const Device &device, const char *const name) {
+  const auto func = reinterpret_cast<Func>(vkGetDeviceProcAddr(device.handle(), name));
+  if (func == nullptr) { LF_ASSERT(false, "bad procedure"); }
 
-    return func;
+  return func;
 }
 
 DeviceProcedures::DeviceProcedures(const class Device& device) :
@@ -32,4 +31,4 @@ DeviceProcedures::DeviceProcedures(const class Device& device) :
 
 DeviceProcedures::~DeviceProcedures() = default;
 
-}
+}// namespace vulkan
