@@ -4,9 +4,7 @@
 
 class MouseMovedEvent : public Event {
   public:
-  MouseMovedEvent(const float x, const float y)
-      : position_x_(x), position_y_(y) {
-  }
+  MouseMovedEvent(const float x, const float y) : position_x_(x), position_y_(y) {}
 
   [[nodiscard]] auto x() const -> float { return position_x_; }
   [[nodiscard]] auto y() const -> float { return position_y_; }
@@ -28,9 +26,7 @@ class MouseMovedEvent : public Event {
 
 class MouseScrolledEvent : public Event {
   public:
-  MouseScrolledEvent(const float x_offset, const float y_offset)
-      : x_offset_(x_offset), y_offset_(y_offset) {
-  }
+  MouseScrolledEvent(const float x_offset, const float y_offset) : x_offset_(x_offset), y_offset_(y_offset) {}
 
   [[nodiscard]] auto getXOffset() const -> float { return x_offset_; }
   [[nodiscard]] auto getYOffset() const -> float { return y_offset_; };
@@ -57,18 +53,14 @@ class MouseButtonEvent : public Event {
   [[nodiscard]] auto getCategoryFlags() const -> int override { return EVENT_CATEGORY_MOUSE | EVENT_CATEGORY_INPUT; }
 
   protected:
-  explicit MouseButtonEvent(const int button)
-      : button_(button) {
-  }
+  explicit MouseButtonEvent(const int button) : button_(button) {}
 
   int button_;
 };
 
 class MouseButtonPressedEvent : public MouseButtonEvent {
   public:
-  explicit MouseButtonPressedEvent(const int button)
-      : MouseButtonEvent(button) {
-  }
+  explicit MouseButtonPressedEvent(const int button) : MouseButtonEvent(button) {}
 
   [[nodiscard]] auto toString() const -> std::string override {
     std::stringstream ss;
@@ -83,9 +75,7 @@ class MouseButtonPressedEvent : public MouseButtonEvent {
 
 class MouseButtonReleasedEvent : public MouseButtonEvent {
   public:
-  explicit MouseButtonReleasedEvent(const int button)
-      : MouseButtonEvent(button) {
-  }
+  explicit MouseButtonReleasedEvent(const int button) : MouseButtonEvent(button) {}
 
   [[nodiscard]] auto toString() const -> std::string override {
     std::stringstream ss;

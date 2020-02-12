@@ -40,7 +40,9 @@ Window::Window(const WindowData &config) : config_(config) {
   handle_ = glfwCreateWindow(config.width, config.height, config.title.c_str(), monitor, nullptr);
   LF_ASSERT(handle_, "Failed to create a Window");
 
-  if (config.cursorDisabled) { glfwSetInputMode(handle_, GLFW_CURSOR, GLFW_CURSOR_DISABLED); }
+  if (config.cursorDisabled) {
+    glfwSetInputMode(handle_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  }
 
   glfwSetWindowUserPointer(handle_, &config_);
 
@@ -156,31 +158,41 @@ float Window::contentScale() const {
   return xscale;
 }
 
-double Window::time() { return glfwGetTime(); }
+double Window::time() {
+  return glfwGetTime();
+}
 
 VkExtent2D Window::framebufferSize() const {
   int width, height;
   glfwGetFramebufferSize(handle_, &width, &height);
-  return VkExtent2D{static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+  return VkExtent2D {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 }
 
 VkExtent2D Window::windowSize() const {
   int width, height;
   glfwGetWindowSize(handle_, &width, &height);
-  return VkExtent2D{static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+  return VkExtent2D {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 }
 
-void Window::close() const { glfwSetWindowShouldClose(handle_, 1); }
+void Window::close() const {
+  glfwSetWindowShouldClose(handle_, 1);
+}
 
 bool Window::isMinimized() const {
   const auto size = framebufferSize();
   return size.height == 0 && size.width == 0;
 }
 
-void Window::waitForEvents() { glfwWaitEvents(); }
+void Window::waitForEvents() {
+  glfwWaitEvents();
+}
 
-void Window::setEventCallbackFn(const EventCallbackFn &callback) { config_.eventCallbackFn = callback; }
+void Window::setEventCallbackFn(const EventCallbackFn &callback) {
+  config_.eventCallbackFn = callback;
+}
 
-void Window::poolEvents() { glfwPollEvents(); }
+void Window::poolEvents() {
+  glfwPollEvents();
+}
 
-}// namespace vulkan
+}  // namespace vulkan

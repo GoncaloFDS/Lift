@@ -8,22 +8,21 @@ class CommandPool;
 class Device;
 
 class Buffer final {
-public:
-    Buffer(const Device& device, size_t size, VkBufferUsageFlags usage);
-    ~Buffer();
+  public:
+  Buffer(const Device &device, size_t size, VkBufferUsageFlags usage);
+  ~Buffer();
 
-    [[nodiscard]] VkBuffer handle() const { return buffer_; }
-    [[nodiscard]] const class Device& device() const { return device_; }
+  [[nodiscard]] VkBuffer handle() const { return buffer_; }
+  [[nodiscard]] const class Device &device() const { return device_; }
 
-    DeviceMemory allocateMemory(VkMemoryPropertyFlags properties);
-    [[nodiscard]] VkMemoryRequirements getMemoryRequirements() const;
+  DeviceMemory allocateMemory(VkMemoryPropertyFlags properties);
+  [[nodiscard]] VkMemoryRequirements getMemoryRequirements() const;
 
-    void copyFrom(CommandPool& command_pool, const Buffer& src, VkDeviceSize size);
+  void copyFrom(CommandPool &command_pool, const Buffer &src, VkDeviceSize size);
 
-private:
-
-    const class Device& device_;
-    VkBuffer buffer_{};
+  private:
+  const class Device &device_;
+  VkBuffer buffer_ {};
 };
 
-}
+}  // namespace vulkan

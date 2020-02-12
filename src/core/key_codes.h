@@ -16,10 +16,10 @@ constexpr int LF_MOUSE_BUTTON_MIDDLE = LF_MOUSE_BUTTON_3;
 
 constexpr int LF_KEY_SPACE = 32;
 constexpr int LF_KEY_APOSTROPHE = 39; /* ' */
-constexpr int LF_KEY_COMMA = 44; /* , */
-constexpr int LF_KEY_MINUS = 45; /* - */
-constexpr int LF_KEY_PERIOD = 46; /* . */
-constexpr int LF_KEY_SLASH = 47; /* / */
+constexpr int LF_KEY_COMMA = 44;      /* , */
+constexpr int LF_KEY_MINUS = 45;      /* - */
+constexpr int LF_KEY_PERIOD = 46;     /* . */
+constexpr int LF_KEY_SLASH = 47;      /* / */
 constexpr int LF_KEY_0 = 48;
 constexpr int LF_KEY_1 = 49;
 constexpr int LF_KEY_2 = 50;
@@ -31,7 +31,7 @@ constexpr int LF_KEY_7 = 55;
 constexpr int LF_KEY_8 = 56;
 constexpr int LF_KEY_9 = 57;
 constexpr int LF_KEY_SEMICOLON = 59; /* ; */
-constexpr int LF_KEY_EQUAL = 61; /* = */
+constexpr int LF_KEY_EQUAL = 61;     /* = */
 constexpr int LF_KEY_A = 65;
 constexpr int LF_KEY_B = 66;
 constexpr int LF_KEY_C = 67;
@@ -58,12 +58,12 @@ constexpr int LF_KEY_W = 87;
 constexpr int LF_KEY_X = 88;
 constexpr int LF_KEY_Y = 89;
 constexpr int LF_KEY_Z = 90;
-constexpr int LF_KEY_LEFT_BRACKET = 91; /* [ */
-constexpr int LF_KEY_BACKSLASH = 92; /* \ */
+constexpr int LF_KEY_LEFT_BRACKET = 91;  /* [ */
+constexpr int LF_KEY_BACKSLASH = 92;     /* \ */
 constexpr int LF_KEY_RIGHT_BRACKET = 93; /* ] */
-constexpr int LF_KEY_GRAVE_ACCENT = 96; /* ` */
-constexpr int LF_KEY_WORLD_1 = 161; /* non-US #1 */
-constexpr int LF_KEY_WORLD_2 = 162; /* non-US #2 */
+constexpr int LF_KEY_GRAVE_ACCENT = 96;  /* ` */
+constexpr int LF_KEY_WORLD_1 = 161;      /* non-US #1 */
+constexpr int LF_KEY_WORLD_2 = 162;      /* non-US #2 */
 
 /* Function keys */
 constexpr int LF_KEY_ESCAPE = 256;
@@ -136,4 +136,3 @@ constexpr int LF_KEY_RIGHT_CONTROL = 345;
 constexpr int LF_KEY_RIGHT_ALT = 346;
 constexpr int LF_KEY_RIGHT_SUPER = 347;
 constexpr int LF_KEY_MENU = 348;
-

@@ -14,7 +14,8 @@ static void contextLogCb(unsigned int level, const char *tag, const char *messag
   LF_WARN("[CUDA] {0}", message);
 }
 
-DenoiserOptix::DenoiserOptix() {}
+DenoiserOptix::DenoiserOptix() {
+}
 
 void DenoiserOptix::setup(vulkan::Device &device, uint32_t queue_index) {
   vk_allocator_.init({device.handle()}, {device.physicalDevice()});
@@ -25,7 +26,9 @@ int DenoiserOptix::initOptix() {
 
   CUcontext cu_context;
   CUresult cu_result = cuCtxGetCurrent(&cu_context);
-  if (cu_result != CUDA_SUCCESS) { LF_ERROR("Error querying current context: code -> {0}", cu_result); }
+  if (cu_result != CUDA_SUCCESS) {
+    LF_ERROR("Error querying current context: code -> {0}", cu_result);
+  }
   OPTIX_CHECK(optixInit());
   OPTIX_CHECK(optixDeviceContextCreate(cu_context, nullptr, &optix_device_context_));
   OPTIX_CHECK(optixDeviceContextSetLogCallback(optix_device_context_, contextLogCb, nullptr, 4))
@@ -65,7 +68,7 @@ void DenoiserOptix::denoiseImage(vulkan::Device &device, VkCommandBuffer &comman
   OPTIX_CHECK(optixDenoiserComputeIntensity(denoiser_, stream, &input_layer, p_intensity_, p_scratch_,
                                             denoiser_sizes_.recommendedScratchSizeInBytes));
 
-  OptixDenoiserParams denoiser_params{};
+  OptixDenoiserParams denoiser_params {};
   denoiser_params.denoiseAlpha = true;
   denoiser_params.hdrIntensity = p_intensity_;
 
@@ -110,20 +113,20 @@ void DenoiserOptix::allocateBuffers(vulkan::Device &device) {
 
 void DenoiserOptix::createBufferCuda(vulkan::Device &device, CudaBuffer &cuda_buffer) {
   //
-  vk::Device vkDevice{device.handle()};
+  vk::Device vkDevice {device.handle()};
   cuda_buffer.handle = vkDevice.getMemoryWin32HandleKHR(
     {cuda_buffer.buf_vk.allocation, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32});
   auto req = vkDevice.getBufferMemoryRequirements(cuda_buffer.buf_vk.buffer);
 
-  cudaExternalMemoryHandleDesc cuda_ext_memory_handle_desc{};
+  cudaExternalMemoryHandleDesc cuda_ext_memory_handle_desc {};
   cuda_ext_memory_handle_desc.type = cudaExternalMemoryHandleTypeOpaqueWin32;
   cuda_ext_memory_handle_desc.handle.win32.handle = cuda_buffer.handle;
   cuda_ext_memory_handle_desc.size = req.size;
 
-  cudaExternalMemory_t cuda_ext_vertex_buffer{};
+  cudaExternalMemory_t cuda_ext_vertex_buffer {};
   CUDA_CHECK(cudaImportExternalMemory(&cuda_ext_vertex_buffer, &cuda_ext_memory_handle_desc));
 
-  cudaExternalMemoryBufferDesc cuda_ext_buffer_desc{};
+  cudaExternalMemoryBufferDesc cuda_ext_buffer_desc {};
   cuda_ext_buffer_desc.offset = 0;
   cuda_ext_buffer_desc.size = req.size;
   cuda_ext_buffer_desc.flags = 0;
@@ -134,8 +137,16 @@ void DenoiserOptix::destroy() {
   pixel_buffer_in_.destroy(vk_allocator_);
   pixel_buffer_out_.destroy(vk_allocator_);
 
-  if (p_state_ != 0) { CUDA_CHECK(cudaFree((void *) p_state_)); }
-  if (p_scratch_ != 0) { CUDA_CHECK(cudaFree((void *) p_scratch_)); }
-  if (p_intensity_ != 0) { CUDA_CHECK(cudaFree((void *) p_intensity_)); }
-  if (p_min_rgb_ != 0) { CUDA_CHECK(cudaFree((void *) p_min_rgb_)); }
+  if (p_state_ != 0) {
+    CUDA_CHECK(cudaFree((void *) p_state_));
+  }
+  if (p_scratch_ != 0) {
+    CUDA_CHECK(cudaFree((void *) p_scratch_));
+  }
+  if (p_intensity_ != 0) {
+    CUDA_CHECK(cudaFree((void *) p_intensity_));
+  }
+  if (p_min_rgb_ != 0) {
+    CUDA_CHECK(cudaFree((void *) p_min_rgb_));
+  }
 }

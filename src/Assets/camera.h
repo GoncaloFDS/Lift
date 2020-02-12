@@ -4,14 +4,7 @@
 
 using namespace glm;
 
-enum class Direction {
-  UP,
-  DOWN,
-  RIGHT,
-  LEFT,
-  FORWARD,
-  BACK
-};
+enum class Direction { UP, DOWN, RIGHT, LEFT, FORWARD, BACK };
 
 class Camera {
   public:
@@ -64,20 +57,20 @@ class Camera {
   float aspect_ratio_;
   float fovy_;
 
-  vec3 vector_u_{1.0f};
-  vec3 vector_v_{1.0f};
-  vec3 vector_w_{1.0f};
+  vec3 vector_u_ {1.0f};
+  vec3 vector_v_ {1.0f};
+  vec3 vector_w_ {1.0f};
 
-  vec3 norm_vector_u_{1.0f};
-  vec3 norm_vector_v_{1.0f};
-  vec3 norm_vector_w_{1.0f};
+  vec3 norm_vector_u_ {1.0f};
+  vec3 norm_vector_v_ {1.0f};
+  vec3 norm_vector_w_ {1.0f};
 
-  vec3 move_dir_{0.0f};
+  vec3 move_dir_ {0.0f};
 
-  float mouse_look_speed_{1.0f};
-  float mouse_strafe_speed_{0.1f};
-  float mouse_zoom_speed_{1.0f};
-  float camera_move_speed_{3.0f};
+  float mouse_look_speed_ {1.0f};
+  float mouse_strafe_speed_ {0.1f};
+  float mouse_zoom_speed_ {1.0f};
+  float camera_move_speed_ {3.0f};
   bool changed_ = true;
 
   void move();

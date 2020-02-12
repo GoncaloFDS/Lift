@@ -1,20 +1,20 @@
 
-#include  "input.h"
+#include "input.h"
 
-std::unordered_map<int, bool> Input::pressed_keys_{};
+std::unordered_map<int, bool> Input::pressed_keys_ {};
 
 bool Input::isKeyPressed(int key_code) {
-    return pressed_keys_[key_code];
+  return pressed_keys_[key_code];
 }
 
 bool Input::isMouseButtonPressed(int key_code) {
-    return pressed_keys_[key_code];
+  return pressed_keys_[key_code];
 }
 
 void Input::registerKey(int key_code) {
-    pressed_keys_[key_code] = true;
+  pressed_keys_[key_code] = true;
 }
 
 void Input::unregisterKey(int key_code) {
-    pressed_keys_[key_code] = false;
+  pressed_keys_[key_code] = false;
 }

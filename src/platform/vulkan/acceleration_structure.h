@@ -7,50 +7,48 @@ namespace vulkan {
 class Buffer;
 class Device;
 class DeviceMemory;
-}
+}  // namespace vulkan
 
 namespace vulkan {
 class DeviceProcedures;
 
 class AccelerationStructure {
-public:
+  public:
+  struct MemoryRequirements {
+    VkMemoryRequirements result;
+    VkMemoryRequirements build;
+    VkMemoryRequirements update;
+  };
 
-    struct MemoryRequirements {
-        VkMemoryRequirements result;
-        VkMemoryRequirements build;
-        VkMemoryRequirements update;
-    };
+  AccelerationStructure(const AccelerationStructure &) = delete;
+  AccelerationStructure &operator=(const AccelerationStructure &) = delete;
+  AccelerationStructure &operator=(AccelerationStructure &&) = delete;
 
-    AccelerationStructure(const AccelerationStructure&) = delete;
-    AccelerationStructure& operator=(const AccelerationStructure&) = delete;
-    AccelerationStructure& operator=(AccelerationStructure&&) = delete;
+  AccelerationStructure(AccelerationStructure &&other) noexcept;
+  virtual ~AccelerationStructure();
 
-    AccelerationStructure(AccelerationStructure&& other) noexcept;
-    virtual ~AccelerationStructure();
+  [[nodiscard]] VkAccelerationStructureNV handle() const { return acceleration_structure_; }
+  [[nodiscard]] const class Device &device() const { return device_; }
+  [[nodiscard]] const class DeviceProcedures &deviceProcedures() const { return device_procedures_; }
 
-    [[nodiscard]] VkAccelerationStructureNV handle() const { return acceleration_structure_; }
-    [[nodiscard]] const class Device& device() const { return device_; }
-    [[nodiscard]] const class DeviceProcedures& deviceProcedures() const { return device_procedures_; }
+  [[nodiscard]] MemoryRequirements getMemoryRequirements() const;
 
-    [[nodiscard]] MemoryRequirements getMemoryRequirements() const;
+  static void memoryBarrier(VkCommandBuffer command_buffer);
 
-    static void memoryBarrier(VkCommandBuffer command_buffer);
+  static MemoryRequirements
+  getTotalRequirements(const std::vector<AccelerationStructure::MemoryRequirements> &requirements);
 
-    static MemoryRequirements getTotalRequirements(const std::vector<AccelerationStructure::MemoryRequirements>& requirements);
+  protected:
+  AccelerationStructure(const class DeviceProcedures &device_procedures,
+                        const VkAccelerationStructureCreateInfoNV &create_info);
 
-protected:
+  const class DeviceProcedures &device_procedures_;
+  const bool allow_update_;
 
-    AccelerationStructure(const class DeviceProcedures& device_procedures,
-                          const VkAccelerationStructureCreateInfoNV& create_info);
+  private:
+  const class Device &device_;
 
-    const class DeviceProcedures& device_procedures_;
-    const bool allow_update_;
-
-private:
-
-    const class Device& device_;
-
-    VkAccelerationStructureNV acceleration_structure_{};
+  VkAccelerationStructureNV acceleration_structure_ {};
 };
 
-}
+}  // namespace vulkan

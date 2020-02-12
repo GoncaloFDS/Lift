@@ -1,40 +1,37 @@
 #pragma once
 
 struct UserSettings final {
-    // Application
-    bool benchmark{};
+  // Application
+  bool benchmark {};
 
-    // Benchmark
-    bool benchmarkNextScenes{};
-    uint32_t benchmarkMaxTime{};
+  // Benchmark
+  bool benchmarkNextScenes {};
+  uint32_t benchmarkMaxTime {};
 
-    // Scene
-    int sceneIndex{};
+  // Scene
+  int sceneIndex {};
 
-    // Renderer
-    bool isRayTraced{};
-    bool isDenoised{};
-    bool accumulateRays{};
-    uint32_t numberOfSamples{};
-    uint32_t numberOfBounces{};
-    uint32_t maxNumberOfSamples{};
+  // Renderer
+  bool isRayTraced {};
+  bool isDenoised {};
+  bool accumulateRays {};
+  uint32_t numberOfSamples {};
+  uint32_t numberOfBounces {};
+  uint32_t maxNumberOfSamples {};
 
-    // Camera
-    float fieldOfView{};
-    float aperture{};
-    float focusDistance{};
-    bool gammaCorrection{};
+  // Camera
+  float fieldOfView {};
+  float aperture {};
+  float focusDistance {};
+  bool gammaCorrection {};
 
-    // UI
-    bool showSettings{};
-    bool showOverlay{};
+  // UI
+  bool showSettings {};
+  bool showOverlay {};
 
-    [[nodiscard]] bool requiresAccumulationReset(const UserSettings& prev) const {
-        return isRayTraced != prev.isRayTraced ||
-            accumulateRays != prev.accumulateRays ||
-            numberOfBounces != prev.numberOfBounces ||
-            fieldOfView != prev.fieldOfView ||
-            aperture != prev.aperture ||
-            focusDistance != prev.focusDistance;
-    }
+  [[nodiscard]] bool requiresAccumulationReset(const UserSettings &prev) const {
+    return isRayTraced != prev.isRayTraced || accumulateRays != prev.accumulateRays
+      || numberOfBounces != prev.numberOfBounces || fieldOfView != prev.fieldOfView || aperture != prev.aperture
+      || focusDistance != prev.focusDistance;
+  }
 };

@@ -4,20 +4,13 @@
 #include <algorithm>
 #include <glm.h>
 
-Camera::Camera() : eye_(0.0f, 0.0f, -12.f),
-                   look_at_(0.0f, 0.0f, 0.0f),
-                   up_(0.0f, 1.0f, 0.0f),
-                   aspect_ratio_(1.0f),
-                   fovy_(36.0f),
-                   changed_(true) {
+Camera::Camera() :
+    eye_(0.0f, 0.0f, -12.f), look_at_(0.0f, 0.0f, 0.0f), up_(0.0f, 1.0f, 0.0f), aspect_ratio_(1.0f), fovy_(36.0f),
+    changed_(true) {
 }
 
-Camera::Camera(const vec3 &eye, const vec3 &look_at, const vec3 &up, const float fovy, const float aspect_ratio) : eye_(eye),
-                                                                                                                   look_at_(look_at),
-                                                                                                                   up_(up),
-                                                                                                                   aspect_ratio_(aspect_ratio),
-                                                                                                                   fovy_(fovy),
-                                                                                                                   changed_(true) {
+Camera::Camera(const vec3 &eye, const vec3 &look_at, const vec3 &up, const float fovy, const float aspect_ratio) :
+    eye_(eye), look_at_(look_at), up_(up), aspect_ratio_(aspect_ratio), fovy_(fovy), changed_(true) {
 }
 
 bool Camera::onUpdate() {
@@ -26,7 +19,7 @@ bool Camera::onUpdate() {
   if (!changed_)
     return false;
 
-  vector_w_ = look_at_ - eye_;// Do not normalize -- it implies focal length
+  vector_w_ = look_at_ - eye_;  // Do not normalize -- it implies focal length
   const auto w_length = length(vector_w_);
   vector_u_ = normalize(cross(vector_w_, up_));
   vector_v_ = normalize(cross(vector_u_, vector_w_));
@@ -47,15 +40,15 @@ void Camera::orbit(const float dx, const float dy) {
   vec3 t = look_at_ - eye_;
   if (fabs(dot(normalize(t), vec3(0, 1, 0))) < 0.999f || t.y * dy < 0) {
     t = rotate(mat4(1.0f), dx * mouse_look_speed_ * Timer::deltaTime, norm_vector_v_)
-      * rotate(mat4(1.0f), dy * mouse_look_speed_ * Timer::deltaTime, norm_vector_u_)
-      * vec4(t, 1);
+      * rotate(mat4(1.0f), dy * mouse_look_speed_ * Timer::deltaTime, norm_vector_u_) * vec4(t, 1);
     look_at_ = eye_ + t;
     changed_ = true;
   }
 }
 
 void Camera::strafe(const float dx, const float dy) {
-  const auto mat = translate(mat4(1.0f), dx * mouse_strafe_speed_ * Timer::deltaTime * norm_vector_u_) * translate(mat4(1.0f), dy * mouse_strafe_speed_ * Timer::deltaTime * norm_vector_v_);
+  const auto mat = translate(mat4(1.0f), dx * mouse_strafe_speed_ * Timer::deltaTime * norm_vector_u_)
+    * translate(mat4(1.0f), dy * mouse_strafe_speed_ * Timer::deltaTime * norm_vector_v_);
   eye_ = mat * vec4(eye_, 1.0f);
   look_at_ = mat * vec4(look_at_, 1.0f);
   changed_ = true;
@@ -69,24 +62,12 @@ void Camera::zoom(const float amount) {
 
 void Camera::setMoveDirection(enum Direction direction, float amount) {
   switch (direction) {
-    case Direction::UP:
-      move_dir_ += vec3(0.0f, 1.0f, 0.0f) * amount;
-      break;
-    case Direction::DOWN:
-      move_dir_ -= vec3(0.0f, 1.0f, 0.0f) * amount;
-      break;
-    case Direction::RIGHT:
-      move_dir_ += vec3(1.0f, 0.0f, 0.0f) * amount;
-      break;
-    case Direction::LEFT:
-      move_dir_ -= vec3(1.0f, 0.0f, 0.0f) * amount;
-      break;
-    case Direction::FORWARD:
-      move_dir_ += vec3(0.0f, 0.0f, 1.0f) * amount;
-      break;
-    case Direction::BACK:
-      move_dir_ -= vec3(0.0f, 0.0f, 1.0f) * amount;
-      break;
+    case Direction::UP: move_dir_ += vec3(0.0f, 1.0f, 0.0f) * amount; break;
+    case Direction::DOWN: move_dir_ -= vec3(0.0f, 1.0f, 0.0f) * amount; break;
+    case Direction::RIGHT: move_dir_ += vec3(1.0f, 0.0f, 0.0f) * amount; break;
+    case Direction::LEFT: move_dir_ -= vec3(1.0f, 0.0f, 0.0f) * amount; break;
+    case Direction::FORWARD: move_dir_ += vec3(0.0f, 0.0f, 1.0f) * amount; break;
+    case Direction::BACK: move_dir_ -= vec3(0.0f, 0.0f, 1.0f) * amount; break;
   }
   move_dir_ = clamp(move_dir_, vec3(-1.0f), vec3(1.0f));
 }

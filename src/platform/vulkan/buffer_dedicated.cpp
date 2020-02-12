@@ -1,6 +1,6 @@
 //#include "buffer_dedicated.h"
 //
-//BufferDedicated createBuffer(vk::Device& device,
+// BufferDedicated createBuffer(vk::Device& device,
 //                             const vk::MemoryPropertyFlagBits mem_usage,
 //                             const vk::BufferCreateInfo& info) {
 //
@@ -28,4 +28,4 @@
 //    return result_buffer;
 //}
 //
-//uint32_t getMemoryType(uint32_t type_bits)
+// uint32_t getMemoryType(uint32_t type_bits)

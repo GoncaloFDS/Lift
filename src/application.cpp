@@ -31,11 +31,11 @@ using namespace vulkan;
 #ifdef NDEBUG
 const auto k_validation_layers = std::vector<const char *>();
 #else
-const auto k_validation_layers = std::vector<const char *>{"VK_LAYER_KHRONOS_validation"};
+const auto k_validation_layers = std::vector<const char *> {"VK_LAYER_KHRONOS_validation"};
 #endif
 
-Application::Application(const UserSettings &user_settings, const WindowData &window_properties, const bool vsync)
-    : user_settings_(user_settings), vsync_(vsync), is_running_(true) {
+Application::Application(const UserSettings &user_settings, const WindowData &window_properties, const bool vsync) :
+    user_settings_(user_settings), vsync_(vsync), is_running_(true) {
 
   const auto validation_layers = k_validation_layers;
 
@@ -61,7 +61,8 @@ void Application::run() {
   while (is_running_) {
     window_->poolEvents();
 
-    if (window_->isMinimized()) continue;
+    if (window_->isMinimized())
+      continue;
 
     const auto prev_time = time_;
     time_ = window_->time();
@@ -77,7 +78,9 @@ void Application::run() {
 
     if (user_settings_.isRayTraced) {
       renderer_->trace(*scene_);
-      if (user_settings_.isDenoised) { renderer_->denoiseImage(); }
+      if (user_settings_.isDenoised) {
+        renderer_->denoiseImage();
+      }
     } else {
       renderer_->render(*scene_);
     }
@@ -133,9 +136,13 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
   return ubo;
 }
 
-const std::vector<VkExtensionProperties> &Application::extensions() const { return instance_->extensions(); }
+const std::vector<VkExtensionProperties> &Application::extensions() const {
+  return instance_->extensions();
+}
 
-const std::vector<VkPhysicalDevice> &Application::physicalDevices() const { return instance_->physicalDevices(); }
+const std::vector<VkPhysicalDevice> &Application::physicalDevices() const {
+  return instance_->physicalDevices();
+}
 
 void Application::setPhysicalDevice(VkPhysicalDevice physical_device) {
   renderer_->init(physical_device, *scene_, *instance_);
@@ -239,7 +246,9 @@ bool Application::onWindowResize(WindowResizeEvent &e) {
   return false;
 }
 
-bool Application::onWindowMinimize(WindowMinimizeEvent &e) { return false; }
+bool Application::onWindowMinimize(WindowMinimizeEvent &e) {
+  return false;
+}
 
 bool Application::onMouseMove(MouseMovedEvent &e) {
   if (Input::isKeyPressed(LF_MOUSE_BUTTON_1)) {
@@ -253,10 +262,14 @@ bool Application::onMouseMove(MouseMovedEvent &e) {
   return false;
 }
 
-bool Application::onMouseScroll(MouseScrolledEvent &e) { return false; }
+bool Application::onMouseScroll(MouseScrolledEvent &e) {
+  return false;
+}
 
 bool Application::onKeyPress(KeyPressedEvent &e) {
-  if (user_interface_->wantsToCaptureKeyboard()) { return true; }
+  if (user_interface_->wantsToCaptureKeyboard()) {
+    return true;
+  }
   switch (e.keyCode()) {
     case LF_KEY_ESCAPE: window_->close(); break;
     case LF_KEY_F1: user_settings_.showSettings = !user_settings_.showSettings; break;
@@ -267,10 +280,14 @@ bool Application::onKeyPress(KeyPressedEvent &e) {
   return false;
 }
 
-bool Application::onKeyRelease(KeyReleasedEvent &e) { return false; }
+bool Application::onKeyRelease(KeyReleasedEvent &e) {
+  return false;
+}
 
 void Application::checkAndUpdateBenchmarkState(double prev_time) {
-  if (!user_settings_.benchmark) { return; }
+  if (!user_settings_.benchmark) {
+    return;
+  }
 
   // Initialise scene benchmark timers
   if (period_total_frames_ == 0) {

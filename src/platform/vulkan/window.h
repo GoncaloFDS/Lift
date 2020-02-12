@@ -35,7 +35,7 @@ class Window final {
 
   private:
   WindowData config_;
-  GLFWwindow *handle_{};
+  GLFWwindow *handle_ {};
 };
 
-}// namespace vulkan
+}  // namespace vulkan

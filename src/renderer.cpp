@@ -71,11 +71,17 @@ void Renderer::beginCommand(assets::Scene &scene, size_t current_frame) {
   current_command_buffer_ = command_buffers_->begin(current_image_index_);
 }
 
-void Renderer::trace(assets::Scene &scene) { traceCommand(current_command_buffer_, current_image_index_, scene); }
+void Renderer::trace(assets::Scene &scene) {
+  traceCommand(current_command_buffer_, current_image_index_, scene);
+}
 
-void Renderer::render(assets::Scene &scene) { rasterizeCommand(current_command_buffer_, current_image_index_, scene); }
+void Renderer::render(assets::Scene &scene) {
+  rasterizeCommand(current_command_buffer_, current_image_index_, scene);
+}
 
-void Renderer::display() { display(current_command_buffer_, current_image_index_); }
+void Renderer::display() {
+  display(current_command_buffer_, current_image_index_);
+}
 
 void Renderer::render(ImguiLayer &user_interface, const Statistics &statistics) {
   user_interface.render(current_command_buffer_, swapChainFrameBuffer(current_image_index_), statistics);
@@ -115,7 +121,7 @@ size_t Renderer::endCommand(assets::Scene &scene, size_t current_frame, assets::
   present_info.swapchainCount = 1;
   present_info.pSwapchains = swap_chains;
   present_info.pImageIndices = &current_image_index_;
-  present_info.pResults = nullptr;// Optional
+  present_info.pResults = nullptr;  // Optional
 
   auto result = vkQueuePresentKHR(device_->presentQueue(), &present_info);
 
@@ -484,10 +490,14 @@ void Renderer::recreateSwapChain(assets::Scene &scene) {
   createSwapChain(scene);
 }
 
-void Renderer::waitDeviceIdle() { device_->waitIdle(); }
+void Renderer::waitDeviceIdle() {
+  device_->waitIdle();
+}
 
 void Renderer::updateUniformBuffer(const uint32_t image_index, assets::UniformBufferObject ubo) {
   uniform_buffers_[image_index].setValue(ubo);
 }
 
-void Renderer::setupDenoiser() { denoiser_->setup(*device_, 0); }
+void Renderer::setupDenoiser() {
+  denoiser_->setup(*device_, 0);
+}

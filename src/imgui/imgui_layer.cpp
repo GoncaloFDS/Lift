@@ -22,10 +22,9 @@ void checkVulkanResultCallback(const VkResult err) {
   LF_ASSERT(err == VK_SUCCESS, "ImGui Vulkan Error: {0}", vulkan::toString(err));
 }
 
-ImguiLayer::ImguiLayer(vulkan::CommandPool &command_pool,
-                       const vulkan::SwapChain &swap_chain,
-                       const vulkan::DepthBuffer &depth_buffer,
-                       UserSettings &user_settings) : user_settings_(user_settings) {
+ImguiLayer::ImguiLayer(vulkan::CommandPool &command_pool, const vulkan::SwapChain &swap_chain,
+                       const vulkan::DepthBuffer &depth_buffer, UserSettings &user_settings) :
+    user_settings_(user_settings) {
   const auto &device = swap_chain.device();
   const auto &window = device.surface().instance().window();
 
@@ -94,8 +93,7 @@ ImguiLayer::~ImguiLayer() {
   ImGui::DestroyContext();
 }
 
-void ImguiLayer::render(VkCommandBuffer command_buffer,
-                        const vulkan::FrameBuffer &frame_buffer,
+void ImguiLayer::render(VkCommandBuffer command_buffer, const vulkan::FrameBuffer &frame_buffer,
                         const Statistics &statistics) {
   ImGui_ImplGlfw_NewFrame();
   ImGui_ImplVulkan_NewFrame();
@@ -116,7 +114,7 @@ void ImguiLayer::render(VkCommandBuffer command_buffer,
   render_pass_info.framebuffer = frame_buffer.handle();
   render_pass_info.renderArea.offset = {0, 0};
   render_pass_info.renderArea.extent = render_pass_->swapChain().extent();
-  render_pass_info.clearValueCount = 0;// static_cast<uint32_t>(clearValues.size());
+  render_pass_info.clearValueCount = 0;  // static_cast<uint32_t>(clearValues.size());
   render_pass_info.pClearValues = clear_values.data();
 
   vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
@@ -142,14 +140,13 @@ void ImguiLayer::drawSettings() {
   const ImVec2 pos_pivot = ImVec2(0.0f, 0.0f);
   ImGui::SetNextWindowPos(pos, ImGuiCond_Always, pos_pivot);
 
-  const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings;
+  const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove
+    | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings;
 
   if (ImGui::Begin("Settings", &settings().showSettings, flags)) {
     std::vector<const char *> scenes;
     scenes.reserve(SceneList::allScenes.size());
-    for (const auto &scene : SceneList::allScenes) {
-      scenes.push_back(scene.first.c_str());
-    }
+    for (const auto &scene : SceneList::allScenes) { scenes.push_back(scene.first.c_str()); }
 
     ImGui::Text("Scene");
     ImGui::Separator();
@@ -186,9 +183,11 @@ void ImguiLayer::drawOverlay(const Statistics &statistics) {
   const ImVec2 pos = ImVec2(io.DisplaySize.x - distance, distance);
   const ImVec2 pos_pivot = ImVec2(1.0f, 0.0f);
   ImGui::SetNextWindowPos(pos, ImGuiCond_Always, pos_pivot);
-  ImGui::SetNextWindowBgAlpha(0.3f);// Transparent background
+  ImGui::SetNextWindowBgAlpha(0.3f);  // Transparent background
 
-  const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoSavedSettings;
+  const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration
+    | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoNav
+    | ImGuiWindowFlags_NoSavedSettings;
 
   if (ImGui::Begin("Statistics", &settings().showOverlay, flags)) {
     ImGui::Text("Statistics (%dx%d):", statistics.framebufferSize.width, statistics.framebufferSize.height);

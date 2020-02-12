@@ -12,7 +12,7 @@ namespace assets {
 class Scene;
 class UniformBufferObject;
 class UniformBuffer;
-}// namespace assets
+}  // namespace assets
 
 namespace vulkan {
 class CommandBuffers;
@@ -33,7 +33,7 @@ class SwapChain;
 class DepthBuffer;
 class FrameBuffer;
 class CommandPool;
-}// namespace vulkan
+}  // namespace vulkan
 
 using namespace vulkan;
 class Renderer {
@@ -75,7 +75,9 @@ class Renderer {
   [[nodiscard]] const class SwapChain &swapChain() const { return *swap_chain_; }
   [[nodiscard]] const class DepthBuffer &depthBuffer() const { return *depth_buffer_; }
   [[nodiscard]] const class GraphicsPipeline &graphicsPipeline() const { return *graphics_pipeline_; }
-  [[nodiscard]] const class FrameBuffer &swapChainFrameBuffer(const size_t i) const { return swap_chain_framebuffers_[i]; }
+  [[nodiscard]] const class FrameBuffer &swapChainFrameBuffer(const size_t i) const {
+    return swap_chain_framebuffers_[i];
+  }
   [[nodiscard]] const std::vector<assets::UniformBuffer> &uniformBuffers() const { return uniform_buffers_; }
 
   void createOutputImage();

@@ -18,12 +18,12 @@ int main(int argc, const char *argv[]) noexcept {
   LF_WARN("Initialized Log");
   const Options options(argc, argv);
   const UserSettings user_settings = createUserSettings(options);
-  const vulkan::WindowData window_properties{"Lift",
-                                             options.width,
-                                             options.height,
-                                             options.benchmark && options.fullscreen,
-                                             options.fullscreen,
-                                             !options.fullscreen};
+  const vulkan::WindowData window_properties {"Lift",
+                                              options.width,
+                                              options.height,
+                                              options.benchmark && options.fullscreen,
+                                              options.fullscreen,
+                                              !options.fullscreen};
 
   Application application(user_settings, window_properties, options.vSync);
 
@@ -35,7 +35,7 @@ int main(int argc, const char *argv[]) noexcept {
 }
 
 UserSettings createUserSettings(const Options &options) {
-  UserSettings user_settings{};
+  UserSettings user_settings {};
 
   user_settings.benchmark = options.benchmark;
   user_settings.benchmarkNextScenes = options.benchmarkNextScenes;
@@ -62,7 +62,9 @@ void setVulkanDevice(Application &application) {
       VkPhysicalDeviceFeatures device_features;
       vkGetPhysicalDeviceFeatures(device, &device_features);
 
-      if (!device_features.geometryShader) { return false; }
+      if (!device_features.geometryShader) {
+        return false;
+      }
 
       const auto queue_families = vulkan::getEnumerateVector(device, vkGetPhysicalDeviceQueueFamilyProperties);
       const auto has_graphics_queue =

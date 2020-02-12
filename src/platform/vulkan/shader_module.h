@@ -8,23 +8,21 @@ namespace vulkan {
 class Device;
 
 class ShaderModule final {
-public:
-    ShaderModule(const Device& device, const std::string& filename);
-    ShaderModule(const Device& device, const std::vector<char>& code);
-    ~ShaderModule();
+  public:
+  ShaderModule(const Device &device, const std::string &filename);
+  ShaderModule(const Device &device, const std::vector<char> &code);
+  ~ShaderModule();
 
-    [[nodiscard]]VkShaderModule handle() const { return shader_module_; }
-    [[nodiscard]] const Device& device() const { return device_; }
+  [[nodiscard]] VkShaderModule handle() const { return shader_module_; }
+  [[nodiscard]] const Device &device() const { return device_; }
 
-    [[nodiscard]] VkPipelineShaderStageCreateInfo createShaderStage(VkShaderStageFlagBits stage) const;
+  [[nodiscard]] VkPipelineShaderStageCreateInfo createShaderStage(VkShaderStageFlagBits stage) const;
 
-private:
+  private:
+  static std::vector<char> readFile(const std::string &filename);
 
-    static std::vector<char> readFile(const std::string& filename);
-
-    const class Device& device_;
-    VkShaderModule shader_module_{};
-
+  const class Device &device_;
+  VkShaderModule shader_module_ {};
 };
 
-}
+}  // namespace vulkan

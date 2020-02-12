@@ -56,103 +56,121 @@
 #include <vulkan/vulkan.h>
 
 /* super load/reset */
-void load_VK_EXTENSION_SUBSET(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+void load_VK_EXTENSION_SUBSET(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device,
+                              PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 void reset_VK_EXTENSION_SUBSET();
 
 /* loaders */
 #if VK_KHR_push_descriptor
-int load_VK_KHR_push_descriptor(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_KHR_push_descriptor(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device,
+                                PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_KHR_push_descriptor;
 #endif
 
 #if VK_KHR_create_renderpass2
-int load_VK_KHR_create_renderpass2(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_KHR_create_renderpass2(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device,
+                                   PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_KHR_create_renderpass2;
 #endif
 
 #if VK_KHR_draw_indirect_count
-int load_VK_KHR_draw_indirect_count(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_KHR_draw_indirect_count(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device,
+                                    PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_KHR_draw_indirect_count;
 #endif
 
 #if VK_EXT_debug_marker
-int load_VK_EXT_debug_marker(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_EXT_debug_marker(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device,
+                             PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_EXT_debug_marker;
 #endif
 
 #if VK_NVX_device_generated_commands
-int load_VK_NVX_device_generated_commands(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_NVX_device_generated_commands(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr,
+                                          VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_NVX_device_generated_commands;
 #endif
 
 #if VK_EXT_debug_utils
-int load_VK_EXT_debug_utils(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_EXT_debug_utils(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device,
+                            PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_EXT_debug_utils;
 #endif
 
 #if VK_EXT_sample_locations
-int load_VK_EXT_sample_locations(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_EXT_sample_locations(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device,
+                                 PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_EXT_sample_locations;
 #endif
 
 #if VK_NV_shading_rate_image
-int load_VK_NV_shading_rate_image(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_NV_shading_rate_image(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device,
+                                  PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_NV_shading_rate_image;
 #endif
 
 #if VK_NV_ray_tracing
-int load_VK_NV_ray_tracing(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_NV_ray_tracing(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device,
+                           PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_NV_ray_tracing;
 #endif
 
 #if VK_EXT_calibrated_timestamps
-int load_VK_EXT_calibrated_timestamps(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_EXT_calibrated_timestamps(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr,
+                                      VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_EXT_calibrated_timestamps;
 #endif
 
 #if VK_NV_mesh_shader
-int load_VK_NV_mesh_shader(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_NV_mesh_shader(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device,
+                           PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_NV_mesh_shader;
 #endif
 
 #if VK_NV_scissor_exclusive
-int load_VK_NV_scissor_exclusive(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_NV_scissor_exclusive(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device,
+                                 PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_NV_scissor_exclusive;
 #endif
 
 #if VK_EXT_buffer_device_address
-int load_VK_EXT_buffer_device_address(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_EXT_buffer_device_address(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr,
+                                      VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_EXT_buffer_device_address;
 #endif
 
 #if VK_NV_cooperative_matrix
-int load_VK_NV_cooperative_matrix(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_NV_cooperative_matrix(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device,
+                                  PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_NV_cooperative_matrix;
 #endif
 
 #if VK_NV_coverage_reduction_mode
-int load_VK_NV_coverage_reduction_mode(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_NV_coverage_reduction_mode(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr,
+                                       VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_NV_coverage_reduction_mode;
 #endif
 
 #if VK_EXT_host_query_reset
-int load_VK_EXT_host_query_reset(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_EXT_host_query_reset(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device,
+                                 PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_EXT_host_query_reset;
 #endif
 
 #if VK_KHR_external_memory_win32 && defined(VK_USE_PLATFORM_WIN32_KHR)
-int load_VK_KHR_external_memory_win32(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_KHR_external_memory_win32(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr,
+                                      VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_KHR_external_memory_win32;
 #endif
 
 #if VK_KHR_external_semaphore_win32 && defined(VK_USE_PLATFORM_WIN32_KHR)
-int load_VK_KHR_external_semaphore_win32(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_KHR_external_semaphore_win32(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr,
+                                         VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_KHR_external_semaphore_win32;
 #endif
 
 #if VK_KHR_external_fence_win32 && defined(VK_USE_PLATFORM_WIN32_KHR)
-int load_VK_KHR_external_fence_win32(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr, VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
+int load_VK_KHR_external_fence_win32(VkInstance instance, PFN_vkGetInstanceProcAddr getInstanceProcAddr,
+                                     VkDevice device, PFN_vkGetDeviceProcAddr getDeviceProcAddr);
 extern int has_VK_KHR_external_fence_win32;
 #endif
-
-
