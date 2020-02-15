@@ -16,17 +16,21 @@ layout(location = 0) out vec3 FragColor;
 layout(location = 1) out vec3 FragNormal;
 layout(location = 2) out vec2 FragTexCoord;
 layout(location = 3) out flat int FragMaterialIndex;
+layout(location = 4) out vec2 outUV;
 
 out gl_PerVertex {
-    vec4 gl_Position;
+  vec4 gl_Position;
 };
 
 void main() {
-    Material m = Materials[InMaterialIndex];
+  Material m = Materials[InMaterialIndex];
 
-    gl_Position = Camera.Projection * Camera.ModelView * vec4(InPosition, 1.0);
-    FragColor = m.Diffuse.xyz;
-    FragNormal = vec3(Camera.ModelView * vec4(InNormal, 0.0));// technically not correct, should be ModelInverseTranspose
-    FragTexCoord = InTexCoord;
-    FragMaterialIndex = InMaterialIndex;
+  gl_Position = Camera.Projection * Camera.ModelView * vec4(InPosition, 1.0);
+  FragColor = m.Diffuse.xyz;
+  FragNormal = vec3(Camera.ModelView * vec4(InNormal, 0.0));// technically not correct, should be ModelInverseTranspose
+  FragTexCoord = InTexCoord;
+  FragMaterialIndex = InMaterialIndex;
+
+  outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+  gl_Position = vec4(outUV * 2.0f - 1.0f, 0.0f, 1.0f);
 }

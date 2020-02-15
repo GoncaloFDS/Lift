@@ -7,32 +7,32 @@ namespace vulkan {
 class Window;
 
 class Instance final {
-  public:
-  Instance(const Window &window, const std::vector<const char *> &validation_layers);
-  ~Instance();
+public:
+    Instance(const Window &window, const std::vector<const char *> &validation_layers);
+    ~Instance();
 
-  [[nodiscard]] VkInstance handle() const { return instance_; }
-  [[nodiscard]] const class Window &window() const { return window_; }
+    [[nodiscard]] VkInstance handle() const { return instance_; }
+    [[nodiscard]] const class Window &window() const { return window_; }
 
-  [[nodiscard]] const std::vector<VkExtensionProperties> &extensions() const { return extensions_; }
-  [[nodiscard]] const std::vector<VkPhysicalDevice> &physicalDevices() const { return physical_devices_; }
-  [[nodiscard]] const std::vector<const char *> &validationLayers() const { return validation_layers_; }
+    [[nodiscard]] const std::vector<VkExtensionProperties> &extensions() const { return extensions_; }
+    [[nodiscard]] const std::vector<VkPhysicalDevice> &physicalDevices() const { return physical_devices_; }
+    [[nodiscard]] const std::vector<const char *> &validationLayers() const { return validation_layers_; }
 
-  private:
-  void getVulkanDevices();
-  void getVulkanExtensions();
+private:
+    void getVulkanDevices();
+    void getVulkanExtensions();
 
-  static void checkVulkanValidationLayerSupport(const std::vector<const char *> &validation_layers);
+    static void checkVulkanValidationLayerSupport(const std::vector<const char *> &validation_layers);
 
-  const class Window &window_;
-  const std::vector<const char *> validation_layers_;
+    const class Window &window_;
+    const std::vector<const char *> validation_layers_;
 
-  private:
-  VkInstance instance_ {};
+private:
+    VkInstance instance_ {};
 
-  std::vector<VkPhysicalDevice> physical_devices_;
-  std::vector<VkExtensionProperties> extensions_;
-  void checkVulkanMinimumVersion(uint32_t min_version);
+    std::vector<VkPhysicalDevice> physical_devices_;
+    std::vector<VkExtensionProperties> extensions_;
+    void checkVulkanMinimumVersion(uint32_t min_version);
 };
 
 }  // namespace vulkan

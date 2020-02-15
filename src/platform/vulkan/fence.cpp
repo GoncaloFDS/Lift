@@ -4,30 +4,30 @@
 namespace vulkan {
 
 Fence::Fence(const class Device &device, const bool signaled) : device_(device) {
-  VkFenceCreateInfo fence_info = {};
-  fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-  fence_info.flags = signaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
+    VkFenceCreateInfo fence_info = {};
+    fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fence_info.flags = signaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
 
-  vulkanCheck(vkCreateFence(device.handle(), &fence_info, nullptr, &fence_), "create fence");
+    vulkanCheck(vkCreateFence(device.handle(), &fence_info, nullptr, &fence_), "create fence");
 }
 
 Fence::Fence(Fence &&other) noexcept : device_(other.device_), fence_(other.fence_) {
-  other.fence_ = nullptr;
+    other.fence_ = nullptr;
 }
 
 Fence::~Fence() {
-  if (fence_ != nullptr) {
-    vkDestroyFence(device_.handle(), fence_, nullptr);
-    fence_ = nullptr;
-  }
+    if (fence_ != nullptr) {
+        vkDestroyFence(device_.handle(), fence_, nullptr);
+        fence_ = nullptr;
+    }
 }
 
 void Fence::reset() {
-  vulkanCheck(vkResetFences(device_.handle(), 1, &fence_), "reset fence");
+    vulkanCheck(vkResetFences(device_.handle(), 1, &fence_), "reset fence");
 }
 
 void Fence::wait(uint64_t timeout) const {
-  vulkanCheck(vkWaitForFences(device_.handle(), 1, &fence_, VK_TRUE, timeout), "wait for fence");
+    vulkanCheck(vkWaitForFences(device_.handle(), 1, &fence_, VK_TRUE, timeout), "wait for fence");
 }
 
 }  // namespace vulkan

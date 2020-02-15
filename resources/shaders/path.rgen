@@ -7,7 +7,7 @@
 
 layout(binding = 0, set = 0) uniform accelerationStructureNV Scene;
 layout(binding = 1, rgba32f) uniform image2D AccumulationImage;
-layout(binding = 2, rgba8) uniform image2D OutputImage;
+layout(binding = 2, rgba32f) uniform image2D OutputImage;
 layout(binding = 3) readonly uniform UniformBufferObjectStruct { UniformBufferObject Camera; };
 
 layout(location = 0) rayPayloadNV RayPayload Ray;
@@ -71,6 +71,6 @@ void main() {
         pixelColor = sqrt(pixelColor);
     }
 
-    imageStore(AccumulationImage, ivec2(gl_LaunchIDNV.xy), vec4(accumulatedColor, 0));
-    imageStore(OutputImage, ivec2(gl_LaunchIDNV.xy), vec4(pixelColor, 0));
+    imageStore(AccumulationImage, ivec2(gl_LaunchIDNV.xy), vec4(accumulatedColor, 1));
+    imageStore(OutputImage, ivec2(gl_LaunchIDNV.xy), vec4(pixelColor, 1));
 }

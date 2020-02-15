@@ -6,13 +6,13 @@
 #include <utility>
 
 class Log {
-  public:
-  static void init();
+public:
+    static void init();
 
-  static auto getCoreLogger() -> std::shared_ptr<spdlog::logger> & { return s_logger_; }
+    static auto getCoreLogger() -> std::shared_ptr<spdlog::logger> & { return s_logger_; }
 
-  private:
-  static std::shared_ptr<spdlog::logger> s_logger_;
+private:
+    static std::shared_ptr<spdlog::logger> s_logger_;
 };
 
 // Core log macros
