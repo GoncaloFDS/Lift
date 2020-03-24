@@ -6,8 +6,8 @@
 
 namespace vulkan {
 
-RenderPass::RenderPass(const class SwapChain &swap_chain,
-                       const class DepthBuffer &depth_buffer,
+RenderPass::RenderPass(const class SwapChain& swap_chain,
+                       const class DepthBuffer& depth_buffer,
                        const bool clear_color_buffer,
                        const bool clear_depth_buffer) :
     swap_chain_(swap_chain),

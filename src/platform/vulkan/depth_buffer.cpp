@@ -10,8 +10,8 @@
 
 namespace vulkan {
 
-VkFormat findSupportedFormat(const Device &device,
-                             const std::vector<VkFormat> &candidates,
+VkFormat findSupportedFormat(const Device& device,
+                             const std::vector<VkFormat>& candidates,
                              const VkImageTiling tiling,
                              const VkFormatFeatureFlags features) {
     for (auto format : candidates) {
@@ -31,16 +31,16 @@ VkFormat findSupportedFormat(const Device &device,
     return VkFormat {};
 }
 
-VkFormat findDepthFormat(const Device &device) {
+VkFormat findDepthFormat(const Device& device) {
     return findSupportedFormat(device,
                                {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
                                VK_IMAGE_TILING_OPTIMAL,
                                VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 }
 
-DepthBuffer::DepthBuffer(CommandPool &command_pool, const VkExtent2D extent) :
+DepthBuffer::DepthBuffer(CommandPool& command_pool, const VkExtent2D extent) :
     format_(findDepthFormat(command_pool.device())) {
-    const auto &device = command_pool.device();
+    const auto& device = command_pool.device();
 
     image_ = std::make_unique<Image>(device,
                                      extent,

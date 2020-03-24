@@ -4,7 +4,7 @@
 #include "ray_payload.glsl"
 #include "uniform_buffer_object.glsl"
 
-layout(binding = 3) readonly uniform UniformBufferObjectStruct { UniformBufferObject Camera; };
+layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject Camera; };
 
 layout(location = 0) rayPayloadInNV RayPayload Ray;
 

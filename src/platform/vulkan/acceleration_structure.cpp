@@ -5,8 +5,8 @@
 
 namespace vulkan {
 
-AccelerationStructure::AccelerationStructure(const class DeviceProcedures &device_procedures,
-                                             const VkAccelerationStructureCreateInfoNV &create_info) :
+AccelerationStructure::AccelerationStructure(const class DeviceProcedures& device_procedures,
+                                             const VkAccelerationStructureCreateInfoNV& create_info) :
     device_procedures_(device_procedures),
     allow_update_(create_info.info.flags & VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_NV),
     device_(device_procedures.device()) {
@@ -17,7 +17,7 @@ AccelerationStructure::AccelerationStructure(const class DeviceProcedures &devic
                 "create acceleration structure");
 }
 
-AccelerationStructure::AccelerationStructure(AccelerationStructure &&other) noexcept :
+AccelerationStructure::AccelerationStructure(AccelerationStructure&& other) noexcept :
     device_procedures_(other.device_procedures_), allow_update_(other.allow_update_), device_(other.device_),
     acceleration_structure_(other.acceleration_structure_) {
     other.acceleration_structure_ = nullptr;
@@ -85,10 +85,10 @@ void AccelerationStructure::memoryBarrier(VkCommandBuffer command_buffer) {
 }
 
 AccelerationStructure::MemoryRequirements AccelerationStructure::getTotalRequirements(
-    const std::vector<AccelerationStructure::MemoryRequirements> &requirements) {
+    const std::vector<AccelerationStructure::MemoryRequirements>& requirements) {
     AccelerationStructure::MemoryRequirements total {};
 
-    for (const auto &req : requirements) {
+    for (const auto& req : requirements) {
         total.result.size += req.result.size;
         total.build.size += req.build.size;
         total.update.size += req.update.size;

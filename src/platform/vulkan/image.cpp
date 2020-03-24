@@ -8,7 +8,7 @@
 
 namespace vulkan {
 
-Image::Image(const class Device &device, const VkExtent2D extent, const VkFormat format) :
+Image::Image(const class Device& device, const VkExtent2D extent, const VkFormat format) :
     Image(device,
           extent,
           format,
@@ -16,7 +16,7 @@ Image::Image(const class Device &device, const VkExtent2D extent, const VkFormat
           VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT) {
 }
 
-Image::Image(const class Device &device,
+Image::Image(const class Device& device,
              const VkExtent2D extent,
              const VkFormat format,
              const VkImageTiling tiling,
@@ -43,7 +43,7 @@ Image::Image(const class Device &device,
     vulkanCheck(vkCreateImage(device.handle(), &image_info, nullptr, &image_), "create image");
 }
 
-Image::Image(Image &&other) noexcept :
+Image::Image(Image&& other) noexcept :
     device_(other.device_), extent_(other.extent_), format_(other.format_), image_layout_(other.image_layout_),
     image_(other.image_) {
 
@@ -72,7 +72,7 @@ VkMemoryRequirements Image::getMemoryRequirements() const {
     return requirements;
 }
 
-void Image::transitionImageLayout(CommandPool &command_pool, vk::ImageLayout new_layout) {
+void Image::transitionImageLayout(CommandPool& command_pool, vk::ImageLayout new_layout) {
     SingleTimeCommands::submit(command_pool, [&](VkCommandBuffer command_buffer) {
         vk::ImageMemoryBarrier barrier;
         barrier.oldLayout = image_layout_;
@@ -96,7 +96,7 @@ void Image::transitionImageLayout(CommandPool &command_pool, vk::ImageLayout new
     image_layout_ = new_layout;
 }
 
-void Image::copyFromBuffer(CommandPool &command_pool, const vk::Buffer &buffer) {
+void Image::copyFromBuffer(CommandPool& command_pool, const vk::Buffer& buffer) {
     SingleTimeCommands::submit(command_pool, [&](VkCommandBuffer command_buffer) {
         vk::BufferImageCopy region;
         region.setImageSubresource({vk::ImageAspectFlagBits::eColor, 0, 0, 1});
@@ -108,7 +108,7 @@ void Image::copyFromBuffer(CommandPool &command_pool, const vk::Buffer &buffer) 
     });
 }
 
-void Image::copyToBuffer(CommandPool &command_pool, const vk::Buffer &buffer) {
+void Image::copyToBuffer(CommandPool& command_pool, const vk::Buffer& buffer) {
     SingleTimeCommands::submit(command_pool, [&](VkCommandBuffer command_buffer) {
         vk::BufferImageCopy region;
         region.setImageSubresource({vk::ImageAspectFlagBits::eColor, 0, 0, 1});

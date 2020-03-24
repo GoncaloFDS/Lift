@@ -8,8 +8,8 @@
 
 namespace vulkan {
 
-DescriptorSets::DescriptorSets(const DescriptorPool &descriptor_pool,
-                               const DescriptorSetLayout &layout,
+DescriptorSets::DescriptorSets(const DescriptorPool& descriptor_pool,
+                               const DescriptorSetLayout& layout,
                                std::map<uint32_t, VkDescriptorType> binding_types,
                                const size_t size) :
     descriptor_pool_(descriptor_pool),
@@ -44,7 +44,7 @@ DescriptorSets::~DescriptorSets() {
 
 VkWriteDescriptorSet DescriptorSets::bind(const uint32_t index,
                                           const uint32_t binding,
-                                          const VkDescriptorBufferInfo &buffer_info,
+                                          const VkDescriptorBufferInfo& buffer_info,
                                           const uint32_t count) const {
     VkWriteDescriptorSet descriptor_write = {};
     descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -60,7 +60,7 @@ VkWriteDescriptorSet DescriptorSets::bind(const uint32_t index,
 
 VkWriteDescriptorSet DescriptorSets::bind(const uint32_t index,
                                           const uint32_t binding,
-                                          const VkDescriptorImageInfo &image_info,
+                                          const VkDescriptorImageInfo& image_info,
                                           const uint32_t count) const {
     VkWriteDescriptorSet descriptor_write = {};
     descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -76,7 +76,7 @@ VkWriteDescriptorSet DescriptorSets::bind(const uint32_t index,
 
 VkWriteDescriptorSet DescriptorSets::bind(uint32_t index,
                                           uint32_t binding,
-                                          const VkWriteDescriptorSetAccelerationStructureNV &structure_info,
+                                          const VkWriteDescriptorSetAccelerationStructureNV& structure_info,
                                           const uint32_t count) const {
     VkWriteDescriptorSet descriptor_write = {};
     descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -90,7 +90,7 @@ VkWriteDescriptorSet DescriptorSets::bind(uint32_t index,
     return descriptor_write;
 }
 
-void DescriptorSets::updateDescriptors(const std::vector<VkWriteDescriptorSet> &descriptor_writes) {
+void DescriptorSets::updateDescriptors(const std::vector<VkWriteDescriptorSet>& descriptor_writes) {
     vkUpdateDescriptorSets(descriptor_pool_.device().handle(),
                            static_cast<uint32_t>(descriptor_writes.size()),
                            descriptor_writes.data(),

@@ -6,7 +6,7 @@
 namespace vulkan {
 
 template<class Func>
-Func getProcedure(const Device &device, const char *const name) {
+Func getProcedure(const Device& device, const char* const name) {
     const auto func = reinterpret_cast<Func>(vkGetDeviceProcAddr(device.handle(), name));
     if (func == nullptr) {
         LF_ASSERT(false, "bad procedure");
@@ -15,7 +15,7 @@ Func getProcedure(const Device &device, const char *const name) {
     return func;
 }
 
-DeviceProcedures::DeviceProcedures(const class Device &device) :
+DeviceProcedures::DeviceProcedures(const class Device& device) :
     vkCreateAccelerationStructureNV(
         getProcedure<PFN_vkCreateAccelerationStructureNV>(device, "vkCreateAccelerationStructureNV")),
     vkDestroyAccelerationStructureNV(

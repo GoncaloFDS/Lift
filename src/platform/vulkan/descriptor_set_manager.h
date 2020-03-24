@@ -12,13 +12,13 @@ class DescriptorSets;
 
 class DescriptorSetManager final {
 public:
-    explicit DescriptorSetManager(const Device &device,
-                                  const std::vector<DescriptorBinding> &descriptor_bindings,
+    explicit DescriptorSetManager(const Device& device,
+                                  const std::vector<DescriptorBinding>& descriptor_bindings,
                                   size_t max_sets);
     ~DescriptorSetManager();
 
-    [[nodiscard]] const DescriptorSetLayout &descriptorSetLayout() const { return *descriptor_set_layout_; }
-    class DescriptorSets &descriptorSets() {
+    [[nodiscard]] const DescriptorSetLayout& descriptorSetLayout() const { return *descriptor_set_layout_; }
+    class DescriptorSets& descriptorSets() {
         return *descriptor_sets_;
     }
 

@@ -57,21 +57,20 @@
 #ifdef GLFW_RESIZE_NESW_CURSOR  // let's be nice to people who pulled GLFW between 2019-04-16 (3.4 define) and
                                 // 2019-11-29 (cursors defines) // FIXME: Remove when GLFW 3.4 is released?
 #define GLFW_HAS_NEW_CURSORS                                                                                           \
-    (                                                                                                                  \
-        GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100                                                           \
-        >= 3400)  // 3.4+ GLFW_RESIZE_ALL_CURSOR, GLFW_RESIZE_NESW_CURSOR, GLFW_RESIZE_NWSE_CURSOR,
-                  // GLFW_NOT_ALLOWED_CURSOR
+    (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100                                                              \
+     >= 3400)  // 3.4+ GLFW_RESIZE_ALL_CURSOR, GLFW_RESIZE_NESW_CURSOR, GLFW_RESIZE_NWSE_CURSOR,
+               // GLFW_NOT_ALLOWED_CURSOR
 #else
 #define GLFW_HAS_NEW_CURSORS (0)
 #endif
 
 // Data
 enum GlfwClientApi { GlfwClientApi_Unknown, GlfwClientApi_OpenGL, GlfwClientApi_Vulkan };
-static GLFWwindow *g_Window = NULL;  // Main window
+static GLFWwindow* g_Window = NULL;  // Main window
 static GlfwClientApi g_ClientApi = GlfwClientApi_Unknown;
 static double g_Time = 0.0;
 static bool g_MouseJustPressed[5] = {false, false, false, false, false};
-static GLFWcursor *g_MouseCursors[ImGuiMouseCursor_COUNT] = {};
+static GLFWcursor* g_MouseCursors[ImGuiMouseCursor_COUNT] = {};
 static bool g_InstalledCallbacks = false;
 
 // Chain GLFW callbacks: our callbacks will call the user's previously installed callbacks, if any.
@@ -80,15 +79,15 @@ static GLFWscrollfun g_PrevUserCallbackScroll = NULL;
 static GLFWkeyfun g_PrevUserCallbackKey = NULL;
 static GLFWcharfun g_PrevUserCallbackChar = NULL;
 
-static const char *ImGui_ImplGlfw_GetClipboardText(void *user_data) {
-    return glfwGetClipboardString((GLFWwindow *) user_data);
+static const char* ImGui_ImplGlfw_GetClipboardText(void* user_data) {
+    return glfwGetClipboardString((GLFWwindow*) user_data);
 }
 
-static void ImGui_ImplGlfw_SetClipboardText(void *user_data, const char *text) {
-    glfwSetClipboardString((GLFWwindow *) user_data, text);
+static void ImGui_ImplGlfw_SetClipboardText(void* user_data, const char* text) {
+    glfwSetClipboardString((GLFWwindow*) user_data, text);
 }
 
-void ImGui_ImplGlfw_MouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
+void ImGui_ImplGlfw_MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     if (g_PrevUserCallbackMousebutton != NULL)
         g_PrevUserCallbackMousebutton(window, button, action, mods);
 
@@ -96,20 +95,20 @@ void ImGui_ImplGlfw_MouseButtonCallback(GLFWwindow *window, int button, int acti
         g_MouseJustPressed[button] = true;
 }
 
-void ImGui_ImplGlfw_ScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
+void ImGui_ImplGlfw_ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
     if (g_PrevUserCallbackScroll != NULL)
         g_PrevUserCallbackScroll(window, xoffset, yoffset);
 
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     io.MouseWheelH += (float) xoffset;
     io.MouseWheel += (float) yoffset;
 }
 
-void ImGui_ImplGlfw_KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+void ImGui_ImplGlfw_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (g_PrevUserCallbackKey != NULL)
         g_PrevUserCallbackKey(window, key, scancode, action, mods);
 
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     if (action == GLFW_PRESS)
         io.KeysDown[key] = true;
     if (action == GLFW_RELEASE)
@@ -126,20 +125,20 @@ void ImGui_ImplGlfw_KeyCallback(GLFWwindow *window, int key, int scancode, int a
 #endif
 }
 
-void ImGui_ImplGlfw_CharCallback(GLFWwindow *window, unsigned int c) {
+void ImGui_ImplGlfw_CharCallback(GLFWwindow* window, unsigned int c) {
     if (g_PrevUserCallbackChar != NULL)
         g_PrevUserCallbackChar(window, c);
 
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     io.AddInputCharacter(c);
 }
 
-static bool ImGui_ImplGlfw_Init(GLFWwindow *window, bool install_callbacks, GlfwClientApi client_api) {
+static bool ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks, GlfwClientApi client_api) {
     g_Window = window;
     g_Time = 0.0;
 
     // Setup back-end capabilities flags
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;  // We can honor GetMouseCursor() values (optional)
     io.BackendFlags |=
         ImGuiBackendFlags_HasSetMousePos;  // We can honor io.WantSetMousePos requests (optional, rarely used)
@@ -173,7 +172,7 @@ static bool ImGui_ImplGlfw_Init(GLFWwindow *window, bool install_callbacks, Glfw
     io.GetClipboardTextFn = ImGui_ImplGlfw_GetClipboardText;
     io.ClipboardUserData = g_Window;
 #if defined(_WIN32)
-    io.ImeWindowHandle = (void *) glfwGetWin32Window(g_Window);
+    io.ImeWindowHandle = (void*) glfwGetWin32Window(g_Window);
 #endif
 
     // Create mouse cursors
@@ -216,11 +215,11 @@ static bool ImGui_ImplGlfw_Init(GLFWwindow *window, bool install_callbacks, Glfw
     return true;
 }
 
-bool ImGui_ImplGlfw_InitForOpenGL(GLFWwindow *window, bool install_callbacks) {
+bool ImGui_ImplGlfw_InitForOpenGL(GLFWwindow* window, bool install_callbacks) {
     return ImGui_ImplGlfw_Init(window, install_callbacks, GlfwClientApi_OpenGL);
 }
 
-bool ImGui_ImplGlfw_InitForVulkan(GLFWwindow *window, bool install_callbacks) {
+bool ImGui_ImplGlfw_InitForVulkan(GLFWwindow* window, bool install_callbacks) {
     return ImGui_ImplGlfw_Init(window, install_callbacks, GlfwClientApi_Vulkan);
 }
 
@@ -242,7 +241,7 @@ void ImGui_ImplGlfw_Shutdown() {
 
 static void ImGui_ImplGlfw_UpdateMousePosAndButtons() {
     // Update buttons
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     for (int i = 0; i < IM_ARRAYSIZE(io.MouseDown); i++) {
         // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events
         // that are shorter than 1 frame.
@@ -270,7 +269,7 @@ static void ImGui_ImplGlfw_UpdateMousePosAndButtons() {
 }
 
 static void ImGui_ImplGlfw_UpdateMouseCursor() {
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
         || glfwGetInputMode(g_Window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
         return;
@@ -290,7 +289,7 @@ static void ImGui_ImplGlfw_UpdateMouseCursor() {
 }
 
 static void ImGui_ImplGlfw_UpdateGamepads() {
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     memset(io.NavInputs, 0, sizeof(io.NavInputs));
     if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
         return;
@@ -311,8 +310,8 @@ static void ImGui_ImplGlfw_UpdateGamepads() {
             io.NavInputs[NAV_NO] = v;                                                                                  \
     }
     int axes_count = 0, buttons_count = 0;
-    const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axes_count);
-    const unsigned char *buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttons_count);
+    const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axes_count);
+    const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttons_count);
     MAP_BUTTON(ImGuiNavInput_Activate, 0);    // Cross / A
     MAP_BUTTON(ImGuiNavInput_Cancel, 1);      // Circle / B
     MAP_BUTTON(ImGuiNavInput_Menu, 2);        // Square / X
@@ -338,7 +337,7 @@ static void ImGui_ImplGlfw_UpdateGamepads() {
 }
 
 void ImGui_ImplGlfw_NewFrame() {
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     IM_ASSERT(io.Fonts->IsBuilt()
               && "Font atlas not built! It is generally built by the renderer back-end. Missing call to renderer "
                  "_NewFrame() function? e.g. ImGui_ImplOpenGL3_NewFrame().");

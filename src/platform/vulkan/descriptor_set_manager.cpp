@@ -9,13 +9,13 @@
 
 namespace vulkan {
 
-DescriptorSetManager::DescriptorSetManager(const Device &device,
-                                           const std::vector<DescriptorBinding> &descriptor_bindings,
+DescriptorSetManager::DescriptorSetManager(const Device& device,
+                                           const std::vector<DescriptorBinding>& descriptor_bindings,
                                            const size_t max_sets) {
     // Sanity check to avoid binding different resources to the same binding point.
     std::map<uint32_t, VkDescriptorType> binding_types;
 
-    for (const auto &binding : descriptor_bindings) {
+    for (const auto& binding : descriptor_bindings) {
         if (!binding_types.insert(std::make_pair(binding.Binding, binding.Type)).second) {
             LF_ASSERT(false, "");
         }

@@ -8,7 +8,7 @@
 
 namespace vulkan {
 
-FrameBuffer::FrameBuffer(const class ImageView &image_view, const class RenderPass &render_pass) :
+FrameBuffer::FrameBuffer(const class ImageView& image_view, const class RenderPass& render_pass) :
     image_view_(image_view), render_pass_(render_pass) {
 
     std::array<VkImageView, 2> attachments = {image_view.handle(), render_pass.depthBuffer().imageView().handle()};
@@ -26,7 +26,7 @@ FrameBuffer::FrameBuffer(const class ImageView &image_view, const class RenderPa
                 "create framebuffer");
 }
 
-FrameBuffer::FrameBuffer(FrameBuffer &&other) noexcept :
+FrameBuffer::FrameBuffer(FrameBuffer&& other) noexcept :
     image_view_(other.image_view_), render_pass_(other.render_pass_), framebuffer_(other.framebuffer_) {
     other.framebuffer_ = nullptr;
 }

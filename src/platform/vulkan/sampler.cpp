@@ -4,7 +4,7 @@
 
 namespace vulkan {
 
-Sampler::Sampler(const class Device &device, const SamplerConfig &config) : device_(device) {
+Sampler::Sampler(const class Device& device, const SamplerConfig& config) : device_(device) {
     VkSamplerCreateInfo samplerInfo = {};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     samplerInfo.magFilter = config.magFilter;

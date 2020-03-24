@@ -25,30 +25,30 @@ class BottomLevelAccelerationStructure;
 
 class TopLevelAccelerationStructure final : public AccelerationStructure {
 public:
-    TopLevelAccelerationStructure(const TopLevelAccelerationStructure &) = delete;
-    TopLevelAccelerationStructure &operator=(const TopLevelAccelerationStructure &) = delete;
-    TopLevelAccelerationStructure &operator=(TopLevelAccelerationStructure &&) = delete;
+    TopLevelAccelerationStructure(const TopLevelAccelerationStructure&) = delete;
+    TopLevelAccelerationStructure& operator=(const TopLevelAccelerationStructure&) = delete;
+    TopLevelAccelerationStructure& operator=(TopLevelAccelerationStructure&&) = delete;
 
-    TopLevelAccelerationStructure(const class DeviceProcedures &device_procedures,
-                                  const std::vector<VkGeometryInstance> &geometry_instances,
+    TopLevelAccelerationStructure(const class DeviceProcedures& device_procedures,
+                                  const std::vector<VkGeometryInstance>& geometry_instances,
                                   bool allow_update);
-    TopLevelAccelerationStructure(TopLevelAccelerationStructure &&other) noexcept;
+    TopLevelAccelerationStructure(TopLevelAccelerationStructure&& other) noexcept;
     ~TopLevelAccelerationStructure() override = default;
 
-    [[nodiscard]] const std::vector<VkGeometryInstance> &geometryInstances() const { return geometry_instances_; }
+    [[nodiscard]] const std::vector<VkGeometryInstance>& geometryInstances() const { return geometry_instances_; }
 
     void generate(VkCommandBuffer command_buffer,
-                  Buffer &scratch_buffer,
+                  Buffer& scratch_buffer,
                   VkDeviceSize scratch_offset,
-                  DeviceMemory &result_memory,
+                  DeviceMemory& result_memory,
                   VkDeviceSize result_offset,
-                  Buffer &instance_buffer,
-                  DeviceMemory &instance_memory,
+                  Buffer& instance_buffer,
+                  DeviceMemory& instance_memory,
                   VkDeviceSize instance_offset,
                   bool update_only) const;
 
-    static VkGeometryInstance createGeometryInstance(const BottomLevelAccelerationStructure &bottom_level_as,
-                                                     const glm::mat4 &transform,
+    static VkGeometryInstance createGeometryInstance(const BottomLevelAccelerationStructure& bottom_level_as,
+                                                     const glm::mat4& transform,
                                                      uint32_t instance_id,
                                                      uint32_t hit_group_index);
 

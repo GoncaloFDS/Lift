@@ -15,14 +15,14 @@
 
 namespace vulkan {
 
-GraphicsPipeline::GraphicsPipeline(const SwapChain &swap_chain,
-                                   const DepthBuffer &depth_buffer,
-                                   const std::vector<assets::UniformBuffer> &uniform_buffers,
-                                   const assets::Scene &scene,
+GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
+                                   const DepthBuffer& depth_buffer,
+                                   const std::vector<assets::UniformBuffer>& uniform_buffers,
+                                   const assets::Scene& scene,
                                    const bool is_wire_frame) :
     swap_chain_(swap_chain),
     is_wire_frame_(is_wire_frame) {
-    const auto &device = swap_chain.device();
+    const auto& device = swap_chain.device();
     const auto binding_description = assets::Vertex::getBindingDescription();
     const auto attribute_descriptions = assets::Vertex::getAttributeDescriptions();
 
@@ -125,7 +125,7 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain &swap_chain,
     descriptor_set_manager_ =
         std::make_unique<DescriptorSetManager>(device, descriptor_bindings, uniform_buffers.size());
 
-    auto &descriptor_sets = descriptor_set_manager_->descriptorSets();
+    auto& descriptor_sets = descriptor_set_manager_->descriptorSets();
 
     for (uint32_t i = 0; i != swap_chain.images().size(); ++i) {
         // Uniform buffer
@@ -142,7 +142,7 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain &swap_chain,
         std::vector<VkDescriptorImageInfo> image_infos(scene.textureSamplers().size());
 
         for (size_t t = 0; t != image_infos.size(); ++t) {
-            auto &image_info = image_infos[t];
+            auto& image_info = image_infos[t];
             image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             image_info.imageView = scene.textureImageViews()[t];
             image_info.sampler = scene.textureSamplers()[t];

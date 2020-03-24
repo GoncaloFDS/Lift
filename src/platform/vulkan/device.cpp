@@ -11,13 +11,13 @@
 namespace vulkan {
 
 std::vector<VkQueueFamilyProperties>::const_iterator
-findQueue(const std::vector<VkQueueFamilyProperties> &queue_families,
-          const std::string &name,
+findQueue(const std::vector<VkQueueFamilyProperties>& queue_families,
+          const std::string& name,
           const VkQueueFlags required_bits,
           const VkQueueFlags excluded_bits) {
     const auto family = std::find_if(queue_families.begin(),
                                      queue_families.end(),
-                                     [required_bits, excluded_bits](const VkQueueFamilyProperties &queue_family) {
+                                     [required_bits, excluded_bits](const VkQueueFamilyProperties& queue_family) {
                                          return queue_family.queueCount > 0 && queue_family.queueFlags & required_bits
                                              && !(queue_family.queueFlags & excluded_bits);
                                      });
@@ -27,20 +27,20 @@ findQueue(const std::vector<VkQueueFamilyProperties> &queue_families,
     return family;
 }
 
-const std::vector<const char *> Device::required_extensions_ = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                                                                VK_NV_RAY_TRACING_EXTENSION_NAME,
-                                                                VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
-                                                                VK_KHR_MAINTENANCE3_EXTENSION_NAME,
-                                                                VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
-                                                                VK_NV_RAY_TRACING_EXTENSION_NAME,
-                                                                VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME,
-                                                                VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME,
-                                                                VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME,
-                                                                VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME,
-                                                                VK_KHR_EXTERNAL_FENCE_EXTENSION_NAME,
-                                                                VK_KHR_EXTERNAL_FENCE_WIN32_EXTENSION_NAME};
+const std::vector<const char*> Device::required_extensions_ = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                                                               VK_NV_RAY_TRACING_EXTENSION_NAME,
+                                                               VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+                                                               VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+                                                               VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+                                                               VK_NV_RAY_TRACING_EXTENSION_NAME,
+                                                               VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME,
+                                                               VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME,
+                                                               VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME,
+                                                               VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME,
+                                                               VK_KHR_EXTERNAL_FENCE_EXTENSION_NAME,
+                                                               VK_KHR_EXTERNAL_FENCE_WIN32_EXTENSION_NAME};
 
-Device::Device(VkPhysicalDevice physical_device, const class Surface &surface) :
+Device::Device(VkPhysicalDevice physical_device, const class Surface& surface) :
     physical_device_(physical_device), surface_(surface) {
 
     checkRequiredExtensions(physical_device);
@@ -55,7 +55,7 @@ Device::Device(VkPhysicalDevice physical_device, const class Surface &surface) :
 
     // Find the presentation queue (usually the same as graphics queue).
     const auto present_family =
-        std::find_if(queue_families.begin(), queue_families.end(), [&](const VkQueueFamilyProperties &queue_family) {
+        std::find_if(queue_families.begin(), queue_families.end(), [&](const VkQueueFamilyProperties& queue_family) {
             VkBool32 present_support = false;
             const uint32_t i = static_cast<uint32_t>(&*queue_families.cbegin() - &queue_family);
             vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface.handle(), &present_support);
@@ -129,16 +129,16 @@ void Device::waitIdle() const {
 
 void Device::checkRequiredExtensions(VkPhysicalDevice physical_device) {
     const auto available_extensions =
-        getEnumerateVector(physical_device, static_cast<const char *>(nullptr), vkEnumerateDeviceExtensionProperties);
+        getEnumerateVector(physical_device, static_cast<const char*>(nullptr), vkEnumerateDeviceExtensionProperties);
     std::set<std::string> required_extensions(required_extensions_.begin(), required_extensions_.end());
 
-    for (const auto &extension : available_extensions) { required_extensions.erase(extension.extensionName); }
+    for (const auto& extension : available_extensions) { required_extensions.erase(extension.extensionName); }
 
     if (!required_extensions.empty()) {
         bool first = true;
         std::string extensions;
 
-        for (const auto &extension : required_extensions) {
+        for (const auto& extension : required_extensions) {
             if (!first) {
                 extensions += ", ";
             }

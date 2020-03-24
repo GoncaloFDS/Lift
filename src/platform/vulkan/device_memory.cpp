@@ -5,7 +5,7 @@
 
 namespace vulkan {
 
-DeviceMemory::DeviceMemory(const class Device &device,
+DeviceMemory::DeviceMemory(const class Device& device,
                            const size_t size,
                            const uint32_t memory_type_bits,
                            const VkMemoryPropertyFlags properties) :
@@ -19,7 +19,7 @@ DeviceMemory::DeviceMemory(const class Device &device,
     vulkanCheck(vkAllocateMemory(device.handle(), &alloc_info, nullptr, &memory_), "allocate memory");
 }
 
-DeviceMemory::DeviceMemory(DeviceMemory &&other) noexcept : device_(other.device_), memory_(other.memory_) {
+DeviceMemory::DeviceMemory(DeviceMemory&& other) noexcept : device_(other.device_), memory_(other.memory_) {
     other.memory_ = nullptr;
 }
 
@@ -30,8 +30,8 @@ DeviceMemory::~DeviceMemory() {
     }
 }
 
-void *DeviceMemory::map(const size_t offset, const size_t size) {
-    void *data;
+void* DeviceMemory::map(const size_t offset, const size_t size) {
+    void* data;
     vulkanCheck(vkMapMemory(device_.handle(), memory_, offset, size, 0, &data), "map memory");
 
     return data;

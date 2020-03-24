@@ -6,7 +6,7 @@
 
 using namespace boost::program_options;
 
-Options::Options(const int argc, const char *argv[]) {
+Options::Options(const int argc, const char* argv[]) {
     options_description benchmark_options("Benchmark options");
     benchmark_options.add_options()("next-scenes",
                                     bool_switch(&benchmarkNextScenes)->default_value(false),

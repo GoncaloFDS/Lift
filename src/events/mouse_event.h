@@ -17,7 +17,7 @@ public:
 
     [[nodiscard]] static auto getStaticType() -> EventType { return EventType::MOUSE_MOVE; }
     [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
-    [[nodiscard]] auto getName() const -> const char * override { return "MouseMoved"; }
+    [[nodiscard]] auto getName() const -> const char* override { return "MouseMoved"; }
     [[nodiscard]] auto getCategoryFlags() const -> int override { return EVENT_CATEGORY_MOUSE | EVENT_CATEGORY_INPUT; }
 
 private:
@@ -39,7 +39,7 @@ public:
 
     [[nodiscard]] static auto getStaticType() -> EventType { return EventType::MOUSE_SCROLLED; }
     [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
-    [[nodiscard]] auto getName() const -> const char * override { return "MouseScrolled"; }
+    [[nodiscard]] auto getName() const -> const char* override { return "MouseScrolled"; }
     [[nodiscard]] auto getCategoryFlags() const -> int override { return EVENT_CATEGORY_MOUSE | EVENT_CATEGORY_INPUT; }
 
 private:
@@ -70,7 +70,7 @@ public:
 
     [[nodiscard]] static auto getStaticType() -> EventType { return EventType::MOUSE_BUTTON_PRESSED; }
     [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
-    [[nodiscard]] auto getName() const -> const char * override { return "MouseButtonPressed"; }
+    [[nodiscard]] auto getName() const -> const char* override { return "MouseButtonPressed"; }
 };
 
 class MouseButtonReleasedEvent : public MouseButtonEvent {
@@ -85,5 +85,5 @@ public:
 
     [[nodiscard]] static auto getStaticType() -> EventType { return EventType::MOUSE_BUTTON_RELEASED; }
     [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
-    [[nodiscard]] auto getName() const -> const char * override { return "MouseButtonReleased"; }
+    [[nodiscard]] auto getName() const -> const char* override { return "MouseButtonReleased"; }
 };

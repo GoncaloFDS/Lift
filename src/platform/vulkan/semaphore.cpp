@@ -3,14 +3,14 @@
 
 namespace vulkan {
 
-Semaphore::Semaphore(const class Device &device) : device_(device) {
+Semaphore::Semaphore(const class Device& device) : device_(device) {
     VkSemaphoreCreateInfo semaphore_info = {};
     semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
     vulkanCheck(vkCreateSemaphore(device.handle(), &semaphore_info, nullptr, &semaphore_), "create semaphores");
 }
 
-Semaphore::Semaphore(Semaphore &&other) noexcept : device_(other.device_), semaphore_(other.semaphore_) {
+Semaphore::Semaphore(Semaphore&& other) noexcept : device_(other.device_), semaphore_(other.semaphore_) {
     other.semaphore_ = nullptr;
 }
 

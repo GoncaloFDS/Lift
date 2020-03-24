@@ -7,7 +7,7 @@ namespace assets {
 
 class Sphere final : public Procedural {
 public:
-    Sphere(const glm::vec3 &center, const float radius) : center(center), radius(radius) {}
+    Sphere(const glm::vec3& center, const float radius) : center(center), radius(radius) {}
 
     const glm::vec3 center;
     const float radius;

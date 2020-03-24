@@ -28,17 +28,17 @@ public:
 
 class UniformBuffer {
 public:
-    UniformBuffer(const UniformBuffer &) = delete;
-    UniformBuffer &operator=(const UniformBuffer &) = delete;
-    UniformBuffer &operator=(UniformBuffer &&) = delete;
+    UniformBuffer(const UniformBuffer&) = delete;
+    UniformBuffer& operator=(const UniformBuffer&) = delete;
+    UniformBuffer& operator=(UniformBuffer&&) = delete;
 
-    explicit UniformBuffer(const vulkan::Device &device);
-    UniformBuffer(UniformBuffer &&other) noexcept;
+    explicit UniformBuffer(const vulkan::Device& device);
+    UniformBuffer(UniformBuffer&& other) noexcept;
     ~UniformBuffer();
 
-    [[nodiscard]] const vulkan::Buffer &buffer() const { return *buffer_; }
+    [[nodiscard]] const vulkan::Buffer& buffer() const { return *buffer_; }
 
-    void setValue(const UniformBufferObject &ubo);
+    void setValue(const UniformBufferObject& ubo);
 
 private:
     std::unique_ptr<vulkan::Buffer> buffer_;

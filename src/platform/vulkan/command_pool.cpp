@@ -3,7 +3,7 @@
 
 namespace vulkan {
 
-CommandPool::CommandPool(const class Device &device, const uint32_t queue_family_index, const bool allow_reset) :
+CommandPool::CommandPool(const class Device& device, const uint32_t queue_family_index, const bool allow_reset) :
     device_(device) {
     VkCommandPoolCreateInfo pool_info = {};
     pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;

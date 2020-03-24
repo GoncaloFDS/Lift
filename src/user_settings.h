@@ -29,7 +29,7 @@ struct UserSettings final {
     bool showSettings {};
     bool showOverlay {};
 
-    [[nodiscard]] bool requiresAccumulationReset(const UserSettings &prev) const {
+    [[nodiscard]] bool requiresAccumulationReset(const UserSettings& prev) const {
         return isRayTraced != prev.isRayTraced || accumulateRays != prev.accumulateRays
             || numberOfBounces != prev.numberOfBounces || fieldOfView != prev.fieldOfView || aperture != prev.aperture
             || focusDistance != prev.focusDistance;

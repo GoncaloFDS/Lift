@@ -23,10 +23,10 @@ public:
         bool hasSky;
     };
 
-    static SceneAssets rayTracingInOneWeekend(CameraInitialState &camera);
-    static SceneAssets lucyInOneWeekend(CameraInitialState &camera);
-    static SceneAssets cornellBox(CameraInitialState &camera);
-    static SceneAssets cornellBoxLucy(CameraInitialState &camera);
+    static SceneAssets rayTracingInOneWeekend(CameraInitialState& camera);
+    static SceneAssets lucyInOneWeekend(CameraInitialState& camera);
+    static SceneAssets cornellBox(CameraInitialState& camera);
+    static SceneAssets cornellBoxLucy(CameraInitialState& camera);
 
-    static const std::vector<std::pair<std::string, std::function<SceneAssets(CameraInitialState &)>>> allScenes;
+    static const std::vector<std::pair<std::string, std::function<SceneAssets(CameraInitialState&)>>> allScenes;
 };

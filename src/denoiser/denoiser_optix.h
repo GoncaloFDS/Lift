@@ -4,7 +4,7 @@
 #include "vulkan/buffer.h"
 #include <cuda.h>
 #include <cuda_runtime.h>
-#include <platform/vulkan/allocator_dedicated_vkpp.h>
+#include <platform/nvvkpp/allocator_dedicated_vkpp.hpp>
 #include <platform/vulkan/image.h>
 #include <vulkan/device.h>
 
@@ -15,30 +15,31 @@ public:
         nvvkpp::BufferDedicated buf_vk;
 
         HANDLE handle = nullptr;
-        void *cuda_ptr = nullptr;
+        void* cuda_ptr = nullptr;
 
-        void destroy(nvvkpp::AllocatorVkExport &alloc) {
+        void destroy(nvvkpp::AllocatorVkExport& alloc) {
             alloc.destroy(buf_vk);
             CloseHandle(handle);
         }
     };
 
     DenoiserOptix();
-    void setup(vulkan::Device &, uint32_t queue_index);
+
+    void setup(vulkan::Device&, uint32_t queue_index);
     int initOptix();
-    void denoiseImage(vulkan::Device &device,
-                      VkCommandBuffer &command_buffer,
-                      vulkan::CommandPool &command_pool,
-                      vulkan::Image &in_image,
-                      vulkan::Image &out_image);
+    void denoiseImage(vulkan::Device& device,
+                      VkCommandBuffer& command_buffer,
+                      vulkan::CommandPool& command_pool,
+                      vulkan::Image& in_image,
+                      vulkan::Image& out_image);
     void destroy();
-    void createBufferCuda(vulkan::Device &device, CudaBuffer &cuda_buffer);
+    void createBufferCuda(vulkan::Device& device, CudaBuffer& cuda_buffer);
 
     int denoise_mode {1};
     int start_denoiser_frame {5};
 
 private:
-    void allocateBuffers(vulkan::Device &device);
+    void allocateBuffers(vulkan::Device& device);
 
     OptixDenoiser denoiser_ {};
     OptixDenoiserOptions denoiser_options_ {};

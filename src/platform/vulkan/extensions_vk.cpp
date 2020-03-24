@@ -42,7 +42,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetKHR(VkCommandBuffer commandBuff
                                                      VkPipelineLayout layout,
                                                      uint32_t set,
                                                      uint32_t descriptorWriteCount,
-                                                     const VkWriteDescriptorSet *pDescriptorWrites) {
+                                                     const VkWriteDescriptorSet* pDescriptorWrites) {
     assert(pfn_vkCmdPushDescriptorSetKHR);
     pfn_vkCmdPushDescriptorSetKHR(commandBuffer,
                                   pipelineBindPoint,
@@ -55,7 +55,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer
                                                                  VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                                  VkPipelineLayout layout,
                                                                  uint32_t set,
-                                                                 const void *pData) {
+                                                                 const void* pData) {
     assert(pfn_vkCmdPushDescriptorSetWithTemplateKHR);
     pfn_vkCmdPushDescriptorSetWithTemplateKHR(commandBuffer, descriptorUpdateTemplate, layout, set, pData);
 }
@@ -85,26 +85,26 @@ static PFN_vkCmdNextSubpass2KHR pfn_vkCmdNextSubpass2KHR = 0;
 static PFN_vkCmdEndRenderPass2KHR pfn_vkCmdEndRenderPass2KHR = 0;
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass2KHR(VkDevice device,
-                                                      const VkRenderPassCreateInfo2KHR *pCreateInfo,
-                                                      const VkAllocationCallbacks *pAllocator,
-                                                      VkRenderPass *pRenderPass) {
+                                                      const VkRenderPassCreateInfo2KHR* pCreateInfo,
+                                                      const VkAllocationCallbacks* pAllocator,
+                                                      VkRenderPass* pRenderPass) {
     assert(pfn_vkCreateRenderPass2KHR);
     return pfn_vkCreateRenderPass2KHR(device, pCreateInfo, pAllocator, pRenderPass);
 }
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginRenderPass2KHR(VkCommandBuffer commandBuffer,
-                                                    const VkRenderPassBeginInfo *pRenderPassBegin,
-                                                    const VkSubpassBeginInfoKHR *pSubpassBeginInfo) {
+                                                    const VkRenderPassBeginInfo* pRenderPassBegin,
+                                                    const VkSubpassBeginInfoKHR* pSubpassBeginInfo) {
     assert(pfn_vkCmdBeginRenderPass2KHR);
     pfn_vkCmdBeginRenderPass2KHR(commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
 }
 VKAPI_ATTR void VKAPI_CALL vkCmdNextSubpass2KHR(VkCommandBuffer commandBuffer,
-                                                const VkSubpassBeginInfoKHR *pSubpassBeginInfo,
-                                                const VkSubpassEndInfoKHR *pSubpassEndInfo) {
+                                                const VkSubpassBeginInfoKHR* pSubpassBeginInfo,
+                                                const VkSubpassEndInfoKHR* pSubpassEndInfo) {
     assert(pfn_vkCmdNextSubpass2KHR);
     pfn_vkCmdNextSubpass2KHR(commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
 }
 VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass2KHR(VkCommandBuffer commandBuffer,
-                                                  const VkSubpassEndInfoKHR *pSubpassEndInfo) {
+                                                  const VkSubpassEndInfoKHR* pSubpassEndInfo) {
     assert(pfn_vkCmdEndRenderPass2KHR);
     pfn_vkCmdEndRenderPass2KHR(commandBuffer, pSubpassEndInfo);
 }
@@ -186,17 +186,17 @@ static PFN_vkCmdDebugMarkerEndEXT pfn_vkCmdDebugMarkerEndEXT = 0;
 static PFN_vkCmdDebugMarkerInsertEXT pfn_vkCmdDebugMarkerInsertEXT = 0;
 
 VKAPI_ATTR VkResult VKAPI_CALL vkDebugMarkerSetObjectTagEXT(VkDevice device,
-                                                            const VkDebugMarkerObjectTagInfoEXT *pTagInfo) {
+                                                            const VkDebugMarkerObjectTagInfoEXT* pTagInfo) {
     assert(pfn_vkDebugMarkerSetObjectTagEXT);
     return pfn_vkDebugMarkerSetObjectTagEXT(device, pTagInfo);
 }
 VKAPI_ATTR VkResult VKAPI_CALL vkDebugMarkerSetObjectNameEXT(VkDevice device,
-                                                             const VkDebugMarkerObjectNameInfoEXT *pNameInfo) {
+                                                             const VkDebugMarkerObjectNameInfoEXT* pNameInfo) {
     assert(pfn_vkDebugMarkerSetObjectNameEXT);
     return pfn_vkDebugMarkerSetObjectNameEXT(device, pNameInfo);
 }
 VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerBeginEXT(VkCommandBuffer commandBuffer,
-                                                    const VkDebugMarkerMarkerInfoEXT *pMarkerInfo) {
+                                                    const VkDebugMarkerMarkerInfoEXT* pMarkerInfo) {
     assert(pfn_vkCmdDebugMarkerBeginEXT);
     pfn_vkCmdDebugMarkerBeginEXT(commandBuffer, pMarkerInfo);
 }
@@ -205,7 +205,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerEndEXT(VkCommandBuffer commandBuffer)
     pfn_vkCmdDebugMarkerEndEXT(commandBuffer);
 }
 VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerInsertEXT(VkCommandBuffer commandBuffer,
-                                                     const VkDebugMarkerMarkerInfoEXT *pMarkerInfo) {
+                                                     const VkDebugMarkerMarkerInfoEXT* pMarkerInfo) {
     assert(pfn_vkCmdDebugMarkerInsertEXT);
     pfn_vkCmdDebugMarkerInsertEXT(commandBuffer, pMarkerInfo);
 }
@@ -247,63 +247,63 @@ static PFN_vkUnregisterObjectsNVX pfn_vkUnregisterObjectsNVX = 0;
 static PFN_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX pfn_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX = 0;
 
 VKAPI_ATTR void VKAPI_CALL vkCmdProcessCommandsNVX(VkCommandBuffer commandBuffer,
-                                                   const VkCmdProcessCommandsInfoNVX *pProcessCommandsInfo) {
+                                                   const VkCmdProcessCommandsInfoNVX* pProcessCommandsInfo) {
     assert(pfn_vkCmdProcessCommandsNVX);
     pfn_vkCmdProcessCommandsNVX(commandBuffer, pProcessCommandsInfo);
 }
 VKAPI_ATTR void VKAPI_CALL
 vkCmdReserveSpaceForCommandsNVX(VkCommandBuffer commandBuffer,
-                                const VkCmdReserveSpaceForCommandsInfoNVX *pReserveSpaceInfo) {
+                                const VkCmdReserveSpaceForCommandsInfoNVX* pReserveSpaceInfo) {
     assert(pfn_vkCmdReserveSpaceForCommandsNVX);
     pfn_vkCmdReserveSpaceForCommandsNVX(commandBuffer, pReserveSpaceInfo);
 }
 VKAPI_ATTR VkResult VKAPI_CALL
 vkCreateIndirectCommandsLayoutNVX(VkDevice device,
-                                  const VkIndirectCommandsLayoutCreateInfoNVX *pCreateInfo,
-                                  const VkAllocationCallbacks *pAllocator,
-                                  VkIndirectCommandsLayoutNVX *pIndirectCommandsLayout) {
+                                  const VkIndirectCommandsLayoutCreateInfoNVX* pCreateInfo,
+                                  const VkAllocationCallbacks* pAllocator,
+                                  VkIndirectCommandsLayoutNVX* pIndirectCommandsLayout) {
     assert(pfn_vkCreateIndirectCommandsLayoutNVX);
     return pfn_vkCreateIndirectCommandsLayoutNVX(device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
 }
 VKAPI_ATTR void VKAPI_CALL vkDestroyIndirectCommandsLayoutNVX(VkDevice device,
                                                               VkIndirectCommandsLayoutNVX indirectCommandsLayout,
-                                                              const VkAllocationCallbacks *pAllocator) {
+                                                              const VkAllocationCallbacks* pAllocator) {
     assert(pfn_vkDestroyIndirectCommandsLayoutNVX);
     pfn_vkDestroyIndirectCommandsLayoutNVX(device, indirectCommandsLayout, pAllocator);
 }
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateObjectTableNVX(VkDevice device,
-                                                      const VkObjectTableCreateInfoNVX *pCreateInfo,
-                                                      const VkAllocationCallbacks *pAllocator,
-                                                      VkObjectTableNVX *pObjectTable) {
+                                                      const VkObjectTableCreateInfoNVX* pCreateInfo,
+                                                      const VkAllocationCallbacks* pAllocator,
+                                                      VkObjectTableNVX* pObjectTable) {
     assert(pfn_vkCreateObjectTableNVX);
     return pfn_vkCreateObjectTableNVX(device, pCreateInfo, pAllocator, pObjectTable);
 }
 VKAPI_ATTR void VKAPI_CALL vkDestroyObjectTableNVX(VkDevice device,
                                                    VkObjectTableNVX objectTable,
-                                                   const VkAllocationCallbacks *pAllocator) {
+                                                   const VkAllocationCallbacks* pAllocator) {
     assert(pfn_vkDestroyObjectTableNVX);
     pfn_vkDestroyObjectTableNVX(device, objectTable, pAllocator);
 }
 VKAPI_ATTR VkResult VKAPI_CALL vkRegisterObjectsNVX(VkDevice device,
                                                     VkObjectTableNVX objectTable,
                                                     uint32_t objectCount,
-                                                    const VkObjectTableEntryNVX *const *ppObjectTableEntries,
-                                                    const uint32_t *pObjectIndices) {
+                                                    const VkObjectTableEntryNVX* const* ppObjectTableEntries,
+                                                    const uint32_t* pObjectIndices) {
     assert(pfn_vkRegisterObjectsNVX);
     return pfn_vkRegisterObjectsNVX(device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
 }
 VKAPI_ATTR VkResult VKAPI_CALL vkUnregisterObjectsNVX(VkDevice device,
                                                       VkObjectTableNVX objectTable,
                                                       uint32_t objectCount,
-                                                      const VkObjectEntryTypeNVX *pObjectEntryTypes,
-                                                      const uint32_t *pObjectIndices) {
+                                                      const VkObjectEntryTypeNVX* pObjectEntryTypes,
+                                                      const uint32_t* pObjectIndices) {
     assert(pfn_vkUnregisterObjectsNVX);
     return pfn_vkUnregisterObjectsNVX(device, objectTable, objectCount, pObjectEntryTypes, pObjectIndices);
 }
 VKAPI_ATTR void VKAPI_CALL
 vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX(VkPhysicalDevice physicalDevice,
-                                                  VkDeviceGeneratedCommandsFeaturesNVX *pFeatures,
-                                                  VkDeviceGeneratedCommandsLimitsNVX *pLimits) {
+                                                  VkDeviceGeneratedCommandsFeaturesNVX* pFeatures,
+                                                  VkDeviceGeneratedCommandsLimitsNVX* pLimits) {
     assert(pfn_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX);
     pfn_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX(physicalDevice, pFeatures, pLimits);
 }
@@ -356,16 +356,16 @@ static PFN_vkDestroyDebugUtilsMessengerEXT pfn_vkDestroyDebugUtilsMessengerEXT =
 static PFN_vkSubmitDebugUtilsMessageEXT pfn_vkSubmitDebugUtilsMessageEXT = 0;
 
 VKAPI_ATTR VkResult VKAPI_CALL vkSetDebugUtilsObjectNameEXT(VkDevice device,
-                                                            const VkDebugUtilsObjectNameInfoEXT *pNameInfo) {
+                                                            const VkDebugUtilsObjectNameInfoEXT* pNameInfo) {
     assert(pfn_vkSetDebugUtilsObjectNameEXT);
     return pfn_vkSetDebugUtilsObjectNameEXT(device, pNameInfo);
 }
 VKAPI_ATTR VkResult VKAPI_CALL vkSetDebugUtilsObjectTagEXT(VkDevice device,
-                                                           const VkDebugUtilsObjectTagInfoEXT *pTagInfo) {
+                                                           const VkDebugUtilsObjectTagInfoEXT* pTagInfo) {
     assert(pfn_vkSetDebugUtilsObjectTagEXT);
     return pfn_vkSetDebugUtilsObjectTagEXT(device, pTagInfo);
 }
-VKAPI_ATTR void VKAPI_CALL vkQueueBeginDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT *pLabelInfo) {
+VKAPI_ATTR void VKAPI_CALL vkQueueBeginDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT* pLabelInfo) {
     assert(pfn_vkQueueBeginDebugUtilsLabelEXT);
     pfn_vkQueueBeginDebugUtilsLabelEXT(queue, pLabelInfo);
 }
@@ -373,12 +373,12 @@ VKAPI_ATTR void VKAPI_CALL vkQueueEndDebugUtilsLabelEXT(VkQueue queue) {
     assert(pfn_vkQueueEndDebugUtilsLabelEXT);
     pfn_vkQueueEndDebugUtilsLabelEXT(queue);
 }
-VKAPI_ATTR void VKAPI_CALL vkQueueInsertDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT *pLabelInfo) {
+VKAPI_ATTR void VKAPI_CALL vkQueueInsertDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT* pLabelInfo) {
     assert(pfn_vkQueueInsertDebugUtilsLabelEXT);
     pfn_vkQueueInsertDebugUtilsLabelEXT(queue, pLabelInfo);
 }
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginDebugUtilsLabelEXT(VkCommandBuffer commandBuffer,
-                                                        const VkDebugUtilsLabelEXT *pLabelInfo) {
+                                                        const VkDebugUtilsLabelEXT* pLabelInfo) {
     assert(pfn_vkCmdBeginDebugUtilsLabelEXT);
     pfn_vkCmdBeginDebugUtilsLabelEXT(commandBuffer, pLabelInfo);
 }
@@ -387,27 +387,27 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuf
     pfn_vkCmdEndDebugUtilsLabelEXT(commandBuffer);
 }
 VKAPI_ATTR void VKAPI_CALL vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer commandBuffer,
-                                                         const VkDebugUtilsLabelEXT *pLabelInfo) {
+                                                         const VkDebugUtilsLabelEXT* pLabelInfo) {
     assert(pfn_vkCmdInsertDebugUtilsLabelEXT);
     pfn_vkCmdInsertDebugUtilsLabelEXT(commandBuffer, pLabelInfo);
 }
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(VkInstance instance,
-                                                              const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-                                                              const VkAllocationCallbacks *pAllocator,
-                                                              VkDebugUtilsMessengerEXT *pMessenger) {
+                                                              const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                                              const VkAllocationCallbacks* pAllocator,
+                                                              VkDebugUtilsMessengerEXT* pMessenger) {
     assert(pfn_vkCreateDebugUtilsMessengerEXT);
     return pfn_vkCreateDebugUtilsMessengerEXT(instance, pCreateInfo, pAllocator, pMessenger);
 }
 VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(VkInstance instance,
                                                            VkDebugUtilsMessengerEXT messenger,
-                                                           const VkAllocationCallbacks *pAllocator) {
+                                                           const VkAllocationCallbacks* pAllocator) {
     assert(pfn_vkDestroyDebugUtilsMessengerEXT);
     pfn_vkDestroyDebugUtilsMessengerEXT(instance, messenger, pAllocator);
 }
 VKAPI_ATTR void VKAPI_CALL vkSubmitDebugUtilsMessageEXT(VkInstance instance,
                                                         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                         VkDebugUtilsMessageTypeFlagsEXT messageTypes,
-                                                        const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData) {
+                                                        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData) {
     assert(pfn_vkSubmitDebugUtilsMessageEXT);
     pfn_vkSubmitDebugUtilsMessageEXT(instance, messageSeverity, messageTypes, pCallbackData);
 }
@@ -462,14 +462,14 @@ static PFN_vkCmdSetSampleLocationsEXT pfn_vkCmdSetSampleLocationsEXT = 0;
 static PFN_vkGetPhysicalDeviceMultisamplePropertiesEXT pfn_vkGetPhysicalDeviceMultisamplePropertiesEXT = 0;
 
 VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleLocationsEXT(VkCommandBuffer commandBuffer,
-                                                      const VkSampleLocationsInfoEXT *pSampleLocationsInfo) {
+                                                      const VkSampleLocationsInfoEXT* pSampleLocationsInfo) {
     assert(pfn_vkCmdSetSampleLocationsEXT);
     pfn_vkCmdSetSampleLocationsEXT(commandBuffer, pSampleLocationsInfo);
 }
 VKAPI_ATTR void VKAPI_CALL
 vkGetPhysicalDeviceMultisamplePropertiesEXT(VkPhysicalDevice physicalDevice,
                                             VkSampleCountFlagBits samples,
-                                            VkMultisamplePropertiesEXT *pMultisampleProperties) {
+                                            VkMultisamplePropertiesEXT* pMultisampleProperties) {
     assert(pfn_vkGetPhysicalDeviceMultisamplePropertiesEXT);
     pfn_vkGetPhysicalDeviceMultisamplePropertiesEXT(physicalDevice, samples, pMultisampleProperties);
 }
@@ -506,14 +506,14 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindShadingRateImageNV(VkCommandBuffer commandBu
 VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportShadingRatePaletteNV(VkCommandBuffer commandBuffer,
                                                                 uint32_t firstViewport,
                                                                 uint32_t viewportCount,
-                                                                const VkShadingRatePaletteNV *pShadingRatePalettes) {
+                                                                const VkShadingRatePaletteNV* pShadingRatePalettes) {
     assert(pfn_vkCmdSetViewportShadingRatePaletteNV);
     pfn_vkCmdSetViewportShadingRatePaletteNV(commandBuffer, firstViewport, viewportCount, pShadingRatePalettes);
 }
 VKAPI_ATTR void VKAPI_CALL vkCmdSetCoarseSampleOrderNV(VkCommandBuffer commandBuffer,
                                                        VkCoarseSampleOrderTypeNV sampleOrderType,
                                                        uint32_t customSampleOrderCount,
-                                                       const VkCoarseSampleOrderCustomNV *pCustomSampleOrders) {
+                                                       const VkCoarseSampleOrderCustomNV* pCustomSampleOrders) {
     assert(pfn_vkCmdSetCoarseSampleOrderNV);
     pfn_vkCmdSetCoarseSampleOrderNV(commandBuffer, sampleOrderType, customSampleOrderCount, pCustomSampleOrders);
 }
@@ -554,34 +554,34 @@ static PFN_vkCmdWriteAccelerationStructuresPropertiesNV pfn_vkCmdWriteAccelerati
 static PFN_vkCompileDeferredNV pfn_vkCompileDeferredNV = 0;
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureNV(VkDevice device,
-                                                               const VkAccelerationStructureCreateInfoNV *pCreateInfo,
-                                                               const VkAllocationCallbacks *pAllocator,
-                                                               VkAccelerationStructureNV *pAccelerationStructure) {
+                                                               const VkAccelerationStructureCreateInfoNV* pCreateInfo,
+                                                               const VkAllocationCallbacks* pAllocator,
+                                                               VkAccelerationStructureNV* pAccelerationStructure) {
     assert(pfn_vkCreateAccelerationStructureNV);
     return pfn_vkCreateAccelerationStructureNV(device, pCreateInfo, pAllocator, pAccelerationStructure);
 }
 VKAPI_ATTR void VKAPI_CALL vkDestroyAccelerationStructureNV(VkDevice device,
                                                             VkAccelerationStructureNV accelerationStructure,
-                                                            const VkAllocationCallbacks *pAllocator) {
+                                                            const VkAllocationCallbacks* pAllocator) {
     assert(pfn_vkDestroyAccelerationStructureNV);
     pfn_vkDestroyAccelerationStructureNV(device, accelerationStructure, pAllocator);
 }
 VKAPI_ATTR void VKAPI_CALL
 vkGetAccelerationStructureMemoryRequirementsNV(VkDevice device,
-                                               const VkAccelerationStructureMemoryRequirementsInfoNV *pInfo,
-                                               VkMemoryRequirements2KHR *pMemoryRequirements) {
+                                               const VkAccelerationStructureMemoryRequirementsInfoNV* pInfo,
+                                               VkMemoryRequirements2KHR* pMemoryRequirements) {
     assert(pfn_vkGetAccelerationStructureMemoryRequirementsNV);
     pfn_vkGetAccelerationStructureMemoryRequirementsNV(device, pInfo, pMemoryRequirements);
 }
 VKAPI_ATTR VkResult VKAPI_CALL
 vkBindAccelerationStructureMemoryNV(VkDevice device,
                                     uint32_t bindInfoCount,
-                                    const VkBindAccelerationStructureMemoryInfoNV *pBindInfos) {
+                                    const VkBindAccelerationStructureMemoryInfoNV* pBindInfos) {
     assert(pfn_vkBindAccelerationStructureMemoryNV);
     return pfn_vkBindAccelerationStructureMemoryNV(device, bindInfoCount, pBindInfos);
 }
 VKAPI_ATTR void VKAPI_CALL vkCmdBuildAccelerationStructureNV(VkCommandBuffer commandBuffer,
-                                                             const VkAccelerationStructureInfoNV *pInfo,
+                                                             const VkAccelerationStructureInfoNV* pInfo,
                                                              VkBuffer instanceData,
                                                              VkDeviceSize instanceOffset,
                                                              VkBool32 update,
@@ -642,9 +642,9 @@ VKAPI_ATTR void VKAPI_CALL vkCmdTraceRaysNV(VkCommandBuffer commandBuffer,
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateRayTracingPipelinesNV(VkDevice device,
                                                              VkPipelineCache pipelineCache,
                                                              uint32_t createInfoCount,
-                                                             const VkRayTracingPipelineCreateInfoNV *pCreateInfos,
-                                                             const VkAllocationCallbacks *pAllocator,
-                                                             VkPipeline *pPipelines) {
+                                                             const VkRayTracingPipelineCreateInfoNV* pCreateInfos,
+                                                             const VkAllocationCallbacks* pAllocator,
+                                                             VkPipeline* pPipelines) {
     assert(pfn_vkCreateRayTracingPipelinesNV);
     return pfn_vkCreateRayTracingPipelinesNV(device,
                                              pipelineCache,
@@ -658,21 +658,21 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetRayTracingShaderGroupHandlesNV(VkDevice devi
                                                                    uint32_t firstGroup,
                                                                    uint32_t groupCount,
                                                                    size_t dataSize,
-                                                                   void *pData) {
+                                                                   void* pData) {
     assert(pfn_vkGetRayTracingShaderGroupHandlesNV);
     return pfn_vkGetRayTracingShaderGroupHandlesNV(device, pipeline, firstGroup, groupCount, dataSize, pData);
 }
 VKAPI_ATTR VkResult VKAPI_CALL vkGetAccelerationStructureHandleNV(VkDevice device,
                                                                   VkAccelerationStructureNV accelerationStructure,
                                                                   size_t dataSize,
-                                                                  void *pData) {
+                                                                  void* pData) {
     assert(pfn_vkGetAccelerationStructureHandleNV);
     return pfn_vkGetAccelerationStructureHandleNV(device, accelerationStructure, dataSize, pData);
 }
 VKAPI_ATTR void VKAPI_CALL
 vkCmdWriteAccelerationStructuresPropertiesNV(VkCommandBuffer commandBuffer,
                                              uint32_t accelerationStructureCount,
-                                             const VkAccelerationStructureNV *pAccelerationStructures,
+                                             const VkAccelerationStructureNV* pAccelerationStructures,
                                              VkQueryType queryType,
                                              VkQueryPool queryPool,
                                              uint32_t firstQuery) {
@@ -740,16 +740,16 @@ static PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT pfn_vkGetPhysicalDevic
 static PFN_vkGetCalibratedTimestampsEXT pfn_vkGetCalibratedTimestampsEXT = 0;
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(VkPhysicalDevice physicalDevice,
-                                                                              uint32_t *pTimeDomainCount,
-                                                                              VkTimeDomainEXT *pTimeDomains) {
+                                                                              uint32_t* pTimeDomainCount,
+                                                                              VkTimeDomainEXT* pTimeDomains) {
     assert(pfn_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT);
     return pfn_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(physicalDevice, pTimeDomainCount, pTimeDomains);
 }
 VKAPI_ATTR VkResult VKAPI_CALL vkGetCalibratedTimestampsEXT(VkDevice device,
                                                             uint32_t timestampCount,
-                                                            const VkCalibratedTimestampInfoEXT *pTimestampInfos,
-                                                            uint64_t *pTimestamps,
-                                                            uint64_t *pMaxDeviation) {
+                                                            const VkCalibratedTimestampInfoEXT* pTimestampInfos,
+                                                            uint64_t* pTimestamps,
+                                                            uint64_t* pMaxDeviation) {
     assert(pfn_vkGetCalibratedTimestampsEXT);
     return pfn_vkGetCalibratedTimestampsEXT(device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
 }
@@ -832,7 +832,7 @@ static PFN_vkCmdSetExclusiveScissorNV pfn_vkCmdSetExclusiveScissorNV = 0;
 VKAPI_ATTR void VKAPI_CALL vkCmdSetExclusiveScissorNV(VkCommandBuffer commandBuffer,
                                                       uint32_t firstExclusiveScissor,
                                                       uint32_t exclusiveScissorCount,
-                                                      const VkRect2D *pExclusiveScissors) {
+                                                      const VkRect2D* pExclusiveScissors) {
     assert(pfn_vkCmdSetExclusiveScissorNV);
     pfn_vkCmdSetExclusiveScissorNV(commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors);
 }
@@ -856,7 +856,7 @@ int load_VK_NV_scissor_exclusive(VkInstance instance,
 static PFN_vkGetBufferDeviceAddressEXT pfn_vkGetBufferDeviceAddressEXT = 0;
 
 VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetBufferDeviceAddressEXT(VkDevice device,
-                                                                  const VkBufferDeviceAddressInfoEXT *pInfo) {
+                                                                  const VkBufferDeviceAddressInfoEXT* pInfo) {
     assert(pfn_vkGetBufferDeviceAddressEXT);
     return pfn_vkGetBufferDeviceAddressEXT(device, pInfo);
 }
@@ -881,8 +881,8 @@ static PFN_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV pfn_vkGetPhysicalDev
 
 VKAPI_ATTR VkResult VKAPI_CALL
 vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(VkPhysicalDevice physicalDevice,
-                                                 uint32_t *pPropertyCount,
-                                                 VkCooperativeMatrixPropertiesNV *pProperties) {
+                                                 uint32_t* pPropertyCount,
+                                                 VkCooperativeMatrixPropertiesNV* pProperties) {
     assert(pfn_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV);
     return pfn_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(physicalDevice, pPropertyCount, pProperties);
 }
@@ -908,8 +908,8 @@ static PFN_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(
     VkPhysicalDevice physicalDevice,
-    uint32_t *pCombinationCount,
-    VkFramebufferMixedSamplesCombinationNV *pCombinations) {
+    uint32_t* pCombinationCount,
+    VkFramebufferMixedSamplesCombinationNV* pCombinations) {
     assert(pfn_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV);
     return pfn_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(physicalDevice,
                                                                                  pCombinationCount,
@@ -962,8 +962,8 @@ static PFN_vkGetMemoryWin32HandleKHR pfn_vkGetMemoryWin32HandleKHR = 0;
 static PFN_vkGetMemoryWin32HandlePropertiesKHR pfn_vkGetMemoryWin32HandlePropertiesKHR = 0;
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleKHR(VkDevice device,
-                                                         const VkMemoryGetWin32HandleInfoKHR *pGetWin32HandleInfo,
-                                                         HANDLE *pHandle) {
+                                                         const VkMemoryGetWin32HandleInfoKHR* pGetWin32HandleInfo,
+                                                         HANDLE* pHandle) {
     assert(pfn_vkGetMemoryWin32HandleKHR);
     return pfn_vkGetMemoryWin32HandleKHR(device, pGetWin32HandleInfo, pHandle);
 }
@@ -971,7 +971,7 @@ VKAPI_ATTR VkResult VKAPI_CALL
 vkGetMemoryWin32HandlePropertiesKHR(VkDevice device,
                                     VkExternalMemoryHandleTypeFlagBits handleType,
                                     HANDLE handle,
-                                    VkMemoryWin32HandlePropertiesKHR *pMemoryWin32HandleProperties) {
+                                    VkMemoryWin32HandlePropertiesKHR* pMemoryWin32HandleProperties) {
     assert(pfn_vkGetMemoryWin32HandlePropertiesKHR);
     return pfn_vkGetMemoryWin32HandlePropertiesKHR(device, handleType, handle, pMemoryWin32HandleProperties);
 }
@@ -1000,13 +1000,13 @@ static PFN_vkGetSemaphoreWin32HandleKHR pfn_vkGetSemaphoreWin32HandleKHR = 0;
 
 VKAPI_ATTR VkResult VKAPI_CALL
 vkImportSemaphoreWin32HandleKHR(VkDevice device,
-                                const VkImportSemaphoreWin32HandleInfoKHR *pImportSemaphoreWin32HandleInfo) {
+                                const VkImportSemaphoreWin32HandleInfoKHR* pImportSemaphoreWin32HandleInfo) {
     assert(pfn_vkImportSemaphoreWin32HandleKHR);
     return pfn_vkImportSemaphoreWin32HandleKHR(device, pImportSemaphoreWin32HandleInfo);
 }
 VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreWin32HandleKHR(VkDevice device,
-                                                            const VkSemaphoreGetWin32HandleInfoKHR *pGetWin32HandleInfo,
-                                                            HANDLE *pHandle) {
+                                                            const VkSemaphoreGetWin32HandleInfoKHR* pGetWin32HandleInfo,
+                                                            HANDLE* pHandle) {
     assert(pfn_vkGetSemaphoreWin32HandleKHR);
     return pfn_vkGetSemaphoreWin32HandleKHR(device, pGetWin32HandleInfo, pHandle);
 }
@@ -1034,13 +1034,13 @@ static PFN_vkImportFenceWin32HandleKHR pfn_vkImportFenceWin32HandleKHR = 0;
 static PFN_vkGetFenceWin32HandleKHR pfn_vkGetFenceWin32HandleKHR = 0;
 
 VKAPI_ATTR VkResult VKAPI_CALL
-vkImportFenceWin32HandleKHR(VkDevice device, const VkImportFenceWin32HandleInfoKHR *pImportFenceWin32HandleInfo) {
+vkImportFenceWin32HandleKHR(VkDevice device, const VkImportFenceWin32HandleInfoKHR* pImportFenceWin32HandleInfo) {
     assert(pfn_vkImportFenceWin32HandleKHR);
     return pfn_vkImportFenceWin32HandleKHR(device, pImportFenceWin32HandleInfo);
 }
 VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceWin32HandleKHR(VkDevice device,
-                                                        const VkFenceGetWin32HandleInfoKHR *pGetWin32HandleInfo,
-                                                        HANDLE *pHandle) {
+                                                        const VkFenceGetWin32HandleInfoKHR* pGetWin32HandleInfo,
+                                                        HANDLE* pHandle) {
     assert(pfn_vkGetFenceWin32HandleKHR);
     return pfn_vkGetFenceWin32HandleKHR(device, pGetWin32HandleInfo, pHandle);
 }

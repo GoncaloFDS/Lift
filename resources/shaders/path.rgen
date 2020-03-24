@@ -6,9 +6,8 @@
 #include "uniform_buffer_object.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureNV Scene;
-layout(binding = 1, rgba32f) uniform image2D AccumulationImage;
-layout(binding = 2, rgba32f) uniform image2D OutputImage;
-layout(binding = 3) readonly uniform UniformBufferObjectStruct { UniformBufferObject Camera; };
+layout(binding = 1, rgba32f) uniform image2D OutputImage;
+layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject Camera; };
 
 layout(location = 0) rayPayloadNV RayPayload Ray;
 
@@ -37,10 +36,17 @@ void main() {
             const float tMin = 0.001;
             const float tMax = 10000.0;
 
-            traceNV(
-            Scene, gl_RayFlagsOpaqueNV, 0xff,
-            0 /*sbtRecordOffset*/, 0 /*sbtRecordStride*/, 0 /*missIndex*/,
-            origin.xyz, tMin, direction.xyz, tMax, 0 /*payload*/);
+            traceNV(Scene,
+                    gl_RayFlagsOpaqueNV,
+                    0xff,
+                    0 /*sbtRecordOffset*/,
+                    0 /*sbtRecordStride*/,
+                    0 /*missIndex*/,
+                    origin.xyz,
+                    tMin,
+                    direction.xyz,
+                    tMax,
+                    0 /*payload*/);
 
             const vec3 hitColor = Ray.ColorAndDistance.rgb;
             const float t = Ray.ColorAndDistance.w;
@@ -62,7 +68,7 @@ void main() {
     }
 
     const bool accumulate = Camera.NumberOfSamples != Camera.TotalNumberOfSamples;
-    const vec3 accumulatedColor = (accumulate ? imageLoad(AccumulationImage, ivec2(gl_LaunchIDNV.xy)) : vec4(0)).rgb + pixelColor;
+    const vec3 accumulatedColor = (accumulate ? imageLoad(OutputImage, ivec2(gl_LaunchIDNV.xy)) : vec4(0)).rgb + pixelColor;
 
     pixelColor = accumulatedColor / Camera.TotalNumberOfSamples;
 
@@ -71,6 +77,5 @@ void main() {
         pixelColor = sqrt(pixelColor);
     }
 
-    imageStore(AccumulationImage, ivec2(gl_LaunchIDNV.xy), vec4(accumulatedColor, 1));
     imageStore(OutputImage, ivec2(gl_LaunchIDNV.xy), vec4(pixelColor, 1));
 }

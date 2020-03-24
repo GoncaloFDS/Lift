@@ -22,13 +22,13 @@ void checkVulkanResultCallback(const VkResult err) {
     LF_ASSERT(err == VK_SUCCESS, "ImGui Vulkan Error: {0}", vulkan::toString(err));
 }
 
-ImguiLayer::ImguiLayer(vulkan::CommandPool &command_pool,
-                       const vulkan::SwapChain &swap_chain,
-                       const vulkan::DepthBuffer &depth_buffer,
-                       UserSettings &user_settings) :
+ImguiLayer::ImguiLayer(vulkan::CommandPool& command_pool,
+                       const vulkan::SwapChain& swap_chain,
+                       const vulkan::DepthBuffer& depth_buffer,
+                       UserSettings& user_settings) :
     user_settings_(user_settings) {
-    const auto &device = swap_chain.device();
-    const auto &window = device.surface().instance().window();
+    const auto& device = swap_chain.device();
+    const auto& window = device.surface().instance().window();
 
     // Initialise descriptor pool and render pass for ImGui.
     const std::vector<vulkan::DescriptorBinding> descriptor_bindings = {
@@ -64,7 +64,7 @@ ImguiLayer::ImguiLayer(vulkan::CommandPool &command_pool,
         return;
     }
 
-    auto &io = ImGui::GetIO();
+    auto& io = ImGui::GetIO();
 
     io.IniFilename = nullptr;
 
@@ -73,7 +73,7 @@ ImguiLayer::ImguiLayer(vulkan::CommandPool &command_pool,
     ImGui::StyleColorsDark();
     ImGui::GetStyle().ScaleAllSizes(scale_factor);
 
-    const std::string &font_path = "../resources/fonts/Cousine-Regular.ttf";
+    const std::string& font_path = "../resources/fonts/Cousine-Regular.ttf";
     if (!io.Fonts->AddFontFromFileTTF(font_path.c_str(), 13 * scale_factor)) {
         LF_ASSERT(false, "Failed to load font {0}", font_path);
         return;
@@ -96,8 +96,8 @@ ImguiLayer::~ImguiLayer() {
 }
 
 void ImguiLayer::render(VkCommandBuffer command_buffer,
-                        const vulkan::FrameBuffer &frame_buffer,
-                        const Statistics &statistics) {
+                        const vulkan::FrameBuffer& frame_buffer,
+                        const Statistics& statistics) {
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplVulkan_NewFrame();
     ImGui::NewFrame();
@@ -147,9 +147,9 @@ void ImguiLayer::drawSettings() {
         | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings;
 
     if (ImGui::Begin("Settings", &settings().showSettings, flags)) {
-        std::vector<const char *> scenes;
+        std::vector<const char*> scenes;
         scenes.reserve(SceneList::allScenes.size());
-        for (const auto &scene : SceneList::allScenes) { scenes.push_back(scene.first.c_str()); }
+        for (const auto& scene : SceneList::allScenes) { scenes.push_back(scene.first.c_str()); }
 
         ImGui::Text("Scene");
         ImGui::Separator();
@@ -176,12 +176,12 @@ void ImguiLayer::drawSettings() {
     ImGui::End();
 }
 
-void ImguiLayer::drawOverlay(const Statistics &statistics) {
+void ImguiLayer::drawOverlay(const Statistics& statistics) {
     if (!settings().showOverlay) {
         return;
     }
 
-    const auto &io = ImGui::GetIO();
+    const auto& io = ImGui::GetIO();
     const float distance = 10.0f;
     const ImVec2 pos = ImVec2(io.DisplaySize.x - distance, distance);
     const ImVec2 pos_pivot = ImVec2(1.0f, 0.0f);

@@ -6,7 +6,7 @@
 
 namespace vulkan {
 struct WindowData final {
-    using EventCallBackFn = std::function<void(Event &)>;
+    using EventCallBackFn = std::function<void(Event&)>;
 
     std::string title;
     uint32_t width;

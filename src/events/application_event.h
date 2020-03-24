@@ -18,7 +18,7 @@ public:
 
     [[nodiscard]] static auto getStaticType() -> EventType { return EventType::WINDOW_RESIZE; }
     [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
-    [[nodiscard]] auto getName() const -> const char * override { return "WindowResize"; }
+    [[nodiscard]] auto getName() const -> const char* override { return "WindowResize"; }
     [[nodiscard]] auto getCategoryFlags() const -> int override { return EVENT_CATEGORY_APPLICATION; }
 
 private:
@@ -31,7 +31,7 @@ public:
 
     [[nodiscard]] static auto getStaticType() -> EventType { return EventType::WINDOW_CLOSE; }
     [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
-    [[nodiscard]] auto getName() const -> const char * override { return "WindowClose"; }
+    [[nodiscard]] auto getName() const -> const char* override { return "WindowClose"; }
     [[nodiscard]] auto getCategoryFlags() const -> int override { return EVENT_CATEGORY_APPLICATION; }
 };
 
@@ -43,7 +43,7 @@ public:
 
     [[nodiscard]] static auto getStaticType() -> EventType { return EventType::WINDOW_MINIMIZE; }
     [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
-    [[nodiscard]] auto getName() const -> const char * override { return "WindowMinimize"; }
+    [[nodiscard]] auto getName() const -> const char* override { return "WindowMinimize"; }
     [[nodiscard]] auto getCategoryFlags() const -> int override { return EVENT_CATEGORY_APPLICATION; }
 
 private:
@@ -56,7 +56,7 @@ public:
 
     [[nodiscard]] static auto getStaticType() -> EventType { return EventType::APP_TICK; }
     [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
-    [[nodiscard]] auto getName() const -> const char * override { return "AppTick"; }
+    [[nodiscard]] auto getName() const -> const char* override { return "AppTick"; }
     [[nodiscard]] auto getCategoryFlags() const -> int override { return EVENT_CATEGORY_APPLICATION; }
 };
 
@@ -66,7 +66,7 @@ public:
 
     [[nodiscard]] static auto getStaticType() -> EventType { return EventType::APP_UPDATE; }
     [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
-    [[nodiscard]] auto getName() const -> const char * override { return "AppUpdate"; }
+    [[nodiscard]] auto getName() const -> const char* override { return "AppUpdate"; }
     [[nodiscard]] auto getCategoryFlags() const -> int override { return EVENT_CATEGORY_APPLICATION; }
 };
 
@@ -76,6 +76,6 @@ public:
 
     [[nodiscard]] static auto getStaticType() -> EventType { return EventType::APP_RENDER; }
     [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
-    [[nodiscard]] auto getName() const -> const char * override { return "AppRender"; }
+    [[nodiscard]] auto getName() const -> const char* override { return "AppRender"; }
     [[nodiscard]] auto getCategoryFlags() const -> int override { return EVENT_CATEGORY_APPLICATION; }
 };

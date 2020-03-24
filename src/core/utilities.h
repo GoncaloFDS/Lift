@@ -4,7 +4,7 @@
 
 namespace vulkan {
 
-void vulkanCheck(VkResult result, const char *operation);
-const char *toString(VkResult result);
+void vulkanCheck(VkResult result, const char* operation);
+const char* toString(VkResult result);
 
 }  // namespace vulkan

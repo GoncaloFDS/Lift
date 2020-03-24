@@ -9,17 +9,17 @@
 
 namespace vulkan {
 
-using EventCallbackFn = std::function<void(Event &)>;
+using EventCallbackFn = std::function<void(Event&)>;
 
 class Window final {
 public:
-    explicit Window(const WindowData &config);
+    explicit Window(const WindowData& config);
     ~Window();
 
-    [[nodiscard]] const WindowData &config() const { return config_; }
-    [[nodiscard]] GLFWwindow *handle() const { return handle_; }
+    [[nodiscard]] const WindowData& config() const { return config_; }
+    [[nodiscard]] GLFWwindow* handle() const { return handle_; }
 
-    [[nodiscard]] static std::vector<const char *> getRequiredInstanceExtensions();
+    [[nodiscard]] static std::vector<const char*> getRequiredInstanceExtensions();
     [[nodiscard]] float contentScale() const;
     [[nodiscard]] static double time();
     [[nodiscard]] VkExtent2D framebufferSize() const;
@@ -31,11 +31,11 @@ public:
     static void waitForEvents();
     void poolEvents();
 
-    void setEventCallbackFn(const EventCallbackFn &callback);
+    void setEventCallbackFn(const EventCallbackFn& callback);
 
 private:
     WindowData config_;
-    GLFWwindow *handle_ {};
+    GLFWwindow* handle_ {};
 };
 
 }  // namespace vulkan

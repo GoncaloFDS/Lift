@@ -131,7 +131,7 @@ set(src_files
         scene_list.cpp
         scene_list.h
         user_settings.h
-        renderer.cpp renderer.h denoiser/denoiser_optix.cpp denoiser/denoiser_optix.h platform/vulkan/extensions_vk.cpp platform/vulkan/extensions_vk.h platform/vulkan/buffer_dedicated.cpp platform/vulkan/buffer_dedicated.h platform/vulkan/allocator_dedicated_vkpp.h)
+        renderer.cpp renderer.h denoiser/denoiser_optix.cpp denoiser/denoiser_optix.h platform/vulkan/extensions_vk.cpp platform/vulkan/extensions_vk.h platform/vulkan/buffer_dedicated.cpp platform/vulkan/buffer_dedicated.h platform/nvvkpp/allocator_dedicated_vkpp.h)
 
 source_group("assets" FILES ${src_files_assets})
 source_group("core" FILES ${src_files_core})

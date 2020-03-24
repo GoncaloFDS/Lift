@@ -23,24 +23,24 @@ struct Statistics final {
 class ImGuiData;
 class ImguiLayer {
 public:
-    ImguiLayer(vulkan::CommandPool &command_pool,
-               const vulkan::SwapChain &swap_chain,
-               const vulkan::DepthBuffer &depth_buffer,
-               UserSettings &user_settings);
+    ImguiLayer(vulkan::CommandPool& command_pool,
+               const vulkan::SwapChain& swap_chain,
+               const vulkan::DepthBuffer& depth_buffer,
+               UserSettings& user_settings);
     ~ImguiLayer();
 
-    void render(VkCommandBuffer command_buffer, const vulkan::FrameBuffer &frame_buffer, const Statistics &statistics);
+    void render(VkCommandBuffer command_buffer, const vulkan::FrameBuffer& frame_buffer, const Statistics& statistics);
 
     static bool wantsToCaptureKeyboard();
     static bool wantsToCaptureMouse();
 
-    UserSettings &settings() { return user_settings_; }
+    UserSettings& settings() { return user_settings_; }
 
 private:
     void drawSettings();
-    void drawOverlay(const Statistics &statistics);
+    void drawOverlay(const Statistics& statistics);
 
     std::unique_ptr<vulkan::DescriptorPool> descriptor_pool_;
     std::unique_ptr<vulkan::RenderPass> render_pass_;
-    UserSettings &user_settings_;
+    UserSettings& user_settings_;
 };

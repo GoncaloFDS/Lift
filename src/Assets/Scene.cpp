@@ -10,10 +10,10 @@
 namespace assets {
 
 template<class T>
-void copyFromStagingBuffer(vulkan::CommandPool &command_pool,
-                           vulkan::Buffer &dst_buffer,
-                           const std::vector<T> &content) {
-    const auto &device = command_pool.device();
+void copyFromStagingBuffer(vulkan::CommandPool& command_pool,
+                           vulkan::Buffer& dst_buffer,
+                           const std::vector<T>& content) {
+    const auto& device = command_pool.device();
     const auto content_size = sizeof(content[0]) * content.size();
 
     // Create a temporary host-visible staging buffer.
@@ -34,12 +34,12 @@ void copyFromStagingBuffer(vulkan::CommandPool &command_pool,
 }
 
 template<class T>
-void createDeviceBuffer(vulkan::CommandPool &command_pool,
+void createDeviceBuffer(vulkan::CommandPool& command_pool,
                         const VkBufferUsageFlags usage,
-                        const std::vector<T> &content,
-                        std::unique_ptr<vulkan::Buffer> &buffer,
-                        std::unique_ptr<vulkan::DeviceMemory> &memory) {
-    const auto &device = command_pool.device();
+                        const std::vector<T>& content,
+                        std::unique_ptr<vulkan::Buffer>& buffer,
+                        std::unique_ptr<vulkan::DeviceMemory>& memory) {
+    const auto& device = command_pool.device();
     const auto content_size = sizeof(content[0]) * content.size();
 
     buffer = std::make_unique<vulkan::Buffer>(device, content_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage);
@@ -48,9 +48,9 @@ void createDeviceBuffer(vulkan::CommandPool &command_pool,
     copyFromStagingBuffer(command_pool, *buffer, content);
 }
 
-Scene::Scene(vulkan::CommandPool &command_pool,
-             std::vector<Model> &&models,
-             std::vector<Texture> &&textures,
+Scene::Scene(vulkan::CommandPool& command_pool,
+             std::vector<Model>&& models,
+             std::vector<Texture>&& textures,
              bool used_for_ray_tracing) :
     models_(std::move(models)),
     textures_(std::move(textures)) {
@@ -61,7 +61,7 @@ Scene::Scene(vulkan::CommandPool &command_pool,
     std::vector<std::pair<glm::vec3, glm::vec3>> aabbs;
     std::vector<glm::uvec2> offsets;
 
-    for (const auto &model : models_) {
+    for (const auto& model : models_) {
         const auto index_offset = static_cast<uint32_t>(indices.size());
         const auto vertex_offset = static_cast<uint32_t>(vertices.size());
         const auto material_offset = static_cast<uint32_t>(materials.size());
@@ -74,7 +74,7 @@ Scene::Scene(vulkan::CommandPool &command_pool,
 
         for (size_t i = vertex_offset; i != vertices.size(); ++i) { vertices[i].materialIndex += material_offset; }
 
-        const auto sphere = dynamic_cast<const Sphere *>(model.procedural());
+        const auto sphere = dynamic_cast<const Sphere*>(model.procedural());
         if (sphere != nullptr) {
             aabbs.push_back(sphere->boundingBox());
             procedurals.emplace_back(sphere->center, sphere->radius);

@@ -3,14 +3,14 @@
 
 namespace vulkan {
 
-DescriptorPool::DescriptorPool(const vulkan::Device &device,
-                               const std::vector<DescriptorBinding> &descriptor_bindings,
+DescriptorPool::DescriptorPool(const vulkan::Device& device,
+                               const std::vector<DescriptorBinding>& descriptor_bindings,
                                const size_t max_sets) :
     device_(device) {
     std::vector<VkDescriptorPoolSize> pool_sizes;
 
     pool_sizes.reserve(descriptor_bindings.size());
-    for (const auto &binding : descriptor_bindings) {
+    for (const auto& binding : descriptor_bindings) {
         pool_sizes.push_back(
             VkDescriptorPoolSize {binding.Type, static_cast<uint32_t>(binding.DescriptorCount * max_sets)});
     }

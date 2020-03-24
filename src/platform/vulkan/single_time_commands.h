@@ -9,7 +9,7 @@
 namespace vulkan {
 class SingleTimeCommands final {
 public:
-    static void submit(CommandPool &command_pool, const std::function<void(VkCommandBuffer)> &action) {
+    static void submit(CommandPool& command_pool, const std::function<void(VkCommandBuffer)>& action) {
         CommandBuffers command_buffers(command_pool, 1);
 
         VkCommandBufferBeginInfo begin_info = {};

@@ -4,7 +4,7 @@
 
 namespace vulkan {
 
-PipelineLayout::PipelineLayout(const Device &device, const DescriptorSetLayout &descriptor_set_layout) :
+PipelineLayout::PipelineLayout(const Device& device, const DescriptorSetLayout& descriptor_set_layout) :
     device_(device) {
     VkDescriptorSetLayout descriptor_set_layouts[] = {descriptor_set_layout.handle()};
 

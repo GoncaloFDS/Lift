@@ -8,10 +8,10 @@
 #include "vulkan/enumerate.h"
 #include "vulkan/window.h"
 
-UserSettings createUserSettings(const Options &options);
-void setVulkanDevice(Application &application);
+UserSettings createUserSettings(const Options& options);
+void setVulkanDevice(Application& application);
 
-int main(int argc, const char *argv[]) noexcept {
+int main(int argc, const char* argv[]) noexcept {
     Log::init();
     LF_WARN("Initialized Log");
     const Options options(argc, argv);
@@ -32,7 +32,7 @@ int main(int argc, const char *argv[]) noexcept {
     return EXIT_SUCCESS;
 }
 
-UserSettings createUserSettings(const Options &options) {
+UserSettings createUserSettings(const Options& options) {
     UserSettings user_settings {};
 
     user_settings.benchmark = options.benchmark;
@@ -53,10 +53,10 @@ UserSettings createUserSettings(const Options &options) {
     return user_settings;
 }
 
-void setVulkanDevice(Application &application) {
-    const auto &physical_devices = application.physicalDevices();
+void setVulkanDevice(Application& application) {
+    const auto& physical_devices = application.physicalDevices();
     const auto result =
-        std::find_if(physical_devices.begin(), physical_devices.end(), [](const VkPhysicalDevice &device) {
+        std::find_if(physical_devices.begin(), physical_devices.end(), [](const VkPhysicalDevice& device) {
             VkPhysicalDeviceFeatures device_features;
             vkGetPhysicalDeviceFeatures(device, &device_features);
 
@@ -68,7 +68,7 @@ void setVulkanDevice(Application &application) {
             const auto has_graphics_queue =
                 std::find_if(queue_families.begin(),
                              queue_families.end(),
-                             [](const VkQueueFamilyProperties &queue_family) {
+                             [](const VkQueueFamilyProperties& queue_family) {
                                  return queue_family.queueCount > 0 && queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT;
                              });
 

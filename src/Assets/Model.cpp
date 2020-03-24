@@ -12,7 +12,7 @@ using namespace glm;
 namespace std {
 template<>
 struct hash<assets::Vertex> final {
-    size_t operator()(assets::Vertex const &vertex) const noexcept {
+    size_t operator()(assets::Vertex const& vertex) const noexcept {
         return combine(hash<vec3>()(vertex.position),
                        combine(hash<vec3>()(vertex.normal),
                                combine(hash<vec2>()(vertex.texCoord), hash<int>()(vertex.materialIndex))));
@@ -27,7 +27,7 @@ private:
 
 namespace assets {
 
-Model Model::loadModel(const std::string &filename) {
+Model Model::loadModel(const std::string& filename) {
     LF_WARN("Loading model {0}", filename);
 
     const auto timer = std::chrono::high_resolution_clock::now();
@@ -55,7 +55,7 @@ Model Model::loadModel(const std::string &filename) {
 
     std::vector<Material> materials;
 
-    for (const auto &material : obj_materials) {
+    for (const auto& material : obj_materials) {
         Material m {};
 
         m.diffuse = vec4(material.diffuse[0], material.diffuse[1], material.diffuse[2], 1.0);
@@ -79,10 +79,10 @@ Model Model::loadModel(const std::string &filename) {
     std::unordered_map<Vertex, uint32_t> unique_vertices(obj_attrib.vertices.size());
     size_t face_id = 0;
 
-    for (const auto &shape : obj_shapes) {
-        const auto &mesh = shape.mesh;
+    for (const auto& shape : obj_shapes) {
+        const auto& mesh = shape.mesh;
 
-        for (const auto &index : mesh.indices) {
+        for (const auto& index : mesh.indices) {
             Vertex vertex = {};
 
             vertex.position = {
@@ -134,7 +134,7 @@ Model Model::createCornellBox(const float scale) {
     return Model(std::move(vertices), std::move(indices), std::move(materials), nullptr);
 }
 
-Model Model::createBox(const vec3 &p0, const vec3 &p1, const Material &material) {
+Model Model::createBox(const vec3& p0, const vec3& p1, const Material& material) {
     std::vector<Vertex> vertices = {
         Vertex {vec3(p0.x, p0.y, p0.z), vec3(-1, 0, 0), vec2(0), 0},
         Vertex {vec3(p0.x, p0.y, p1.z), vec3(-1, 0, 0), vec2(0), 0},
@@ -173,7 +173,7 @@ Model Model::createBox(const vec3 &p0, const vec3 &p1, const Material &material)
     return Model(std::move(vertices), std::move(indices), std::vector<Material> {material}, nullptr);
 }
 
-Model Model::createSphere(const vec3 &center, float radius, const Material &material, const bool is_procedural) {
+Model Model::createSphere(const vec3& center, float radius, const Material& material, const bool is_procedural) {
     const int slices = 32;
     const int stacks = 16;
 
@@ -229,25 +229,25 @@ Model Model::createSphere(const vec3 &center, float radius, const Material &mate
                  is_procedural ? new Sphere(center, radius) : nullptr);
 }
 
-void Model::setMaterial(const Material &material) {
+void Model::setMaterial(const Material& material) {
     LF_ASSERT(materials_.size() == 1, ("cannot change material on a multi-material model"));
 
     materials_[0] = material;
 }
 
-void Model::transform(const mat4 &transform) {
+void Model::transform(const mat4& transform) {
     const auto inverse_transpose = inverseTranspose(transform);
 
-    for (auto &vertex : vertices_) {
+    for (auto& vertex : vertices_) {
         vertex.position = transform * vec4(vertex.position, 1);
         vertex.normal = inverse_transpose * vec4(vertex.normal, 0);
     }
 }
 
-Model::Model(std::vector<Vertex> &&vertices,
-             std::vector<uint32_t> &&indices,
-             std::vector<Material> &&materials,
-             const class Procedural *procedural) :
+Model::Model(std::vector<Vertex>&& vertices,
+             std::vector<uint32_t>&& indices,
+             std::vector<Material>&& materials,
+             const class Procedural* procedural) :
     vertices_(std::move(vertices)),
     indices_(std::move(indices)), materials_(std::move(materials)), procedural_(procedural) {
 }

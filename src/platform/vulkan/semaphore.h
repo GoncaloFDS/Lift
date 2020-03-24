@@ -7,21 +7,21 @@ class Device;
 
 class Semaphore final {
 public:
-    Semaphore(const Semaphore &) = delete;
-    Semaphore &operator=(const Semaphore &) = delete;
-    Semaphore &operator=(Semaphore &&) = delete;
+    Semaphore(const Semaphore&) = delete;
+    Semaphore& operator=(const Semaphore&) = delete;
+    Semaphore& operator=(Semaphore&&) = delete;
 
-    explicit Semaphore(const Device &device);
-    Semaphore(Semaphore &&other) noexcept;
+    explicit Semaphore(const Device& device);
+    Semaphore(Semaphore&& other) noexcept;
     ~Semaphore();
 
     [[nodiscard]] VkSemaphore handle() const { return semaphore_; }
-    [[nodiscard]] const Device &device() const { return device_; }
+    [[nodiscard]] const Device& device() const { return device_; }
 
 private:
     VkSemaphore semaphore_ {};
 
-    const class Device &device_;
+    const class Device& device_;
 };
 
 }  // namespace vulkan

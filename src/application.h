@@ -44,11 +44,11 @@ class Window;
 
 class Application {
 public:
-    Application(const UserSettings &user_settings, const WindowData &window_properties, bool vsync);
+    Application(const UserSettings& user_settings, const WindowData& window_properties, bool vsync);
     ~Application();
 
-    [[nodiscard]] const std::vector<VkExtensionProperties> &extensions() const;
-    [[nodiscard]] const std::vector<VkPhysicalDevice> &physicalDevices() const;
+    [[nodiscard]] const std::vector<VkExtensionProperties>& extensions() const;
+    [[nodiscard]] const std::vector<VkPhysicalDevice>& physicalDevices() const;
 
     [[nodiscard]] assets::UniformBufferObject getUniformBufferObject(VkExtent2D extent) const;
 
@@ -56,14 +56,14 @@ public:
     void run();
 
 private:
-    void onEvent(Event &event);
-    bool onWindowClose(WindowCloseEvent &e);
-    bool onWindowResize(WindowResizeEvent &e);
-    bool onWindowMinimize(WindowMinimizeEvent &e);
-    bool onMouseMove(MouseMovedEvent &e);
-    bool onMouseScroll(MouseScrolledEvent &e);
-    bool onKeyPress(KeyPressedEvent &e);
-    bool onKeyRelease(KeyReleasedEvent &e);
+    void onEvent(Event& event);
+    bool onWindowClose(WindowCloseEvent& e);
+    bool onWindowResize(WindowResizeEvent& e);
+    bool onWindowMinimize(WindowMinimizeEvent& e);
+    bool onMouseMove(MouseMovedEvent& e);
+    bool onMouseScroll(MouseScrolledEvent& e);
+    bool onKeyPress(KeyPressedEvent& e);
+    bool onKeyRelease(KeyReleasedEvent& e);
 
     void loadScene(uint32_t scene_index);
     void checkAndUpdateBenchmarkState(double prev_time);

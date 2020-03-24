@@ -16,41 +16,39 @@
 
 namespace vulkan {
 
-RayTracingPipeline::RayTracingPipeline(const DeviceProcedures &device_procedures,
-                                       const SwapChain &swap_chain,
-                                       const TopLevelAccelerationStructure &acceleration_structure,
-                                       const ImageView &accumulation_image_view,
-                                       const ImageView &output_image_view,
-                                       const std::vector<assets::UniformBuffer> &uniform_buffers,
-                                       const assets::Scene &scene) :
+RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures,
+                                       const SwapChain& swap_chain,
+                                       const TopLevelAccelerationStructure& acceleration_structure,
+                                       const ImageView& output_image_view,
+                                       const std::vector<assets::UniformBuffer>& uniform_buffers,
+                                       const assets::Scene& scene) :
     swap_chain_(swap_chain) {
     // Create descriptor pool/sets.
-    const auto &device = swap_chain.device();
+    const auto& device = swap_chain.device();
     const std::vector<DescriptorBinding> descriptor_bindings = {
         // Top level acceleration structure.
         {0, 1, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV, VK_SHADER_STAGE_RAYGEN_BIT_NV},
 
         // Image accumulation & output
         {1, 1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_NV},
-        {2, 1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_NV},
 
         // Camera information & co
-        {3, 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_NV | VK_SHADER_STAGE_MISS_BIT_NV},
+        {2, 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_NV | VK_SHADER_STAGE_MISS_BIT_NV},
 
         // Vertex buffer, Index buffer, Material buffer, Offset buffer
+        {3, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
         {4, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
         {5, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
         {6, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
-        {7, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
 
         // Textures and image samplers
-        {8,
+        {7,
          static_cast<uint32_t>(scene.textureSamplers().size()),
          VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
          VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
 
         // The Procedural buffer.
-        {9,
+        {8,
          1,
          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
          VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV | VK_SHADER_STAGE_INTERSECTION_BIT_NV}};
@@ -58,7 +56,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures &device_procedures
     descriptor_set_manager_ =
         std::make_unique<DescriptorSetManager>(device, descriptor_bindings, uniform_buffers.size());
 
-    auto &descriptor_sets = descriptor_set_manager_->descriptorSets();
+    auto& descriptor_sets = descriptor_set_manager_->descriptorSets();
 
     for (uint32_t i = 0; i != swap_chain.images().size(); ++i) {
         // Top level acceleration structure.
@@ -68,11 +66,6 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures &device_procedures
         structure_info.pNext = nullptr;
         structure_info.accelerationStructureCount = 1;
         structure_info.pAccelerationStructures = &acceleration_structure_handle;
-
-        // Accumulation image
-        VkDescriptorImageInfo accumulation_image_info = {};
-        accumulation_image_info.imageView = accumulation_image_view.handle();
-        accumulation_image_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
         // Output image
         VkDescriptorImageInfo output_image_info = {};
@@ -108,7 +101,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures &device_procedures
         std::vector<VkDescriptorImageInfo> image_infos(scene.textureSamplers().size());
 
         for (size_t t = 0; t != image_infos.size(); ++t) {
-            auto &image_info = image_infos[t];
+            auto& image_info = image_infos[t];
             image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             image_info.imageView = scene.textureImageViews()[t];
             image_info.sampler = scene.textureSamplers()[t];
@@ -116,14 +109,13 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures &device_procedures
 
         std::vector<VkWriteDescriptorSet> descriptor_writes = {
             descriptor_sets.bind(i, 0, structure_info),
-            descriptor_sets.bind(i, 1, accumulation_image_info),
-            descriptor_sets.bind(i, 2, output_image_info),
-            descriptor_sets.bind(i, 3, uniform_buffer_info),
-            descriptor_sets.bind(i, 4, vertex_buffer_info),
-            descriptor_sets.bind(i, 5, index_buffer_info),
-            descriptor_sets.bind(i, 6, material_buffer_info),
-            descriptor_sets.bind(i, 7, offsets_buffer_info),
-            descriptor_sets.bind(i, 8, *image_infos.data(), static_cast<uint32_t>(image_infos.size()))};
+            descriptor_sets.bind(i, 1, output_image_info),
+            descriptor_sets.bind(i, 2, uniform_buffer_info),
+            descriptor_sets.bind(i, 3, vertex_buffer_info),
+            descriptor_sets.bind(i, 4, index_buffer_info),
+            descriptor_sets.bind(i, 5, material_buffer_info),
+            descriptor_sets.bind(i, 6, offsets_buffer_info),
+            descriptor_sets.bind(i, 7, *image_infos.data(), static_cast<uint32_t>(image_infos.size()))};
 
         // Procedural buffer (optional)
         VkDescriptorBufferInfo procedural_buffer_info = {};
@@ -132,7 +124,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures &device_procedures
             procedural_buffer_info.buffer = scene.proceduralBuffer().handle();
             procedural_buffer_info.range = VK_WHOLE_SIZE;
 
-            descriptor_writes.push_back(descriptor_sets.bind(i, 9, procedural_buffer_info));
+            descriptor_writes.push_back(descriptor_sets.bind(i, 8, procedural_buffer_info));
         }
 
         descriptor_sets.updateDescriptors(descriptor_writes);

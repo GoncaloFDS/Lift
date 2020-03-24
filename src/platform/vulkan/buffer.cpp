@@ -3,7 +3,7 @@
 
 namespace vulkan {
 
-Buffer::Buffer(const class Device &device, const size_t size, const VkBufferUsageFlags usage) : device_(device) {
+Buffer::Buffer(const class Device& device, const size_t size, const VkBufferUsageFlags usage) : device_(device) {
     VkBufferCreateInfo buffer_info = {};
     buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     buffer_info.size = size;
@@ -35,7 +35,7 @@ VkMemoryRequirements Buffer::getMemoryRequirements() const {
     return requirements;
 }
 
-void Buffer::copyFrom(CommandPool &command_pool, const Buffer &src, VkDeviceSize size) {
+void Buffer::copyFrom(CommandPool& command_pool, const Buffer& src, VkDeviceSize size) {
     SingleTimeCommands::submit(command_pool, [&](VkCommandBuffer command_buffer) {
         VkBufferCopy copy_region = {};
         copy_region.srcOffset = 0;  // Optional

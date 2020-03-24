@@ -8,7 +8,7 @@ Camera::Camera() :
     changed_(true) {
 }
 
-Camera::Camera(const vec3 &eye, const vec3 &look_at, const vec3 &up, const float fovy, const float aspect_ratio) :
+Camera::Camera(const vec3& eye, const vec3& look_at, const vec3& up, const float fovy, const float aspect_ratio) :
     eye_(eye), look_at_(look_at), up_(up), aspect_ratio_(aspect_ratio), fovy_(fovy), changed_(true) {
 }
 

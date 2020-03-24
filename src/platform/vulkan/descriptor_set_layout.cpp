@@ -3,12 +3,12 @@
 
 namespace vulkan {
 
-DescriptorSetLayout::DescriptorSetLayout(const Device &device,
-                                         const std::vector<DescriptorBinding> &descriptor_bindings) :
+DescriptorSetLayout::DescriptorSetLayout(const Device& device,
+                                         const std::vector<DescriptorBinding>& descriptor_bindings) :
     device_(device) {
     std::vector<VkDescriptorSetLayoutBinding> layout_bindings;
 
-    for (const auto &binding : descriptor_bindings) {
+    for (const auto& binding : descriptor_bindings) {
         VkDescriptorSetLayoutBinding b = {};
         b.binding = binding.Binding;
         b.descriptorCount = binding.DescriptorCount;

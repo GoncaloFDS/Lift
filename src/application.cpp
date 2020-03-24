@@ -21,12 +21,12 @@
 using namespace vulkan;
 
 #ifdef NDEBUG
-const auto k_validation_layers = std::vector<const char *>();
+const auto k_validation_layers = std::vector<const char*>();
 #else
-const auto k_validation_layers = std::vector<const char *> {"VK_LAYER_KHRONOS_validation"};
+const auto k_validation_layers = std::vector<const char*> {"VK_LAYER_KHRONOS_validation"};
 #endif
 
-Application::Application(const UserSettings &user_settings, const WindowData &window_properties, const bool vsync) :
+Application::Application(const UserSettings& user_settings, const WindowData& window_properties, const bool vsync) :
     user_settings_(user_settings), vsync_(vsync), is_running_(true) {
 
     const auto validation_layers = k_validation_layers;
@@ -73,9 +73,8 @@ void Application::run() {
             if (user_settings_.isDenoised) {
                 renderer_->denoiseImage();
             }
+
             renderer_->display();
-        } else {
-            renderer_->render(*scene_);
         }
 
         // Render the UI
@@ -102,7 +101,7 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     const auto camera_rot_x = static_cast<float>(camera_y_ / 300.0);
     const auto camera_rot_y = static_cast<float>(camera_x_ / 300.0);
 
-    const auto &init = camera_initial_state_;
+    const auto& init = camera_initial_state_;
     const auto view = init.modelView;
     const auto model = glm::rotate(mat4(1.0f), camera_rot_y * radians(90.0f), vec3(0.0f, 1.0f, 0.0f))
         * glm::rotate(mat4(1.0f), camera_rot_x * radians(90.0f), vec3(1.0f, 0.0f, 0.0f));
@@ -130,11 +129,11 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     return ubo;
 }
 
-const std::vector<VkExtensionProperties> &Application::extensions() const {
+const std::vector<VkExtensionProperties>& Application::extensions() const {
     return instance_->extensions();
 }
 
-const std::vector<VkPhysicalDevice> &Application::physicalDevices() const {
+const std::vector<VkPhysicalDevice>& Application::physicalDevices() const {
     return instance_->physicalDevices();
 }
 
@@ -214,7 +213,7 @@ void Application::loadScene(const uint32_t scene_index) {
     reset_accumulation_ = true;
 }
 
-void Application::onEvent(Event &event) {
+void Application::onEvent(Event& event) {
     EventDispatcher dispatcher(event);
     dispatcher.dispatch<WindowCloseEvent>(LF_BIND_EVENT_FN(Application::onWindowClose));
     dispatcher.dispatch<WindowResizeEvent>(LF_BIND_EVENT_FN(Application::onWindowResize));
@@ -226,13 +225,13 @@ void Application::onEvent(Event &event) {
     dispatcher.dispatch<KeyReleasedEvent>(LF_BIND_EVENT_FN(Application::onKeyRelease));
 }
 
-bool Application::onWindowClose(WindowCloseEvent &e) {
+bool Application::onWindowClose(WindowCloseEvent& e) {
     is_running_ = false;
     LF_INFO(e.toString());
     return false;
 }
 
-bool Application::onWindowResize(WindowResizeEvent &e) {
+bool Application::onWindowResize(WindowResizeEvent& e) {
     if (e.height() && e.width()) {
         renderer_->waitDeviceIdle();
         deleteSwapChain();
@@ -242,11 +241,11 @@ bool Application::onWindowResize(WindowResizeEvent &e) {
     return false;
 }
 
-bool Application::onWindowMinimize(WindowMinimizeEvent &e) {
+bool Application::onWindowMinimize(WindowMinimizeEvent& e) {
     return false;
 }
 
-bool Application::onMouseMove(MouseMovedEvent &e) {
+bool Application::onMouseMove(MouseMovedEvent& e) {
     if (Input::isKeyPressed(LF_MOUSE_BUTTON_1)) {
         camera_x_ += static_cast<float>(e.x() - mouse_x_);
         camera_y_ += static_cast<float>(e.y() - mouse_y_);
@@ -258,11 +257,11 @@ bool Application::onMouseMove(MouseMovedEvent &e) {
     return false;
 }
 
-bool Application::onMouseScroll(MouseScrolledEvent &e) {
+bool Application::onMouseScroll(MouseScrolledEvent& e) {
     return false;
 }
 
-bool Application::onKeyPress(KeyPressedEvent &e) {
+bool Application::onKeyPress(KeyPressedEvent& e) {
     if (user_interface_->wantsToCaptureKeyboard()) {
         return true;
     }
@@ -288,7 +287,7 @@ bool Application::onKeyPress(KeyPressedEvent &e) {
     return false;
 }
 
-bool Application::onKeyRelease(KeyReleasedEvent &e) {
+bool Application::onKeyRelease(KeyReleasedEvent& e) {
     return false;
 }
 

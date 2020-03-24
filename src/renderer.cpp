@@ -26,7 +26,7 @@
 
 using namespace vulkan;
 
-Renderer::Renderer(const Instance &instance, bool vsync) {
+Renderer::Renderer(const Instance& instance, bool vsync) {
 
     surface_ = std::make_unique<Surface>(instance);
     denoiser_ = std::make_unique<DenoiserOptix>();
@@ -44,10 +44,35 @@ Renderer::~Renderer() {
     surface_.reset();
 }
 
-void Renderer::beginCommand(assets::Scene &scene, size_t current_frame) {
+void Renderer::init(VkPhysicalDevice physical_device, assets::Scene& scene, Instance& instance) {
+    LF_ASSERT(!device_, "physical device has already been set");
+
+    device_ = std::make_unique<Device>(physical_device, *surface_);
+    command_pool_ = std::make_unique<CommandPool>(*device_, device_->graphicsFamilyIndex(), true);
+
+    onDeviceSet();
+    load_VK_EXTENSION_SUBSET(instance.handle(), vkGetInstanceProcAddr, device_->handle(), vkGetDeviceProcAddr);
+}
+
+void Renderer::createOutputImage() {
+    const auto extent = swapChain().extent();
+    output_image_ = std::make_unique<Image>(device(),
+                                            extent,
+                                            VK_FORMAT_R32G32B32A32_SFLOAT,
+                                            VK_IMAGE_TILING_OPTIMAL,
+                                            VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
+    output_image_memory_ =
+        std::make_unique<DeviceMemory>(output_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+    output_image_view_ = std::make_unique<ImageView>(device(),
+                                                     output_image_->handle(),
+                                                     VK_FORMAT_R32G32B32A32_SFLOAT,
+                                                     VK_IMAGE_ASPECT_COLOR_BIT);
+}
+
+void Renderer::beginCommand(assets::Scene& scene, size_t current_frame) {
     const auto no_timout = std::numeric_limits<uint64_t>::max();
 
-    auto &in_flight_fence = in_flight_fences_[current_frame];
+    auto& in_flight_fence = in_flight_fences_[current_frame];
     current_image_available_semaphore_ = image_available_semaphores_[current_frame].handle();
     current_render_finished_semaphore_ = render_finished_semaphores_[current_frame].handle();
 
@@ -72,23 +97,15 @@ void Renderer::beginCommand(assets::Scene &scene, size_t current_frame) {
     current_command_buffer_ = command_buffers_->begin(current_image_index_);
 }
 
-void Renderer::trace(assets::Scene &scene) {
+void Renderer::trace(assets::Scene& scene) {
     traceCommand(current_command_buffer_, current_image_index_, scene);
 }
 
-void Renderer::render(assets::Scene &scene) {
-    rasterizeCommand(current_command_buffer_, current_image_index_, scene);
-}
-
-void Renderer::display() {
-    display(current_command_buffer_, current_image_index_);
-}
-
-void Renderer::render(ImguiLayer &user_interface, const Statistics &statistics) {
+void Renderer::render(ImguiLayer& user_interface, const Statistics& statistics) {
     user_interface.render(current_command_buffer_, swapChainFrameBuffer(current_image_index_), statistics);
 }
 
-size_t Renderer::endCommand(assets::Scene &scene, size_t current_frame, assets::UniformBufferObject &ubo) {
+size_t Renderer::endCommand(assets::Scene& scene, size_t current_frame, assets::UniformBufferObject& ubo) {
     command_buffers_->end(current_image_index_);
     updateUniformBuffer(current_image_index_, ubo);
 
@@ -108,7 +125,7 @@ size_t Renderer::endCommand(assets::Scene &scene, size_t current_frame, assets::
     submit_info.signalSemaphoreCount = 1;
     submit_info.pSignalSemaphores = signal_semaphores;
 
-    auto &in_flight_fence = in_flight_fences_[current_frame];
+    auto& in_flight_fence = in_flight_fences_[current_frame];
     in_flight_fence.reset();
 
     vulkanCheck(vkQueueSubmit(device_->graphicsQueue(), 1, &submit_info, in_flight_fence.handle()),
@@ -136,7 +153,7 @@ size_t Renderer::endCommand(assets::Scene &scene, size_t current_frame, assets::
     return (current_frame + 1) % in_flight_fences_.size();
 }
 
-void Renderer::traceCommand(VkCommandBuffer command_buffer, uint32_t image_index, assets::Scene &scene) {
+void Renderer::traceCommand(VkCommandBuffer command_buffer, uint32_t image_index, assets::Scene& scene) {
     const auto extent = swapChain().extent();
 
     VkDescriptorSet descriptor_sets[] = {ray_tracing_pipeline_->descriptorSet(image_index)};
@@ -147,14 +164,6 @@ void Renderer::traceCommand(VkCommandBuffer command_buffer, uint32_t image_index
     subresource_range.levelCount = 1;
     subresource_range.baseArrayLayer = 0;
     subresource_range.layerCount = 1;
-
-    ImageMemoryBarrier::insert(command_buffer,
-                               accumulation_image_->handle(),
-                               subresource_range,
-                               0,
-                               VK_ACCESS_SHADER_WRITE_BIT,
-                               VK_IMAGE_LAYOUT_UNDEFINED,
-                               VK_IMAGE_LAYOUT_GENERAL);
 
     ImageMemoryBarrier::insert(command_buffer,
                                output_image_->handle(),
@@ -191,98 +200,56 @@ void Renderer::traceCommand(VkCommandBuffer command_buffer, uint32_t image_index
                                          1);
 }
 
-void Renderer::display(VkCommandBuffer command_buffer, uint32_t image_index) {
-    std::array<VkClearValue, 2> clear_values = {};
-    clear_values[0].color = {{0.2f, 0.2f, 0.2f, 1.0f}};
-    clear_values[1].depthStencil = {1.0f, 0};
-
-    VkRenderPassBeginInfo render_pass_info = {};
-    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    render_pass_info.renderPass = graphics_pipeline_->renderPass().handle();
-    render_pass_info.framebuffer = swap_chain_framebuffers_[image_index].handle();
-    render_pass_info.renderArea.offset = {0, 0};
-    render_pass_info.renderArea.extent = swap_chain_->extent();
-    render_pass_info.clearValueCount = (uint32_t) clear_values.size();
-    render_pass_info.pClearValues = clear_values.data();
-
-    vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
-    {
-        VkDescriptorSet descriptor_set[] = {graphics_pipeline_->descriptorSet(image_index)};
-        //    VkBuffer vertex_buffers[];
-        //    const VkBuffer index_buffer;
-        VkDeviceSize offsets[] = {0};
-
-        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_->handle());
-        vkCmdBindDescriptorSets(command_buffer,
-                                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                graphics_pipeline_->pipelineLayout().handle(),
-                                0,
-                                1,
-                                descriptor_set,
-                                0,
-                                nullptr);
-        vkCmdDraw(command_buffer, 3, 1, 0, 0);
-        //    vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
-        //    vkCmdBindIndexBuffer(command_buffer, index_buffer, 0, VK_INDEX_TYPE_UINT32);
-    }
-    vkCmdEndRenderPass(command_buffer);
+void Renderer::display() {
+    display(current_command_buffer_, current_image_index_);
 }
 
-void Renderer::rasterizeCommand(VkCommandBuffer command_buffer, uint32_t image_index, assets::Scene &scene) {
-    std::array<VkClearValue, 2> clear_values = {};
-    clear_values[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
-    clear_values[1].depthStencil = {1.0f, 0};
+void Renderer::display(VkCommandBuffer command_buffer, uint32_t image_index) {
+    const auto extent = swapChain().extent();
+    VkImageSubresourceRange subresource_range;
+    subresource_range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    subresource_range.baseMipLevel = 0;
+    subresource_range.levelCount = 1;
+    subresource_range.baseArrayLayer = 0;
+    subresource_range.layerCount = 1;
 
-    VkRenderPassBeginInfo render_pass_info = {};
-    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    render_pass_info.renderPass = graphics_pipeline_->renderPass().handle();
-    render_pass_info.framebuffer = swap_chain_framebuffers_[image_index].handle();
-    render_pass_info.renderArea.offset = {0, 0};
-    render_pass_info.renderArea.extent = swap_chain_->extent();
-    render_pass_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
-    render_pass_info.pClearValues = clear_values.data();
+    ImageMemoryBarrier::insert(command_buffer,
+                               output_image_->handle(),
+                               subresource_range,
+                               VK_ACCESS_SHADER_WRITE_BIT,
+                               VK_ACCESS_TRANSFER_READ_BIT,
+                               VK_IMAGE_LAYOUT_GENERAL,
+                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
-    vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
-    {
+    ImageMemoryBarrier::insert(command_buffer,
+                               swapChain().images()[image_index],
+                               subresource_range,
+                               0,
+                               VK_ACCESS_TRANSFER_WRITE_BIT,
+                               VK_IMAGE_LAYOUT_UNDEFINED,
+                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-        VkDescriptorSet descriptor_sets[] = {graphics_pipeline_->descriptorSet(image_index)};
-        VkBuffer vertex_buffers[] = {scene.vertexBuffer().handle()};
-        const VkBuffer index_buffer = scene.indexBuffer().handle();
-        VkDeviceSize offsets[] = {0};
+    VkImageCopy copy_region;
+    copy_region.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    copy_region.srcOffset = {0, 0, 0};
+    copy_region.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    copy_region.dstOffset = {0, 0, 0};
+    copy_region.extent = {extent.width, extent.height, 1};
 
-        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_->handle());
-        vkCmdBindDescriptorSets(command_buffer,
-                                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                graphics_pipeline_->pipelineLayout().handle(),
-                                0,
-                                1,
-                                descriptor_sets,
-                                0,
-                                nullptr);
-        vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, offsets);
-        vkCmdBindIndexBuffer(command_buffer, index_buffer, 0, VK_INDEX_TYPE_UINT32);
-
-        uint32_t vertex_offset = 0;
-        uint32_t index_offset = 0;
-
-        for (const auto &model : scene.models()) {
-            const auto vertex_count = static_cast<uint32_t>(model.vertexCount());
-            const auto index_count = static_cast<uint32_t>(model.indexCount());
-
-            vkCmdDrawIndexed(command_buffer, index_count, 1, index_offset, vertex_offset, 0);
-
-            vertex_offset += vertex_count;
-            index_offset += index_count;
-        }
-    }
-    vkCmdEndRenderPass(command_buffer);
+    vkCmdCopyImage(command_buffer,
+                   output_image_->handle(),
+                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                   swapChain().images()[image_index],
+                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                   1,
+                   &copy_region);
 }
 
 void Renderer::denoiseImage() {
-    denoiser_->denoiseImage(*device_, current_command_buffer_, *command_pool_, *accumulation_image_, *output_image_);
+    denoiser_->denoiseImage(*device_, current_command_buffer_, *command_pool_, *output_image_, *denoised_image_);
 }
 
-void Renderer::createAccelerationStructures(assets::Scene &scene) {
+void Renderer::createAccelerationStructures(assets::Scene& scene) {
     LF_INFO("Building acceleration structures...");
     const auto timer = std::chrono::high_resolution_clock::now();
 
@@ -319,7 +286,7 @@ void Renderer::deleteAccelerationStructures() {
     bottom_buffer_memory_.reset();
 }
 
-void Renderer::createBottomLevelStructures(VkCommandBuffer command_buffer, assets::Scene &scene) {
+void Renderer::createBottomLevelStructures(VkCommandBuffer command_buffer, assets::Scene& scene) {
 
     // Bottom level acceleration structure
     // Triangles via vertex buffers. Procedurals via AABBs.
@@ -329,7 +296,7 @@ void Renderer::createBottomLevelStructures(VkCommandBuffer command_buffer, asset
 
     std::vector<AccelerationStructure::MemoryRequirements> requirements;
 
-    for (const auto &model : scene.models()) {
+    for (const auto& model : scene.models()) {
         const auto vertex_count = static_cast<uint32_t>(model.vertexCount());
         const auto index_count = static_cast<uint32_t>(model.indexCount());
         const std::vector<VkGeometryNV> geometries = {
@@ -376,7 +343,7 @@ void Renderer::createBottomLevelStructures(VkCommandBuffer command_buffer, asset
     }
 }
 
-void Renderer::createTopLevelStructures(VkCommandBuffer command_buffer, assets::Scene &scene) {
+void Renderer::createTopLevelStructures(VkCommandBuffer command_buffer, assets::Scene& scene) {
     std::vector<VkGeometryInstance> geometry_instances;
     std::vector<AccelerationStructure::MemoryRequirements> requirements;
 
@@ -384,7 +351,7 @@ void Renderer::createTopLevelStructures(VkCommandBuffer command_buffer, assets::
     // Hit group 1: procedurals
     uint32_t instance_id = 0;
 
-    for (const auto &model : scene.models()) {
+    for (const auto& model : scene.models()) {
         geometry_instances.push_back(TopLevelAccelerationStructure::createGeometryInstance(bottom_as_[instance_id],
                                                                                            mat4(1),
                                                                                            instance_id,
@@ -423,43 +390,10 @@ void Renderer::createTopLevelStructures(VkCommandBuffer command_buffer, assets::
                         false);
 }
 
-void Renderer::createOutputImage() {
-    const auto extent = swapChain().extent();
-    //  const auto format = swapChain().format();
-    const auto format = VK_FORMAT_R32G32B32A32_SFLOAT;
-    const auto tiling = VK_IMAGE_TILING_OPTIMAL;
-
-    /////////////
-    accumulation_image_ = std::make_unique<Image>(device(),
-                                                  extent,
-                                                  VK_FORMAT_R32G32B32A32_SFLOAT,
-                                                  VK_IMAGE_TILING_OPTIMAL,
-                                                  VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
-    accumulation_image_memory_ =
-        std::make_unique<DeviceMemory>(accumulation_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
-    accumulation_image_view_ = std::make_unique<ImageView>(device(),
-                                                           accumulation_image_->handle(),
-                                                           VK_FORMAT_R32G32B32A32_SFLOAT,
-                                                           VK_IMAGE_ASPECT_COLOR_BIT);
-
-    /////////////
-    output_image_ = std::make_unique<Image>(device(),
-                                            extent,
-                                            format,
-                                            tiling,
-                                            VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT
-                                                | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
-    output_image_memory_ =
-        std::make_unique<DeviceMemory>(output_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
-    output_image_view_ =
-        std::make_unique<ImageView>(device(), output_image_->handle(), format, VK_IMAGE_ASPECT_COLOR_BIT);
-}
-
-void Renderer::createRayTracingPipeline(assets::Scene &scene) {
+void Renderer::createRayTracingPipeline(assets::Scene& scene) {
     ray_tracing_pipeline_ = std::make_unique<RayTracingPipeline>(*device_procedures_,
                                                                  swapChain(),
                                                                  top_as_[0],
-                                                                 *accumulation_image_view_,
                                                                  *output_image_view_,
                                                                  uniformBuffers(),
                                                                  scene);
@@ -477,22 +411,12 @@ void Renderer::createRayTracingPipeline(assets::Scene &scene) {
                                                                  hit_groups);
 }
 
-void Renderer::init(VkPhysicalDevice physical_device, assets::Scene &scene, Instance &instance) {
-    LF_ASSERT(!device_, "physical device has already been set");
-
-    device_ = std::make_unique<Device>(physical_device, *surface_);
-    command_pool_ = std::make_unique<CommandPool>(*device_, device_->graphicsFamilyIndex(), true);
-
-    onDeviceSet();
-    load_VK_EXTENSION_SUBSET(instance.handle(), vkGetInstanceProcAddr, device_->handle(), vkGetDeviceProcAddr);
-}
-
 void Renderer::onDeviceSet() {
     properties_ = std::make_unique<RayTracingProperties>(*device_);
     device_procedures_ = std::make_unique<DeviceProcedures>(*device_);
 }
 
-void Renderer::createSwapChain(assets::Scene &scene) {
+void Renderer::createSwapChain(assets::Scene& scene) {
     swap_chain_ = std::make_unique<SwapChain>(*device_, vsync_);
     depth_buffer_ = std::make_unique<DepthBuffer>(*command_pool_, swap_chain_->extent());
 
@@ -503,16 +427,16 @@ void Renderer::createSwapChain(assets::Scene &scene) {
         uniform_buffers_.emplace_back(*device_);
     }
 
+    createOutputImage();
     graphics_pipeline_ =
         std::make_unique<GraphicsPipeline>(*swap_chain_, *depth_buffer_, uniform_buffers_, scene, is_wire_frame_);
 
-    for (const auto &image_view : swap_chain_->imageViews()) {
+    for (const auto& image_view : swap_chain_->imageViews()) {
         swap_chain_framebuffers_.emplace_back(*image_view, graphics_pipeline_->renderPass());
     }
 
     command_buffers_ =
         std::make_unique<CommandBuffers>(*command_pool_, static_cast<uint32_t>(swap_chain_framebuffers_.size()));
-    createOutputImage();
     createRayTracingPipeline(scene);
 }
 
@@ -522,9 +446,6 @@ void Renderer::deleteSwapChain() {
     output_image_view_.reset();
     output_image_.reset();
     output_image_memory_.reset();
-    accumulation_image_view_.reset();
-    accumulation_image_.reset();
-    accumulation_image_memory_.reset();
     command_buffers_.reset();
     swap_chain_framebuffers_.clear();
     graphics_pipeline_.reset();
@@ -536,7 +457,7 @@ void Renderer::deleteSwapChain() {
     swap_chain_.reset();
 }
 
-void Renderer::recreateSwapChain(assets::Scene &scene) {
+void Renderer::recreateSwapChain(assets::Scene& scene) {
     device_->waitIdle();
     deleteSwapChain();
     createSwapChain(scene);

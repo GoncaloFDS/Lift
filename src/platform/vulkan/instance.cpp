@@ -5,7 +5,7 @@
 
 namespace vulkan {
 
-Instance::Instance(const class Window &window, const std::vector<const char *> &validation_layers) :
+Instance::Instance(const class Window& window, const std::vector<const char*>& validation_layers) :
     window_(window), validation_layers_(validation_layers) {
 
     const uint32_t minimum_version = VK_API_VERSION_1_2;
@@ -62,7 +62,7 @@ void Instance::getVulkanDevices() {
 }
 
 void Instance::getVulkanExtensions() {
-    getEnumerateVector(static_cast<const char *>(nullptr), vkEnumerateInstanceExtensionProperties, extensions_);
+    getEnumerateVector(static_cast<const char*>(nullptr), vkEnumerateInstanceExtensionProperties, extensions_);
 }
 
 void Instance::checkVulkanMinimumVersion(const uint32_t min_version) {
@@ -74,13 +74,13 @@ void Instance::checkVulkanMinimumVersion(const uint32_t min_version) {
     }
 }
 
-void Instance::checkVulkanValidationLayerSupport(const std::vector<const char *> &validation_layers) {
+void Instance::checkVulkanValidationLayerSupport(const std::vector<const char*>& validation_layers) {
     const auto available_layers = getEnumerateVector(vkEnumerateInstanceLayerProperties);
 
-    for (const char *layer : validation_layers) {
+    for (const char* layer : validation_layers) {
         auto result = std::find_if(available_layers.begin(),
                                    available_layers.end(),
-                                   [layer](const VkLayerProperties &layer_properties) {
+                                   [layer](const VkLayerProperties& layer_properties) {
                                        return strcmp(layer, layer_properties.layerName) == 0;
                                    });
 

@@ -4,7 +4,7 @@
 
 namespace vulkan {
 
-CommandBuffers::CommandBuffers(CommandPool &command_pool, const uint32_t size) : command_pool_(command_pool) {
+CommandBuffers::CommandBuffers(CommandPool& command_pool, const uint32_t size) : command_pool_(command_pool) {
     VkCommandBufferAllocateInfo alloc_info = {};
     alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     alloc_info.commandPool = command_pool.handle();

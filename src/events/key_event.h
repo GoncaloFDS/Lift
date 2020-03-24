@@ -31,7 +31,7 @@ public:
 
     [[nodiscard]] static auto getStaticType() -> EventType { return EventType::KEY_PRESSED; }
     [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
-    [[nodiscard]] auto getName() const -> const char * override { return "KEY_PRESSED"; }
+    [[nodiscard]] auto getName() const -> const char* override { return "KEY_PRESSED"; }
 
 private:
     int repeat_count_;
@@ -49,7 +49,7 @@ public:
 
     [[nodiscard]] static auto getStaticType() -> EventType { return EventType::KEY_RELEASED; }
     [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
-    [[nodiscard]] auto getName() const -> const char * override { return "KEY_RELEASED"; }
+    [[nodiscard]] auto getName() const -> const char* override { return "KEY_RELEASED"; }
 };
 
 class KeyTypedEvent : public KeyEvent {
@@ -64,5 +64,5 @@ public:
 
     [[nodiscard]] static auto getStaticType() -> EventType { return EventType::KEY_TYPED; }
     [[nodiscard]] auto getEventType() const -> EventType override { return getStaticType(); }
-    [[nodiscard]] auto getName() const -> const char * override { return "KEY_TYPED"; }
+    [[nodiscard]] auto getName() const -> const char* override { return "KEY_TYPED"; }
 };

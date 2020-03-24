@@ -7,9 +7,9 @@ class Device;
 
 class RayTracingProperties final {
 public:
-    explicit RayTracingProperties(const Device &device);
+    explicit RayTracingProperties(const Device& device);
 
-    [[nodiscard]] const class Device &device() const { return device_; }
+    [[nodiscard]] const class Device& device() const { return device_; }
 
     [[nodiscard]] uint32_t maxDescriptorSetAccelerationStructures() const {
         return props_.maxDescriptorSetAccelerationStructures;
@@ -23,7 +23,7 @@ public:
     [[nodiscard]] uint32_t shaderGroupHandleSize() const { return props_.shaderGroupHandleSize; }
 
 private:
-    const class Device &device_;
+    const class Device& device_;
     VkPhysicalDeviceRayTracingPropertiesNV props_ {};
 };
 }  // namespace vulkan

@@ -9,7 +9,7 @@ using assets::Material;
 using assets::Model;
 using assets::Texture;
 
-const std::vector<std::pair<std::string, std::function<SceneAssets(SceneList::CameraInitialState &)>>>
+const std::vector<std::pair<std::string, std::function<SceneAssets(SceneList::CameraInitialState&)>>>
     SceneList::allScenes = {
         {"Cornell Box", cornellBox},
         {"Cornell Box & Lucy", cornellBoxLucy},
@@ -17,7 +17,7 @@ const std::vector<std::pair<std::string, std::function<SceneAssets(SceneList::Ca
         {"Lucy In One Weekend", lucyInOneWeekend},
 };
 
-SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialState &camera) {
+SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialState& camera) {
     camera.modelView = lookAt(vec3(13, 2, 3), vec3(0, 0, 0), vec3(0, 1, 0));
     camera.fieldOfView = 20;
     camera.aperture = 0.1f;
@@ -73,7 +73,7 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialState &camera) {
     return std::forward_as_tuple(std::move(models), std::vector<Texture>());
 }
 
-SceneAssets SceneList::lucyInOneWeekend(CameraInitialState &camera) {
+SceneAssets SceneList::lucyInOneWeekend(CameraInitialState& camera) {
     camera.modelView = lookAt(vec3(13, 2, 3), vec3(0, 1.0, 0), vec3(0, 1, 0));
     camera.fieldOfView = 20;
     camera.aperture = 0.05f;
@@ -147,7 +147,7 @@ SceneAssets SceneList::lucyInOneWeekend(CameraInitialState &camera) {
     return std::forward_as_tuple(std::move(models), std::vector<Texture>());
 }
 
-SceneAssets SceneList::cornellBox(CameraInitialState &camera) {
+SceneAssets SceneList::cornellBox(CameraInitialState& camera) {
     camera.modelView = lookAt(vec3(278, 278, 800), vec3(278, 278, 0), vec3(0, 1, 0));
     camera.fieldOfView = 40;
     camera.aperture = 0.0f;
@@ -172,7 +172,7 @@ SceneAssets SceneList::cornellBox(CameraInitialState &camera) {
     return std::make_tuple(std::move(models), std::vector<Texture>());
 }
 
-SceneAssets SceneList::cornellBoxLucy(CameraInitialState &camera) {
+SceneAssets SceneList::cornellBoxLucy(CameraInitialState& camera) {
     camera.modelView = lookAt(vec3(278, 278, 800), vec3(278, 278, 0), vec3(0, 1, 0));
     camera.fieldOfView = 40;
     camera.aperture = 0.0f;

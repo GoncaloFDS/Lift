@@ -9,14 +9,14 @@
 
 namespace vulkan {
 
-SwapChain::SwapChain(const class Device &device, const bool vsync) :
+SwapChain::SwapChain(const class Device& device, const bool vsync) :
     physical_device_(device.physicalDevice()), device_(device) {
     const auto details = querySwapChainSupport(device.physicalDevice(), device.surface().handle());
     LF_ASSERT(!details.formats.empty(), "[SwapChain] Image Format can't be empty");
     LF_ASSERT(!details.presentModes.empty(), "[SwapChain] Present Modes can't be empty");
 
-    const auto &surface = device.surface();
-    const auto &window = surface.instance().window();
+    const auto& surface = device.surface();
+    const auto& window = surface.instance().window();
 
     const auto surface_format = chooseSwapSurfaceFormat(details.formats);
     const auto present_mode = chooseSwapPresentMode(details.presentModes, vsync);
@@ -83,12 +83,12 @@ SwapChain::SupportDetails SwapChain::querySwapChainSupport(VkPhysicalDevice phys
     return details;
 }
 
-VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats) {
+VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& formats) {
     if (formats.size() == 1 && formats[0].format == VK_FORMAT_UNDEFINED) {
         return {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
     }
 
-    for (const auto &format : formats) {
+    for (const auto& format : formats) {
         if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
             return format;
         }
@@ -98,7 +98,7 @@ VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
     return {};
 }
 
-VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &present_modes,
+VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& present_modes,
                                                   const bool vsync) {
     // VK_PRESENT_MODE_IMMEDIATE_KHR:
     //   Images submitted by your application are transferred to the screen right away, which may result in tearing.
@@ -137,7 +137,7 @@ VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentMod
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkExtent2D SwapChain::chooseSwapExtent(const Window &window, const VkSurfaceCapabilitiesKHR &capabilities) {
+VkExtent2D SwapChain::chooseSwapExtent(const Window& window, const VkSurfaceCapabilitiesKHR& capabilities) {
     // vulkan tells us to match the resolution of the window by setting the width and height in the currentExtent
     // member. However, some window managers do allow us to differ here and this is indicated by setting the width and
     // height in currentExtent to a special value: the maximum value of uint32_t. In that case we'll pick the resolution
@@ -156,7 +156,7 @@ VkExtent2D SwapChain::chooseSwapExtent(const Window &window, const VkSurfaceCapa
     return actual_extent;
 }
 
-uint32_t SwapChain::chooseImageCount(const VkSurfaceCapabilitiesKHR &capabilities) {
+uint32_t SwapChain::chooseImageCount(const VkSurfaceCapabilitiesKHR& capabilities) {
     // The implementation specifies the minimum amount of images to function properly
     // and we'll try to have one more than that to properly implement triple buffering.
     // (tanguyf: or not, we can just rely on VK_PRESENT_MODE_MAILBOX_KHR with two buffers)

@@ -25,14 +25,14 @@ struct SamplerConfig final {
 
 class Sampler final {
 public:
-    Sampler(const Device &device, const SamplerConfig &config);
+    Sampler(const Device& device, const SamplerConfig& config);
     ~Sampler();
 
     [[nodiscard]] VkSampler handle() const { return sampler_; }
-    [[nodiscard]] const class Device &device() const { return device_; }
+    [[nodiscard]] const class Device& device() const { return device_; }
 
 private:
-    const class Device &device_;
+    const class Device& device_;
     VkSampler sampler_ {};
 };
 

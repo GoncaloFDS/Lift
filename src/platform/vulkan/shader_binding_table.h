@@ -21,16 +21,16 @@ public:
         uint32_t groupIndex;
         std::vector<unsigned char> inlineData;
     };
-    ShaderBindingTable(const DeviceProcedures &device_procedures,
-                       const RayTracingPipeline &ray_tracing_pipeline,
-                       const RayTracingProperties &ray_tracing_properties,
-                       const std::vector<Entry> &ray_gen_programs,
-                       const std::vector<Entry> &miss_programs,
-                       const std::vector<Entry> &hit_groups);
+    ShaderBindingTable(const DeviceProcedures& device_procedures,
+                       const RayTracingPipeline& ray_tracing_pipeline,
+                       const RayTracingProperties& ray_tracing_properties,
+                       const std::vector<Entry>& ray_gen_programs,
+                       const std::vector<Entry>& miss_programs,
+                       const std::vector<Entry>& hit_groups);
 
     ~ShaderBindingTable();
 
-    [[nodiscard]] const class Buffer &buffer() const { return *buffer_; }
+    [[nodiscard]] const class Buffer& buffer() const { return *buffer_; }
 
     [[nodiscard]] size_t rayGenOffset() const { return ray_gen_offset_; }
     [[nodiscard]] size_t missOffset() const { return miss_offset_; }

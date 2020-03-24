@@ -7,10 +7,10 @@ namespace assets {
 
 class Procedural {
 public:
-    Procedural(const Procedural &) = delete;
-    Procedural(Procedural &&) = delete;
-    Procedural &operator=(const Procedural &) = delete;
-    Procedural &operator=(Procedural &&) = delete;
+    Procedural(const Procedural&) = delete;
+    Procedural(Procedural&&) = delete;
+    Procedural& operator=(const Procedural&) = delete;
+    Procedural& operator=(Procedural&&) = delete;
 
     Procedural() = default;
     virtual ~Procedural() = default;

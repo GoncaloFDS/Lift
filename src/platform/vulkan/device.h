@@ -8,12 +8,12 @@ class Surface;
 
 class Device final {
 public:
-    Device(VkPhysicalDevice physical_device, const Surface &surface);
+    Device(VkPhysicalDevice physical_device, const Surface& surface);
     ~Device();
 
     [[nodiscard]] VkDevice handle() const { return device_; }
     [[nodiscard]] VkPhysicalDevice physicalDevice() const { return physical_device_; }
-    [[nodiscard]] const class Surface &surface() const { return surface_; }
+    [[nodiscard]] const class Surface& surface() const { return surface_; }
 
     [[nodiscard]] uint32_t graphicsFamilyIndex() const { return graphics_family_index_; }
     [[nodiscard]] uint32_t computeFamilyIndex() const { return compute_family_index_; }
@@ -29,10 +29,10 @@ public:
 private:
     static void checkRequiredExtensions(VkPhysicalDevice physical_device);
 
-    static const std::vector<const char *> required_extensions_;
+    static const std::vector<const char*> required_extensions_;
 
     const VkPhysicalDevice physical_device_;
-    const class Surface &surface_;
+    const class Surface& surface_;
 
 private:
     VkDevice device_ {};

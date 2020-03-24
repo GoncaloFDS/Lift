@@ -44,7 +44,7 @@ public:
     virtual ~Event() = default;
 
     [[nodiscard]] virtual auto getEventType() const -> EventType = 0;
-    [[nodiscard]] virtual auto getName() const -> const char * = 0;
+    [[nodiscard]] virtual auto getName() const -> const char* = 0;
     [[nodiscard]] virtual auto getCategoryFlags() const -> int = 0;
     [[nodiscard]] virtual auto toString() const -> std::string { return getName(); }
 
@@ -55,24 +55,24 @@ public:
 
 class EventDispatcher {
     template<typename T>
-    using EventFn = std::function<bool(T &)>;
+    using EventFn = std::function<bool(T&)>;
 
 public:
-    explicit EventDispatcher(Event &event) : event_(event) {}
+    explicit EventDispatcher(Event& event) : event_(event) {}
 
     template<typename T>
     auto dispatch(EventFn<T> func) -> bool {
         if (event_.getEventType() == T::getStaticType()) {
-            event_.handled = func(*static_cast<T *>(&event_));
+            event_.handled = func(*static_cast<T*>(&event_));
             return true;
         }
         return false;
     }
 
 private:
-    Event &event_;
+    Event& event_;
 };
 
-inline auto operator<<(std::ostream &os, const Event &e) -> std::ostream & {
+inline auto operator<<(std::ostream& os, const Event& e) -> std::ostream& {
     return os << e.toString();
 }

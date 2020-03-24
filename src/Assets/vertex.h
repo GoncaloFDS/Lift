@@ -12,7 +12,7 @@ struct Vertex final {
     glm::vec2 texCoord;
     int32_t materialIndex;
 
-    bool operator==(const Vertex &other) const {
+    bool operator==(const Vertex& other) const {
         return position == other.position && normal == other.normal && texCoord == other.texCoord
             && materialIndex == other.materialIndex;
     }

@@ -4,13 +4,13 @@
 
 namespace vulkan {
 
-void vulkanCheck(VkResult result, const char *operation) {
+void vulkanCheck(VkResult result, const char* operation) {
     if (result != VK_SUCCESS) {
         LF_ASSERT(false, "Failed to {0} '{1}'", operation, toString(result));
     }
 }
 
-const char *toString(VkResult result) {
+const char* toString(VkResult result) {
     switch (result) {
 #define STR(r)                                                                                                         \
     case VK_##r:                                                                                                       \

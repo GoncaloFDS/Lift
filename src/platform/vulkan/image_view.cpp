@@ -3,7 +3,7 @@
 
 namespace vulkan {
 
-ImageView::ImageView(const class Device &device,
+ImageView::ImageView(const class Device& device,
                      const VkImage image,
                      const VkFormat format,
                      const VkImageAspectFlags aspect_flags) :

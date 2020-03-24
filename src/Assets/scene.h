@@ -18,26 +18,26 @@ class TextureImage;
 
 class Scene final {
 public:
-    Scene(const Scene &) = delete;
-    Scene(Scene &&) = delete;
-    Scene &operator=(const Scene &) = delete;
-    Scene &operator=(Scene &&) = delete;
+    Scene(const Scene&) = delete;
+    Scene(Scene&&) = delete;
+    Scene& operator=(const Scene&) = delete;
+    Scene& operator=(Scene&&) = delete;
 
-    Scene(vulkan::CommandPool &command_pool,
-          std::vector<Model> &&models,
-          std::vector<Texture> &&textures,
+    Scene(vulkan::CommandPool& command_pool,
+          std::vector<Model>&& models,
+          std::vector<Texture>&& textures,
           bool used_for_ray_tracing);
     ~Scene();
 
-    [[nodiscard]] const std::vector<Model> &models() const { return models_; }
+    [[nodiscard]] const std::vector<Model>& models() const { return models_; }
     [[nodiscard]] bool hasProcedurals() const { return static_cast<bool>(procedural_buffer_); }
 
-    [[nodiscard]] const vulkan::Buffer &vertexBuffer() const { return *vertex_buffer_; }
-    [[nodiscard]] const vulkan::Buffer &indexBuffer() const { return *index_buffer_; }
-    [[nodiscard]] const vulkan::Buffer &materialBuffer() const { return *material_buffer_; }
-    [[nodiscard]] const vulkan::Buffer &offsetsBuffer() const { return *offset_buffer_; }
-    [[nodiscard]] const vulkan::Buffer &aabbBuffer() const { return *aabb_buffer_; }
-    [[nodiscard]] const vulkan::Buffer &proceduralBuffer() const { return *procedural_buffer_; }
+    [[nodiscard]] const vulkan::Buffer& vertexBuffer() const { return *vertex_buffer_; }
+    [[nodiscard]] const vulkan::Buffer& indexBuffer() const { return *index_buffer_; }
+    [[nodiscard]] const vulkan::Buffer& materialBuffer() const { return *material_buffer_; }
+    [[nodiscard]] const vulkan::Buffer& offsetsBuffer() const { return *offset_buffer_; }
+    [[nodiscard]] const vulkan::Buffer& aabbBuffer() const { return *aabb_buffer_; }
+    [[nodiscard]] const vulkan::Buffer& proceduralBuffer() const { return *procedural_buffer_; }
     [[nodiscard]] std::vector<VkImageView> textureImageViews() const { return texture_image_view_handles_; }
     [[nodiscard]] std::vector<VkSampler> textureSamplers() const { return texture_sampler_handles_; }
 

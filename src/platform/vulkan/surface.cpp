@@ -4,7 +4,7 @@
 
 namespace vulkan {
 
-Surface::Surface(const class Instance &instance) : instance_(instance) {
+Surface::Surface(const class Instance& instance) : instance_(instance) {
     vulkanCheck(glfwCreateWindowSurface(instance.handle(), instance.window().handle(), nullptr, &surface_),
                 "create window surface");
 }

@@ -8,10 +8,10 @@
 
 namespace assets {
 
-TextureImage::TextureImage(vulkan::CommandPool &command_pool, const Texture &texture) {
+TextureImage::TextureImage(vulkan::CommandPool& command_pool, const Texture& texture) {
     // Create a host staging buffer and copy the image into it.
     const VkDeviceSize image_size = texture.width() * texture.height() * 4;
-    const auto &device = command_pool.device();
+    const auto& device = command_pool.device();
 
     auto staging_buffer = std::make_unique<vulkan::Buffer>(device, image_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
     auto staging_buffer_memory =

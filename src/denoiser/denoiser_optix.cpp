@@ -10,14 +10,14 @@
 
 OptixDeviceContext optix_device_context_;
 
-static void contextLogCb(unsigned int level, const char *tag, const char *message, void *cbdata) {
+static void contextLogCb(unsigned int level, const char* tag, const char* message, void* cbdata) {
     LF_WARN("[CUDA] {0}", message);
 }
 
 DenoiserOptix::DenoiserOptix() {
 }
 
-void DenoiserOptix::setup(vulkan::Device &device, uint32_t queue_index) {
+void DenoiserOptix::setup(vulkan::Device& device, uint32_t queue_index) {
     vk_allocator_.init({device.handle()}, {device.physicalDevice()});
 }
 
@@ -43,11 +43,11 @@ int DenoiserOptix::initOptix() {
     return 1;
 }
 
-void DenoiserOptix::denoiseImage(vulkan::Device &device,
-                                 VkCommandBuffer &command_buffer,
-                                 vulkan::CommandPool &command_pool,
-                                 vulkan::Image &in_image,
-                                 vulkan::Image &out_image) {
+void DenoiserOptix::denoiseImage(vulkan::Device& device,
+                                 VkCommandBuffer& command_buffer,
+                                 vulkan::CommandPool& command_pool,
+                                 vulkan::Image& in_image,
+                                 vulkan::Image& out_image) {
     auto extent = in_image.extent();
     if (image_size_.height != extent.height || image_size_.width != extent.width) {
         image_size_.width = extent.width;
@@ -112,7 +112,7 @@ void DenoiserOptix::denoiseImage(vulkan::Device &device,
     out_image.transitionImageLayout(command_pool, vk::ImageLayout::eTransferSrcOptimal);
 }
 
-void DenoiserOptix::allocateBuffers(vulkan::Device &device) {
+void DenoiserOptix::allocateBuffers(vulkan::Device& device) {
     destroy();
 
     vk::DeviceSize buffer_size = image_size_.width * image_size_.height * sizeof(float4);
@@ -130,10 +130,10 @@ void DenoiserOptix::allocateBuffers(vulkan::Device &device) {
     OPTIX_CHECK(
         optixDenoiserComputeMemoryResources(denoiser_, image_size_.width, image_size_.height, &denoiser_sizes_));
 
-    cudaMalloc((void **) &p_state_, denoiser_sizes_.stateSizeInBytes);
-    cudaMalloc((void **) &p_scratch_, denoiser_sizes_.recommendedScratchSizeInBytes);
-    cudaMalloc((void **) &p_intensity_, sizeof(float));
-    cudaMalloc((void **) &p_min_rgb_, 4 * sizeof(float));
+    cudaMalloc((void**) &p_state_, denoiser_sizes_.stateSizeInBytes);
+    cudaMalloc((void**) &p_scratch_, denoiser_sizes_.recommendedScratchSizeInBytes);
+    cudaMalloc((void**) &p_intensity_, sizeof(float));
+    cudaMalloc((void**) &p_min_rgb_, 4 * sizeof(float));
 
     CUstream stream = nullptr;
     OPTIX_CHECK(optixDenoiserSetup(denoiser_,
@@ -146,7 +146,7 @@ void DenoiserOptix::allocateBuffers(vulkan::Device &device) {
                                    denoiser_sizes_.recommendedScratchSizeInBytes));
 }
 
-void DenoiserOptix::createBufferCuda(vulkan::Device &device, CudaBuffer &cuda_buffer) {
+void DenoiserOptix::createBufferCuda(vulkan::Device& device, CudaBuffer& cuda_buffer) {
     //
     vk::Device vkDevice {device.handle()};
     cuda_buffer.handle = vkDevice.getMemoryWin32HandleKHR(
@@ -173,15 +173,15 @@ void DenoiserOptix::destroy() {
     pixel_buffer_out_.destroy(vk_allocator_);
 
     if (p_state_ != 0) {
-        CUDA_CHECK(cudaFree((void *) p_state_));
+        CUDA_CHECK(cudaFree((void*) p_state_));
     }
     if (p_scratch_ != 0) {
-        CUDA_CHECK(cudaFree((void *) p_scratch_));
+        CUDA_CHECK(cudaFree((void*) p_scratch_));
     }
     if (p_intensity_ != 0) {
-        CUDA_CHECK(cudaFree((void *) p_intensity_));
+        CUDA_CHECK(cudaFree((void*) p_intensity_));
     }
     if (p_min_rgb_ != 0) {
-        CUDA_CHECK(cudaFree((void *) p_min_rgb_));
+        CUDA_CHECK(cudaFree((void*) p_min_rgb_));
     }
 }

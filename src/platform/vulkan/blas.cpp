@@ -9,7 +9,7 @@
 
 namespace vulkan {
 
-VkAccelerationStructureCreateInfoNV getCreateInfo(const std::vector<VkGeometryNV> &geometries, const bool allowUpdate) {
+VkAccelerationStructureCreateInfoNV getCreateInfo(const std::vector<VkGeometryNV>& geometries, const bool allowUpdate) {
     const auto flags = allowUpdate ? VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_NV :
                                      VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_NV;
 
@@ -27,14 +27,14 @@ VkAccelerationStructureCreateInfoNV getCreateInfo(const std::vector<VkGeometryNV
     return structure_info;
 }
 
-BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(const class DeviceProcedures &device_procedures,
-                                                                   const std::vector<VkGeometryNV> &geometries,
+BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(const class DeviceProcedures& device_procedures,
+                                                                   const std::vector<VkGeometryNV>& geometries,
                                                                    const bool allow_update) :
     AccelerationStructure(device_procedures, getCreateInfo(geometries, allow_update)),
     geometries_(geometries) {
 }
 
-BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(BottomLevelAccelerationStructure &&other) noexcept :
+BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(BottomLevelAccelerationStructure&& other) noexcept :
     AccelerationStructure(std::move(other)), geometries_(std::move(other.geometries_)) {
 }
 
@@ -42,9 +42,9 @@ BottomLevelAccelerationStructure::~BottomLevelAccelerationStructure() {
 }
 
 void BottomLevelAccelerationStructure::generate(VkCommandBuffer command_buffer,
-                                                Buffer &scratch_buffer,
+                                                Buffer& scratch_buffer,
                                                 VkDeviceSize scratch_offset,
-                                                DeviceMemory &result_memory,
+                                                DeviceMemory& result_memory,
                                                 VkDeviceSize result_offset,
                                                 bool update_only) const {
     LF_ASSERT(!update_only || allow_update_, "[BLAS] cannot update readonly structure")
@@ -88,7 +88,7 @@ void BottomLevelAccelerationStructure::generate(VkCommandBuffer command_buffer,
                                                          scratch_offset);
 }
 
-VkGeometryNV BottomLevelAccelerationStructure::createGeometry(const assets::Scene &scene,
+VkGeometryNV BottomLevelAccelerationStructure::createGeometry(const assets::Scene& scene,
                                                               uint32_t vertex_offset,
                                                               uint32_t vertex_count,
                                                               uint32_t index_offset,
@@ -117,7 +117,7 @@ VkGeometryNV BottomLevelAccelerationStructure::createGeometry(const assets::Scen
     return geometry;
 }
 
-VkGeometryNV BottomLevelAccelerationStructure::createGeometryAabb(const assets::Scene &scene,
+VkGeometryNV BottomLevelAccelerationStructure::createGeometryAabb(const assets::Scene& scene,
                                                                   uint32_t aabb_offset,
                                                                   uint32_t aabb_count,
                                                                   bool is_opaque) {

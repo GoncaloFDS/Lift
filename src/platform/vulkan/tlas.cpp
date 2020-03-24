@@ -25,24 +25,24 @@ VkAccelerationStructureCreateInfoNV getCreateInfo(const size_t instance_count, c
     return structure_info;
 }
 
-TopLevelAccelerationStructure::TopLevelAccelerationStructure(const class DeviceProcedures &device_procedures,
-                                                             const std::vector<VkGeometryInstance> &geometry_instances,
+TopLevelAccelerationStructure::TopLevelAccelerationStructure(const class DeviceProcedures& device_procedures,
+                                                             const std::vector<VkGeometryInstance>& geometry_instances,
                                                              const bool allow_update) :
     AccelerationStructure(device_procedures, getCreateInfo(geometry_instances.size(), allow_update)),
     geometry_instances_(geometry_instances) {
 }
 
-TopLevelAccelerationStructure::TopLevelAccelerationStructure(TopLevelAccelerationStructure &&other) noexcept :
+TopLevelAccelerationStructure::TopLevelAccelerationStructure(TopLevelAccelerationStructure&& other) noexcept :
     AccelerationStructure(std::move(other)), geometry_instances_(std::move(other.geometry_instances_)) {
 }
 
 void TopLevelAccelerationStructure::generate(VkCommandBuffer command_buffer,
-                                             Buffer &scratch_buffer,
+                                             Buffer& scratch_buffer,
                                              VkDeviceSize scratch_offset,
-                                             DeviceMemory &result_memory,
+                                             DeviceMemory& result_memory,
                                              VkDeviceSize result_offset,
-                                             Buffer &instance_buffer,
-                                             DeviceMemory &instance_memory,
+                                             Buffer& instance_buffer,
+                                             DeviceMemory& instance_memory,
                                              VkDeviceSize instance_offset,
                                              bool update_only) const {
     LF_ASSERT(!update_only || allow_update_, "[TLAS] cannot update readonly structure")
@@ -51,7 +51,7 @@ void TopLevelAccelerationStructure::generate(VkCommandBuffer command_buffer,
 
     // Copy the instance descriptors into the provider buffer.
     const auto instancesBufferSize = geometry_instances_.size() * sizeof(VkGeometryInstance);
-    void *data = instance_memory.map(0, instancesBufferSize);
+    void* data = instance_memory.map(0, instancesBufferSize);
     std::memcpy(data, geometry_instances_.data(), instancesBufferSize);
 
     // Bind the acceleration structure descriptor to the actual memory that will contain it
@@ -92,12 +92,12 @@ void TopLevelAccelerationStructure::generate(VkCommandBuffer command_buffer,
 }
 
 VkGeometryInstance
-TopLevelAccelerationStructure::createGeometryInstance(const BottomLevelAccelerationStructure &bottom_level_as,
-                                                      const glm::mat4 &transform,
+TopLevelAccelerationStructure::createGeometryInstance(const BottomLevelAccelerationStructure& bottom_level_as,
+                                                      const glm::mat4& transform,
                                                       uint32_t instance_id,
                                                       uint32_t hit_group_index) {
-    const auto &device = bottom_level_as.device();
-    const auto &deviceProcedures = bottom_level_as.deviceProcedures();
+    const auto& device = bottom_level_as.device();
+    const auto& deviceProcedures = bottom_level_as.deviceProcedures();
 
     uint64_t accelerationStructureHandle;
     vulkanCheck(deviceProcedures.vkGetAccelerationStructureHandleNV(device.handle(),
