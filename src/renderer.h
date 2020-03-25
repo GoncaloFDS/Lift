@@ -79,11 +79,11 @@ public:
 
     void createOutputImage();
 
+    void setDenoised(bool b) { is_denoised = b; }
+
 private:
     void createBottomLevelStructures(VkCommandBuffer command_buffer, assets::Scene& scene);
     void createTopLevelStructures(VkCommandBuffer command_buffer, assets::Scene& scene);
-
-    void onDeviceSet();
 
 private:
     std::unique_ptr<Surface> surface_;
@@ -119,8 +119,8 @@ private:
     std::unique_ptr<ImageView> output_image_view_;
 
     std::unique_ptr<Image> denoised_image_;
-    //    std::unique_ptr<DeviceMemory> denoised_image_memory_;
-    //    std::unique_ptr<ImageView> denoised_image_view_;
+    std::unique_ptr<DeviceMemory> denoised_image_memory_;
+    std::unique_ptr<ImageView> denoised_image_view_;
 
     std::unique_ptr<RayTracingPipeline> ray_tracing_pipeline_;
     std::unique_ptr<ShaderBindingTable> shader_binding_table_;
@@ -128,7 +128,7 @@ private:
     std::vector<assets::UniformBuffer> uniform_buffers_;
 
     bool vsync_ = false;
-    bool is_wire_frame_ = false;
+    bool is_denoised = false;
 
     VkCommandBuffer current_command_buffer_;
     uint32_t current_image_index_;

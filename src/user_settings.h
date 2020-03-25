@@ -11,8 +11,6 @@ struct UserSettings final {
     // Scene
     int sceneIndex {};
 
-    // Renderer
-    bool isRayTraced {};
     bool isDenoised {};
     bool accumulateRays {};
     uint32_t numberOfSamples {};
@@ -30,8 +28,7 @@ struct UserSettings final {
     bool showOverlay {};
 
     [[nodiscard]] bool requiresAccumulationReset(const UserSettings& prev) const {
-        return isRayTraced != prev.isRayTraced || accumulateRays != prev.accumulateRays
-            || numberOfBounces != prev.numberOfBounces || fieldOfView != prev.fieldOfView || aperture != prev.aperture
-            || focusDistance != prev.focusDistance;
+        return accumulateRays != prev.accumulateRays || numberOfBounces != prev.numberOfBounces
+            || fieldOfView != prev.fieldOfView || aperture != prev.aperture || focusDistance != prev.focusDistance;
     }
 };

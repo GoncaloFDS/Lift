@@ -23,7 +23,7 @@ public:
         }
     };
 
-    DenoiserOptix();
+    DenoiserOptix() = default;
 
     void setup(vulkan::Device&, uint32_t queue_index);
     int initOptix();

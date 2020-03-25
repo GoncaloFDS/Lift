@@ -122,7 +122,8 @@ set(src_files_vulkan_raytracing
         platform/vulkan/shader_binding_table.h
         platform/vulkan/tlas.cpp
         platform/vulkan/tlas.h
-        denoiser/denoiser_optix.cpp denoiser/denoiser_optix.h)
+        denoiser/denoiser_optix.cpp
+        denoiser/denoiser_optix.h)
 
 set(src_files
         main.cpp
@@ -131,7 +132,15 @@ set(src_files
         scene_list.cpp
         scene_list.h
         user_settings.h
-        renderer.cpp renderer.h denoiser/denoiser_optix.cpp denoiser/denoiser_optix.h platform/vulkan/extensions_vk.cpp platform/vulkan/extensions_vk.h platform/vulkan/buffer_dedicated.cpp platform/vulkan/buffer_dedicated.h platform/nvvkpp/allocator_dedicated_vkpp.h)
+        renderer.cpp
+        renderer.h
+        denoiser/denoiser_optix.cpp
+        denoiser/denoiser_optix.h
+        platform/vulkan/extensions_vk.cpp
+        platform/vulkan/extensions_vk.h
+        platform/vulkan/buffer_dedicated.cpp
+        platform/vulkan/buffer_dedicated.h
+       )
 
 source_group("assets" FILES ${src_files_assets})
 source_group("core" FILES ${src_files_core})

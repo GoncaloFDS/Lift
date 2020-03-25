@@ -2,17 +2,28 @@
 
 ###### Build Instructions
 
+
+
+> Install CUDA 10.2, Optix 7.0 and vulkan SDK 1.2 (1.1 should also work)
+*  Install Directories should be specified on cmake or you can set them as system variables
+
+> currently supported on visual studio and clion
+ 
 ```bash
-git clone --recursive https://github.com/GoncaloFDS/Lift
+git clone --recurse-submodules https://github.com/GoncaloFDS/Lift
+cd Lift
+.\vcpkg_windows.bat
 ```
 
-> Install CUDA 10.1 and Optix 7.0 
-*  Install Directories should be specified on cmake or you can set system variables
+> Visual Studio
+```bash
+.\build_windows.bat
+```
 
-> Open the directory with cmake and generate the build files for your ide/build system 
- * currently supported on visual studio and clion
- 
- `If you are using msvc 16.x the realease build is broken (black screen)`
->
+> Clion (for now MSVC is required)
+>* Add these to your Cmake Options
+>* Just Open this directory and select x64 build target 
+```
+ -D VCPKG_TARGET_TRIPLET=x64-windows-static -D CMAKE_TOOLCHAIN_FILE=build/vcpkg.windows/scripts/buildsystems/vcpkg.cmake
+```
 
-##### On Windows, add cl.exe to your system PATH, so that nvcc can compile the cuda files

@@ -49,8 +49,9 @@ void Renderer::init(VkPhysicalDevice physical_device, assets::Scene& scene, Inst
 
     device_ = std::make_unique<Device>(physical_device, *surface_);
     command_pool_ = std::make_unique<CommandPool>(*device_, device_->graphicsFamilyIndex(), true);
+    properties_ = std::make_unique<RayTracingProperties>(*device_);
+    device_procedures_ = std::make_unique<DeviceProcedures>(*device_);
 
-    onDeviceSet();
     load_VK_EXTENSION_SUBSET(instance.handle(), vkGetInstanceProcAddr, device_->handle(), vkGetDeviceProcAddr);
 }
 
@@ -60,13 +61,27 @@ void Renderer::createOutputImage() {
                                             extent,
                                             VK_FORMAT_R32G32B32A32_SFLOAT,
                                             VK_IMAGE_TILING_OPTIMAL,
-                                            VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
+                                            VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
+                                                | VK_IMAGE_USAGE_SAMPLED_BIT);
     output_image_memory_ =
         std::make_unique<DeviceMemory>(output_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
     output_image_view_ = std::make_unique<ImageView>(device(),
                                                      output_image_->handle(),
                                                      VK_FORMAT_R32G32B32A32_SFLOAT,
                                                      VK_IMAGE_ASPECT_COLOR_BIT);
+
+    denoised_image_ = std::make_unique<Image>(device(),
+                                              extent,
+                                              VK_FORMAT_R32G32B32A32_SFLOAT,
+                                              VK_IMAGE_TILING_OPTIMAL,
+                                              VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
+                                                  | VK_IMAGE_USAGE_SAMPLED_BIT);
+    denoised_image_memory_ =
+        std::make_unique<DeviceMemory>(denoised_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+    denoised_image_view_ = std::make_unique<ImageView>(device(),
+                                                       denoised_image_->handle(),
+                                                       VK_FORMAT_R32G32B32A32_SFLOAT,
+                                                       VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
 void Renderer::beginCommand(assets::Scene& scene, size_t current_frame) {
@@ -85,7 +100,7 @@ void Renderer::beginCommand(assets::Scene& scene, size_t current_frame) {
                                         nullptr,
                                         &current_image_index_);
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || is_wire_frame_ != graphics_pipeline_->isWireFrame()) {
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreateSwapChain(scene);
         return;
     }
@@ -198,6 +213,14 @@ void Renderer::traceCommand(VkCommandBuffer command_buffer, uint32_t image_index
                                          extent.width,
                                          extent.height,
                                          1);
+
+    //    ImageMemoryBarrier::insert(command_buffer,
+    //                               output_image_->handle(),
+    //                               subresource_range,
+    //                               0,
+    //                               VK_ACCESS_SHADER_WRITE_BIT,
+    //                               VK_IMAGE_LAYOUT_GENERAL,
+    //                               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
 void Renderer::display() {
@@ -205,47 +228,84 @@ void Renderer::display() {
 }
 
 void Renderer::display(VkCommandBuffer command_buffer, uint32_t image_index) {
-    const auto extent = swapChain().extent();
-    VkImageSubresourceRange subresource_range;
-    subresource_range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    subresource_range.baseMipLevel = 0;
-    subresource_range.levelCount = 1;
-    subresource_range.baseArrayLayer = 0;
-    subresource_range.layerCount = 1;
+    if (is_denoised)
+        graphics_pipeline_->updateOutputImage(*denoised_image_view_, image_index);
+    else
+        graphics_pipeline_->updateOutputImage(*output_image_view_, image_index);
 
-    ImageMemoryBarrier::insert(command_buffer,
-                               output_image_->handle(),
-                               subresource_range,
-                               VK_ACCESS_SHADER_WRITE_BIT,
-                               VK_ACCESS_TRANSFER_READ_BIT,
-                               VK_IMAGE_LAYOUT_GENERAL,
-                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+    std::array<VkClearValue, 2> clear_values = {};
+    clear_values[0].color = {{0.2f, 0.2f, 0.2f, 1.0f}};
+    clear_values[1].depthStencil = {1.0f, 0};
 
-    ImageMemoryBarrier::insert(command_buffer,
-                               swapChain().images()[image_index],
-                               subresource_range,
-                               0,
-                               VK_ACCESS_TRANSFER_WRITE_BIT,
-                               VK_IMAGE_LAYOUT_UNDEFINED,
-                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    VkRenderPassBeginInfo render_pass_info = {};
+    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    render_pass_info.renderPass = graphics_pipeline_->renderPass().handle();
+    render_pass_info.framebuffer = swap_chain_framebuffers_[image_index].handle();
+    render_pass_info.renderArea.offset = {0, 0};
+    render_pass_info.renderArea.extent = swap_chain_->extent();
+    render_pass_info.clearValueCount = (uint32_t) clear_values.size();
+    render_pass_info.pClearValues = clear_values.data();
 
-    VkImageCopy copy_region;
-    copy_region.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
-    copy_region.srcOffset = {0, 0, 0};
-    copy_region.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
-    copy_region.dstOffset = {0, 0, 0};
-    copy_region.extent = {extent.width, extent.height, 1};
+    vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
+    {
+        VkDescriptorSet descriptor_set[] = {graphics_pipeline_->descriptorSet(0)};
+        VkDeviceSize offsets[] = {0};
 
-    vkCmdCopyImage(command_buffer,
-                   output_image_->handle(),
-                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                   swapChain().images()[image_index],
-                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                   1,
-                   &copy_region);
+        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_->handle());
+        vkCmdBindDescriptorSets(command_buffer,
+                                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                graphics_pipeline_->pipelineLayout().handle(),
+                                0,
+                                1,
+                                descriptor_set,
+                                0,
+                                nullptr);
+        vkCmdDraw(command_buffer, 3, 1, 0, 0);
+    }
+    vkCmdEndRenderPass(command_buffer);
+
+    //    const auto extent = swapChain().extent();
+    //    VkImageSubresourceRange subresource_range;
+    //    subresource_range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    //    subresource_range.baseMipLevel = 0;
+    //    subresource_range.levelCount = 1;
+    //    subresource_range.baseArrayLayer = 0;
+    //    subresource_range.layerCount = 1;
+    //
+    //    ImageMemoryBarrier::insert(command_buffer,
+    //                               output_image_->handle(),
+    //                               subresource_range,
+    //                               VK_ACCESS_SHADER_WRITE_BIT,
+    //                               VK_ACCESS_TRANSFER_READ_BIT,
+    //                               VK_IMAGE_LAYOUT_GENERAL,
+    //                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+    //
+    //    ImageMemoryBarrier::insert(command_buffer,
+    //                               swapChain().images()[image_index],
+    //                               subresource_range,
+    //                               0,
+    //                               VK_ACCESS_TRANSFER_WRITE_BIT,
+    //                               VK_IMAGE_LAYOUT_UNDEFINED,
+    //                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    //
+    //    VkImageCopy copy_region;
+    //    copy_region.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    //    copy_region.srcOffset = {0, 0, 0};
+    //    copy_region.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    //    copy_region.dstOffset = {0, 0, 0};
+    //    copy_region.extent = {extent.width, extent.height, 1};
+    //
+    //    vkCmdCopyImage(command_buffer,
+    //                   output_image_->handle(),
+    //                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+    //                   swapChain().images()[image_index],
+    //                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    //                   1,
+    //                   &copy_region);
 }
 
 void Renderer::denoiseImage() {
+
     denoiser_->denoiseImage(*device_, current_command_buffer_, *command_pool_, *output_image_, *denoised_image_);
 }
 
@@ -411,11 +471,6 @@ void Renderer::createRayTracingPipeline(assets::Scene& scene) {
                                                                  hit_groups);
 }
 
-void Renderer::onDeviceSet() {
-    properties_ = std::make_unique<RayTracingProperties>(*device_);
-    device_procedures_ = std::make_unique<DeviceProcedures>(*device_);
-}
-
 void Renderer::createSwapChain(assets::Scene& scene) {
     swap_chain_ = std::make_unique<SwapChain>(*device_, vsync_);
     depth_buffer_ = std::make_unique<DepthBuffer>(*command_pool_, swap_chain_->extent());
@@ -428,8 +483,7 @@ void Renderer::createSwapChain(assets::Scene& scene) {
     }
 
     createOutputImage();
-    graphics_pipeline_ =
-        std::make_unique<GraphicsPipeline>(*swap_chain_, *depth_buffer_, uniform_buffers_, scene, is_wire_frame_);
+    graphics_pipeline_ = std::make_unique<GraphicsPipeline>(*swap_chain_, *depth_buffer_);
 
     for (const auto& image_view : swap_chain_->imageViews()) {
         swap_chain_framebuffers_.emplace_back(*image_view, graphics_pipeline_->renderPass());
@@ -445,6 +499,9 @@ void Renderer::deleteSwapChain() {
     ray_tracing_pipeline_.reset();
     output_image_view_.reset();
     output_image_.reset();
+    denoised_image_memory_.reset();
+    denoised_image_view_.reset();
+    denoised_image_.reset();
     output_image_memory_.reset();
     command_buffers_.reset();
     swap_chain_framebuffers_.clear();

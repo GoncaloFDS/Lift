@@ -10,28 +10,26 @@
 #include "device.h"
 #include "pipeline_layout.h"
 #include "render_pass.h"
+#include "sampler.h"
 #include "shader_module.h"
 #include "swap_chain.h"
 
 namespace vulkan {
 
-GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
-                                   const DepthBuffer& depth_buffer,
-                                   const std::vector<assets::UniformBuffer>& uniform_buffers,
-                                   const assets::Scene& scene,
-                                   const bool is_wire_frame) :
-    swap_chain_(swap_chain),
-    is_wire_frame_(is_wire_frame) {
+GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain, const DepthBuffer& depth_buffer) :
+    swap_chain_(swap_chain) {
     const auto& device = swap_chain.device();
     const auto binding_description = assets::Vertex::getBindingDescription();
     const auto attribute_descriptions = assets::Vertex::getAttributeDescriptions();
 
+    sampler_ = std::make_unique<vulkan::Sampler>(device, vulkan::SamplerConfig());
+
     VkPipelineVertexInputStateCreateInfo vertex_input_info = {};
     vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertex_input_info.vertexBindingDescriptionCount = 1;
-    vertex_input_info.pVertexBindingDescriptions = &binding_description;
-    vertex_input_info.vertexAttributeDescriptionCount = static_cast<uint32_t>(attribute_descriptions.size());
-    vertex_input_info.pVertexAttributeDescriptions = attribute_descriptions.data();
+    vertex_input_info.vertexBindingDescriptionCount = 0;
+    vertex_input_info.pVertexBindingDescriptions = nullptr;
+    vertex_input_info.vertexAttributeDescriptionCount = 0;
+    vertex_input_info.pVertexAttributeDescriptions = nullptr;
 
     VkPipelineInputAssemblyStateCreateInfo input_assembly = {};
     input_assembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -61,9 +59,9 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizer.depthClampEnable = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
-    rasterizer.polygonMode = is_wire_frame ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
+    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.cullMode = VK_CULL_MODE_NONE;
     rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
     rasterizer.depthBiasConstantFactor = 0.0f;  // Optional
@@ -115,54 +113,16 @@ GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain,
 
     // Create descriptor pool/sets.
     std::vector<DescriptorBinding> descriptor_bindings = {
-        {0, 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
-        {1, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT},
-        {2,
-         static_cast<uint32_t>(scene.textureSamplers().size()),
-         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-         VK_SHADER_STAGE_FRAGMENT_BIT}};
+        {0, 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}};
 
     descriptor_set_manager_ =
-        std::make_unique<DescriptorSetManager>(device, descriptor_bindings, uniform_buffers.size());
-
-    auto& descriptor_sets = descriptor_set_manager_->descriptorSets();
-
-    for (uint32_t i = 0; i != swap_chain.images().size(); ++i) {
-        // Uniform buffer
-        VkDescriptorBufferInfo uniform_buffer_info = {};
-        uniform_buffer_info.buffer = uniform_buffers[i].buffer().handle();
-        uniform_buffer_info.range = VK_WHOLE_SIZE;
-
-        // Material buffer
-        VkDescriptorBufferInfo material_buffer_info = {};
-        material_buffer_info.buffer = scene.materialBuffer().handle();
-        material_buffer_info.range = VK_WHOLE_SIZE;
-
-        // Image and texture samplers
-        std::vector<VkDescriptorImageInfo> image_infos(scene.textureSamplers().size());
-
-        for (size_t t = 0; t != image_infos.size(); ++t) {
-            auto& image_info = image_infos[t];
-            image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            image_info.imageView = scene.textureImageViews()[t];
-            image_info.sampler = scene.textureSamplers()[t];
-        }
-
-        const std::vector<VkWriteDescriptorSet> descriptor_writes = {
-            descriptor_sets.bind(i, 0, uniform_buffer_info),
-            descriptor_sets.bind(i, 1, material_buffer_info),
-            descriptor_sets.bind(i, 2, *image_infos.data(), static_cast<uint32_t>(image_infos.size()))};
-
-        descriptor_sets.updateDescriptors(descriptor_writes);
-    }
+        std::make_unique<DescriptorSetManager>(device, descriptor_bindings, descriptor_bindings.size());
 
     // Create pipeline layout and render pass.
     pipeline_layout_ = std::make_unique<class PipelineLayout>(device, descriptor_set_manager_->descriptorSetLayout());
     render_pass_ = std::make_unique<class RenderPass>(swap_chain, depth_buffer, true, true);
 
     // Load shaders.
-    //  const ShaderModule vert_shader(device, "../resources/shaders/quad.vert.spv");
-    //  const ShaderModule frag_shader(device, "../resources/shaders/quad.frag.spv");
     const ShaderModule vert_shader(device, "../resources/shaders/graphics.vert.spv");
     const ShaderModule frag_shader(device, "../resources/shaders/graphics.frag.spv");
 
@@ -205,6 +165,21 @@ GraphicsPipeline::~GraphicsPipeline() {
 
 VkDescriptorSet GraphicsPipeline::descriptorSet(const uint32_t index) const {
     return descriptor_set_manager_->descriptorSets().handle(index);
+}
+
+void GraphicsPipeline::updateOutputImage(const vulkan::ImageView& output_image, const uint32_t image_index) {
+    const auto& device = swap_chain_.device();
+
+    auto& descriptor_sets = descriptor_set_manager_->descriptorSets();
+        // Image and texture samplers
+        VkDescriptorImageInfo image_info {};
+        image_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+        image_info.imageView = output_image.handle();
+        image_info.sampler = sampler_->handle();
+
+        const std::vector<VkWriteDescriptorSet> descriptor_writes = {descriptor_sets.bind(0, 0, image_info, 1)};
+
+        descriptor_sets.updateDescriptors(descriptor_writes);
 }
 
 }  // namespace vulkan

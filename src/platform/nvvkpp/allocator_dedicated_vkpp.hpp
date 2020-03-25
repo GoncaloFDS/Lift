@@ -93,6 +93,7 @@ class AllocatorDedicated
 public:
   // All staging buffers must be cleared before
   ~AllocatorDedicated() { assert(m_stagingBuffers.empty()); }
+  AllocatorDedicated() = default;
 
   //--------------------------------------------------------------------------------------------------
   // Initialization of the allocator

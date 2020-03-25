@@ -68,26 +68,26 @@ void Application::run() {
         auto ubo = getUniformBufferObject(renderer_->swapChain().extent());
         renderer_->beginCommand(*scene_, current_frame_);
 
-        if (user_settings_.isRayTraced) {
-            renderer_->trace(*scene_);
-            if (user_settings_.isDenoised) {
-                renderer_->denoiseImage();
-            }
+        renderer_->trace(*scene_);
 
-            renderer_->display();
+        if (user_settings_.isDenoised) {
+            renderer_->denoiseImage();
+            renderer_->setDenoised(true);
+        } else {
+            renderer_->setDenoised(false);
         }
+
+        renderer_->display();
 
         // Render the UI
         Statistics stats = {};
         stats.framebufferSize = window_->framebufferSize();
         stats.frameRate = static_cast<float>(1 / delta_time);
 
-        if (user_settings_.isRayTraced) {
-            const auto extent = renderer_->swapChain().extent();
+        const auto extent = renderer_->swapChain().extent();
 
-            stats.rayRate = float(extent.width * extent.height * number_of_samples_ / (delta_time * 1000000000));
-            stats.totalSamples = total_number_of_samples_;
-        }
+        stats.rayRate = float(extent.width * extent.height * number_of_samples_ / (delta_time * 1000000000));
+        stats.totalSamples = total_number_of_samples_;
 
         renderer_->render(*user_interface_, stats);
 
@@ -246,6 +246,9 @@ bool Application::onWindowMinimize(WindowMinimizeEvent& e) {
 }
 
 bool Application::onMouseMove(MouseMovedEvent& e) {
+    if (user_interface_->wantsToCaptureMouse()) {
+        return true;
+    }
     if (Input::isKeyPressed(LF_MOUSE_BUTTON_1)) {
         camera_x_ += static_cast<float>(e.x() - mouse_x_);
         camera_y_ += static_cast<float>(e.y() - mouse_y_);
@@ -276,9 +279,6 @@ bool Application::onKeyPress(KeyPressedEvent& e) {
             user_settings_.showOverlay = !user_settings_.showOverlay;
             break;
         case LF_KEY_F3:
-            user_settings_.isRayTraced = !user_settings_.isRayTraced;
-            break;
-        case LF_KEY_F4:
             user_settings_.isDenoised = !user_settings_.isDenoised;
             break;
         default:

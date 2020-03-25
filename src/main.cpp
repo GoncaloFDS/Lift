@@ -41,7 +41,6 @@ UserSettings createUserSettings(const Options& options) {
 
     user_settings.sceneIndex = options.sceneIndex;
 
-    user_settings.isRayTraced = true;
     user_settings.accumulateRays = true;
     user_settings.numberOfSamples = options.samples;
     user_settings.numberOfBounces = options.bounces;

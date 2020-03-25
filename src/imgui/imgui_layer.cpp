@@ -160,7 +160,6 @@ void ImguiLayer::drawSettings() {
 
         ImGui::Text("Ray Tracing");
         ImGui::Separator();
-        ImGui::Checkbox("Enable ray tracing", &settings().isRayTraced);
         ImGui::Checkbox("Enable Denoising", &settings().isDenoised);
         ImGui::Checkbox("Accumulate rays between frames", &settings().accumulateRays);
         uint32_t min = 1, max = 128;

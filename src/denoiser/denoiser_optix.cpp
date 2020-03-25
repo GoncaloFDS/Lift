@@ -14,9 +14,6 @@ static void contextLogCb(unsigned int level, const char* tag, const char* messag
     LF_WARN("[CUDA] {0}", message);
 }
 
-DenoiserOptix::DenoiserOptix() {
-}
-
 void DenoiserOptix::setup(vulkan::Device& device, uint32_t queue_index) {
     vk_allocator_.init({device.handle()}, {device.physicalDevice()});
 }
@@ -68,7 +65,7 @@ void DenoiserOptix::denoiseImage(vulkan::Device& device,
     input_layer.width = image_size_.width;
     input_layer.height = image_size_.height;
     input_layer.rowStrideInBytes = rowStrideInBytes;
-    input_layer.pixelStrideInBytes = size_of_pixel * 4;
+    input_layer.pixelStrideInBytes = size_of_pixel ;
     input_layer.format = pixel_format;
 
     OptixImage2D output_layer;
@@ -147,7 +144,6 @@ void DenoiserOptix::allocateBuffers(vulkan::Device& device) {
 }
 
 void DenoiserOptix::createBufferCuda(vulkan::Device& device, CudaBuffer& cuda_buffer) {
-    //
     vk::Device vkDevice {device.handle()};
     cuda_buffer.handle = vkDevice.getMemoryWin32HandleKHR(
         {cuda_buffer.buf_vk.allocation, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32});
