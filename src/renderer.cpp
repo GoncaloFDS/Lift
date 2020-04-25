@@ -1,13 +1,15 @@
 #include "renderer.h"
 
-#include "application.h"
 #include "assets/model.h"
 #include "assets/texture.h"
 #include "assets/uniform_buffer.h"
+#include "core.h"
+#include "core/glm.h"
 #include "vulkan/blas.h"
 #include "vulkan/depth_buffer.h"
 #include "vulkan/extensions_vk.h"
 #include "vulkan/fence.h"
+#include "vulkan/frame_buffer.h"
 #include "vulkan/graphics_pipeline.h"
 #include "vulkan/image_memory_barrier.h"
 #include "vulkan/image_view.h"
@@ -24,11 +26,9 @@
 #include <assets/scene.h>
 #include <vulkan/vulkan.hpp>
 
-using namespace vulkan;
+Renderer::Renderer(const vulkan::Instance& instance, bool vsync) {
 
-Renderer::Renderer(const Instance& instance, bool vsync) {
-
-    surface_ = std::make_unique<Surface>(instance);
+    surface_ = std::make_unique<vulkan::Surface>(instance);
     denoiser_ = std::make_unique<DenoiserOptix>();
     denoiser_->initOptix();
 }
@@ -44,41 +44,41 @@ Renderer::~Renderer() {
     surface_.reset();
 }
 
-void Renderer::init(VkPhysicalDevice physical_device, assets::Scene& scene, Instance& instance) {
+void Renderer::init(VkPhysicalDevice physical_device, assets::Scene& scene, vulkan::Instance& instance) {
     LF_ASSERT(!device_, "physical device has already been set");
 
-    device_ = std::make_unique<Device>(physical_device, *surface_);
-    command_pool_ = std::make_unique<CommandPool>(*device_, device_->graphicsFamilyIndex(), true);
-    properties_ = std::make_unique<RayTracingProperties>(*device_);
-    device_procedures_ = std::make_unique<DeviceProcedures>(*device_);
+    device_ = std::make_unique<vulkan::Device>(physical_device, *surface_);
+    command_pool_ = std::make_unique<vulkan::CommandPool>(*device_, device_->graphicsFamilyIndex(), true);
+    properties_ = std::make_unique<vulkan::RayTracingProperties>(*device_);
+    device_procedures_ = std::make_unique<vulkan::DeviceProcedures>(*device_);
 
     load_VK_EXTENSION_SUBSET(instance.handle(), vkGetInstanceProcAddr, device_->handle(), vkGetDeviceProcAddr);
 }
 
 void Renderer::createOutputImage() {
     const auto extent = swapChain().extent();
-    output_image_ = std::make_unique<Image>(device(),
+    output_image_ = std::make_unique<vulkan::Image>(device(),
                                             extent,
                                             VK_FORMAT_R32G32B32A32_SFLOAT,
                                             VK_IMAGE_TILING_OPTIMAL,
                                             VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
                                                 | VK_IMAGE_USAGE_SAMPLED_BIT);
     output_image_memory_ =
-        std::make_unique<DeviceMemory>(output_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
-    output_image_view_ = std::make_unique<ImageView>(device(),
+        std::make_unique<vulkan::DeviceMemory>(output_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+    output_image_view_ = std::make_unique<vulkan::ImageView>(device(),
                                                      output_image_->handle(),
                                                      VK_FORMAT_R32G32B32A32_SFLOAT,
                                                      VK_IMAGE_ASPECT_COLOR_BIT);
 
-    denoised_image_ = std::make_unique<Image>(device(),
+    denoised_image_ = std::make_unique<vulkan::Image>(device(),
                                               extent,
                                               VK_FORMAT_R32G32B32A32_SFLOAT,
                                               VK_IMAGE_TILING_OPTIMAL,
                                               VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
                                                   | VK_IMAGE_USAGE_SAMPLED_BIT);
     denoised_image_memory_ =
-        std::make_unique<DeviceMemory>(denoised_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
-    denoised_image_view_ = std::make_unique<ImageView>(device(),
+        std::make_unique<vulkan::DeviceMemory>(denoised_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+    denoised_image_view_ = std::make_unique<vulkan::ImageView>(device(),
                                                        denoised_image_->handle(),
                                                        VK_FORMAT_R32G32B32A32_SFLOAT,
                                                        VK_IMAGE_ASPECT_COLOR_BIT);
@@ -106,7 +106,7 @@ void Renderer::beginCommand(assets::Scene& scene, size_t current_frame) {
     }
 
     if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-        LF_ASSERT(false, "failed to acquire next image '{0}'", toString(result));
+        LF_ASSERT(false, "failed to acquire next image '{0}'", vulkan::toString(result));
     }
 
     current_command_buffer_ = command_buffers_->begin(current_image_index_);
@@ -143,7 +143,7 @@ size_t Renderer::endCommand(assets::Scene& scene, size_t current_frame, assets::
     auto& in_flight_fence = in_flight_fences_[current_frame];
     in_flight_fence.reset();
 
-    vulkanCheck(vkQueueSubmit(device_->graphicsQueue(), 1, &submit_info, in_flight_fence.handle()),
+    vulkan::vulkanCheck(vkQueueSubmit(device_->graphicsQueue(), 1, &submit_info, in_flight_fence.handle()),
                 "submit draw command buffer");
 
     VkSwapchainKHR swap_chains[] = {swap_chain_->handle()};
@@ -163,7 +163,7 @@ size_t Renderer::endCommand(assets::Scene& scene, size_t current_frame, assets::
         return 0;
     }
 
-    LF_ASSERT(result == VK_SUCCESS, "Failed to present image '{0}'", toString(result));
+    LF_ASSERT(result == VK_SUCCESS, "Failed to present image '{0}'", vulkan::toString(result));
 
     return (current_frame + 1) % in_flight_fences_.size();
 }
@@ -180,7 +180,7 @@ void Renderer::traceCommand(VkCommandBuffer command_buffer, uint32_t image_index
     subresource_range.baseArrayLayer = 0;
     subresource_range.layerCount = 1;
 
-    ImageMemoryBarrier::insert(command_buffer,
+    vulkan::ImageMemoryBarrier::insert(command_buffer,
                                output_image_->handle(),
                                subresource_range,
                                0,
@@ -313,9 +313,9 @@ void Renderer::createAccelerationStructures(assets::Scene& scene) {
     LF_INFO("Building acceleration structures...");
     const auto timer = std::chrono::high_resolution_clock::now();
 
-    SingleTimeCommands::submit(commandPool(), [this, &scene](VkCommandBuffer command_buffer) {
+    vulkan::SingleTimeCommands::submit(commandPool(), [this, &scene](VkCommandBuffer command_buffer) {
         createBottomLevelStructures(command_buffer, scene);
-        AccelerationStructure::memoryBarrier(command_buffer);
+        vulkan::AccelerationStructure::memoryBarrier(command_buffer);
         createTopLevelStructures(command_buffer, scene);
     });
 
@@ -354,14 +354,14 @@ void Renderer::createBottomLevelStructures(VkCommandBuffer command_buffer, asset
     uint32_t index_offset = 0;
     uint32_t aabb_offset = 0;
 
-    std::vector<AccelerationStructure::MemoryRequirements> requirements;
+    std::vector<vulkan::AccelerationStructure::MemoryRequirements> requirements;
 
     for (const auto& model : scene.models()) {
         const auto vertex_count = static_cast<uint32_t>(model.vertexCount());
         const auto index_count = static_cast<uint32_t>(model.indexCount());
         const std::vector<VkGeometryNV> geometries = {
-            model.procedural() ? BottomLevelAccelerationStructure::createGeometryAabb(scene, aabb_offset, 1, true) :
-                                 BottomLevelAccelerationStructure::createGeometry(scene,
+            model.procedural() ? vulkan::BottomLevelAccelerationStructure::createGeometryAabb(scene, aabb_offset, 1, true) :
+                                 vulkan::BottomLevelAccelerationStructure::createGeometry(scene,
                                                                                   vertex_offset,
                                                                                   vertex_count,
                                                                                   index_offset,
@@ -373,19 +373,19 @@ void Renderer::createBottomLevelStructures(VkCommandBuffer command_buffer, asset
 
         vertex_offset += vertex_count * sizeof(assets::Vertex);
         index_offset += index_count * sizeof(uint32_t);
-        aabb_offset += sizeof(vec3) * 2;
+        aabb_offset += sizeof(glm::vec3) * 2;
     }
 
     // Allocate the structure memory.
-    const auto total = AccelerationStructure::getTotalRequirements(requirements);
+    const auto total = vulkan::AccelerationStructure::getTotalRequirements(requirements);
 
-    bottom_buffer_ = std::make_unique<Buffer>(device(), total.result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
+    bottom_buffer_ = std::make_unique<vulkan::Buffer>(device(), total.result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
     bottom_buffer_memory_ =
-        std::make_unique<DeviceMemory>(bottom_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+        std::make_unique<vulkan::DeviceMemory>(bottom_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
-    bottom_scratch_buffer_ = std::make_unique<Buffer>(device(), total.build.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
+    bottom_scratch_buffer_ = std::make_unique<vulkan::Buffer>(device(), total.build.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
     bottom_scratch_buffer_memory_ =
-        std::make_unique<DeviceMemory>(bottom_scratch_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+        std::make_unique<vulkan::DeviceMemory>(bottom_scratch_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
     // Generate the structures.
     VkDeviceSize result_offset = 0;
@@ -404,16 +404,16 @@ void Renderer::createBottomLevelStructures(VkCommandBuffer command_buffer, asset
 }
 
 void Renderer::createTopLevelStructures(VkCommandBuffer command_buffer, assets::Scene& scene) {
-    std::vector<VkGeometryInstance> geometry_instances;
-    std::vector<AccelerationStructure::MemoryRequirements> requirements;
+    std::vector<vulkan::VkGeometryInstance> geometry_instances;
+    std::vector<vulkan::AccelerationStructure::MemoryRequirements> requirements;
 
     // Hit group 0: triangles
     // Hit group 1: procedurals
     uint32_t instance_id = 0;
 
     for (const auto& model : scene.models()) {
-        geometry_instances.push_back(TopLevelAccelerationStructure::createGeometryInstance(bottom_as_[instance_id],
-                                                                                           mat4(1),
+        geometry_instances.push_back(vulkan::TopLevelAccelerationStructure::createGeometryInstance(bottom_as_[instance_id],
+                                                                                           glm::mat4(1),
                                                                                            instance_id,
                                                                                            model.procedural() ? 1 : 0));
         instance_id++;
@@ -423,19 +423,19 @@ void Renderer::createTopLevelStructures(VkCommandBuffer command_buffer, assets::
     requirements.push_back(top_as_.back().getMemoryRequirements());
 
     // Allocate the structure memory.
-    const auto total = AccelerationStructure::getTotalRequirements(requirements);
+    const auto total = vulkan::AccelerationStructure::getTotalRequirements(requirements);
 
-    top_buffer_ = std::make_unique<Buffer>(device(), total.result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
+    top_buffer_ = std::make_unique<vulkan::Buffer>(device(), total.result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
     top_buffer_memory_ =
-        std::make_unique<DeviceMemory>(top_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+        std::make_unique<vulkan::DeviceMemory>(top_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
-    top_scratch_buffer_ = std::make_unique<Buffer>(device(), total.build.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
+    top_scratch_buffer_ = std::make_unique<vulkan::Buffer>(device(), total.build.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
     top_scratch_buffer_memory_ =
-        std::make_unique<DeviceMemory>(top_scratch_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+        std::make_unique<vulkan::DeviceMemory>(top_scratch_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
-    const size_t instances_buffer_size = sizeof(VkGeometryInstance) * geometry_instances.size();
-    instances_buffer_ = std::make_unique<Buffer>(device(), instances_buffer_size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
-    instances_buffer_memory_ = std::make_unique<DeviceMemory>(
+    const size_t instances_buffer_size = sizeof(vulkan::VkGeometryInstance) * geometry_instances.size();
+    instances_buffer_ = std::make_unique<vulkan::Buffer>(device(), instances_buffer_size, VK_BUFFER_USAGE_RAY_TRACING_BIT_NV);
+    instances_buffer_memory_ = std::make_unique<vulkan::DeviceMemory>(
         instances_buffer_->allocateMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
 
     // Generate the structures.
@@ -451,19 +451,19 @@ void Renderer::createTopLevelStructures(VkCommandBuffer command_buffer, assets::
 }
 
 void Renderer::createRayTracingPipeline(assets::Scene& scene) {
-    ray_tracing_pipeline_ = std::make_unique<RayTracingPipeline>(*device_procedures_,
+    ray_tracing_pipeline_ = std::make_unique<vulkan::RayTracingPipeline>(*device_procedures_,
                                                                  swapChain(),
                                                                  top_as_[0],
                                                                  *output_image_view_,
                                                                  uniformBuffers(),
                                                                  scene);
 
-    const std::vector<ShaderBindingTable::Entry> ray_gen_programs = {{ray_tracing_pipeline_->rayGenShaderIndex(), {}}};
-    const std::vector<ShaderBindingTable::Entry> miss_programs = {{ray_tracing_pipeline_->missShaderIndex(), {}}};
-    const std::vector<ShaderBindingTable::Entry> hit_groups = {{ray_tracing_pipeline_->triangleHitGroupIndex(), {}},
+    const std::vector<vulkan::ShaderBindingTable::Entry> ray_gen_programs = {{ray_tracing_pipeline_->rayGenShaderIndex(), {}}};
+    const std::vector<vulkan::ShaderBindingTable::Entry> miss_programs = {{ray_tracing_pipeline_->missShaderIndex(), {}}};
+    const std::vector<vulkan::ShaderBindingTable::Entry> hit_groups = {{ray_tracing_pipeline_->triangleHitGroupIndex(), {}},
                                                                {ray_tracing_pipeline_->proceduralHitGroupIndex(), {}}};
 
-    shader_binding_table_ = std::make_unique<ShaderBindingTable>(*device_procedures_,
+    shader_binding_table_ = std::make_unique<vulkan::ShaderBindingTable>(*device_procedures_,
                                                                  *ray_tracing_pipeline_,
                                                                  *properties_,
                                                                  ray_gen_programs,
@@ -472,8 +472,8 @@ void Renderer::createRayTracingPipeline(assets::Scene& scene) {
 }
 
 void Renderer::createSwapChain(assets::Scene& scene) {
-    swap_chain_ = std::make_unique<SwapChain>(*device_, vsync_);
-    depth_buffer_ = std::make_unique<DepthBuffer>(*command_pool_, swap_chain_->extent());
+    swap_chain_ = std::make_unique<vulkan::SwapChain>(*device_, vsync_);
+    depth_buffer_ = std::make_unique<vulkan::DepthBuffer>(*command_pool_, swap_chain_->extent());
 
     for (size_t i = 0; i != swap_chain_->imageViews().size(); ++i) {
         image_available_semaphores_.emplace_back(*device_);
@@ -483,14 +483,14 @@ void Renderer::createSwapChain(assets::Scene& scene) {
     }
 
     createOutputImage();
-    graphics_pipeline_ = std::make_unique<GraphicsPipeline>(*swap_chain_, *depth_buffer_);
+    graphics_pipeline_ = std::make_unique<vulkan::GraphicsPipeline>(*swap_chain_, *depth_buffer_);
 
     for (const auto& image_view : swap_chain_->imageViews()) {
         swap_chain_framebuffers_.emplace_back(*image_view, graphics_pipeline_->renderPass());
     }
 
     command_buffers_ =
-        std::make_unique<CommandBuffers>(*command_pool_, static_cast<uint32_t>(swap_chain_framebuffers_.size()));
+        std::make_unique<vulkan::CommandBuffers>(*command_pool_, static_cast<uint32_t>(swap_chain_framebuffers_.size()));
     createRayTracingPipeline(scene);
 }
 

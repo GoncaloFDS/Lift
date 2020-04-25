@@ -105,6 +105,10 @@ set(src_files_vulkan
         platform/vulkan/window.cpp
         platform/vulkan/window.h
         platform/vulkan/window_data.h
+        platform/vulkan/extensions_vk.cpp
+        platform/vulkan/extensions_vk.h
+        platform/vulkan/buffer_dedicated.cpp
+        platform/vulkan/buffer_dedicated.h
         )
 
 set(src_files_vulkan_raytracing
@@ -134,13 +138,7 @@ set(src_files
         user_settings.h
         renderer.cpp
         renderer.h
-        denoiser/denoiser_optix.cpp
-        denoiser/denoiser_optix.h
-        platform/vulkan/extensions_vk.cpp
-        platform/vulkan/extensions_vk.h
-        platform/vulkan/buffer_dedicated.cpp
-        platform/vulkan/buffer_dedicated.h
-       )
+        )
 
 source_group("assets" FILES ${src_files_assets})
 source_group("core" FILES ${src_files_core})

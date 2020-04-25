@@ -66,15 +66,9 @@ void main() {
         pixelColor += rayColor;
     }
 
-    const bool accumulate = Camera.NumberOfSamples != Camera.TotalNumberOfSamples;
-    const vec3 accumulatedColor = (accumulate ? imageLoad(OutputImage, ivec2(gl_LaunchIDNV.xy)) : vec4(0)).rgb + pixelColor;
+    const vec3 previousColor = Camera.TotalNumberOfSamples != 0 ? imageLoad(OutputImage, ivec2(gl_LaunchIDNV.xy)).rgb : vec3(0);
 
-//    pixelColor = accumulatedColor / Camera.TotalNumberOfSamples;
+    vec3 accumulatedColor = (Camera.TotalNumberOfSamples * previousColor + pixelColor) / (Camera.TotalNumberOfSamples + Camera.NumberOfSamples);
 
-    if (Camera.GammaCorrection) {
-        // Apply raytracing-in-one-weekend gamma correction.
-        pixelColor = sqrt(pixelColor);
-    }
-
-    imageStore(OutputImage, ivec2(gl_LaunchIDNV.xy), vec4(pixelColor, 1));
+    imageStore(OutputImage, ivec2(gl_LaunchIDNV.xy), vec4(accumulatedColor, 1));
 }

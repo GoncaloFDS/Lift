@@ -18,7 +18,6 @@
 #include "vulkan/swap_chain.h"
 #include "vulkan/window.h"
 
-using namespace vulkan;
 
 #ifdef NDEBUG
 const auto k_validation_layers = std::vector<const char*>();
@@ -26,15 +25,15 @@ const auto k_validation_layers = std::vector<const char*>();
 const auto k_validation_layers = std::vector<const char*> {"VK_LAYER_KHRONOS_validation"};
 #endif
 
-Application::Application(const UserSettings& user_settings, const WindowData& window_properties, const bool vsync) :
+Application::Application(const UserSettings& user_settings, const vulkan::WindowData& window_properties, const bool vsync) :
     user_settings_(user_settings), vsync_(vsync), is_running_(true) {
 
     const auto validation_layers = k_validation_layers;
 
-    window_ = std::make_unique<Window>(window_properties);
+    window_ = std::make_unique<vulkan::Window>(window_properties);
     window_->setEventCallbackFn(LF_BIND_EVENT_FN(Application::onEvent));
 
-    instance_ = std::make_unique<Instance>(*window_, validation_layers);
+    instance_ = std::make_unique<vulkan::Instance>(*window_, validation_layers);
     renderer_ = std::make_unique<Renderer>(*instance_, vsync);
 }
 

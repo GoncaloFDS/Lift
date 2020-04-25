@@ -35,11 +35,10 @@ class FrameBuffer;
 class CommandPool;
 }  // namespace vulkan
 
-using namespace vulkan;
 class Renderer {
 
 public:
-    Renderer(const Instance& instance, bool vsync);
+    Renderer(const vulkan::Instance& instance, bool vsync);
     ~Renderer();
 
     void beginCommand(assets::Scene& scene, size_t current_frame);
@@ -63,16 +62,16 @@ public:
 
     void waitDeviceIdle();
 
-    void init(VkPhysicalDevice physical_device, assets::Scene& scene, Instance& instance);
+    void init(VkPhysicalDevice physical_device, assets::Scene& scene, vulkan::Instance& instance);
     void setupDenoiser();
 
     void updateUniformBuffer(uint32_t image_index, assets::UniformBufferObject ubo);
 
-    [[nodiscard]] const class Device& device() const { return *device_; }
-    [[nodiscard]] class CommandPool& commandPool() { return *command_pool_; }
-    [[nodiscard]] const class SwapChain& swapChain() const { return *swap_chain_; }
-    [[nodiscard]] const class DepthBuffer& depthBuffer() const { return *depth_buffer_; }
-    [[nodiscard]] const class FrameBuffer& swapChainFrameBuffer(const size_t i) const {
+    [[nodiscard]] const vulkan::Device& device() const { return *device_; }
+    [[nodiscard]] vulkan::CommandPool& commandPool() { return *command_pool_; }
+    [[nodiscard]] const vulkan::SwapChain& swapChain() const { return *swap_chain_; }
+    [[nodiscard]] const vulkan::DepthBuffer& depthBuffer() const { return *depth_buffer_; }
+    [[nodiscard]] const vulkan::FrameBuffer& swapChainFrameBuffer(const size_t i) const {
         return swap_chain_framebuffers_[i];
     }
     [[nodiscard]] const std::vector<assets::UniformBuffer>& uniformBuffers() const { return uniform_buffers_; }
@@ -86,44 +85,44 @@ private:
     void createTopLevelStructures(VkCommandBuffer command_buffer, assets::Scene& scene);
 
 private:
-    std::unique_ptr<Surface> surface_;
-    std::unique_ptr<Device> device_;
+    std::unique_ptr<vulkan::Surface> surface_;
+    std::unique_ptr<vulkan::Device> device_;
 
-    std::unique_ptr<SwapChain> swap_chain_;
-    std::unique_ptr<DepthBuffer> depth_buffer_;
-    std::unique_ptr<GraphicsPipeline> graphics_pipeline_;
-    std::vector<FrameBuffer> swap_chain_framebuffers_;
-    std::unique_ptr<CommandPool> command_pool_;
-    std::unique_ptr<CommandBuffers> command_buffers_;
-    std::vector<Semaphore> image_available_semaphores_;
-    std::vector<Semaphore> render_finished_semaphores_;
-    std::vector<Fence> in_flight_fences_;
+    std::unique_ptr<vulkan::SwapChain> swap_chain_;
+    std::unique_ptr<vulkan::DepthBuffer> depth_buffer_;
+    std::unique_ptr<vulkan::GraphicsPipeline> graphics_pipeline_;
+    std::vector<vulkan::FrameBuffer> swap_chain_framebuffers_;
+    std::unique_ptr<vulkan::CommandPool> command_pool_;
+    std::unique_ptr<vulkan::CommandBuffers> command_buffers_;
+    std::vector<vulkan::Semaphore> image_available_semaphores_;
+    std::vector<vulkan::Semaphore> render_finished_semaphores_;
+    std::vector<vulkan::Fence> in_flight_fences_;
 
-    std::unique_ptr<RayTracingProperties> properties_;
-    std::unique_ptr<DeviceProcedures> device_procedures_;
-    std::vector<BottomLevelAccelerationStructure> bottom_as_;
-    std::unique_ptr<Buffer> bottom_buffer_;
-    std::unique_ptr<DeviceMemory> bottom_buffer_memory_;
-    std::unique_ptr<Buffer> bottom_scratch_buffer_;
-    std::unique_ptr<DeviceMemory> bottom_scratch_buffer_memory_;
-    std::vector<TopLevelAccelerationStructure> top_as_;
-    std::unique_ptr<Buffer> top_buffer_;
-    std::unique_ptr<DeviceMemory> top_buffer_memory_;
-    std::unique_ptr<Buffer> top_scratch_buffer_;
-    std::unique_ptr<DeviceMemory> top_scratch_buffer_memory_;
-    std::unique_ptr<Buffer> instances_buffer_;
-    std::unique_ptr<DeviceMemory> instances_buffer_memory_;
+    std::unique_ptr<vulkan::RayTracingProperties> properties_;
+    std::unique_ptr<vulkan::DeviceProcedures> device_procedures_;
+    std::vector<vulkan::BottomLevelAccelerationStructure> bottom_as_;
+    std::unique_ptr<vulkan::Buffer> bottom_buffer_;
+    std::unique_ptr<vulkan::DeviceMemory> bottom_buffer_memory_;
+    std::unique_ptr<vulkan::Buffer> bottom_scratch_buffer_;
+    std::unique_ptr<vulkan::DeviceMemory> bottom_scratch_buffer_memory_;
+    std::vector<vulkan::TopLevelAccelerationStructure> top_as_;
+    std::unique_ptr<vulkan::Buffer> top_buffer_;
+    std::unique_ptr<vulkan::DeviceMemory> top_buffer_memory_;
+    std::unique_ptr<vulkan::Buffer> top_scratch_buffer_;
+    std::unique_ptr<vulkan::DeviceMemory> top_scratch_buffer_memory_;
+    std::unique_ptr<vulkan::Buffer> instances_buffer_;
+    std::unique_ptr<vulkan::DeviceMemory> instances_buffer_memory_;
 
-    std::unique_ptr<Image> output_image_;
-    std::unique_ptr<DeviceMemory> output_image_memory_;
-    std::unique_ptr<ImageView> output_image_view_;
+    std::unique_ptr<vulkan::Image> output_image_;
+    std::unique_ptr<vulkan::DeviceMemory> output_image_memory_;
+    std::unique_ptr<vulkan::ImageView> output_image_view_;
 
-    std::unique_ptr<Image> denoised_image_;
-    std::unique_ptr<DeviceMemory> denoised_image_memory_;
-    std::unique_ptr<ImageView> denoised_image_view_;
+    std::unique_ptr<vulkan::Image> denoised_image_;
+    std::unique_ptr<vulkan::DeviceMemory> denoised_image_memory_;
+    std::unique_ptr<vulkan::ImageView> denoised_image_view_;
 
-    std::unique_ptr<RayTracingPipeline> ray_tracing_pipeline_;
-    std::unique_ptr<ShaderBindingTable> shader_binding_table_;
+    std::unique_ptr<vulkan::RayTracingPipeline> ray_tracing_pipeline_;
+    std::unique_ptr<vulkan::ShaderBindingTable> shader_binding_table_;
 
     std::vector<assets::UniformBuffer> uniform_buffers_;
 

@@ -16,7 +16,6 @@
 #include <memory>
 #include <vector>
 
-using namespace vulkan;
 
 namespace assets {
 class Scene;
@@ -44,7 +43,7 @@ class Window;
 
 class Application {
 public:
-    Application(const UserSettings& user_settings, const WindowData& window_properties, bool vsync);
+    Application(const UserSettings& user_settings, const vulkan::WindowData& window_properties, bool vsync);
     ~Application();
 
     [[nodiscard]] const std::vector<VkExtensionProperties>& extensions() const;
@@ -73,10 +72,10 @@ private:
     void createSwapChain();
 
     const bool vsync_;
-    std::unique_ptr<Window> window_;
+    std::unique_ptr<vulkan::Window> window_;
     std::unique_ptr<class Renderer> renderer_;
 
-    std::unique_ptr<Instance> instance_;
+    std::unique_ptr<vulkan::Instance> instance_;
     std::unique_ptr<Camera> camera_;
 
     size_t current_frame_ {};
