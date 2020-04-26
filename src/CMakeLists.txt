@@ -194,6 +194,6 @@ add_executable(${exe_name}
 set_target_properties(${exe_name} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 target_link_libraries(${exe_name} ${Boost_LIBRARIES} glfw imgui spdlog ${Vulkan_LIBRARIES} ${optix_LIBRARY} ${CUDA_LIBRARIES} ${CUDA_CUDA_LIBRARY})
 
-add_dependencies(${exe_name} Assets)
+add_dependencies(${exe_name} Resources)
 
 

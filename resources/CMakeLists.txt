@@ -70,6 +70,6 @@ source_group("Shaders" FILES ${shader_files} ${shader_extra_files})
 source_group("Textures" FILES ${texture_files})
 
 add_custom_target(
-        Assets
+        Resources
         DEPENDS ${copied_fonts} ${copied_models} ${compiled_shaders} ${copied_textures}
         SOURCES ${font_files} ${model_files} ${shader_files} ${shader_extra_files} ${texture_files})
