@@ -14,16 +14,17 @@ class UniformBufferObject {
 public:
     glm::mat4 modelView;
     glm::mat4 projection;
-    glm::mat4 modelViewInverse;
-    glm::mat4 projectionInverse;
+    glm::mat4 model_view_inverse;
+    glm::mat4 projection_inverse;
     float aperture;
-    float focusDistance;
-    uint32_t totalNumberOfSamples;
-    uint32_t numberOfSamples;
-    uint32_t numberOfBounces;
-    uint32_t randomSeed;
-    uint32_t gammaCorrection;  // bool
-    uint32_t hasSky;           // bool
+    float focus_distance;
+    uint32_t total_number_of_samples;
+    uint32_t number_of_samples;
+    uint32_t number_of_bounces;
+    uint32_t random_seed;
+    uint32_t gamma_correction;  // bool
+    uint32_t has_sky;           // bool
+    uint32_t frame;
 };
 
 class UniformBuffer {

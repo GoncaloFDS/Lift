@@ -133,7 +133,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
     pipeline_layout_ = std::make_unique<class PipelineLayout>(device, descriptor_set_manager_->descriptorSetLayout());
 
     // Load shaders.
-    const ShaderModule ray_gen_shader(device, "../resources/shaders/path.rgen.spv");
+    const ShaderModule ray_gen_shader(device, "../resources/shaders/pathtrace.rgen.spv");
     const ShaderModule miss_shader(device, "../resources/shaders/path.rmiss.spv");
     const ShaderModule closest_hit_shader(device, "../resources/shaders/path.rchit.spv");
     const ShaderModule procedural_closest_hit_shader(device, "../resources/shaders/path.procedural.rchit.spv");
@@ -194,7 +194,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
         procedural_hit_group_info,
     };
 
-    // Create graphic pipeline
+    // Create raytracing pipeline
     VkRayTracingPipelineCreateInfoNV pipeline_info = {};
     pipeline_info.sType = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV;
     pipeline_info.pNext = nullptr;

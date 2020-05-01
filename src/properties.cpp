@@ -19,7 +19,7 @@ Options::Options(const int argc, const char* argv[]) {
     renderer.add_options()("samples",
                            value<uint32_t>(&samples)->default_value(4),
                            "Set the number of ray samples per pixel.")("bounces",
-                                                                       value<uint32_t>(&bounces)->default_value(16),
+                                                                       value<uint32_t>(&bounces)->default_value(8),
                                                                        "Set the maximum number of bounces per ray.")(
         "max-samples",
         value<uint32_t>(&maxSamples)->default_value(64 * 1024),

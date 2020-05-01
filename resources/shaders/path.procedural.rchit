@@ -15,7 +15,9 @@ layout(binding = 8) readonly buffer SphereArray { vec4[] Spheres; };
 #include "vertex.glsl"
 
 hitAttributeNV vec4 Sphere;
-rayPayloadInNV RayPayload Ray;
+rayPayloadInNV PerRayData prd_;
+
+const float pi = 3.1415926535897932384626433832795;
 
 vec2 GetSphereTexCoord(const vec3 point) {
     const float phi = atan(point.x, point.z);
@@ -42,5 +44,17 @@ void main() {
     const vec3 normal = (point - center) / radius;
     const vec2 texCoord = GetSphereTexCoord(normal);
 
-    Ray = Scatter(material, gl_WorldRayDirectionNV, normal, texCoord, gl_HitTNV, Ray.RandomSeed);
+    prd_.origin = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV; // FIXME
+
+    vec3 diffuse_color = material.diffuse.rgb;
+    prd_.attenuation = prd_.attenuation * diffuse_color / pi;
+
+    if (material.shading_model == MaterialDiffuseLight) {
+        prd_.radiance = material.diffuse.rgb;
+        prd_.done = 1;
+        return;
+    }
+
+    prd_.direction = normal + RandomInUnitSphere(prd_.seed);
+    prd_.radiance = vec3(0.0);
 }

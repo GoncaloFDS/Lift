@@ -59,7 +59,7 @@ Model Model::loadModel(const std::string& filename) {
         Material m {};
 
         m.diffuse = vec4(material.diffuse[0], material.diffuse[1], material.diffuse[2], 1.0);
-        m.diffuseTextureId = -1;
+        m.diffuse_texture = -1;
 
         materials.emplace_back(m);
     }
@@ -68,7 +68,7 @@ Model Model::loadModel(const std::string& filename) {
         Material m {};
 
         m.diffuse = vec4(0.7f, 0.7f, 0.7f, 1.0);
-        m.diffuseTextureId = -1;
+        m.diffuse_texture = -1;
 
         materials.emplace_back(m);
     }

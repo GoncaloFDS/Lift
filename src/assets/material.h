@@ -9,8 +9,8 @@ struct alignas(16) Material final {
         return Material {glm::vec4(diffuse, 1), texture_id, 0.0f, 0.0f, Enum::Lambertian};
     }
 
-    static Material metallic(const glm::vec3& diffuse, const float fuzziness, const int32_t texture_id = -1) {
-        return Material {glm::vec4(diffuse, 1), texture_id, fuzziness, 0.0f, Enum::Metallic};
+    static Material metallic(const glm::vec3& diffuse, const float metallic_factor, const int32_t texture_id = -1) {
+        return Material {glm::vec4(diffuse, 1), texture_id, metallic_factor, 0.0f, Enum::Metallic};
     }
 
     static Material dielectric(const float refraction_index, const int32_t texture_id = -1) {
@@ -31,16 +31,16 @@ struct alignas(16) Material final {
 
     // Base material
     glm::vec4 diffuse;
-    int32_t diffuseTextureId;
+    int32_t diffuse_texture;
 
-    // Metal fuzziness
-    float fuzziness;
+    // Metal metallic_factor
+    float metallic_factor;
 
     // dielectric refraction index
-    float refractionIndex;
+    float refraction_index;
 
     // Which material are we dealing with
-    Enum materialModel;
+    Enum shading_model;
 };
 
 }  // namespace assets

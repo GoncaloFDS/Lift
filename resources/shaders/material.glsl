@@ -5,9 +5,9 @@ const uint MaterialIsotropic = 3;
 const uint MaterialDiffuseLight = 4;
 
 struct Material {
-    vec4 Diffuse;
-    int DiffuseTextureId;
-    float Fuzziness;
-    float RefractionIndex;
-    uint MaterialModel;
+    vec4 diffuse;
+    int diffuse_texture;
+    float metallic_factor;
+    float refraction_index;
+    uint shading_model;
 };

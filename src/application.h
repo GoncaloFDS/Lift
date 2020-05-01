@@ -93,6 +93,7 @@ private:
     double time_ {};
     uint32_t total_number_of_samples_ {};
     uint32_t number_of_samples_ {};
+    uint32_t number_of_frames_ {};
     bool reset_accumulation_ {};
 
     float mouse_x_ {};

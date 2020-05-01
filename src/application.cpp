@@ -114,16 +114,17 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     ubo.projection[1][1] *= -1;
     // Inverting Y for vulkan,
     // https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
-    ubo.modelViewInverse = glm::inverse(ubo.modelView);
-    ubo.projectionInverse = glm::inverse(ubo.projection);
+    ubo.model_view_inverse = glm::inverse(ubo.modelView);
+    ubo.projection_inverse = glm::inverse(ubo.projection);
     ubo.aperture = user_settings_.aperture;
-    ubo.focusDistance = user_settings_.focusDistance;
-    ubo.totalNumberOfSamples = total_number_of_samples_;
-    ubo.numberOfSamples = number_of_samples_;
-    ubo.numberOfBounces = user_settings_.numberOfBounces;
-    ubo.randomSeed = 1;
-    ubo.gammaCorrection = user_settings_.gammaCorrection;
-    ubo.hasSky = init.hasSky;
+    ubo.focus_distance = user_settings_.focusDistance;
+    ubo.total_number_of_samples = total_number_of_samples_;
+    ubo.number_of_samples = number_of_samples_;
+    ubo.number_of_bounces = user_settings_.numberOfBounces;
+    ubo.random_seed = 1;
+    ubo.gamma_correction = user_settings_.gammaCorrection;
+    ubo.has_sky = init.hasSky;
+    ubo.frame = number_of_frames_;
 
     return ubo;
 }
@@ -179,6 +180,7 @@ void Application::onUpdate() {
         || !user_settings_.accumulateRays) {
         total_number_of_samples_ = 0;
         reset_accumulation_ = false;
+        number_of_frames_ = 0;
     }
 
     previous_settings_ = user_settings_;
@@ -186,6 +188,7 @@ void Application::onUpdate() {
     number_of_samples_ =
         clamp(user_settings_.maxNumberOfSamples - total_number_of_samples_, 0u, user_settings_.numberOfSamples);
     total_number_of_samples_ += number_of_samples_;
+    number_of_frames_++;
 }
 
 void Application::loadScene(const uint32_t scene_index) {

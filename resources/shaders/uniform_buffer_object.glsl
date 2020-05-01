@@ -1,14 +1,15 @@
 struct UniformBufferObject {
-    mat4 ModelView;
-    mat4 Projection;
-    mat4 ModelViewInverse;
-    mat4 ProjectionInverse;
-    float Aperture;
-    float FocusDistance;
-    uint TotalNumberOfSamples;
-    uint NumberOfSamples;
-    uint NumberOfBounces;
-    uint RandomSeed;
-    bool GammaCorrection;
-    bool HasSky;
+    mat4 model_view;
+    mat4 projection;
+    mat4 model_view_inverse;
+    mat4 projection_inverse;
+    float aperture;
+    float focus_distance;
+    uint total_number_of_samples;
+    uint number_of_samples;
+    uint number_of_bounces;
+    uint random_seed;
+    bool gamma_correction;
+    bool has_sky;
+    uint frame;
 };
