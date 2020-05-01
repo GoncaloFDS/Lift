@@ -17,7 +17,9 @@
 #include "vulkan/surface.h"
 #include "vulkan/swap_chain.h"
 #include "vulkan/window.h"
+#include "effolkronium/random.hpp"
 
+using Random = effolkronium::random_static;
 
 #ifdef NDEBUG
 const auto k_validation_layers = std::vector<const char*>();
@@ -121,7 +123,7 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     ubo.total_number_of_samples = total_number_of_samples_;
     ubo.number_of_samples = number_of_samples_;
     ubo.number_of_bounces = user_settings_.numberOfBounces;
-    ubo.random_seed = 1;
+    ubo.seed = Random::get<Random::common>(0u, 1000u);
     ubo.gamma_correction = user_settings_.gammaCorrection;
     ubo.has_sky = init.hasSky;
     ubo.frame = number_of_frames_;

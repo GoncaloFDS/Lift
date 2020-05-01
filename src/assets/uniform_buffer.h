@@ -21,7 +21,7 @@ public:
     uint32_t total_number_of_samples;
     uint32_t number_of_samples;
     uint32_t number_of_bounces;
-    uint32_t random_seed;
+    uint32_t seed;
     uint32_t gamma_correction;  // bool
     uint32_t has_sky;           // bool
     uint32_t frame;

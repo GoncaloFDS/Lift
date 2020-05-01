@@ -8,7 +8,7 @@ struct UniformBufferObject {
     uint total_number_of_samples;
     uint number_of_samples;
     uint number_of_bounces;
-    uint random_seed;
+    uint seed;
     bool gamma_correction;
     bool has_sky;
     uint frame;

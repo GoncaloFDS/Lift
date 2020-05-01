@@ -23,7 +23,7 @@ void main() {
 
     for (int curr_sample = 0; curr_sample < ubo_.number_of_samples; curr_sample++) {
         // Random init
-        uint seed = tea(gl_LaunchIDNV.y * gl_LaunchSizeNV.x + gl_LaunchIDNV.x, ubo_.frame * ubo_.number_of_samples + curr_sample);
+        uint seed = tea(gl_LaunchIDNV.y * gl_LaunchSizeNV.x + gl_LaunchIDNV.x, ubo_.frame * ubo_.number_of_samples + curr_sample + ubo_.seed);
         float r1 = radinv_fl(seed, 2);
         float r2 = radinv_fl(seed, 3);
 
@@ -85,7 +85,7 @@ void main() {
     }
 
     hit_value = hit_value / ubo_.number_of_samples;
-    if (ubo_.frame > 0) {
+    if (ubo_.frame > 1) {
         float a = 1.0 / float(ubo_.frame);
         vec3 old_color = imageLoad(output_image_, ivec2(gl_LaunchIDNV.xy)).xyz;
         imageStore(output_image_, ivec2(gl_LaunchIDNV.xy), vec4(mix(old_color, hit_value, a), 1.0f));
