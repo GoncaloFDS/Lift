@@ -29,7 +29,12 @@ struct UserSettings final {
     bool show_overlay {};
 
     [[nodiscard]] bool requiresAccumulationReset(const UserSettings& prev) const {
-        return accumulate_rays != prev.accumulate_rays || number_of_bounces != prev.number_of_bounces || fov != prev.fov
-               || aperture != prev.aperture || focus_distance != prev.focus_distance || enable_mis != prev.enable_mis;
+        return accumulate_rays != prev.accumulate_rays ||
+               number_of_samples != prev.number_of_samples ||
+               number_of_bounces != prev.number_of_bounces ||
+               fov != prev.fov ||
+               aperture != prev.aperture ||
+               focus_distance != prev.focus_distance ||
+               enable_mis != prev.enable_mis;
     }
 };

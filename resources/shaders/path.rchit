@@ -16,12 +16,20 @@ layout(binding = 7) uniform sampler2D[] TextureSamplers;
 
 #include "scatter.glsl"
 #include "vertex.glsl"
+#include "sampling.h"
 
 hitAttributeNV vec2 HitAttributes;
 layout(location = 0) rayPayloadInNV PerRayData prd_;
 layout(location = 2) rayPayloadNV bool shadow_prd_;
 
 const float pi = 3.1415926535897932384626433832795;
+
+struct ParallelogramLight {
+    vec3 corner;
+    vec3 v1, v2;
+    vec3 normal;
+    vec3 emission;
+};
 
 vec2 Mix(vec2 a, vec2 b, vec2 c, vec3 barycentrics) {
     return a * barycentrics.x + b * barycentrics.y + c * barycentrics.z;
@@ -45,63 +53,66 @@ void main() {
     const vec3 barycentrics = vec3(1.0 - HitAttributes.x - HitAttributes.y, HitAttributes.x, HitAttributes.y);
     const vec3 normal = normalize(Mix(v0.Normal, v1.Normal, v2.Normal, barycentrics));
     const vec2 texCoord = Mix(v0.TexCoord, v1.TexCoord, v2.TexCoord, barycentrics);
+    ///////////////////////////////
 
+    // Diffuse hemisphere sampling
+    uint seed = prd_.seed;
+    const float z1 = radinv_fl(seed, 5 + 3 * prd_.depth);
+    const float z2 = radinv_fl(seed, 6 + 3 * prd_.depth);
+    vec3 tangent, binormal;
+    computeOrthonormalBasis(normal, tangent, binormal);
+    vec3 next_sample_dir;
+    cosine_sample_hemisphere(z1, z2, next_sample_dir);
+    inverse_transform(next_sample_dir, normal, tangent, binormal);
+    prd_.direction = next_sample_dir;
     prd_.origin = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;// FIXME
 
-    vec3 diffuse_color = material.diffuse.rgb;
-    prd_.attenuation = prd_.attenuation * diffuse_color / pi;
+    prd_.attenuation *= material.diffuse.rgb;
 
-    if (material.shading_model == MaterialDiffuseLight) {
-        prd_.radiance = material.diffuse.rgb;
-        prd_.done = true;
-        return;
-    }
+    const float lz1 = rnd(seed);
+    const float lz2 = rnd(seed);
+    prd_.seed = seed;
 
-    prd_.direction = normal + RandomInUnitSphere(prd_.seed);
-    prd_.radiance = vec3(0.0);
+    ParallelogramLight light;
+    light.corner = vec3(213, 553, -328);
+    light.v1 = vec3(130, 0, 0);
+    light.v2 = vec3(0, 0, 130);
+    light.normal = vec3(0, -1, 0);
+    light.emission = vec3(15);
 
-    //
-    int number_of_lights = 1;
-    vec3 light_position = vec3(250, 553, -250);
-    vec4 light_color = vec4(255, 255, 255, 200);
+    const vec3 light_pos = light.corner + light.v1 * lz1 + light.v2 * lz2;
+    vec3 light_dir  = light_pos - prd_.origin;
+    const float light_dist = length(light_dir);
+    light_dir = normalize(light_dir);
+    const float n_dot_l = dot(normal, light_dir);
+    const float ln_dot_l = -dot(light.normal, light_dir);
 
-    if (ubo_.enable_mis) {
+    float weight = 0.0f;
 
-        // Trace Shadow Rays
-        vec3 result = vec3(0);
-        for (int i = 0; i < number_of_lights; i++) {
-            vec3 light_dir = light_position - prd_.origin;
-            float light_dist = length(light_dir);
-            light_dir = normalize(light_dir);
-            float light_intensity = light_color.a * 1.0f / (light_dist * light_dist);
+    shadow_prd_ = true;
 
-            float n_dot_l = max(0.0, dot(normal, light_dir));
+    if (n_dot_l > 0.0f && ln_dot_l > 0.0f) {
+        float tmin = 0.005;
+        float tmax = light_dist;
 
-            shadow_prd_ = true;
-            float tmin = 0.005;
-            float tmax = light_dist;
+        traceNV(scene_,
+        gl_RayFlagsTerminateOnFirstHitNV | gl_RayFlagsOpaqueNV | gl_RayFlagsSkipClosestHitShaderNV,
+        0xFF,
+        1 /* sbtRecordOffset */,
+        0 /* sbtRecordStride */,
+        1 /* missIndex */,
+        prd_.origin,
+        tmin,
+        light_dir,
+        tmax,
+        2 /*payload location*/);
 
-            if (n_dot_l > 0) {
-                traceNV(scene_,
-                gl_RayFlagsTerminateOnFirstHitNV | gl_RayFlagsOpaqueNV | gl_RayFlagsSkipClosestHitShaderNV,
-                0xFF,
-                1 /* sbtRecordOffset */,
-                0 /* sbtRecordStride */,
-                1 /* missIndex */,
-                prd_.origin,
-                tmin,
-                light_dir,
-                tmax,
-                2 /*payload location*/);
+        if (!shadow_prd_) {
+            const float A = length(cross(light.v1, light.v2));
+            weight = n_dot_l * ln_dot_l * A / (pi * light_dist * light_dist);
 
-            }
-            if (shadow_prd_) {
-                light_intensity = 0.0;
-            }
-
-            result += light_color.rbg * n_dot_l * light_intensity;
         }
-        prd_.radiance = vec3(1, 1, 1) * result;
     }
 
+    prd_.radiance += light.emission * weight;
 }

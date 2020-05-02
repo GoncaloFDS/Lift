@@ -43,6 +43,7 @@ void main() {
         float tmax = 10000.0;
 
         prd_.emitted = vec3(0.0f);
+        prd_.radiance = vec3(0.0f);
         prd_.attenuation = vec3(1.0f);
         prd_.done = false;
         prd_.seed = seed;
@@ -72,13 +73,13 @@ void main() {
             direction.xyz = prd_.direction;
 
             // russian roulette termination
-            if (prd_.depth >= 1) {
-                float pcont = max(prd_.attenuation.x, max(prd_.attenuation.y, prd_.attenuation.z));
-                if (radinv_fl(seed, 4 + 3 * prd_.depth) >= pcont){
-                    break;
-                }
-                prd_.attenuation /= pcont;
-            }
+//            if (prd_.depth >= 1) {
+//                float pcont = max(prd_.attenuation.x, max(prd_.attenuation.y, prd_.attenuation.z));
+//                if (radinv_fl(seed, 4 + 3 * prd_.depth) >= pcont){
+//                    break;
+//                }
+//                prd_.attenuation /= pcont;
+//            }
 
             prd_.depth++;
         }
