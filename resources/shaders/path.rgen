@@ -63,7 +63,7 @@ void main() {
             result += prd_.emitted;
             result += prd_.radiance * prd_.attenuation;
 
-            if (prd_.done || prd_.depth >= ubo_.number_of_bounces) {
+            if (prd_.done || prd_.depth >= ubo_.number_of_bounces ) {
                 break;
             }
 

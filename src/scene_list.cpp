@@ -157,9 +157,11 @@ SceneAssets SceneList::cornellBox(CameraInitialState& camera) {
 
     const auto i = mat4(1);
     const auto white = Material::lambertian(vec3(0.73f, 0.73f, 0.73f));
+    const auto metal = Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.05f);
+    const auto glass = Material::dielectric(1.5f);
 
-    auto box_0 = Model::createBox(vec3(0, 0, -165), vec3(165, 165, 0), white);
-    auto box_1 = Model::createBox(vec3(0, 0, -165), vec3(165, 330, 0), white);
+    auto box_0 = Model::createBox(vec3(0, 1, -165), vec3(165, 165, 0), metal);
+    auto box_1 = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), glass);
 
     box_0.transform(rotate(translate(i, vec3(555 - 130 - 165, 0, -65)), radians(-18.0f), vec3(0, 1, 0)));
     box_1.transform(rotate(translate(i, vec3(555 - 265 - 165, 0, -295)), radians(15.0f), vec3(0, 1, 0)));
@@ -184,7 +186,7 @@ SceneAssets SceneList::cornellBoxLucy(CameraInitialState& camera) {
         Model::createSphere(vec3(555 - 130, 165.0f, -165.0f / 2 - 65), 80.0f, Material::dielectric(1.5f), true);
     auto lucy_0 = Model::loadModel("../resources/models/lucy.obj");
 
-    lucy_0.transform(rotate(scale(translate(mat4(1), vec3(555 - 300 - 165 / 2, -9, -295 - 165 / 2)), vec3(0.6f)),
+    lucy_0.transform(rotate(scale(translate(mat4(1), vec3(555 - 300 - 165 / 2, -8, -295 - 165 / 2)), vec3(0.6f)),
                             radians(75.0f),
                             vec3(0, 1, 0)));
     lucy_0.setMaterial(Material::dielectric(1.5f));

@@ -2,8 +2,12 @@
 #extension GL_EXT_nonuniform_qualifier : require
 #extension GL_GOOGLE_include_directive : require
 #extension GL_NV_ray_tracing : require
-#include "utils/material.glsl"
 
+#include "utils/material.glsl"
+#include "utils/uniform_buffer_object.glsl"
+
+layout(binding = 0, set = 0) uniform accelerationStructureNV scene_;
+layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
 layout(binding = 3) readonly buffer VertexArray { float Vertices[]; };
 layout(binding = 4) readonly buffer IndexArray { uint Indices[]; };
 layout(binding = 5) readonly buffer MaterialArray { Material[] Materials; };
@@ -11,11 +15,13 @@ layout(binding = 6) readonly buffer OffsetArray { uvec2[] Offsets; };
 layout(binding = 7) uniform sampler2D[] TextureSamplers;
 layout(binding = 8) readonly buffer SphereArray { vec4[] Spheres; };
 
-#include "utils/scatter.glsl"
+#include "utils/brdfs.glsl"
 #include "utils/vertex.glsl"
+#include "utils/sampling.h"
 
-hitAttributeNV vec4 Sphere;
-rayPayloadInNV PerRayData prd_;
+hitAttributeNV vec4 sphere_;
+layout(location = 0) rayPayloadInNV PerRayData prd_;
+layout(location = 2) rayPayloadNV bool shadow_prd_;
 
 const float pi = 3.1415926535897932384626433832795;
 
@@ -42,19 +48,58 @@ void main() {
     const float radius = sphere.w;
     const vec3 point = gl_WorldRayOriginNV + gl_HitTNV * gl_WorldRayDirectionNV;
     const vec3 normal = (point - center) / radius;
-    const vec2 texCoord = GetSphereTexCoord(normal);
+    const vec2 tex_coords = GetSphereTexCoord(normal);
 
-    prd_.origin = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV; // FIXME
+    // Diffuse hemisphere sampling
+    uint seed = prd_.seed;
 
-    vec3 diffuse_color = material.diffuse.rgb;
-    prd_.attenuation = prd_.attenuation * diffuse_color / pi;
+    HitSample hit = scatter(material, gl_WorldRayDirectionNV, normal, tex_coords, prd_.seed);
 
-    if (material.shading_model == MaterialDiffuseLight) {
-        prd_.radiance = material.diffuse.rgb;
-        prd_.done = true;
-        return;
+    prd_.direction = hit.scattered_dir.xyz;
+    prd_.origin = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
+    prd_.attenuation *= hit.color.xyz;
+
+    const float lz1 = rnd(seed);
+    const float lz2 = rnd(seed);
+    prd_.seed = seed;
+
+    // MIS
+    ParallelogramLight light = ubo_.light;
+
+    const vec3 light_pos = light.corner.xyz + light.v1.xyz * lz1 + light.v2.xyz * lz2;
+    vec3 light_dir  = light_pos - prd_.origin;
+    const float light_dist = length(light_dir);
+    light_dir = normalize(light_dir);
+    const float n_dot_l = dot(normal, light_dir);
+    const float ln_dot_l = -dot(light.normal.xyz, light_dir);
+
+    float weight = 0.0f;
+
+    shadow_prd_ = true;
+
+    if (n_dot_l > 0.0f && ln_dot_l > 0.0f) {
+        float tmin = 0.005;
+        float tmax = light_dist;
+
+        traceNV(scene_,
+        gl_RayFlagsTerminateOnFirstHitNV | gl_RayFlagsOpaqueNV | gl_RayFlagsSkipClosestHitShaderNV,
+        0xFF,
+        1 /* sbtRecordOffset */,
+        0 /* sbtRecordStride */,
+        1 /* missIndex */,
+        prd_.origin,
+        tmin,
+        light_dir,
+        tmax,
+        2 /*payload location*/);
+
+        if (!shadow_prd_) {
+            const float A = length(cross(light.v1.xyz, light.v2.xyz));
+            weight = n_dot_l * ln_dot_l * A / (pi * light_dist * light_dist);
+
+        }
     }
 
-    prd_.direction = normal + RandomInUnitSphere(prd_.seed);
-    prd_.radiance = vec3(0.0);
+    prd_.radiance += light.emission.xyz * weight;
+
 }

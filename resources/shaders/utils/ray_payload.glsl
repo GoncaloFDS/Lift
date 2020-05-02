@@ -1,7 +1,6 @@
-struct RayPayload {
-    vec4 ColorAndDistance;// rgb + t
-    vec4 ScatterDirection;// xyz + w (is scatter needed)
-    uint seed;
+struct HitSample {
+    vec4 color;// rgb + t
+    vec4 scattered_dir;// xyz + w (is scatter needed)
 };
 
 struct PerRayData {

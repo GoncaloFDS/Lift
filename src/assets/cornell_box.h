@@ -8,7 +8,7 @@ namespace assets {
 
 class CornellBox final {
 public:
-    static void create(const float scale,
+    static void create(float scale,
                        std::vector<Vertex>& vertices,
                        std::vector<uint32_t>& indices,
                        std::vector<Material>& materials);

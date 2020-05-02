@@ -14,11 +14,11 @@ layout(binding = 5) readonly buffer MaterialArray { Material[] Materials; };
 layout(binding = 6) readonly buffer OffsetArray { uvec2[] Offsets; };
 layout(binding = 7) uniform sampler2D[] TextureSamplers;
 
-#include "utils/scatter.glsl"
+#include "utils/brdfs.glsl"
 #include "utils/vertex.glsl"
 #include "utils/sampling.h"
 
-hitAttributeNV vec2 HitAttributes;
+hitAttributeNV vec2 hit_attributes;
 layout(location = 0) rayPayloadInNV PerRayData prd_;
 layout(location = 2) rayPayloadNV bool shadow_prd_;
 
@@ -43,29 +43,25 @@ void main() {
     const Material material = Materials[v0.material_index];
 
     // Compute the ray hit point properties.
-    const vec3 barycentrics = vec3(1.0 - HitAttributes.x - HitAttributes.y, HitAttributes.x, HitAttributes.y);
+    const vec3 barycentrics = vec3(1.0 - hit_attributes.x - hit_attributes.y, hit_attributes.x, hit_attributes.y);
     const vec3 normal = normalize(Mix(v0.normal, v1.normal, v2.normal, barycentrics));
     const vec2 tex_coords = Mix(v0.tex_coords, v1.tex_coords, v2.tex_coords, barycentrics);
     ///////////////////////////////
 
     // Diffuse hemisphere sampling
     uint seed = prd_.seed;
-    const float z1 = radinv_fl(seed, 5 + 3 * prd_.depth);
-    const float z2 = radinv_fl(seed, 6 + 3 * prd_.depth);
-    vec3 tangent, binormal;
-    computeOrthonormalBasis(normal, tangent, binormal);
-    vec3 next_sample_dir;
-    cosine_sample_hemisphere(z1, z2, next_sample_dir);
-    inverse_transform(next_sample_dir, normal, tangent, binormal);
 
-    prd_.direction = next_sample_dir;
+    HitSample hit = scatter(material, gl_WorldRayDirectionNV, normal, tex_coords, prd_.seed);
+
+    prd_.direction = hit.scattered_dir.xyz;
     prd_.origin = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
-    prd_.attenuation *= material.diffuse.rgb;
+    prd_.attenuation *= hit.color.xyz;
 
     const float lz1 = rnd(seed);
     const float lz2 = rnd(seed);
     prd_.seed = seed;
 
+    // MIS
     ParallelogramLight light = ubo_.light;
 
     const vec3 light_pos = light.corner.xyz + light.v1.xyz * lz1 + light.v2.xyz * lz2;
