@@ -77,31 +77,27 @@ private:
 
     std::unique_ptr<vulkan::Instance> instance_;
     std::unique_ptr<Camera> camera_;
+    CameraState camera_initial_state_ {};
 
     size_t current_frame_ {};
     bool is_running_ {};
-    bool is_wire_frame_ {};
 
     uint32_t scene_index_ {};
     UserSettings user_settings_ {};
     UserSettings previous_settings_ {};
-    SceneList::CameraInitialState camera_initial_state_ {};
     std::unique_ptr<assets::Scene> scene_;
     std::unique_ptr<ImguiLayer> user_interface_;
-    float camera_x_ {};
-    float camera_y_ {};
     double time_ {};
     uint32_t total_number_of_samples_ {};
     uint32_t number_of_samples_ {};
     uint32_t number_of_frames_ {};
     bool reset_accumulation_ {};
 
-    float mouse_x_ {};
-    float mouse_y_ {};
     ParallelogramLight light_;
 
     // Benchmark stats
     double scene_initial_time_ {};
     double period_initial_time_ {};
     uint32_t period_total_frames_ {};
+
 };

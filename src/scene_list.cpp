@@ -9,7 +9,7 @@ using assets::Material;
 using assets::Model;
 using assets::Texture;
 
-const std::vector<std::pair<std::string, std::function<SceneAssets(SceneList::CameraInitialState&)>>>
+const std::vector<std::pair<std::string, std::function<SceneAssets(CameraState&)>>>
     SceneList::allScenes = {
         {"Cornell Box", cornellBox},
         {"Cornell Box & Lucy", cornellBoxLucy},
@@ -17,8 +17,11 @@ const std::vector<std::pair<std::string, std::function<SceneAssets(SceneList::Ca
         {"Lucy In One Weekend", lucyInOneWeekend},
 };
 
-SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialState& camera) {
-    camera.model_view = lookAt(vec3(13, 2, 3), vec3(0, 0, 0), vec3(0, 1, 0));
+SceneAssets SceneList::rayTracingInOneWeekend(CameraState& camera) {
+    camera.eye = vec3(13, 2, 3);
+    camera.look_at = vec3(0);
+    camera.up = vec3(0, 1, 0);
+    camera.field_of_view = 40;
     camera.field_of_view = 20;
     camera.aperture = 0.1f;
     camera.focus_distance = 10.0f;
@@ -73,8 +76,10 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialState& camera) {
     return std::forward_as_tuple(std::move(models), std::vector<Texture>());
 }
 
-SceneAssets SceneList::lucyInOneWeekend(CameraInitialState& camera) {
-    camera.model_view = lookAt(vec3(13, 2, 3), vec3(0, 1.0, 0), vec3(0, 1, 0));
+SceneAssets SceneList::lucyInOneWeekend(CameraState& camera) {
+    camera.eye = vec3(13, 2, 3);
+    camera.look_at = vec3(0);
+    camera.up = vec3(0, 1, 0);
     camera.field_of_view = 20;
     camera.aperture = 0.05f;
     camera.focus_distance = 10.0f;
@@ -147,8 +152,10 @@ SceneAssets SceneList::lucyInOneWeekend(CameraInitialState& camera) {
     return std::forward_as_tuple(std::move(models), std::vector<Texture>());
 }
 
-SceneAssets SceneList::cornellBox(CameraInitialState& camera) {
-    camera.model_view = lookAt(vec3(278, 278, 800), vec3(278, 278, 0), vec3(0, 1, 0));
+SceneAssets SceneList::cornellBox(CameraState& camera) {
+    camera.eye = vec3(278, 278, 800);
+    camera.look_at = vec3(278, 278, 0);
+    camera.up = vec3(0, 1, 0);
     camera.field_of_view = 40;
     camera.aperture = 0.0f;
     camera.focus_distance = 10.0f;
@@ -174,8 +181,10 @@ SceneAssets SceneList::cornellBox(CameraInitialState& camera) {
     return std::make_tuple(std::move(models), std::vector<Texture>());
 }
 
-SceneAssets SceneList::cornellBoxLucy(CameraInitialState& camera) {
-    camera.model_view = lookAt(vec3(278, 278, 800), vec3(278, 278, 0), vec3(0, 1, 0));
+SceneAssets SceneList::cornellBoxLucy(CameraState& camera) {
+    camera.eye = vec3(278, 278, 800);
+    camera.look_at = vec3(278, 278, 0);
+    camera.up = vec3(0, 1, 0);
     camera.field_of_view = 40;
     camera.aperture = 0.0f;
     camera.focus_distance = 10.0f;

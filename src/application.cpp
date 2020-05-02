@@ -1,5 +1,6 @@
 #include "application.h"
 #include <core/key_codes.h>
+#include <core/timer.h>
 
 #include "assets/model.h"
 #include "assets/scene.h"
@@ -51,7 +52,7 @@ Application::~Application() {
 }
 
 void Application::run() {
-    current_frame_ = 0;
+    Timer::start();
 
     light_ = {
         {213.0f, 553.0f, -328.0f, 0},
@@ -104,22 +105,16 @@ void Application::run() {
         renderer_->render(*user_interface_, stats);
 
         renderer_->endCommand(*scene_, current_frame_, ubo);
+        Timer::tick();
     }
 
     renderer_->waitDeviceIdle();
 }
 
 assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D extent) const {
-    const auto camera_rot_x = static_cast<float>(camera_y_ / 300.0);
-    const auto camera_rot_y = static_cast<float>(camera_x_ / 300.0);
-
-    const auto& init = camera_initial_state_;
-    const auto view = init.model_view;
-    const auto model = glm::rotate(mat4(1.0f), camera_rot_y * radians(90.0f), vec3(0.0f, 1.0f, 0.0f))
-                       * glm::rotate(mat4(1.0f), camera_rot_x * radians(90.0f), vec3(1.0f, 0.0f, 0.0f));
 
     assets::UniformBufferObject ubo = {};
-    ubo.modelView = view * model;
+    ubo.modelView = camera_->model_view();
     ubo.projection =
         perspective(radians(user_settings_.fov), extent.width / static_cast<float>(extent.height), 0.1f, 10000.0f);
     ubo.projection[1][1] *= -1;
@@ -135,7 +130,7 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     ubo.seed = Random::get<Random::common>(0u, 1000u);
     ubo.gamma_correction = user_settings_.gamma_correction;
     ubo.enable_mis = user_settings_.enable_mis;
-    ubo.has_sky = init.has_sky;
+    ubo.has_sky = camera_->hasSky();
     ubo.frame = number_of_frames_;
     ubo.light = light_;
 
@@ -188,9 +183,13 @@ void Application::onUpdate() {
         return;
     }
 
+    bool camera_changed = camera_->onUpdate();
     // Check if the accumulation buffer needs to be reset.
-    if (reset_accumulation_ || user_settings_.requiresAccumulationReset(previous_settings_)
-        || !user_settings_.accumulate_rays) {
+    if (reset_accumulation_ ||
+        user_settings_.requiresAccumulationReset(previous_settings_) ||
+        !user_settings_.accumulate_rays ||
+        camera_changed) {
+        
         total_number_of_samples_ = 0;
         reset_accumulation_ = false;
         number_of_frames_ = 0;
@@ -221,11 +220,11 @@ void Application::loadScene(const uint32_t scene_index) {
     user_settings_.focus_distance = camera_initial_state_.focus_distance;
     user_settings_.gamma_correction = camera_initial_state_.gamma_correction;
 
-    camera_x_ = 0;
-    camera_y_ = 0;
-
     period_total_frames_ = 0;
     reset_accumulation_ = true;
+
+    camera_initial_state_.aspect_ratio = float(window_->framebufferSize().width / window_->framebufferSize().height);
+    camera_ = std::make_unique<Camera>(camera_initial_state_);
 }
 
 void Application::onEvent(Event& event) {
@@ -264,14 +263,14 @@ bool Application::onMouseMove(MouseMovedEvent& e) {
     if (user_interface_->wantsToCaptureMouse()) {
         return true;
     }
-    if (Input::isKeyPressed(LF_MOUSE_BUTTON_1)) {
-        camera_x_ += static_cast<float>(e.x() - mouse_x_);
-        camera_y_ += static_cast<float>(e.y() - mouse_y_);
+    Input::moveMouse(e.x(), e.y());
 
+    if (Input::isKeyPressed(LF_MOUSE_BUTTON_1)) {
+        const auto delta = Input::mouseDelta();
+        const auto window_size = window_->framebufferSize();
+        camera_->orbit(delta.x / float(window_size.width), delta.y / float(window_size.height));
         reset_accumulation_ = true;
     }
-    mouse_x_ = e.x();
-    mouse_y_ = e.y();
     return false;
 }
 
@@ -283,26 +282,60 @@ bool Application::onKeyPress(KeyPressedEvent& e) {
     if (user_interface_->wantsToCaptureKeyboard()) {
         return true;
     }
-    switch (e.keyCode()) {
-        case LF_KEY_ESCAPE:
-            window_->close();
-            break;
-        case LF_KEY_F1:
-            user_settings_.show_settings = !user_settings_.show_settings;
-            break;
-        case LF_KEY_F2:
-            user_settings_.show_overlay = !user_settings_.show_overlay;
-            break;
-        case LF_KEY_F3:
-            user_settings_.is_denoised = !user_settings_.is_denoised;
-            break;
-        default:
-            break;
+
+    if (e.keyCode() == LF_KEY_ESCAPE) {
+        window_->close();
     }
+    if (e.keyCode() == LF_KEY_F1) {
+        user_settings_.show_settings = !user_settings_.show_settings;
+    }
+    if (e.keyCode() == LF_KEY_F2) {
+        user_settings_.show_overlay = !user_settings_.show_overlay;
+    }
+    if (e.keyCode() == LF_KEY_F3) {
+        user_settings_.is_denoised = !user_settings_.is_denoised;
+    }
+    if (e.keyCode() == LF_KEY_W) {
+        camera_->setMoveDirection(Direction::FORWARD);
+    }
+    if (e.keyCode() == LF_KEY_S) {
+        camera_->setMoveDirection(Direction::BACK);
+    }
+    if (e.keyCode() == LF_KEY_D) {
+        camera_->setMoveDirection(Direction::RIGHT);
+    }
+    if (e.keyCode() == LF_KEY_A) {
+        camera_->setMoveDirection(Direction::LEFT);
+    }
+    if (e.keyCode() == LF_KEY_E) {
+        camera_->setMoveDirection(Direction::UP);
+    }
+    if (e.keyCode() == LF_KEY_Q) {
+        camera_->setMoveDirection(Direction::DOWN);
+    }
+
     return false;
 }
 
 bool Application::onKeyRelease(KeyReleasedEvent& e) {
+    if (e.keyCode() == LF_KEY_W) {
+        camera_->setMoveDirection(Direction::FORWARD, -1.0f);
+    }
+    if (e.keyCode() == LF_KEY_S) {
+        camera_->setMoveDirection(Direction::BACK, -1.0f);
+    }
+    if (e.keyCode() == LF_KEY_D) {
+        camera_->setMoveDirection(Direction::RIGHT, -1.0f);
+    }
+    if (e.keyCode() == LF_KEY_A) {
+        camera_->setMoveDirection(Direction::LEFT, -1.0f);
+    }
+    if (e.keyCode() == LF_KEY_E) {
+        camera_->setMoveDirection(Direction::UP, -1.0f);
+    }
+    if (e.keyCode() == LF_KEY_Q) {
+        camera_->setMoveDirection(Direction::DOWN, -1.0f);
+    }
     return false;
 }
 

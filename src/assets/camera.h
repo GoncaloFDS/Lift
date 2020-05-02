@@ -6,17 +6,31 @@ using namespace glm;
 
 enum class Direction { UP, DOWN, RIGHT, LEFT, FORWARD, BACK };
 
+struct CameraState {
+    glm::vec3 eye;
+    glm::vec3 look_at;
+    glm::vec3 up;
+    float field_of_view;
+    float aperture;
+    float focus_distance;
+    float aspect_ratio;
+    bool gamma_correction;
+    bool has_sky;
+};
+
 class Camera {
 public:
     Camera();
-    Camera(const vec3& eye, const vec3& look_at, const vec3& up, float fovy, float aspect_ratio);
+    Camera(const CameraState& s);
 
+    [[nodiscard]] auto model_view() const -> mat4 { return glm::lookAt(eye(), lookAt(), up()); }
     [[nodiscard]] auto direction() const -> vec3 { return normalize(look_at_ - eye_); }
     [[nodiscard]] auto eye() const -> const vec3& { return eye_; };
     [[nodiscard]] auto lookAt() const -> const vec3& { return look_at_; }
     [[nodiscard]] auto up() const -> const vec3& { return up_; }
-    [[nodiscard]] auto fovy() const -> float { return fovy_; }
+    [[nodiscard]] auto fovy() const -> float { return field_of_view_; }
     [[nodiscard]] auto aspectRatio() const -> float { return aspect_ratio_; }
+    [[nodiscard]] auto hasSky() const -> bool { return has_sky; }
 
     void setDirection(const vec3& direction) { look_at_ = eye_ + length(look_at_ - eye_); }
     void setEye(const vec3& eye) {
@@ -32,7 +46,7 @@ public:
         changed_ = true;
     }
     void setFovy(const float fovy) {
-        fovy_ = fovy;
+        field_of_view_ = fovy;
         changed_ = true;
     }
     void setAspectRatio(const float& aspect_ratio) {
@@ -55,7 +69,8 @@ private:
     vec3 look_at_;
     vec3 up_;
     float aspect_ratio_;
-    float fovy_;
+    float field_of_view_;
+    bool has_sky;
 
     vec3 vector_u_ {1.0f};
     vec3 vector_v_ {1.0f};
@@ -67,11 +82,12 @@ private:
 
     vec3 move_dir_ {0.0f};
 
-    float mouse_look_speed_ {1.0f};
+    float mouse_look_speed_ {80.0f};
     float mouse_strafe_speed_ {0.1f};
     float mouse_zoom_speed_ {1.0f};
-    float camera_move_speed_ {3.0f};
+    float camera_move_speed_ {100.0f};
     bool changed_ = true;
+    bool reset_accumulation_ = true;
 
     void move();
 };

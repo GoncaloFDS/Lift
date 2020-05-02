@@ -1,9 +1,11 @@
 #pragma once
-#include "core/glm.h"
 #include <functional>
 #include <string>
 #include <tuple>
 #include <vector>
+
+#include "assets/camera.h"
+#include "core/glm.h"
 
 namespace assets {
 class Model;
@@ -14,19 +16,10 @@ typedef std::tuple<std::vector<assets::Model>, std::vector<assets::Texture>> Sce
 
 class SceneList final {
 public:
-    struct CameraInitialState {
-        glm::mat4 model_view;
-        float field_of_view;
-        float aperture;
-        float focus_distance;
-        bool gamma_correction;
-        bool has_sky;
-    };
+    static SceneAssets rayTracingInOneWeekend(CameraState& camera);
+    static SceneAssets lucyInOneWeekend(CameraState& camera);
+    static SceneAssets cornellBox(CameraState& camera);
+    static SceneAssets cornellBoxLucy(CameraState& camera);
 
-    static SceneAssets rayTracingInOneWeekend(CameraInitialState& camera);
-    static SceneAssets lucyInOneWeekend(CameraInitialState& camera);
-    static SceneAssets cornellBox(CameraInitialState& camera);
-    static SceneAssets cornellBoxLucy(CameraInitialState& camera);
-
-    static const std::vector<std::pair<std::string, std::function<SceneAssets(CameraInitialState&)>>> allScenes;
+    static const std::vector<std::pair<std::string, std::function<SceneAssets(CameraState&)>>> allScenes;
 };
