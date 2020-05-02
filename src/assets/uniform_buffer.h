@@ -25,6 +25,7 @@ public:
     uint32_t gamma_correction;  // bool
     uint32_t has_sky;           // bool
     uint32_t frame;
+    uint32_t enable_mis; // bool
 };
 
 class UniformBuffer {

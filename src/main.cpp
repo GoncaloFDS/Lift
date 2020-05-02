@@ -36,18 +36,20 @@ UserSettings createUserSettings(const Options& options) {
     UserSettings user_settings {};
 
     user_settings.benchmark = options.benchmark;
-    user_settings.benchmarkNextScenes = options.benchmarkNextScenes;
-    user_settings.benchmarkMaxTime = options.benchmarkMaxTime;
+    user_settings.benchmark_next_scenes = options.benchmarkNextScenes;
+    user_settings.benchmark_max_time = options.benchmarkMaxTime;
 
-    user_settings.sceneIndex = options.sceneIndex;
+    user_settings.scene_index = options.sceneIndex;
 
-    user_settings.accumulateRays = true;
-    user_settings.numberOfSamples = options.samples;
-    user_settings.numberOfBounces = options.bounces;
-    user_settings.maxNumberOfSamples = options.maxSamples;
+    user_settings.accumulate_rays = true;
+    user_settings.is_denoised = false;
+    user_settings.enable_mis = true;
+    user_settings.number_of_samples = options.samples;
+    user_settings.number_of_bounces = options.bounces;
+    user_settings.max_number_of_samples = options.maxSamples;
 
-    user_settings.showSettings = !options.benchmark;
-    user_settings.showOverlay = true;
+    user_settings.show_settings = !options.benchmark;
+    user_settings.show_overlay = true;
 
     return user_settings;
 }

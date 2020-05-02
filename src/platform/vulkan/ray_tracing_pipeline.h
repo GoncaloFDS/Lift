@@ -34,6 +34,7 @@ public:
 
     [[nodiscard]] uint32_t rayGenShaderIndex() const { return ray_gen_index_; }
     [[nodiscard]] uint32_t missShaderIndex() const { return miss_index_; }
+    [[nodiscard]] uint32_t shadowMissShaderIndex() const { return shadow_miss_index_; }
     [[nodiscard]] uint32_t triangleHitGroupIndex() const { return triangle_hit_group_index_; }
     [[nodiscard]] uint32_t proceduralHitGroupIndex() const { return procedural_hit_group_index_; }
 
@@ -50,6 +51,7 @@ private:
 
     uint32_t ray_gen_index_;
     uint32_t miss_index_;
+    uint32_t shadow_miss_index_;
     uint32_t triangle_hit_group_index_;
     uint32_t procedural_hit_group_index_;
 };

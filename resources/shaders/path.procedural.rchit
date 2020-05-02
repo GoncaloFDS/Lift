@@ -51,7 +51,7 @@ void main() {
 
     if (material.shading_model == MaterialDiffuseLight) {
         prd_.radiance = material.diffuse.rgb;
-        prd_.done = 1;
+        prd_.done = true;
         return;
     }
 

@@ -15,12 +15,12 @@ typedef std::tuple<std::vector<assets::Model>, std::vector<assets::Texture>> Sce
 class SceneList final {
 public:
     struct CameraInitialState {
-        glm::mat4 modelView;
-        float fieldOfView;
+        glm::mat4 model_view;
+        float field_of_view;
         float aperture;
-        float focusDistance;
-        bool gammaCorrection;
-        bool hasSky;
+        float focus_distance;
+        bool gamma_correction;
+        bool has_sky;
     };
 
     static SceneAssets rayTracingInOneWeekend(CameraInitialState& camera);

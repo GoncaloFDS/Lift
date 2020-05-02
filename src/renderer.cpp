@@ -207,7 +207,7 @@ void Renderer::traceCommand(VkCommandBuffer command_buffer, uint32_t image_index
                                          shader_binding_table_->buffer().handle(),
                                          shader_binding_table_->hitGroupOffset(),
                                          shader_binding_table_->hitGroupEntrySize(),
-                                         nullptr,
+                                         shader_binding_table_->buffer().handle(),
                                          0,
                                          0,
                                          extent.width,
@@ -459,7 +459,8 @@ void Renderer::createRayTracingPipeline(assets::Scene& scene) {
                                                                  scene);
 
     const std::vector<vulkan::ShaderBindingTable::Entry> ray_gen_programs = {{ray_tracing_pipeline_->rayGenShaderIndex(), {}}};
-    const std::vector<vulkan::ShaderBindingTable::Entry> miss_programs = {{ray_tracing_pipeline_->missShaderIndex(), {}}};
+    const std::vector<vulkan::ShaderBindingTable::Entry> miss_programs = {{ray_tracing_pipeline_->missShaderIndex(), {}},
+                                                                          {ray_tracing_pipeline_->shadowMissShaderIndex(), {}}};
     const std::vector<vulkan::ShaderBindingTable::Entry> hit_groups = {{ray_tracing_pipeline_->triangleHitGroupIndex(), {}},
                                                                {ray_tracing_pipeline_->proceduralHitGroupIndex(), {}}};
 

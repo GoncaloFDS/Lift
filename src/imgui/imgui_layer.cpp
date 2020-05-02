@@ -134,7 +134,7 @@ bool ImguiLayer::wantsToCaptureMouse() {
 }
 
 void ImguiLayer::drawSettings() {
-    if (!settings().showSettings) {
+    if (!settings().show_settings) {
         return;
     }
 
@@ -146,7 +146,7 @@ void ImguiLayer::drawSettings() {
     const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove
         | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings;
 
-    if (ImGui::Begin("Settings", &settings().showSettings, flags)) {
+    if (ImGui::Begin("Settings", &settings().show_settings, flags)) {
         std::vector<const char*> scenes;
         scenes.reserve(SceneList::allScenes.size());
         for (const auto& scene : SceneList::allScenes) { scenes.push_back(scene.first.c_str()); }
@@ -154,29 +154,30 @@ void ImguiLayer::drawSettings() {
         ImGui::Text("Scene");
         ImGui::Separator();
         ImGui::PushItemWidth(-1);
-        ImGui::Combo("", &settings().sceneIndex, scenes.data(), static_cast<int>(scenes.size()));
+        ImGui::Combo("", &settings().scene_index, scenes.data(), static_cast<int>(scenes.size()));
         ImGui::PopItemWidth();
         ImGui::NewLine();
 
         ImGui::Text("Ray Tracing");
         ImGui::Separator();
-        ImGui::Checkbox("Enable Denoising", &settings().isDenoised);
-        ImGui::Checkbox("Accumulate rays between frames", &settings().accumulateRays);
+        ImGui::Checkbox("Enable Denoising", &settings().is_denoised);
+        ImGui::Checkbox("Enable Multiple Importance Sampling", &settings().enable_mis);
+        ImGui::Checkbox("Accumulate rays between frames", &settings().accumulate_rays);
         uint32_t min = 1, max = 128;
-        ImGui::SliderScalar("Samples", ImGuiDataType_U32, &settings().numberOfSamples, &min, &max);
+        ImGui::SliderScalar("Samples", ImGuiDataType_U32, &settings().number_of_samples, &min, &max);
         min = 1, max = 32;
-        ImGui::SliderScalar("Bounces", ImGuiDataType_U32, &settings().numberOfBounces, &min, &max);
+        ImGui::SliderScalar("Bounces", ImGuiDataType_U32, &settings().number_of_bounces, &min, &max);
         ImGui::NewLine();
 
-        ImGui::Checkbox("Apply gamma correction", &settings().gammaCorrection);
-        ImGui::Checkbox("Show statistics", &settings().showOverlay);
+        ImGui::Checkbox("Apply gamma correction", &settings().gamma_correction);
+        ImGui::Checkbox("Show statistics", &settings().show_overlay);
         ImGui::NewLine();
     }
     ImGui::End();
 }
 
 void ImguiLayer::drawOverlay(const Statistics& statistics) {
-    if (!settings().showOverlay) {
+    if (!settings().show_overlay) {
         return;
     }
 
@@ -191,7 +192,7 @@ void ImguiLayer::drawOverlay(const Statistics& statistics) {
         | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoNav
         | ImGuiWindowFlags_NoSavedSettings;
 
-    if (ImGui::Begin("Statistics", &settings().showOverlay, flags)) {
+    if (ImGui::Begin("Statistics", &settings().show_overlay, flags)) {
         ImGui::Text("Statistics (%dx%d):", statistics.framebufferSize.width, statistics.framebufferSize.height);
         ImGui::Separator();
         ImGui::Text("Frame rate: %.1f fps", statistics.frameRate);

@@ -71,7 +71,7 @@ void Application::run() {
 
         renderer_->trace(*scene_);
 
-        if (user_settings_.isDenoised) {
+        if (user_settings_.is_denoised) {
             renderer_->denoiseImage();
             renderer_->setDenoised(true);
         } else {
@@ -103,13 +103,13 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     const auto camera_rot_y = static_cast<float>(camera_x_ / 300.0);
 
     const auto& init = camera_initial_state_;
-    const auto view = init.modelView;
+    const auto view = init.model_view;
     const auto model = glm::rotate(mat4(1.0f), camera_rot_y * radians(90.0f), vec3(0.0f, 1.0f, 0.0f))
         * glm::rotate(mat4(1.0f), camera_rot_x * radians(90.0f), vec3(1.0f, 0.0f, 0.0f));
 
     assets::UniformBufferObject ubo = {};
     ubo.modelView = view * model;
-    ubo.projection = perspective(radians(user_settings_.fieldOfView),
+    ubo.projection = perspective(radians(user_settings_.fov),
                                  extent.width / static_cast<float>(extent.height),
                                  0.1f,
                                  10000.0f);
@@ -119,13 +119,14 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     ubo.model_view_inverse = glm::inverse(ubo.modelView);
     ubo.projection_inverse = glm::inverse(ubo.projection);
     ubo.aperture = user_settings_.aperture;
-    ubo.focus_distance = user_settings_.focusDistance;
+    ubo.focus_distance = user_settings_.focus_distance;
     ubo.total_number_of_samples = total_number_of_samples_;
     ubo.number_of_samples = number_of_samples_;
-    ubo.number_of_bounces = user_settings_.numberOfBounces;
+    ubo.number_of_bounces = user_settings_.number_of_bounces;
     ubo.seed = Random::get<Random::common>(0u, 1000u);
-    ubo.gamma_correction = user_settings_.gammaCorrection;
-    ubo.has_sky = init.hasSky;
+    ubo.gamma_correction = user_settings_.gamma_correction;
+    ubo.enable_mis = user_settings_.enable_mis;
+    ubo.has_sky = init.has_sky;
     ubo.frame = number_of_frames_;
 
     return ubo;
@@ -141,7 +142,7 @@ const std::vector<VkPhysicalDevice>& Application::physicalDevices() const {
 
 void Application::setPhysicalDevice(VkPhysicalDevice physical_device) {
     renderer_->init(physical_device, *scene_, *instance_);
-    loadScene(user_settings_.sceneIndex);
+    loadScene(user_settings_.scene_index);
 
     renderer_->createAccelerationStructures(*scene_);
 
@@ -167,11 +168,11 @@ void Application::deleteSwapChain() {
 
 void Application::onUpdate() {
     // Check if the scene has been changed by the user.
-    if (scene_index_ != static_cast<uint32_t>(user_settings_.sceneIndex)) {
+    if (scene_index_ != static_cast<uint32_t>(user_settings_.scene_index)) {
         renderer_->waitDeviceIdle();
         deleteSwapChain();
         renderer_->deleteAccelerationStructures();
-        loadScene(user_settings_.sceneIndex);
+        loadScene(user_settings_.scene_index);
         renderer_->createAccelerationStructures(*scene_);
         createSwapChain();
         return;
@@ -179,7 +180,7 @@ void Application::onUpdate() {
 
     // Check if the accumulation buffer needs to be reset.
     if (reset_accumulation_ || user_settings_.requiresAccumulationReset(previous_settings_)
-        || !user_settings_.accumulateRays) {
+        || !user_settings_.accumulate_rays) {
         total_number_of_samples_ = 0;
         reset_accumulation_ = false;
         number_of_frames_ = 0;
@@ -188,7 +189,7 @@ void Application::onUpdate() {
     previous_settings_ = user_settings_;
 
     number_of_samples_ =
-        clamp(user_settings_.maxNumberOfSamples - total_number_of_samples_, 0u, user_settings_.numberOfSamples);
+        clamp(user_settings_.max_number_of_samples - total_number_of_samples_, 0u, user_settings_.number_of_samples);
     total_number_of_samples_ += number_of_samples_;
     number_of_frames_++;
 }
@@ -205,10 +206,10 @@ void Application::loadScene(const uint32_t scene_index) {
     scene_ = std::make_unique<assets::Scene>(renderer_->commandPool(), std::move(models), std::move(textures), true);
     scene_index_ = scene_index;
 
-    user_settings_.fieldOfView = camera_initial_state_.fieldOfView;
+    user_settings_.fov = camera_initial_state_.field_of_view;
     user_settings_.aperture = camera_initial_state_.aperture;
-    user_settings_.focusDistance = camera_initial_state_.focusDistance;
-    user_settings_.gammaCorrection = camera_initial_state_.gammaCorrection;
+    user_settings_.focus_distance = camera_initial_state_.focus_distance;
+    user_settings_.gamma_correction = camera_initial_state_.gamma_correction;
 
     camera_x_ = 0;
     camera_y_ = 0;
@@ -277,13 +278,13 @@ bool Application::onKeyPress(KeyPressedEvent& e) {
             window_->close();
             break;
         case LF_KEY_F1:
-            user_settings_.showSettings = !user_settings_.showSettings;
+            user_settings_.show_settings = !user_settings_.show_settings;
             break;
         case LF_KEY_F2:
-            user_settings_.showOverlay = !user_settings_.showOverlay;
+            user_settings_.show_overlay = !user_settings_.show_overlay;
             break;
         case LF_KEY_F3:
-            user_settings_.isDenoised = !user_settings_.isDenoised;
+            user_settings_.is_denoised = !user_settings_.is_denoised;
             break;
         default:
             break;
@@ -330,15 +331,15 @@ void Application::checkAndUpdateBenchmarkState(double prev_time) {
     // sample limit.
     {
         const bool time_limit_reached =
-            period_total_frames_ != 0 && window_->time() - scene_initial_time_ > user_settings_.benchmarkMaxTime;
+            period_total_frames_ != 0 && window_->time() - scene_initial_time_ > user_settings_.benchmark_max_time;
         const bool sample_limit_reached = number_of_samples_ == 0;
 
         if (time_limit_reached || sample_limit_reached) {
-            if (!user_settings_.benchmarkNextScenes
-                || static_cast<size_t>(user_settings_.sceneIndex) == SceneList::allScenes.size() - 1) {
+            if (!user_settings_.benchmark_next_scenes
+                || static_cast<size_t>(user_settings_.scene_index) == SceneList::allScenes.size() - 1) {
                 window_->close();
             }
-            user_settings_.sceneIndex += 1;
+            user_settings_.scene_index += 1;
         }
     }
 }

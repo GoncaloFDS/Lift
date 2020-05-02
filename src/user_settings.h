@@ -5,30 +5,31 @@ struct UserSettings final {
     bool benchmark {};
 
     // Benchmark
-    bool benchmarkNextScenes {};
-    uint32_t benchmarkMaxTime {};
+    bool benchmark_next_scenes {};
+    uint32_t benchmark_max_time {};
 
     // Scene
-    int sceneIndex {};
+    int scene_index {};
 
-    bool isDenoised {};
-    bool accumulateRays {};
-    uint32_t numberOfSamples {};
-    uint32_t numberOfBounces {};
-    uint32_t maxNumberOfSamples {};
+    bool is_denoised {};
+    bool enable_mis {};
+    bool accumulate_rays {};
+    uint32_t number_of_samples {};
+    uint32_t number_of_bounces {};
+    uint32_t max_number_of_samples {};
 
     // Camera
-    float fieldOfView {};
+    float fov {};
     float aperture {};
-    float focusDistance {};
-    bool gammaCorrection {};
+    float focus_distance {};
+    bool gamma_correction {};
 
     // UI
-    bool showSettings {};
-    bool showOverlay {};
+    bool show_settings {};
+    bool show_overlay {};
 
     [[nodiscard]] bool requiresAccumulationReset(const UserSettings& prev) const {
-        return accumulateRays != prev.accumulateRays || numberOfBounces != prev.numberOfBounces
-            || fieldOfView != prev.fieldOfView || aperture != prev.aperture || focusDistance != prev.focusDistance;
+        return accumulate_rays != prev.accumulate_rays || number_of_bounces != prev.number_of_bounces || fov != prev.fov
+               || aperture != prev.aperture || focus_distance != prev.focus_distance || enable_mis != prev.enable_mis;
     }
 };

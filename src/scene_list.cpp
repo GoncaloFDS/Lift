@@ -18,12 +18,12 @@ const std::vector<std::pair<std::string, std::function<SceneAssets(SceneList::Ca
 };
 
 SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialState& camera) {
-    camera.modelView = lookAt(vec3(13, 2, 3), vec3(0, 0, 0), vec3(0, 1, 0));
-    camera.fieldOfView = 20;
+    camera.model_view = lookAt(vec3(13, 2, 3), vec3(0, 0, 0), vec3(0, 1, 0));
+    camera.field_of_view = 20;
     camera.aperture = 0.1f;
-    camera.focusDistance = 10.0f;
-    camera.gammaCorrection = true;
-    camera.hasSky = true;
+    camera.focus_distance = 10.0f;
+    camera.gamma_correction = true;
+    camera.has_sky = true;
 
     const bool is_procedural = true;
 
@@ -74,12 +74,12 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraInitialState& camera) {
 }
 
 SceneAssets SceneList::lucyInOneWeekend(CameraInitialState& camera) {
-    camera.modelView = lookAt(vec3(13, 2, 3), vec3(0, 1.0, 0), vec3(0, 1, 0));
-    camera.fieldOfView = 20;
+    camera.model_view = lookAt(vec3(13, 2, 3), vec3(0, 1.0, 0), vec3(0, 1, 0));
+    camera.field_of_view = 20;
     camera.aperture = 0.05f;
-    camera.focusDistance = 10.0f;
-    camera.gammaCorrection = true;
-    camera.hasSky = true;
+    camera.focus_distance = 10.0f;
+    camera.gamma_correction = true;
+    camera.has_sky = true;
 
     const bool is_procedural = true;
 
@@ -148,12 +148,12 @@ SceneAssets SceneList::lucyInOneWeekend(CameraInitialState& camera) {
 }
 
 SceneAssets SceneList::cornellBox(CameraInitialState& camera) {
-    camera.modelView = lookAt(vec3(278, 278, 800), vec3(278, 278, 0), vec3(0, 1, 0));
-    camera.fieldOfView = 40;
+    camera.model_view = lookAt(vec3(278, 278, 800), vec3(278, 278, 0), vec3(0, 1, 0));
+    camera.field_of_view = 40;
     camera.aperture = 0.0f;
-    camera.focusDistance = 10.0f;
-    camera.gammaCorrection = true;
-    camera.hasSky = false;
+    camera.focus_distance = 10.0f;
+    camera.gamma_correction = true;
+    camera.has_sky = false;
 
     const auto i = mat4(1);
     const auto white = Material::lambertian(vec3(0.73f, 0.73f, 0.73f));
@@ -173,12 +173,12 @@ SceneAssets SceneList::cornellBox(CameraInitialState& camera) {
 }
 
 SceneAssets SceneList::cornellBoxLucy(CameraInitialState& camera) {
-    camera.modelView = lookAt(vec3(278, 278, 800), vec3(278, 278, 0), vec3(0, 1, 0));
-    camera.fieldOfView = 40;
+    camera.model_view = lookAt(vec3(278, 278, 800), vec3(278, 278, 0), vec3(0, 1, 0));
+    camera.field_of_view = 40;
     camera.aperture = 0.0f;
-    camera.focusDistance = 10.0f;
-    camera.gammaCorrection = true;
-    camera.hasSky = false;
+    camera.focus_distance = 10.0f;
+    camera.gamma_correction = true;
+    camera.has_sky = false;
 
     const auto sphere =
         Model::createSphere(vec3(555 - 130, 165.0f, -165.0f / 2 - 65), 80.0f, Material::dielectric(1.5f), true);
