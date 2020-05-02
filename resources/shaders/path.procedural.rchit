@@ -2,7 +2,7 @@
 #extension GL_EXT_nonuniform_qualifier : require
 #extension GL_GOOGLE_include_directive : require
 #extension GL_NV_ray_tracing : require
-#include "material.glsl"
+#include "utils/material.glsl"
 
 layout(binding = 3) readonly buffer VertexArray { float Vertices[]; };
 layout(binding = 4) readonly buffer IndexArray { uint Indices[]; };
@@ -11,8 +11,8 @@ layout(binding = 6) readonly buffer OffsetArray { uvec2[] Offsets; };
 layout(binding = 7) uniform sampler2D[] TextureSamplers;
 layout(binding = 8) readonly buffer SphereArray { vec4[] Spheres; };
 
-#include "scatter.glsl"
-#include "vertex.glsl"
+#include "utils/scatter.glsl"
+#include "utils/vertex.glsl"
 
 hitAttributeNV vec4 Sphere;
 rayPayloadInNV PerRayData prd_;
@@ -33,8 +33,8 @@ void main() {
     const uvec2 offsets = Offsets[gl_InstanceCustomIndexNV];
     const uint indexOffset = offsets.x;
     const uint vertexOffset = offsets.y;
-    const Vertex v0 = UnpackVertex(vertexOffset + Indices[indexOffset]);
-    const Material material = Materials[v0.MaterialIndex];
+    const Vertex v0 = unpackVertex(vertexOffset + Indices[indexOffset]);
+    const Material material = Materials[v0.material_index];
 
     // Compute the ray hit point properties.
     const vec4 sphere = Spheres[gl_InstanceCustomIndexNV];

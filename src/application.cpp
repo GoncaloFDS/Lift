@@ -6,6 +6,7 @@
 #include "assets/texture.h"
 #include "assets/uniform_buffer.h"
 #include "core/input.h"
+#include "effolkronium/random.hpp"
 #include "renderer.h"
 #include "vulkan/blas.h"
 #include "vulkan/depth_buffer.h"
@@ -17,7 +18,6 @@
 #include "vulkan/surface.h"
 #include "vulkan/swap_chain.h"
 #include "vulkan/window.h"
-#include "effolkronium/random.hpp"
 
 using Random = effolkronium::random_static;
 
@@ -27,8 +27,11 @@ const auto k_validation_layers = std::vector<const char*>();
 const auto k_validation_layers = std::vector<const char*> {"VK_LAYER_KHRONOS_validation"};
 #endif
 
-Application::Application(const UserSettings& user_settings, const vulkan::WindowData& window_properties, const bool vsync) :
-    user_settings_(user_settings), vsync_(vsync), is_running_(true) {
+Application::Application(const UserSettings& user_settings,
+                         const vulkan::WindowData& window_properties,
+                         const bool vsync) :
+    user_settings_(user_settings),
+    vsync_(vsync), is_running_(true) {
 
     const auto validation_layers = k_validation_layers;
 
@@ -49,6 +52,14 @@ Application::~Application() {
 
 void Application::run() {
     current_frame_ = 0;
+
+    light_ = {
+        {213.0f, 553.0f, -328.0f, 0},
+        {130.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 130.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {15.0f, 15.0f, 15.0f, 0},
+    };
 
     renderer_->setupDenoiser();
     while (is_running_) {
@@ -105,14 +116,12 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     const auto& init = camera_initial_state_;
     const auto view = init.model_view;
     const auto model = glm::rotate(mat4(1.0f), camera_rot_y * radians(90.0f), vec3(0.0f, 1.0f, 0.0f))
-        * glm::rotate(mat4(1.0f), camera_rot_x * radians(90.0f), vec3(1.0f, 0.0f, 0.0f));
+                       * glm::rotate(mat4(1.0f), camera_rot_x * radians(90.0f), vec3(1.0f, 0.0f, 0.0f));
 
     assets::UniformBufferObject ubo = {};
     ubo.modelView = view * model;
-    ubo.projection = perspective(radians(user_settings_.fov),
-                                 extent.width / static_cast<float>(extent.height),
-                                 0.1f,
-                                 10000.0f);
+    ubo.projection =
+        perspective(radians(user_settings_.fov), extent.width / static_cast<float>(extent.height), 0.1f, 10000.0f);
     ubo.projection[1][1] *= -1;
     // Inverting Y for vulkan,
     // https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
@@ -128,6 +137,7 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     ubo.enable_mis = user_settings_.enable_mis;
     ubo.has_sky = init.has_sky;
     ubo.frame = number_of_frames_;
+    ubo.light = light_;
 
     return ubo;
 }

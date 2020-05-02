@@ -10,7 +10,7 @@
 
 namespace assets {
 class Scene;
-class UniformBufferObject;
+struct UniformBufferObject;
 class UniformBuffer;
 }  // namespace assets
 

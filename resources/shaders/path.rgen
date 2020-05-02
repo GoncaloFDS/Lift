@@ -2,15 +2,13 @@
 #extension GL_GOOGLE_include_directive : require
 #extension GL_NV_ray_tracing : require
 
-#include "sampling.h"
-#include "ray_payload.glsl"
-#include "uniform_buffer_object.glsl"
+#include "utils/sampling.h"
+#include "utils/ray_payload.glsl"
+#include "utils/uniform_buffer_object.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureNV scene_;
 layout(binding = 1, rgba32f) uniform image2D output_image_;
-layout(binding = 2) readonly uniform UniformBufferObjectStruct {
-    UniformBufferObject ubo_;
-};
+layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
 
 layout(location = 0) rayPayloadNV PerRayData prd_;
 
@@ -73,13 +71,13 @@ void main() {
             direction.xyz = prd_.direction;
 
             // russian roulette termination
-//            if (prd_.depth >= 1) {
-//                float pcont = max(prd_.attenuation.x, max(prd_.attenuation.y, prd_.attenuation.z));
-//                if (radinv_fl(seed, 4 + 3 * prd_.depth) >= pcont){
-//                    break;
-//                }
-//                prd_.attenuation /= pcont;
-//            }
+            if (prd_.depth >= 1) {
+                float pcont = max(prd_.attenuation.x, max(prd_.attenuation.y, prd_.attenuation.z));
+                if (radinv_fl(seed, 4 + 3 * prd_.depth) >= pcont){
+                    break;
+                }
+                prd_.attenuation /= pcont;
+            }
 
             prd_.depth++;
         }
@@ -88,8 +86,8 @@ void main() {
     }
 
     result = result / ubo_.number_of_samples;
-    if (ubo_.frame > 0) {
-        float a = 1.0 / float(ubo_.frame + 1);
+    if (ubo_.frame > 1) {
+        float a = 1.0 / float(ubo_.frame);
         vec3 old_color = imageLoad(output_image_, ivec2(gl_LaunchIDNV.xy)).xyz;
         imageStore(output_image_, ivec2(gl_LaunchIDNV.xy), vec4(mix(old_color, result, a), 1.0f));
     } else {

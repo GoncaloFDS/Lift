@@ -10,16 +10,16 @@
 #include "vulkan/frame_buffer.h"
 #include "vulkan/ray_tracing_properties.h"
 #include "vulkan/window_data.h"
+#include <assets/Lights.h>
 #include <assets/camera.h>
 #include <denoiser/denoiser_optix.h>
 #include <imgui/imgui_layer.h>
 #include <memory>
 #include <vector>
 
-
 namespace assets {
 class Scene;
-class UniformBufferObject;
+struct UniformBufferObject;
 class UniformBuffer;
 }  // namespace assets
 
@@ -98,6 +98,7 @@ private:
 
     float mouse_x_ {};
     float mouse_y_ {};
+    ParallelogramLight light_;
 
     // Benchmark stats
     double scene_initial_time_ {};

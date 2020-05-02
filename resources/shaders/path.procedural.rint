@@ -4,7 +4,7 @@
 
 layout(binding = 8) readonly buffer SphereArray { vec4[] Spheres; };
 
-hitAttributeNV vec4 Sphere;
+hitAttributeNV vec4 sphere_;
 
 void main() {
     const vec4 sphere = Spheres[gl_InstanceCustomIndexNV];
@@ -29,7 +29,7 @@ void main() {
         const float t2 = (-b + sqrt(discriminant)) / a;
 
         if ((tMin <= t1 && t1 < tMax) || (tMin <= t2 && t2 < tMax)) {
-            Sphere = sphere;
+            sphere_ = sphere;
             reportIntersectionNV((tMin <= t1 && t1 < tMax) ? t1 : t2, 0);
         }
     }

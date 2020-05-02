@@ -1,4 +1,13 @@
+struct ParallelogramLight {
+    vec4 corner;
+    vec4 v1;
+    vec4 v2;
+    vec4 normal;
+    vec4 emission;
+};
+
 struct UniformBufferObject {
+    ParallelogramLight light;
     mat4 model_view;
     mat4 projection;
     mat4 model_view_inverse;

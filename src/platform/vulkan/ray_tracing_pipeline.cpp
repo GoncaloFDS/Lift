@@ -27,13 +27,19 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
     const auto& device = swap_chain.device();
     const std::vector<DescriptorBinding> descriptor_bindings = {
         // Top level acceleration structure.
-        {0, 1, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV, VK_SHADER_STAGE_RAYGEN_BIT_NV | VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
+        {0,
+         1,
+         VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV,
+         VK_SHADER_STAGE_RAYGEN_BIT_NV | VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
 
-        // Image accumulation & output
+        // Output Image
         {1, 1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_NV},
 
-        // Camera information & co
-        {2, 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_NV | VK_SHADER_STAGE_MISS_BIT_NV | VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
+        // Scene & Camera
+        {2,
+         1,
+         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+         VK_SHADER_STAGE_RAYGEN_BIT_NV | VK_SHADER_STAGE_MISS_BIT_NV | VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
 
         // Vertex buffer, Index buffer, Material buffer, Offset buffer
         {3, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
@@ -47,7 +53,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
          VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
          VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
 
-        // The Procedural buffer.
+        // The Procedural buffer (Spheres).
         {8,
          1,
          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
@@ -133,7 +139,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
     pipeline_layout_ = std::make_unique<class PipelineLayout>(device, descriptor_set_manager_->descriptorSetLayout());
 
     // Load shaders.
-    const ShaderModule ray_gen_shader(device, "../resources/shaders/pathtrace.rgen.spv");
+    const ShaderModule ray_gen_shader(device, "../resources/shaders/path.rgen.spv");
     const ShaderModule miss_shader(device, "../resources/shaders/path.rmiss.spv");
     const ShaderModule shadow_miss_shader(device, "../resources/shaders/shadow.rmiss.spv");
     const ShaderModule closest_hit_shader(device, "../resources/shaders/path.rchit.spv");

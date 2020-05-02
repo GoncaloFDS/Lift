@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Lights.h"
 #include "core/glm.h"
 #include <memory>
 
@@ -10,22 +11,22 @@ class DeviceMemory;
 }  // namespace vulkan
 
 namespace assets {
-class UniformBufferObject {
-public:
-    glm::mat4 modelView;
-    glm::mat4 projection;
-    glm::mat4 model_view_inverse;
-    glm::mat4 projection_inverse;
-    float aperture;
-    float focus_distance;
-    uint32_t total_number_of_samples;
-    uint32_t number_of_samples;
-    uint32_t number_of_bounces;
-    uint32_t seed;
-    uint32_t gamma_correction;  // bool
-    uint32_t has_sky;           // bool
-    uint32_t frame;
-    uint32_t enable_mis; // bool
+struct UniformBufferObject {
+    ParallelogramLight light {};
+    glm::mat4 modelView {};
+    glm::mat4 projection {};
+    glm::mat4 model_view_inverse {};
+    glm::mat4 projection_inverse {};
+    float aperture {};
+    float focus_distance {};
+    uint32_t total_number_of_samples {};
+    uint32_t number_of_samples {};
+    uint32_t number_of_bounces {};
+    uint32_t seed {};
+    uint32_t gamma_correction {};  // bool
+    uint32_t has_sky {};           // bool
+    uint32_t frame {};
+    uint32_t enable_mis {};  // bool
 };
 
 class UniformBuffer {
