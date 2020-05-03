@@ -47,7 +47,8 @@ void main() {
     const vec3 center = sphere.xyz;
     const float radius = sphere.w;
     const vec3 point = gl_WorldRayOriginNV + gl_HitTNV * gl_WorldRayDirectionNV;
-    const vec3 normal = (point - center) / radius;
+    const vec3 n0 = (point - center) / radius;
+    const vec3 normal = faceforward(n0, gl_WorldRayDirectionNV, n0);
     const vec2 tex_coords = GetSphereTexCoord(normal);
 
     // Diffuse hemisphere sampling

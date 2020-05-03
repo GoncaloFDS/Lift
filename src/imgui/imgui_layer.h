@@ -43,4 +43,7 @@ private:
     std::unique_ptr<vulkan::DescriptorPool> descriptor_pool_;
     std::unique_ptr<vulkan::RenderPass> render_pass_;
     UserSettings& user_settings_;
+
+    bool open_rt {true};
+    bool open_camera {false};
 };

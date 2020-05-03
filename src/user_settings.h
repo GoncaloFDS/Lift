@@ -23,6 +23,8 @@ struct UserSettings final {
     float aperture {};
     float focus_distance {};
     bool gamma_correction {};
+    float camera_move_speed {};
+    float camera_mouse_speed {};
 
     // UI
     bool show_settings {};

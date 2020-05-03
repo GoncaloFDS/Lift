@@ -142,36 +142,52 @@ void ImguiLayer::drawSettings() {
     const ImVec2 pos = ImVec2(distance, distance);
     const ImVec2 pos_pivot = ImVec2(0.0f, 0.0f);
     ImGui::SetNextWindowPos(pos, ImGuiCond_Always, pos_pivot);
+    ImGui::SetNextWindowBgAlpha(0.8f);
 
-    const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove
-        | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings;
+    const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
 
     if (ImGui::Begin("Settings", &settings().show_settings, flags)) {
         std::vector<const char*> scenes;
         scenes.reserve(SceneList::allScenes.size());
         for (const auto& scene : SceneList::allScenes) { scenes.push_back(scene.first.c_str()); }
 
-        ImGui::Text("Scene");
+        ImGui::Text("scene");
         ImGui::Separator();
         ImGui::PushItemWidth(-1);
         ImGui::Combo("", &settings().scene_index, scenes.data(), static_cast<int>(scenes.size()));
         ImGui::PopItemWidth();
         ImGui::NewLine();
 
-        ImGui::Text("Ray Tracing");
-        ImGui::Separator();
-        ImGui::Checkbox("Enable Denoising", &settings().is_denoised);
-        ImGui::Checkbox("Enable Multiple Importance Sampling", &settings().enable_mis);
-        ImGui::Checkbox("Accumulate rays between frames", &settings().accumulate_rays);
-        uint32_t min = 1, max = 128;
-        ImGui::SliderScalar("Samples", ImGuiDataType_U32, &settings().number_of_samples, &min, &max);
-        min = 1, max = 32;
-        ImGui::SliderScalar("Bounces", ImGuiDataType_U32, &settings().number_of_bounces, &min, &max);
-        ImGui::NewLine();
+        if (ImGui::CollapsingHeader("ray tracing")) {
+            ImGui::Separator();
+            ImGui::Checkbox("enable denoising", &settings().is_denoised);
+            ImGui::Checkbox("accumulate rays between frames", &settings().accumulate_rays);
+            uint32_t min = 1, max = 16;
+            ImGui::SliderScalar("samples per pixel", ImGuiDataType_U32, &settings().number_of_samples, &min, &max);
+            min = 1, max = 32;
+            ImGui::SliderScalar("path length", ImGuiDataType_U32, &settings().number_of_bounces, &min, &max);
+            ImGui::NewLine();
+        }
 
-        ImGui::Checkbox("Apply gamma correction", &settings().gamma_correction);
-        ImGui::Checkbox("Show statistics", &settings().show_overlay);
-        ImGui::NewLine();
+        if (ImGui::CollapsingHeader("camera settings")) {
+            float fmin = 0.1f, fmax = 1000.0f;
+            ImGui::SliderScalar("camera move speed",
+                                ImGuiDataType_Float,
+                                &settings().camera_move_speed,
+                                &fmin,
+                                &fmax,
+                                "%.1f",
+                                2.0f);
+            ImGui::SliderScalar("camera mouse speed",
+                                ImGuiDataType_Float,
+                                &settings().camera_mouse_speed,
+                                &fmin,
+                                &fmax,
+                                "%.1f");
+            ImGui::Checkbox("gamma correction", &settings().gamma_correction);
+            ImGui::Checkbox("show statistics", &settings().show_overlay);
+            ImGui::NewLine();
+        }
     }
     ImGui::End();
 }
@@ -186,18 +202,17 @@ void ImguiLayer::drawOverlay(const Statistics& statistics) {
     const ImVec2 pos = ImVec2(io.DisplaySize.x - distance, distance);
     const ImVec2 pos_pivot = ImVec2(1.0f, 0.0f);
     ImGui::SetNextWindowPos(pos, ImGuiCond_Always, pos_pivot);
-    ImGui::SetNextWindowBgAlpha(0.3f);  // Transparent background
+    ImGui::SetNextWindowBgAlpha(0.3f);
 
     const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration
-        | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoNav
-        | ImGuiWindowFlags_NoSavedSettings;
+                       | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 
     if (ImGui::Begin("Statistics", &settings().show_overlay, flags)) {
-        ImGui::Text("Statistics (%dx%d):", statistics.framebufferSize.width, statistics.framebufferSize.height);
+        ImGui::Text("Statistics");
         ImGui::Separator();
-        ImGui::Text("Frame rate: %.1f fps", statistics.frameRate);
-        ImGui::Text("Primary ray rate: %.2f Gr/s", statistics.rayRate);
-        ImGui::Text("Accumulated samples:  %u", statistics.totalSamples);
+        ImGui::Text("frame size: (%dx%d)", statistics.framebufferSize.width, statistics.framebufferSize.height);
+        ImGui::Text("frame rate: %.1f fps", statistics.frameRate);
+        ImGui::Text("total samples:  %u", statistics.totalSamples);
     }
     ImGui::End();
 }

@@ -201,6 +201,9 @@ void Application::onUpdate() {
         clamp(user_settings_.max_number_of_samples - total_number_of_samples_, 0u, user_settings_.number_of_samples);
     total_number_of_samples_ += number_of_samples_;
     number_of_frames_++;
+
+    camera_->setMoveSpeed(user_settings_.camera_move_speed);
+    camera_->setMouseSpeed(user_settings_.camera_mouse_speed);
 }
 
 void Application::loadScene(const uint32_t scene_index) {
@@ -219,6 +222,8 @@ void Application::loadScene(const uint32_t scene_index) {
     user_settings_.aperture = camera_initial_state_.aperture;
     user_settings_.focus_distance = camera_initial_state_.focus_distance;
     user_settings_.gamma_correction = camera_initial_state_.gamma_correction;
+    user_settings_.camera_move_speed = camera_initial_state_.move_speed;
+    user_settings_.camera_mouse_speed = camera_initial_state_.look_speed;
 
     period_total_frames_ = 0;
     reset_accumulation_ = true;

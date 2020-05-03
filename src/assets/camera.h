@@ -16,61 +16,54 @@ struct CameraState {
     float aspect_ratio;
     bool gamma_correction;
     bool has_sky;
+    float move_speed {200.0f};
+    float look_speed {80.0f};
 };
 
 class Camera {
 public:
-    Camera();
     Camera(const CameraState& s);
 
-    [[nodiscard]] auto model_view() const -> mat4 { return glm::lookAt(eye(), lookAt(), up()); }
-    [[nodiscard]] auto direction() const -> vec3 { return normalize(look_at_ - eye_); }
-    [[nodiscard]] auto eye() const -> const vec3& { return eye_; };
-    [[nodiscard]] auto lookAt() const -> const vec3& { return look_at_; }
-    [[nodiscard]] auto up() const -> const vec3& { return up_; }
-    [[nodiscard]] auto fovy() const -> float { return field_of_view_; }
-    [[nodiscard]] auto aspectRatio() const -> float { return aspect_ratio_; }
-    [[nodiscard]] auto hasSky() const -> bool { return has_sky; }
+    [[nodiscard]] mat4 model_view() { return glm::lookAt(eye(), lookAt(), up()); }
+    [[nodiscard]] vec3 direction() { return normalize(state_.look_at - state_.eye); }
+    [[nodiscard]] const vec3& eye() { return state_.eye; };
+    [[nodiscard]] const vec3& lookAt() { return state_.look_at; }
+    [[nodiscard]] const vec3& up() { return state_.up; }
+    [[nodiscard]] float fovy() { return state_.field_of_view; }
+    [[nodiscard]] float aspectRatio() { return state_.aspect_ratio; }
+    [[nodiscard]] bool hasSky() const { return state_.has_sky; }
 
-    void setDirection(const vec3& direction) { look_at_ = eye_ + length(look_at_ - eye_); }
+    void setDirection(const vec3& direction) { state_.look_at = state_.eye + length(state_.look_at - state_.eye); }
     void setEye(const vec3& eye) {
-        eye_ = eye;
+        state_.eye = eye;
         changed_ = true;
     }
     void setLookAt(const vec3& look_at) {
-        look_at_ = look_at;
+        state_.look_at = look_at;
         changed_ = true;
     }
     void setUp(const vec3& up) {
-        up_ = up;
+        state_.up = up;
         changed_ = true;
     }
     void setFovy(const float fovy) {
-        field_of_view_ = fovy;
+        state_.field_of_view = fovy;
         changed_ = true;
     }
     void setAspectRatio(const float& aspect_ratio) {
-        aspect_ratio_ = aspect_ratio;
+        state_.aspect_ratio = aspect_ratio;
         changed_ = true;
     }
-
-    [[nodiscard]] auto vectorU() const -> const vec3& { return vector_u_; }
-    [[nodiscard]] auto vectorV() const -> const vec3& { return vector_v_; }
-    [[nodiscard]] auto vectorW() const -> const vec3& { return vector_w_; }
-    auto onUpdate() -> bool;
-
-    void orbit(float dx, float dy);
-    void strafe(float dx, float dy);
-    void zoom(float amount);
+    void setMoveSpeed(const float amount) { state_.move_speed = amount; }
+    void setMouseSpeed(const float amount) { state_.look_speed = amount; }
     void setMoveDirection(enum Direction direction, float amount = 1.0f);
 
+    bool onUpdate();
+
+    void orbit(float dx, float dy);
+
 private:
-    vec3 eye_;
-    vec3 look_at_;
-    vec3 up_;
-    float aspect_ratio_;
-    float field_of_view_;
-    bool has_sky;
+    CameraState state_;
 
     vec3 vector_u_ {1.0f};
     vec3 vector_v_ {1.0f};
@@ -82,12 +75,7 @@ private:
 
     vec3 move_dir_ {0.0f};
 
-    float mouse_look_speed_ {80.0f};
-    float mouse_strafe_speed_ {0.1f};
-    float mouse_zoom_speed_ {1.0f};
-    float camera_move_speed_ {200.0f};
     bool changed_ = true;
-    bool reset_accumulation_ = true;
 
     void move();
 };

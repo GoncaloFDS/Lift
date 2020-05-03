@@ -33,7 +33,7 @@ vec3 Mix(vec3 a, vec3 b, vec3 c, vec3 barycentrics) {
 }
 
 void main() {
-    // Get the material.
+    // Compute the ray hit point properties.
     const uvec2 offsets = Offsets[gl_InstanceCustomIndexNV];
     const uint indexOffset = offsets.x;
     const uint vertexOffset = offsets.y;
@@ -42,11 +42,12 @@ void main() {
     const Vertex v2 = unpackVertex(vertexOffset + Indices[indexOffset + gl_PrimitiveID * 3 + 2]);
     const Material material = Materials[v0.material_index];
 
-    // Compute the ray hit point properties.
     const vec3 barycentrics = vec3(1.0 - hit_attributes.x - hit_attributes.y, hit_attributes.x, hit_attributes.y);
-    const vec3 normal = normalize(Mix(v0.normal, v1.normal, v2.normal, barycentrics));
+    const vec3 n0 = normalize(Mix(v0.normal, v1.normal, v2.normal, barycentrics));
+    const vec3 normal = faceforward(n0, gl_WorldRayDirectionNV, n0);
     const vec2 tex_coords = Mix(v0.tex_coords, v1.tex_coords, v2.tex_coords, barycentrics);
     ///////////////////////////////
+
 
     // Diffuse hemisphere sampling
     uint seed = prd_.seed;

@@ -28,12 +28,12 @@ class MouseScrolledEvent : public Event {
 public:
     MouseScrolledEvent(const float x_offset, const float y_offset) : x_offset_(x_offset), y_offset_(y_offset) {}
 
-    [[nodiscard]] auto getXOffset() const -> float { return x_offset_; }
-    [[nodiscard]] auto getYOffset() const -> float { return y_offset_; };
+    [[nodiscard]] auto x() const -> float { return x_offset_; }
+    [[nodiscard]] auto y() const -> float { return y_offset_; };
 
     [[nodiscard]] auto toString() const -> std::string override {
         std::stringstream ss;
-        ss << "MouseScrolledEvent: " << getXOffset() << ", " << getYOffset();
+        ss << "MouseScrolledEvent: " << x() << ", " << y();
         return ss.str();
     }
 
