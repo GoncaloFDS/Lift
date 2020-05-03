@@ -65,7 +65,6 @@ private:
     bool onKeyRelease(KeyReleasedEvent& e);
 
     void loadScene(uint32_t scene_index);
-    void checkAndUpdateBenchmarkState(double prev_time);
 
     void onUpdate();
     void deleteSwapChain();
@@ -94,10 +93,5 @@ private:
     bool reset_accumulation_ {};
 
     ParallelogramLight light_;
-
-    // Benchmark stats
-    double scene_initial_time_ {};
-    double period_initial_time_ {};
-    uint32_t period_total_frames_ {};
 
 };

@@ -8,7 +8,6 @@ public:
     Options(int argc, const char* argv[]);
     ~Options() = default;
 
-    // Application options.
     bool benchmark {};
     //
     // Benchmark options.

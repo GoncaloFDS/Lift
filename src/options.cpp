@@ -1,5 +1,5 @@
 
-#include "properties.h"
+#include "options.h"
 #include "core.h"
 #include "scene_list.h"
 #include <boost/program_options.hpp>

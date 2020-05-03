@@ -131,8 +131,8 @@ set(src_files_vulkan_raytracing
 
 set(src_files
         main.cpp
-        properties.cpp
-        properties.h
+        options.cpp
+        options.h
         scene_list.cpp
         scene_list.h
         user_settings.h

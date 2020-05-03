@@ -69,13 +69,7 @@ void Application::run() {
         if (window_->isMinimized())
             continue;
 
-        const auto prev_time = time_;
-        time_ = window_->time();
-        const auto delta_time = time_ - prev_time;
-
         onUpdate();
-
-        checkAndUpdateBenchmarkState(prev_time);
 
         // Render the scene
         auto ubo = getUniformBufferObject(renderer_->swapChain().extent());
@@ -95,11 +89,11 @@ void Application::run() {
         // Render the UI
         Statistics stats = {};
         stats.framebufferSize = window_->framebufferSize();
-        stats.frameRate = static_cast<float>(1 / delta_time);
+        stats.frameRate = static_cast<float>(1 / Timer::deltaTime);
 
         const auto extent = renderer_->swapChain().extent();
 
-        stats.rayRate = float(extent.width * extent.height * number_of_samples_ / (delta_time * 1000000000));
+        stats.rayRate = float(extent.width * extent.height * number_of_samples_ / (Timer::deltaTime * 1000000000));
         stats.totalSamples = total_number_of_samples_;
 
         renderer_->render(*user_interface_, stats);
@@ -196,9 +190,7 @@ void Application::onUpdate() {
     }
 
     previous_settings_ = user_settings_;
-
-    number_of_samples_ =
-        clamp(user_settings_.max_number_of_samples - total_number_of_samples_, 0u, user_settings_.number_of_samples);
+    number_of_samples_ = user_settings_.number_of_samples;
     total_number_of_samples_ += number_of_samples_;
     number_of_frames_++;
 
@@ -225,11 +217,10 @@ void Application::loadScene(const uint32_t scene_index) {
     user_settings_.camera_move_speed = camera_initial_state_.move_speed;
     user_settings_.camera_mouse_speed = camera_initial_state_.look_speed;
 
-    period_total_frames_ = 0;
-    reset_accumulation_ = true;
-
     camera_initial_state_.aspect_ratio = float(window_->framebufferSize().width / window_->framebufferSize().height);
     camera_ = std::make_unique<Camera>(camera_initial_state_);
+
+    reset_accumulation_ = true;
 }
 
 void Application::onEvent(Event& event) {
@@ -344,50 +335,3 @@ bool Application::onKeyRelease(KeyReleasedEvent& e) {
     return false;
 }
 
-void Application::checkAndUpdateBenchmarkState(double prev_time) {
-    if (!user_settings_.benchmark) {
-        return;
-    }
-
-    // Initialise scene benchmark timers
-    if (period_total_frames_ == 0) {
-        //    std::cout << std::endl;
-        //    std::cout << "Benchmark: Start scene #" << scene_index_ << " '"
-        //              << SceneList::allScenes[scene_index_].first << "'" << std::endl;
-        scene_initial_time_ = time_;
-        period_initial_time_ = time_;
-    }
-
-    // Print out the frame rate at regular intervals.
-    {
-        const double period = 5;
-        const double prev_total_time = prev_time - period_initial_time_;
-        const double total_time = time_ - period_initial_time_;
-
-        if (period_total_frames_ != 0
-            && static_cast<uint64_t>(prev_total_time / period) != static_cast<uint64_t>(total_time / period)) {
-            //      std::cout << "Benchmark: " << period_total_frames_ / total_time << " fps"
-            //                << std::endl;
-            period_initial_time_ = time_;
-            period_total_frames_ = 0;
-        }
-
-        period_total_frames_++;
-    }
-
-    // If in benchmark mode, bail out from the scene if we've reached the time or
-    // sample limit.
-    {
-        const bool time_limit_reached =
-            period_total_frames_ != 0 && window_->time() - scene_initial_time_ > user_settings_.benchmark_max_time;
-        const bool sample_limit_reached = number_of_samples_ == 0;
-
-        if (time_limit_reached || sample_limit_reached) {
-            if (!user_settings_.benchmark_next_scenes
-                || static_cast<size_t>(user_settings_.scene_index) == SceneList::allScenes.size() - 1) {
-                window_->close();
-            }
-            user_settings_.scene_index += 1;
-        }
-    }
-}

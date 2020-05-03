@@ -4,7 +4,7 @@
 #include "assets/scene.h"
 #include "assets/texture.h"
 #include "assets/uniform_buffer.h"
-#include "properties.h"
+#include "options.h"
 #include "vulkan/enumerate.h"
 #include "vulkan/window.h"
 
@@ -34,10 +34,6 @@ int main(int argc, const char* argv[]) noexcept {
 
 UserSettings createUserSettings(const Options& options) {
     UserSettings user_settings {};
-
-    user_settings.benchmark = options.benchmark;
-    user_settings.benchmark_next_scenes = options.benchmarkNextScenes;
-    user_settings.benchmark_max_time = options.benchmarkMaxTime;
 
     user_settings.scene_index = options.sceneIndex;
 

@@ -1,10 +1,8 @@
 #pragma once
 
 struct UserSettings final {
-    // Application
-    bool benchmark {};
-
     // Benchmark
+    bool benchmark {};
     bool benchmark_next_scenes {};
     uint32_t benchmark_max_time {};
 
