@@ -249,7 +249,6 @@ void Renderer::display(VkCommandBuffer command_buffer, uint32_t image_index) {
     vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
     {
         VkDescriptorSet descriptor_set[] = {graphics_pipeline_->descriptorSet(0)};
-        VkDeviceSize offsets[] = {0};
 
         vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_->handle());
         vkCmdBindDescriptorSets(command_buffer,
@@ -263,49 +262,9 @@ void Renderer::display(VkCommandBuffer command_buffer, uint32_t image_index) {
         vkCmdDraw(command_buffer, 3, 1, 0, 0);
     }
     vkCmdEndRenderPass(command_buffer);
-
-    //    const auto extent = swapChain().extent();
-    //    VkImageSubresourceRange subresource_range;
-    //    subresource_range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    //    subresource_range.baseMipLevel = 0;
-    //    subresource_range.levelCount = 1;
-    //    subresource_range.baseArrayLayer = 0;
-    //    subresource_range.layerCount = 1;
-    //
-    //    ImageMemoryBarrier::insert(command_buffer,
-    //                               output_image_->handle(),
-    //                               subresource_range,
-    //                               VK_ACCESS_SHADER_WRITE_BIT,
-    //                               VK_ACCESS_TRANSFER_READ_BIT,
-    //                               VK_IMAGE_LAYOUT_GENERAL,
-    //                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-    //
-    //    ImageMemoryBarrier::insert(command_buffer,
-    //                               swapChain().images()[image_index],
-    //                               subresource_range,
-    //                               0,
-    //                               VK_ACCESS_TRANSFER_WRITE_BIT,
-    //                               VK_IMAGE_LAYOUT_UNDEFINED,
-    //                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    //
-    //    VkImageCopy copy_region;
-    //    copy_region.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
-    //    copy_region.srcOffset = {0, 0, 0};
-    //    copy_region.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
-    //    copy_region.dstOffset = {0, 0, 0};
-    //    copy_region.extent = {extent.width, extent.height, 1};
-    //
-    //    vkCmdCopyImage(command_buffer,
-    //                   output_image_->handle(),
-    //                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-    //                   swapChain().images()[image_index],
-    //                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-    //                   1,
-    //                   &copy_region);
 }
 
 void Renderer::denoiseImage() {
-
     denoiser_->denoiseImage(*device_, current_command_buffer_, *command_pool_, *output_image_, *denoised_image_);
 }
 

@@ -9,10 +9,10 @@ using namespace boost::program_options;
 Options::Options(const int argc, const char* argv[]) {
     options_description benchmark_options("Benchmark options");
     benchmark_options.add_options()("next-scenes",
-                                    bool_switch(&benchmarkNextScenes)->default_value(false),
+                                    bool_switch(&benchmark_next_scenes)->default_value(false),
                                     "Load the next scene once the sample or time limit is reached.")(
         "max-time",
-        value<uint32_t>(&benchmarkMaxTime)->default_value(60),
+        value<uint32_t>(&benchmark_max_time)->default_value(60),
         "The benchmark time limit per scene (in seconds).");
 
     options_description renderer("Renderer options");
@@ -22,11 +22,13 @@ Options::Options(const int argc, const char* argv[]) {
                                                                        value<uint32_t>(&bounces)->default_value(8),
                                                                        "Set the maximum number of bounces per ray.")(
         "max-samples",
-        value<uint32_t>(&maxSamples)->default_value(64 * 1024),
+        value<uint32_t>(&max_samples)->default_value(64 * 1024),
         "Set the maximum number of accumulated ray samples per pixel.");
 
     options_description scene("Scene options");
-    scene.add_options()("scene", value<uint32_t>(&sceneIndex)->default_value(0), "Set the scene to start with.");
+    scene.add_options()("scene", value<uint32_t>(&scene_index)->default_value(0), "Set the scene to start with.");
+    options_description algorithm("Algorithm options");
+    algorithm.add_options()("algorithm", value<uint32_t>(&algorithm_index)->default_value(0), "Set the algorithm to start with.");
 
     options_description window("Window options");
     window.add_options()("width", value<uint32_t>(&width)->default_value(800), "Set framebuffer width.")(
@@ -47,6 +49,7 @@ Options::Options(const int argc, const char* argv[]) {
     desc.add(benchmark);
     desc.add(renderer);
     desc.add(scene);
+    desc.add(algorithm);
     desc.add(window);
 
     const positional_options_description positional;
@@ -54,5 +57,5 @@ Options::Options(const int argc, const char* argv[]) {
     store(command_line_parser(argc, argv).options(desc).positional(positional).run(), vm);
     notify(vm);
 
-    LF_ASSERT(sceneIndex < SceneList::allScenes.size(), "Scene index is too large");
+    LF_ASSERT(scene_index < SceneList::all_scenes.size(), "Scene index is too large");
 }

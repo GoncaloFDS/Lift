@@ -21,5 +21,5 @@ public:
     static SceneAssets cornellBox(CameraState& camera);
     static SceneAssets cornellBoxLucy(CameraState& camera);
 
-    static const std::vector<std::pair<std::string, std::function<SceneAssets(CameraState&)>>> allScenes;
+    static const std::vector<std::pair<std::string, std::function<SceneAssets(CameraState&)>>> all_scenes;
 };

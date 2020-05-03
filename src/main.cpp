@@ -35,14 +35,15 @@ int main(int argc, const char* argv[]) noexcept {
 UserSettings createUserSettings(const Options& options) {
     UserSettings user_settings {};
 
-    user_settings.scene_index = options.sceneIndex;
+    user_settings.scene_index = options.scene_index;
+    user_settings.algorithm_index = options.algorithm_index;
 
     user_settings.accumulate_rays = true;
     user_settings.is_denoised = false;
     user_settings.enable_mis = true;
     user_settings.number_of_samples = options.samples;
     user_settings.number_of_bounces = options.bounces;
-    user_settings.max_number_of_samples = options.maxSamples;
+    user_settings.max_number_of_samples = options.max_samples;
 
     user_settings.show_settings = !options.benchmark;
     user_settings.show_overlay = true;

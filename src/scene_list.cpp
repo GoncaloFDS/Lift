@@ -10,7 +10,7 @@ using assets::Model;
 using assets::Texture;
 
 const std::vector<std::pair<std::string, std::function<SceneAssets(CameraState&)>>>
-    SceneList::allScenes = {
+    SceneList::all_scenes = {
         {"Cornell Box", cornellBox},
         {"Cornell Box & Lucy", cornellBoxLucy},
         {"Ray Tracing In One Weekend", rayTracingInOneWeekend},

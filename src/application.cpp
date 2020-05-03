@@ -19,6 +19,7 @@
 #include "vulkan/surface.h"
 #include "vulkan/swap_chain.h"
 #include "vulkan/window.h"
+#include "algorithm_list.h"
 
 using Random = effolkronium::random_static;
 
@@ -199,9 +200,9 @@ void Application::onUpdate() {
 }
 
 void Application::loadScene(const uint32_t scene_index) {
-    auto [models, textures] = SceneList::allScenes[scene_index].second(camera_initial_state_);
+    auto [models, textures] = SceneList::all_scenes[scene_index].second(camera_initial_state_);
 
-    LF_WARN("Loading Scene {0}", SceneList::allScenes[scene_index].first.c_str());
+    LF_WARN("Loading Scene {0}", SceneList::all_scenes[scene_index].first.c_str());
 
     if (textures.empty()) {
         textures.push_back(assets::Texture::loadTexture("../resources/textures/white.png"));
@@ -217,7 +218,7 @@ void Application::loadScene(const uint32_t scene_index) {
     user_settings_.camera_move_speed = camera_initial_state_.move_speed;
     user_settings_.camera_mouse_speed = camera_initial_state_.look_speed;
 
-    camera_initial_state_.aspect_ratio = float(window_->framebufferSize().width / window_->framebufferSize().height);
+    camera_initial_state_.aspect_ratio = float(window_->framebufferSize().width) / window_->framebufferSize().height;
     camera_ = std::make_unique<Camera>(camera_initial_state_);
 
     reset_accumulation_ = true;

@@ -1,5 +1,6 @@
 #include "imgui_layer.h"
 
+#include <algorithm_list.h>
 #include <array>
 
 #include "core.h"
@@ -25,8 +26,8 @@ void checkVulkanResultCallback(const VkResult err) {
 ImguiLayer::ImguiLayer(vulkan::CommandPool& command_pool,
                        const vulkan::SwapChain& swap_chain,
                        const vulkan::DepthBuffer& depth_buffer,
-                       UserSettings& user_settings) :
-    user_settings_(user_settings) {
+                       UserSettings& user_settings)
+    : user_settings_(user_settings) {
     const auto& device = swap_chain.device();
     const auto& window = device.surface().instance().window();
 
@@ -147,17 +148,6 @@ void ImguiLayer::drawSettings() {
     const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
 
     if (ImGui::Begin("Settings", &settings().show_settings, flags)) {
-        std::vector<const char*> scenes;
-        scenes.reserve(SceneList::allScenes.size());
-        for (const auto& scene : SceneList::allScenes) { scenes.push_back(scene.first.c_str()); }
-
-        ImGui::Text("scene");
-        ImGui::Separator();
-        ImGui::PushItemWidth(-1);
-        ImGui::Combo("", &settings().scene_index, scenes.data(), static_cast<int>(scenes.size()));
-        ImGui::PopItemWidth();
-        ImGui::NewLine();
-
         if (ImGui::CollapsingHeader("ray tracing")) {
             ImGui::Separator();
             ImGui::Checkbox("enable denoising", &settings().is_denoised);
@@ -187,7 +177,18 @@ void ImguiLayer::drawSettings() {
             ImGui::Checkbox("gamma correction", &settings().gamma_correction);
             ImGui::Checkbox("show statistics", &settings().show_overlay);
             ImGui::NewLine();
+
         }
+
+        ImGui::NewLine();
+
+        std::vector<const char*> scenes;
+        scenes.reserve(SceneList::all_scenes.size());
+        for (const auto& scene : SceneList::all_scenes) { scenes.push_back(scene.first.c_str()); }
+
+        ImGui::Text("scene");
+        ImGui::Combo("", &settings().scene_index, scenes.data(), static_cast<int>(scenes.size()));
+
     }
     ImGui::End();
 }
@@ -204,8 +205,8 @@ void ImguiLayer::drawOverlay(const Statistics& statistics) {
     ImGui::SetNextWindowPos(pos, ImGuiCond_Always, pos_pivot);
     ImGui::SetNextWindowBgAlpha(0.3f);
 
-    const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration
-                       | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+    const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration |
+                       ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 
     if (ImGui::Begin("Statistics", &settings().show_overlay, flags)) {
         ImGui::Text("Statistics");
@@ -213,6 +214,14 @@ void ImguiLayer::drawOverlay(const Statistics& statistics) {
         ImGui::Text("frame size: (%dx%d)", statistics.framebufferSize.width, statistics.framebufferSize.height);
         ImGui::Text("frame rate: %.1f fps", statistics.frameRate);
         ImGui::Text("total samples:  %u", statistics.totalSamples);
+
+        ImGui::NewLine();
+        std::vector<const char*> algorithms;
+        algorithms.reserve(AlgorithmList::all_algorithms.size());
+        for (const auto& algorithm : AlgorithmList::all_algorithms) { algorithms.push_back(algorithm.first.c_str()); }
+
+        ImGui::Text("algorithm");
+        ImGui::Combo("", &settings().algorithm_index, algorithms.data(), static_cast<int>(algorithms.size()));
     }
     ImGui::End();
 }

@@ -8,6 +8,7 @@ struct UserSettings final {
 
     // Scene
     int scene_index {};
+    int algorithm_index {};
 
     bool is_denoised {};
     bool enable_mis {};

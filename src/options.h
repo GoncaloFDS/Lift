@@ -8,19 +8,19 @@ public:
     Options(int argc, const char* argv[]);
     ~Options() = default;
 
-    bool benchmark {};
-    //
     // Benchmark options.
-    bool benchmarkNextScenes {};
-    uint32_t benchmarkMaxTime {};
+    bool benchmark {};
+    bool benchmark_next_scenes {};
+    uint32_t benchmark_max_time {};
 
     // Scene options.
-    uint32_t sceneIndex {};
+    uint32_t scene_index {};
+    uint32_t algorithm_index {};
 
     // Renderer options.
     uint32_t samples {};
     uint32_t bounces {};
-    uint32_t maxSamples {};
+    uint32_t max_samples {};
 
     // Window options
     uint32_t width {};

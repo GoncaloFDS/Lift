@@ -138,7 +138,7 @@ set(src_files
         user_settings.h
         renderer.cpp
         renderer.h
-        assets/Lights.h)
+        assets/Lights.h algorithm_list.h algorithm_list.cpp)
 
 source_group("assets" FILES ${src_files_assets})
 source_group("core" FILES ${src_files_core})
