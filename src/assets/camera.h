@@ -85,7 +85,7 @@ private:
     float mouse_look_speed_ {80.0f};
     float mouse_strafe_speed_ {0.1f};
     float mouse_zoom_speed_ {1.0f};
-    float camera_move_speed_ {100.0f};
+    float camera_move_speed_ {200.0f};
     bool changed_ = true;
     bool reset_accumulation_ = true;
 
