@@ -12,7 +12,6 @@
 #include "vulkan/window_data.h"
 #include <assets/Lights.h>
 #include <assets/camera.h>
-#include <denoiser/denoiser_optix.h>
 #include <imgui/imgui_layer.h>
 #include <memory>
 #include <vector>

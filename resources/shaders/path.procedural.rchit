@@ -31,7 +31,7 @@ vec2 GetSphereTexCoord(const vec3 point) {
     const float pi = 3.1415926535897932384626433832795;
 
     return vec2 ((phi + pi) / (2* pi),
-				 1 - (theta + pi /2) / pi);
+    1 - (theta + pi /2) / pi);
 }
 
 void main() {
@@ -47,8 +47,11 @@ void main() {
     const vec3 center = sphere.xyz;
     const float radius = sphere.w;
     const vec3 point = gl_WorldRayOriginNV + gl_HitTNV * gl_WorldRayDirectionNV;
-    const vec3 n0 = (point - center) / radius;
-    const vec3 normal = faceforward(n0, gl_WorldRayDirectionNV, n0);
+    vec3 normal = (point - center) / radius;
+    //    const vec3 normal = faceforward(n0, gl_WorldRayDirectionNV, n0);
+    if (material.refraction_index <= 0.0f) {
+        normal = faceforward(normal, gl_WorldRayDirectionNV, normal);
+    }
     const vec2 tex_coords = GetSphereTexCoord(normal);
 
     // Diffuse hemisphere sampling

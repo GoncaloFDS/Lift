@@ -15,10 +15,6 @@ static void contextLogCb(unsigned int level, const char* tag, const char* messag
 }
 
 void DenoiserOptix::setup(vulkan::Device& device, uint32_t queue_index) {
-    vk_allocator_.init({device.handle()}, {device.physicalDevice()});
-}
-
-int DenoiserOptix::initOptix() {
     CUDA_CHECK(cudaFree(nullptr));
 
     CUcontext cu_context;
@@ -37,7 +33,8 @@ int DenoiserOptix::initOptix() {
     OPTIX_CHECK(optixDenoiserCreate(optix_device_context_, &denoiser_options_, &denoiser_));
     OPTIX_CHECK(optixDenoiserSetModel(denoiser_, OPTIX_DENOISER_MODEL_KIND_HDR, nullptr, 0));
     LF_INFO("Initialized Optix Denoiser");
-    return 1;
+
+    vk_allocator_.init(device.handle(), device.physicalDevice());
 }
 
 void DenoiserOptix::denoiseImage(vulkan::Device& device,
@@ -65,7 +62,7 @@ void DenoiserOptix::denoiseImage(vulkan::Device& device,
     input_layer.width = image_size_.width;
     input_layer.height = image_size_.height;
     input_layer.rowStrideInBytes = rowStrideInBytes;
-    input_layer.pixelStrideInBytes = size_of_pixel ;
+    input_layer.pixelStrideInBytes = size_of_pixel;
     input_layer.format = pixel_format;
 
     OptixImage2D output_layer;
@@ -114,12 +111,20 @@ void DenoiserOptix::allocateBuffers(vulkan::Device& device) {
 
     vk::DeviceSize buffer_size = image_size_.width * image_size_.height * sizeof(float4);
 
-    vk::BufferUsageFlags in_usage_flags = {vk::BufferUsageFlagBits::eUniformBuffer
-                                           | vk::BufferUsageFlagBits::eTransferDst};
+    vk::BufferUsageFlags in_usage_flags {vk::BufferUsageFlagBits::eUniformBuffer |
+                                         vk::BufferUsageFlagBits::eTransferDst};
     vk::BufferUsageFlags out_usage_flags = in_usage_flags | vk::BufferUsageFlagBits::eTransferSrc;
 
-    pixel_buffer_in_.buf_vk = vk_allocator_.createBuffer({{}, buffer_size, in_usage_flags});
-    pixel_buffer_out_.buf_vk = vk_allocator_.createBuffer({{}, buffer_size, out_usage_flags});
+    pixel_buffer_in_.buf_vk =
+        vk_allocator_.createBuffer((VkDeviceSize) buffer_size,
+                                   (VkBufferUsageFlags) in_usage_flags,
+                                   (VkMemoryPropertyFlags) vk::MemoryPropertyFlagBits::eDeviceLocal);
+    pixel_buffer_out_.buf_vk =
+        vk_allocator_.createBuffer((VkDeviceSize) buffer_size,
+                                   (VkBufferUsageFlags) out_usage_flags,
+                                   (VkMemoryPropertyFlags) vk::MemoryPropertyFlagBits::eDeviceLocal);
+    //    pixel_buffer_in_.buf_vk = vk_allocator_.createBuffer({{}, buffer_size, in_usage_flags});
+    //    pixel_buffer_out_.buf_vk = vk_allocator_.createBuffer({{}, buffer_size, out_usage_flags});
 
     createBufferCuda(device, pixel_buffer_in_);
     createBufferCuda(device, pixel_buffer_out_);

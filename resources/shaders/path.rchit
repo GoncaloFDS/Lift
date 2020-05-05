@@ -43,8 +43,11 @@ void main() {
     const Material material = Materials[v0.material_index];
 
     const vec3 barycentrics = vec3(1.0 - hit_attributes.x - hit_attributes.y, hit_attributes.x, hit_attributes.y);
-    const vec3 n0 = normalize(Mix(v0.normal, v1.normal, v2.normal, barycentrics));
-    const vec3 normal = faceforward(n0, gl_WorldRayDirectionNV, n0);
+//    vec3 normal = normalize(Mix(v0.normal, v1.normal, v2.normal, barycentrics));
+    vec3 normal = normalize(cross(v1.position - v0.position, v2.position - v0.position));
+//    if (material.refraction_index <= 0.0f) {
+//        normal = faceforward(normal, gl_WorldRayDirectionNV, normal);
+//    }
     const vec2 tex_coords = Mix(v0.tex_coords, v1.tex_coords, v2.tex_coords, barycentrics);
     ///////////////////////////////
 

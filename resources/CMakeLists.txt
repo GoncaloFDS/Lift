@@ -9,7 +9,7 @@ set_source_files_properties(${shader_extra_files} PROPERTIES HEADER_FILE_ONLY TR
 
 # Shader compilation
 foreach(shader ${shader_files})
-    #message("SHADER: ${shader}")
+    #mt  ssage("SHADER: ${shader}")
     get_filename_component(file_name ${shader} NAME)
     get_filename_component(full_path ${shader} ABSOLUTE)
     set(output_dir ${CMAKE_CURRENT_BINARY_DIR}/shaders)

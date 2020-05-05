@@ -36,7 +36,7 @@ set(src_files_assets
         assets/vertex.h
         assets/camera.cpp
         assets/camera.h
-        )
+        assets/mateiral.cpp)
 
 set(src_files_imgui
         ImGui/imgui_impl_glfw.cpp
@@ -107,8 +107,11 @@ set(src_files_vulkan
         platform/vulkan/window_data.h
         platform/vulkan/extensions_vk.cpp
         platform/vulkan/extensions_vk.h
-        platform/vulkan/buffer_dedicated.cpp
-        platform/vulkan/buffer_dedicated.h
+        platform/nvvk/allocator_dedicated_vk.hpp
+        platform/nvvk/images_vk.hpp
+        platform/nvvk/images_vk.hpp
+        platform/nvvk/samplers_vk.cpp
+        platform/nvvk/samplers_vk.hpp
         )
 
 set(src_files_vulkan_raytracing

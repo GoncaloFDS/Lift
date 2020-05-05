@@ -60,7 +60,7 @@ void Application::run() {
         {130.0f, 0.0f, 0.0f, 0},
         {0.0f, 0.0f, 130.0f, 0},
         {0.0f, -1.0f, 0.0f, 0},
-        {15.0f, 15.0f, 15.0f, 0},
+        {10.0f, 10.0f, 10.0f, 0},
     };
 
     renderer_->setupDenoiser();
@@ -94,7 +94,7 @@ void Application::run() {
 
         const auto extent = renderer_->swapChain().extent();
 
-        stats.rayRate = float(extent.width * extent.height * number_of_samples_ / (Timer::deltaTime * 1000000000));
+        stats.rayRate = float(extent.width * extent.height * number_of_samples_ / (Timer::deltaTime * 1000000000.0f));
         stats.totalSamples = total_number_of_samples_;
 
         renderer_->render(*user_interface_, stats);
@@ -122,7 +122,7 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     ubo.total_number_of_samples = total_number_of_samples_;
     ubo.number_of_samples = number_of_samples_;
     ubo.number_of_bounces = user_settings_.number_of_bounces;
-    ubo.seed = Random::get<Random::common>(0u, 1000u);
+    ubo.seed = Random::get(0u, 1000u);
     ubo.gamma_correction = user_settings_.gamma_correction;
     ubo.enable_mis = user_settings_.enable_mis;
     ubo.has_sky = camera_->hasSky();
@@ -184,7 +184,7 @@ void Application::onUpdate() {
         user_settings_.requiresAccumulationReset(previous_settings_) ||
         !user_settings_.accumulate_rays ||
         camera_changed) {
-        
+
         total_number_of_samples_ = 0;
         reset_accumulation_ = false;
         number_of_frames_ = 0;

@@ -2,19 +2,19 @@
 #include "assets/material.h"
 #include "assets/model.h"
 #include "assets/texture.h"
-#include <random>
+#include <effolkronium/random.hpp>
 
 using namespace glm;
+using Random = effolkronium::random_static;
 using assets::Material;
 using assets::Model;
 using assets::Texture;
 
-const std::vector<std::pair<std::string, std::function<SceneAssets(CameraState&)>>>
-    SceneList::all_scenes = {
-        {"Cornell Box", cornellBox},
-        {"Cornell Box & Lucy", cornellBoxLucy},
-        {"Ray Tracing In One Weekend", rayTracingInOneWeekend},
-        {"Lucy In One Weekend", lucyInOneWeekend},
+const std::vector<std::pair<std::string, std::function<SceneAssets(CameraState&)>>> SceneList::all_scenes = {
+    {"Cornell Box", cornellBox},
+    {"Cornell Box & Lucy", cornellBoxLucy},
+    {"Ray Tracing In One Weekend", rayTracingInOneWeekend},
+    {"Lucy In One Weekend", lucyInOneWeekend},
 };
 
 SceneAssets SceneList::rayTracingInOneWeekend(CameraState& camera) {
@@ -30,9 +30,6 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraState& camera) {
 
     const bool is_procedural = true;
 
-    std::mt19937 engine(42);
-    auto random = std::bind(std::uniform_real_distribution<float>(), engine);
-
     std::vector<Model> models;
 
     models.push_back(
@@ -40,8 +37,8 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraState& camera) {
 
     for (int a = -11; a < 11; ++a) {
         for (int b = -11; b < 11; ++b) {
-            const float choose_mat = random();
-            const vec3 center(a + 0.9f * random(), 0.2f, b + 0.9f * random());
+            const float choose_mat = Random::get(0.0f, 1.0f);
+            const vec3 center(a + 0.9f * Random::get(0.0f, 1.0f), 0.2f, b + 0.9f * Random::get(0.0f, 1.0f));
 
             if (length(center - vec3(4, 0.2f, 0)) > 0.9) {
                 if (choose_mat < 0.8f)  // Diffuse
@@ -49,25 +46,29 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraState& camera) {
                     models.push_back(Model::createSphere(
                         center,
                         0.2f,
-                        Material::lambertian(vec3(random() * random(), random() * random(), random() * random())),
+                        Material::lambertian(vec3(Random::get(0.0f, 1.0f) * Random::get(0.0f, 1.0f),
+                                                  Random::get(0.0f, 1.0f) * Random::get(0.0f, 1.0f),
+                                                  Random::get(0.0f, 1.0f) * Random::get(0.0f, 1.0f))),
                         is_procedural));
                 } else if (choose_mat < 0.95f)  // Metal
                 {
-                    models.push_back(Model::createSphere(
-                        center,
-                        0.2f,
-                        Material::metallic(vec3(0.5f * (1 + random()), 0.5f * (1 + random()), 0.5f * (1 + random())),
-                                           0.5f * random()),
-                        is_procedural));
+                    models.push_back(Model::createSphere(center,
+                                                         0.2f,
+                                                         Material::metallic(vec3(0.5f * (1 + Random::get(0.0f, 1.0f)),
+                                                                                 0.5f * (1 + Random::get(0.0f, 1.0f)),
+                                                                                 0.5f * (1 + Random::get(0.0f, 1.0f))),
+                                                                            0.5f * Random::get(0.0f, 1.0f)),
+                                                         is_procedural));
                 } else  // Glass
                 {
-                    models.push_back(Model::createSphere(center, 0.2f, Material::dielectric(1.5f), is_procedural));
+                    models.push_back(
+                        Model::createSphere(center, 0.2f, Material::dielectric(vec3(1.0f), 1.5f), is_procedural));
                 }
             }
         }
     }
 
-    models.push_back(Model::createSphere(vec3(0, 1, 0), 1.0f, Material::dielectric(1.5f), is_procedural));
+    models.push_back(Model::createSphere(vec3(0, 1, 0), 1.0f, Material::dielectric(vec3(1.0f), 1.5f), is_procedural));
     models.push_back(
         Model::createSphere(vec3(-4, 1, 0), 1.0f, Material::lambertian(vec3(0.4f, 0.2f, 0.1f)), is_procedural));
     models.push_back(
@@ -88,9 +89,6 @@ SceneAssets SceneList::lucyInOneWeekend(CameraState& camera) {
 
     const bool is_procedural = true;
 
-    std::mt19937 engine(42);
-    auto random = std::bind(std::uniform_real_distribution<float>(), engine);
-
     std::vector<Model> models;
 
     models.push_back(
@@ -98,8 +96,8 @@ SceneAssets SceneList::lucyInOneWeekend(CameraState& camera) {
 
     for (int a = -11; a < 11; ++a) {
         for (int b = -11; b < 11; ++b) {
-            const float choose_mat = random();
-            const vec3 center(a + 0.9f * random(), 0.2f, b + 0.9f * random());
+            const float choose_mat = Random::get(0.f, 1.f);
+            const vec3 center(a + 0.9f * Random::get(0.f, 1.f), 0.2f, b + 0.9f * Random::get(0.f, 1.f));
 
             if (length(center - vec3(4, 0.2f, 0)) > 0.9) {
                 if (choose_mat < 0.8f)  // Diffuse
@@ -107,19 +105,20 @@ SceneAssets SceneList::lucyInOneWeekend(CameraState& camera) {
                     models.push_back(Model::createSphere(
                         center,
                         0.2f,
-                        Material::lambertian(vec3(random() * random(), random() * random(), random() * random())),
+                        Material::lambertian(vec3(Random::get(0.f, 1.f) * Random::get(0.f, 1.f), Random::get(0.f, 1.f) * Random::get(0.f, 1.f), Random::get(0.f, 1.f) * Random::get(0.f, 1.f))),
                         is_procedural));
                 } else if (choose_mat < 0.95f)  // Metal
                 {
                     models.push_back(Model::createSphere(
                         center,
                         0.2f,
-                        Material::metallic(vec3(0.5f * (1 + random()), 0.5f * (1 + random()), 0.5f * (1 + random())),
-                                           0.5f * random()),
+                        Material::metallic(vec3(0.5f * (1 + Random::get(0.f, 1.f)), 0.5f * (1 + Random::get(0.f, 1.f)), 0.5f * (1 + Random::get(0.f, 1.f))),
+                                           0.5f * Random::get(0.f, 1.f)),
                         is_procedural));
                 } else  // Glass
                 {
-                    models.push_back(Model::createSphere(center, 0.2f, Material::dielectric(1.5f), is_procedural));
+                    models.push_back(
+                        Model::createSphere(center, 0.2f, Material::dielectric(vec3(1.0f), 1.5f), is_procedural));
                 }
             }
         }
@@ -141,7 +140,7 @@ SceneAssets SceneList::lucyInOneWeekend(CameraState& camera) {
     lucy_2.transform(
         rotate(scale(translate(i, vec3(4, -0.08f, 0)), vec3(scale_factor)), radians(90.0f), vec3(0, 1, 0)));
 
-    lucy_0.setMaterial(Material::dielectric(1.5f));
+    lucy_0.setMaterial(Material::dielectric(vec3(1.0f), 1.5f));
     lucy_1.setMaterial(Material::lambertian(vec3(0.4f, 0.2f, 0.1f)));
     lucy_2.setMaterial(Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.05f));
 
@@ -163,12 +162,12 @@ SceneAssets SceneList::cornellBox(CameraState& camera) {
     camera.has_sky = false;
 
     const auto i = mat4(1);
-    const auto white = Material::lambertian(vec3(0.73f, 0.73f, 0.73f));
+    const auto lambertian = Material::lambertian(vec3(0.73f, 0.73f, 0.73f));
     const auto metal = Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.05f);
-    const auto glass = Material::dielectric(1.5f);
+    const auto glass = Material::dielectric(vec3(1.0f), 1.5f);
 
-    auto box_0 = Model::createBox(vec3(0, 1, -165), vec3(165, 165, 0), metal);
-    auto box_1 = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), glass);
+    auto box_0 = Model::createBox(vec3(0, 1, -165), vec3(165, 165, 0), lambertian);
+    auto box_1 = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), metal);
 
     box_0.transform(rotate(translate(i, vec3(555 - 130 - 165, 0, -65)), radians(-18.0f), vec3(0, 1, 0)));
     box_1.transform(rotate(translate(i, vec3(555 - 265 - 165, 0, -295)), radians(15.0f), vec3(0, 1, 0)));
@@ -191,14 +190,16 @@ SceneAssets SceneList::cornellBoxLucy(CameraState& camera) {
     camera.gamma_correction = true;
     camera.has_sky = false;
 
-    const auto sphere =
-        Model::createSphere(vec3(555 - 130, 165.0f, -165.0f / 2 - 65), 80.0f, Material::dielectric(1.5f), true);
+    const auto sphere = Model::createSphere(vec3(555 - 130, 165.0f, -165.0f / 2 - 65),
+                                            80.0f,
+                                            Material::dielectric(vec3(1.0f), 1.5f),
+                                            true);
     auto lucy_0 = Model::loadModel("../resources/models/lucy.obj");
 
     lucy_0.transform(rotate(scale(translate(mat4(1), vec3(555 - 300 - 165 / 2, -8, -295 - 165 / 2)), vec3(0.6f)),
                             radians(75.0f),
                             vec3(0, 1, 0)));
-    lucy_0.setMaterial(Material::dielectric(1.5f));
+    lucy_0.setMaterial(Material::dielectric(vec3(1.0f), 1.5f));
 
     std::vector<Model> models;
     models.push_back(Model::createCornellBox(555));

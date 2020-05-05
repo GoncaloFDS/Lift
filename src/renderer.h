@@ -134,5 +134,5 @@ private:
     VkSemaphore current_image_available_semaphore_;
     VkSemaphore current_render_finished_semaphore_;
 
-    std::unique_ptr<DenoiserOptix> denoiser_;
+    DenoiserOptix denoiser_;
 };

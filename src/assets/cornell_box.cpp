@@ -20,7 +20,7 @@ void CornellBox::create(const float scale,
     materials.push_back(Material::lambertian(vec3(0.05f, 0.80f, 0.05f)));  // green
     materials.push_back(Material::lambertian(vec3(0.80f, 0.05f, 0.05f)));  // red
     materials.push_back(Material::lambertian(vec3(0.80f, 0.80f, 0.80f)));  // white
-    materials.push_back(Material::diffuseLight(vec3(15.0f)));        // light
+    materials.push_back(Material::emissive(vec3(15.0f)));                  // light
 
     const float s = scale;
 

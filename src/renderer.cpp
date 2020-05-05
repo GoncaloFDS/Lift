@@ -25,12 +25,12 @@
 #include "vulkan/tlas.h"
 #include <assets/scene.h>
 #include <vulkan/vulkan.hpp>
+#include "vulkan/image.h"
+#include "vulkan/buffer.h"
 
 Renderer::Renderer(const vulkan::Instance& instance, bool vsync) {
 
     surface_ = std::make_unique<vulkan::Surface>(instance);
-    denoiser_ = std::make_unique<DenoiserOptix>();
-    denoiser_->initOptix();
 }
 
 Renderer::~Renderer() {
@@ -53,6 +53,8 @@ void Renderer::init(VkPhysicalDevice physical_device, assets::Scene& scene, vulk
     device_procedures_ = std::make_unique<vulkan::DeviceProcedures>(*device_);
 
     load_VK_EXTENSION_SUBSET(instance.handle(), vkGetInstanceProcAddr, device_->handle(), vkGetDeviceProcAddr);
+
+    denoiser_.setup(*device_, 0);
 }
 
 void Renderer::createOutputImage() {
@@ -214,13 +216,6 @@ void Renderer::traceCommand(VkCommandBuffer command_buffer, uint32_t image_index
                                          extent.height,
                                          1);
 
-    //    ImageMemoryBarrier::insert(command_buffer,
-    //                               output_image_->handle(),
-    //                               subresource_range,
-    //                               0,
-    //                               VK_ACCESS_SHADER_WRITE_BIT,
-    //                               VK_IMAGE_LAYOUT_GENERAL,
-    //                               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
 void Renderer::display() {
@@ -265,7 +260,7 @@ void Renderer::display(VkCommandBuffer command_buffer, uint32_t image_index) {
 }
 
 void Renderer::denoiseImage() {
-    denoiser_->denoiseImage(*device_, current_command_buffer_, *command_pool_, *output_image_, *denoised_image_);
+    denoiser_.denoiseImage(*device_, current_command_buffer_, *command_pool_, *output_image_, *denoised_image_);
 }
 
 void Renderer::createAccelerationStructures(assets::Scene& scene) {
@@ -489,5 +484,4 @@ void Renderer::updateUniformBuffer(const uint32_t image_index, assets::UniformBu
 }
 
 void Renderer::setupDenoiser() {
-    denoiser_->setup(*device_, 0);
 }

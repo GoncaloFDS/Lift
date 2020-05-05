@@ -65,7 +65,7 @@ RayPayload Scatter(const Material m, const vec3 direction, const vec3 normal, co
 			return ScatterMetallic(m, normDirection, normal, texCoord, t, seed);
         case MaterialDielectric:
 			return ScatterDieletric(m, normDirection, normal, texCoord, t, seed);
-        case MaterialDiffuseLight:
+        case MaterialEmissive:
 			return ScatterDiffuseLight(m, t, seed);
     }
 }

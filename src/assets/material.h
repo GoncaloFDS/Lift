@@ -4,43 +4,26 @@
 
 namespace assets {
 
-struct alignas(16) Material final {
-    static Material lambertian(const glm::vec3& diffuse, const int32_t texture_id = -1) {
-        return Material {glm::vec4(diffuse, 1), texture_id, 0.0f, 0.0f, Enum::Lambertian};
-    }
+enum class ShadingModel : uint32_t { Lambertian = 0, Metallic = 1, Dielectric = 2, Isotropic = 3, Emissive = 4 };
+enum class AlphaMode : uint32_t { Opaque = 0, Mask = 1, Blend = 2 };
 
-    static Material metallic(const glm::vec3& diffuse, const float metallic_factor, const int32_t texture_id = -1) {
-        return Material {glm::vec4(diffuse, 1), texture_id, metallic_factor, 0.0f, Enum::Metallic};
-    }
-
-    static Material dielectric(const float refraction_index, const int32_t texture_id = -1) {
-        return Material {glm::vec4(0.7f, 0.7f, 1.0f, 1), texture_id, 0.0f, refraction_index, Enum::Dielectric};
-    }
-
-    static Material isotropic(const glm::vec3& diffuse, const int32_t texture_id = -1) {
-        return Material {glm::vec4(diffuse, 1), texture_id, 0.0f, 0.0f, Enum::Isotropic};
-    }
-
-    static Material diffuseLight(const glm::vec3& diffuse, const int32_t texture_id = -1) {
-        return Material {glm::vec4(diffuse, 1), texture_id, 0.0f, 0.0f, Enum::DiffuseLight};
-    }
-
-    enum class Enum : uint32_t { Lambertian = 0, Metallic = 1, Dielectric = 2, Isotropic = 3, DiffuseLight = 4 };
-
-    // Note: vec3 and vec4 gets aligned on 16 bytes in vulkan shaders.
-
-    // Base material
-    glm::vec4 diffuse;
-    int32_t diffuse_texture;
-
-    // Metal metallic_factor
+struct Material {
+    glm::vec4 albedo;
+    glm::vec3 emissive_factor;
     float metallic_factor;
-
-    // dielectric refraction index
+    glm::vec3 specular_factor;
+    float roughness_factor;
     float refraction_index;
+    float glossiness_factor;
+    ShadingModel shading_model;
+    int32_t albedo_texture;
 
-    // Which material are we dealing with
-    Enum shading_model;
+    // Default constructors
+
+    static Material lambertian(const glm::vec3& albedo, int32_t texture_id = -1);
+    static Material metallic(const glm::vec3& albedo, float roughness, int32_t texture_id = -1);
+    static Material dielectric(const glm::vec3& albedo, float refraction_index, int32_t texture_id = -1);
+    static Material emissive(const glm::vec3& albedo, int32_t texture_id = -1);
 };
 
 }  // namespace assets
