@@ -2,6 +2,7 @@
 #include <core/key_codes.h>
 #include <core/timer.h>
 
+#include "algorithm_list.h"
 #include "assets/model.h"
 #include "assets/scene.h"
 #include "assets/texture.h"
@@ -19,7 +20,6 @@
 #include "vulkan/surface.h"
 #include "vulkan/swap_chain.h"
 #include "vulkan/window.h"
-#include "algorithm_list.h"
 
 using Random = effolkronium::random_static;
 
@@ -29,11 +29,8 @@ const auto k_validation_layers = std::vector<const char*>();
 const auto k_validation_layers = std::vector<const char*> {"VK_LAYER_KHRONOS_validation"};
 #endif
 
-Application::Application(const UserSettings& user_settings,
-                         const vulkan::WindowData& window_properties,
-                         const bool vsync) :
-    user_settings_(user_settings),
-    vsync_(vsync), is_running_(true) {
+Application::Application(const UserSettings& user_settings, const vulkan::WindowData& window_properties)
+    : user_settings_(user_settings), vsync_(false), is_running_(true) {
 
     const auto validation_layers = k_validation_layers;
 
@@ -41,7 +38,7 @@ Application::Application(const UserSettings& user_settings,
     window_->setEventCallbackFn(LF_BIND_EVENT_FN(Application::onEvent));
 
     instance_ = std::make_unique<vulkan::Instance>(*window_, validation_layers);
-    renderer_ = std::make_unique<Renderer>(*instance_, vsync);
+    renderer_ = std::make_unique<Renderer>(*instance_);
 }
 
 Application::~Application() {
@@ -180,10 +177,8 @@ void Application::onUpdate() {
 
     bool camera_changed = camera_->onUpdate();
     // Check if the accumulation buffer needs to be reset.
-    if (reset_accumulation_ ||
-        user_settings_.requiresAccumulationReset(previous_settings_) ||
-        !user_settings_.accumulate_rays ||
-        camera_changed) {
+    if (reset_accumulation_ || user_settings_.requiresAccumulationReset(previous_settings_) ||
+        !user_settings_.accumulate_rays || camera_changed) {
 
         total_number_of_samples_ = 0;
         reset_accumulation_ = false;
@@ -335,4 +330,3 @@ bool Application::onKeyRelease(KeyReleasedEvent& e) {
     }
     return false;
 }
-

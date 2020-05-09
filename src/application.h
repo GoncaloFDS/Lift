@@ -42,7 +42,7 @@ class Window;
 
 class Application {
 public:
-    Application(const UserSettings& user_settings, const vulkan::WindowData& window_properties, bool vsync);
+    Application(const UserSettings& user_settings, const vulkan::WindowData& window_properties);
     ~Application();
 
     [[nodiscard]] const std::vector<VkExtensionProperties>& extensions() const;

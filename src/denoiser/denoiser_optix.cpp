@@ -6,7 +6,6 @@
 #include "optix_stubs.h"
 #include <core/log.h>
 #include <platform/vulkan/single_time_commands.h>
-#include <vulkan/vulkan.hpp>
 
 OptixDeviceContext optix_device_context_;
 
@@ -116,15 +115,13 @@ void DenoiserOptix::allocateBuffers(vulkan::Device& device) {
     vk::BufferUsageFlags out_usage_flags = in_usage_flags | vk::BufferUsageFlagBits::eTransferSrc;
 
     pixel_buffer_in_.buf_vk =
-        vk_allocator_.createBuffer((VkDeviceSize) buffer_size,
-                                   (VkBufferUsageFlags) in_usage_flags,
-                                   (VkMemoryPropertyFlags) vk::MemoryPropertyFlagBits::eDeviceLocal);
+        vk_allocator_.createBuffer(static_cast<VkDeviceSize>(buffer_size),
+                                   static_cast<VkBufferUsageFlags>(in_usage_flags),
+                                   static_cast<VkMemoryPropertyFlags>(vk::MemoryPropertyFlagBits::eDeviceLocal));
     pixel_buffer_out_.buf_vk =
-        vk_allocator_.createBuffer((VkDeviceSize) buffer_size,
-                                   (VkBufferUsageFlags) out_usage_flags,
-                                   (VkMemoryPropertyFlags) vk::MemoryPropertyFlagBits::eDeviceLocal);
-    //    pixel_buffer_in_.buf_vk = vk_allocator_.createBuffer({{}, buffer_size, in_usage_flags});
-    //    pixel_buffer_out_.buf_vk = vk_allocator_.createBuffer({{}, buffer_size, out_usage_flags});
+        vk_allocator_.createBuffer(static_cast<VkDeviceSize>(buffer_size),
+                                   static_cast<VkBufferUsageFlags>(out_usage_flags),
+                                   static_cast<VkMemoryPropertyFlags>(vk::MemoryPropertyFlagBits::eDeviceLocal));
 
     createBufferCuda(device, pixel_buffer_in_);
     createBufferCuda(device, pixel_buffer_out_);

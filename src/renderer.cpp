@@ -4,7 +4,6 @@
 #include "assets/texture.h"
 #include "assets/uniform_buffer.h"
 #include "core.h"
-#include "core/glm.h"
 #include "vulkan/blas.h"
 #include "vulkan/depth_buffer.h"
 #include "vulkan/extensions_vk.h"
@@ -12,7 +11,6 @@
 #include "vulkan/frame_buffer.h"
 #include "vulkan/graphics_pipeline.h"
 #include "vulkan/image_memory_barrier.h"
-#include "vulkan/image_view.h"
 #include "vulkan/instance.h"
 #include "vulkan/pipeline_layout.h"
 #include "vulkan/ray_tracing_pipeline.h"
@@ -24,12 +22,8 @@
 #include "vulkan/swap_chain.h"
 #include "vulkan/tlas.h"
 #include <assets/scene.h>
-#include <vulkan/vulkan.hpp>
-#include "vulkan/image.h"
-#include "vulkan/buffer.h"
 
-Renderer::Renderer(const vulkan::Instance& instance, bool vsync) {
-
+Renderer::Renderer(const vulkan::Instance& instance) {
     surface_ = std::make_unique<vulkan::Surface>(instance);
 }
 

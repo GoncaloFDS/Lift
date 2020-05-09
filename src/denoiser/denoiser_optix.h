@@ -10,7 +10,6 @@
 #include <vulkan/device.h>
 
 struct CudaBuffer {
-    //        std::unique_ptr<vulkan::Buffer> buffer_vk_;
     nvvk::BufferDedicated buf_vk;
 
     HANDLE handle = nullptr;
@@ -24,7 +23,6 @@ struct CudaBuffer {
 
 class DenoiserOptix {
 public:
-
     void setup(vulkan::Device&, uint32_t queue_index);
     void denoiseImage(vulkan::Device& device,
                       VkCommandBuffer& command_buffer,
@@ -45,8 +43,6 @@ private:
     CUdeviceptr p_scratch_ {0};
     CUdeviceptr p_intensity_ {0};
     CUdeviceptr p_min_rgb_ {0};
-
-    uint32_t queue_index_ {};
 
     nvvk::AllocatorVkExport vk_allocator_;
 

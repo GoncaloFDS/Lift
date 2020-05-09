@@ -23,7 +23,7 @@ int main(int argc, const char* argv[]) noexcept {
                                                 options.fullscreen,
                                                 !options.fullscreen};
 
-    Application application(user_settings, window_properties, options.vSync);
+    Application application(user_settings, window_properties);
 
     setVulkanDevice(application);
 

@@ -38,7 +38,7 @@ class CommandPool;
 class Renderer {
 
 public:
-    Renderer(const vulkan::Instance& instance, bool vsync);
+    Renderer(const vulkan::Instance& instance);
     ~Renderer();
 
     void beginCommand(assets::Scene& scene, size_t current_frame);
