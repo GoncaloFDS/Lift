@@ -50,7 +50,11 @@ Model Model::loadModel(const std::string& filename) {
     }
 
     if (!warn.empty()) {
-        LF_ERROR("Model Load: {0}", warn);
+        LF_WARN("Warning: {0}", warn);
+    }
+
+    if (!err.empty()) {
+        LF_ERROR("Error loadyiing obj: {0}", err);
     }
 
     std::vector<Material> materials;
@@ -59,7 +63,7 @@ Model Model::loadModel(const std::string& filename) {
         Material m {};
 
         m.albedo = vec4(material.diffuse[0], material.diffuse[1], material.diffuse[2], 1.0);
-        m.albedo_texture = -1;
+        m.albedo_texture = 0;
 
         materials.emplace_back(m);
     }
@@ -100,7 +104,13 @@ Model Model::loadModel(const std::string& filename) {
                                    1 - obj_attrib.texcoords[2 * index.texcoord_index + 1]};
             }
 
-            vertex.materialIndex = std::max(0, mesh.material_ids[face_id++ / 3]);
+            //            vertex.materialIndex = std::max(0, mesh.material_ids[face_id++ / 3]); // FIXME
+            int id = static_cast<int>(face_id) / 3;
+            face_id++;
+            vertex.materialIndex = 0;
+            if (id < mesh.material_ids.size()) {
+                vertex.materialIndex = std::max(0, mesh.material_ids[face_id++ / 4]);
+            }
 
             if (unique_vertices.count(vertex) == 0) {
                 unique_vertices[vertex] = static_cast<uint32_t>(vertices.size());
@@ -247,9 +257,11 @@ void Model::transform(const mat4& transform) {
 Model::Model(std::vector<Vertex>&& vertices,
              std::vector<uint32_t>&& indices,
              std::vector<Material>&& materials,
-             const class Procedural* procedural) :
-    vertices_(std::move(vertices)),
-    indices_(std::move(indices)), materials_(std::move(materials)), procedural_(procedural) {
+             const class Procedural* procedural)
+    : vertices_(std::move(vertices)),
+      indices_(std::move(indices)),
+      materials_(std::move(materials)),
+      procedural_(procedural) {
 }
 
 }  // namespace assets

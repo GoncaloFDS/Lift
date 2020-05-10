@@ -44,7 +44,7 @@ public:
     void beginCommand(assets::Scene& scene, size_t current_frame);
     size_t endCommand(assets::Scene& scene, size_t current_frame, assets::UniformBufferObject& ubo);
     void trace(assets::Scene& scene);
-    void render(ImguiLayer& user_interface, const Statistics& statistics);
+    void render(ImguiLayer& user_interface);
     void display();
 
     void traceCommand(VkCommandBuffer command_buffer, uint32_t image_index, assets::Scene& scene);

@@ -84,17 +84,15 @@ void Application::run() {
 
         renderer_->display();
 
-        // Render the UI
+        // Update UI
         Statistics stats = {};
         stats.framebufferSize = window_->framebufferSize();
         stats.frameRate = static_cast<float>(1 / Timer::deltaTime);
-
-        const auto extent = renderer_->swapChain().extent();
-
-        stats.rayRate = float(extent.width * extent.height * number_of_samples_ / (Timer::deltaTime * 1000000000.0f));
         stats.totalSamples = total_number_of_samples_;
+        user_interface_->updateInfo(stats, camera_->state());
 
-        renderer_->render(*user_interface_, stats);
+        // Render the UI
+        renderer_->render(*user_interface_);
 
         renderer_->endCommand(*scene_, current_frame_, ubo);
         Timer::tick();

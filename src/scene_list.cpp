@@ -15,6 +15,7 @@ const std::vector<std::pair<std::string, std::function<SceneAssets(CameraState&)
     {"Cornell Box & Lucy", cornellBoxLucy},
     {"Ray Tracing In One Weekend", rayTracingInOneWeekend},
     {"Lucy In One Weekend", lucyInOneWeekend},
+    {"Crytek Sponza", sponza},
 };
 
 SceneAssets SceneList::rayTracingInOneWeekend(CameraState& camera) {
@@ -207,4 +208,28 @@ SceneAssets SceneList::cornellBoxLucy(CameraState& camera) {
     models.push_back(lucy_0);
 
     return std::forward_as_tuple(std::move(models), std::vector<Texture>());
+}
+
+SceneAssets SceneList::sponza(CameraState& camera) {
+    camera.eye = vec3(60, 490, -25);
+    camera.look_at = vec3(139, 322, -324);
+    camera.up = vec3(0, 1, 0);
+    camera.field_of_view = 40;
+    camera.aperture = 0.0f;
+    camera.focus_distance = 10.0f;
+    camera.gamma_correction = true;
+    camera.has_sky = true;
+
+    auto sponza = Model::loadModel("../resources/models/Sponza.obj");
+    std::vector<Texture> textures;
+    textures.push_back(assets::Texture::loadTexture("../resources/textures/sponza/spnza_bricks_a_diff.png"));
+
+    sponza.transform(rotate(scale(translate(mat4(1), vec3(555 - 300 - 165 / 2, -8, -295 - 165 / 2)), vec3(0.6f)),
+                            radians(75.0f),
+                            vec3(0, 1, 0)));
+
+    std::vector<Model> models;
+    models.push_back(sponza);
+
+    return std::forward_as_tuple(std::move(models), std::move(textures));
 }

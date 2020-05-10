@@ -21,6 +21,7 @@
 #include "vulkan/surface.h"
 #include "vulkan/swap_chain.h"
 #include "vulkan/tlas.h"
+#include <assets/camera.h>
 #include <assets/scene.h>
 
 Renderer::Renderer(const vulkan::Instance& instance) {
@@ -112,8 +113,8 @@ void Renderer::trace(assets::Scene& scene) {
     traceCommand(current_command_buffer_, current_image_index_, scene);
 }
 
-void Renderer::render(ImguiLayer& user_interface, const Statistics& statistics) {
-    user_interface.render(current_command_buffer_, swapChainFrameBuffer(current_image_index_), statistics);
+void Renderer::render(ImguiLayer& user_interface) {
+    user_interface.render(current_command_buffer_, swapChainFrameBuffer(current_image_index_));
 }
 
 size_t Renderer::endCommand(assets::Scene& scene, size_t current_frame, assets::UniformBufferObject& ubo) {

@@ -96,15 +96,13 @@ ImguiLayer::~ImguiLayer() {
     ImGui::DestroyContext();
 }
 
-void ImguiLayer::render(VkCommandBuffer command_buffer,
-                        const vulkan::FrameBuffer& frame_buffer,
-                        const Statistics& statistics) {
+void ImguiLayer::render(VkCommandBuffer command_buffer, const vulkan::FrameBuffer& frame_buffer) {
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplVulkan_NewFrame();
     ImGui::NewFrame();
 
-    drawSettings();
-    drawOverlay(statistics);
+    drawSettings(camera_state_);
+    drawOverlay(statistics_);
     //    ImGui::ShowStyleEditor();
     ImGui::Render();
 
@@ -134,7 +132,7 @@ bool ImguiLayer::wantsToCaptureMouse() {
     return ImGui::GetIO().WantCaptureMouse;
 }
 
-void ImguiLayer::drawSettings() {
+void ImguiLayer::drawSettings(const CameraState& camera_state) {
     if (!settings().show_settings) {
         return;
     }
@@ -176,8 +174,9 @@ void ImguiLayer::drawSettings() {
                                 "%.1f");
             ImGui::Checkbox("gamma correction", &settings().gamma_correction);
             ImGui::Checkbox("show statistics", &settings().show_overlay);
+            glm::vec3 camera_pos = camera_state_.eye;
+            ImGui::Text("camera position: (%f %f %f)", camera_pos.x, camera_pos.y, camera_pos.z);
             ImGui::NewLine();
-
         }
 
         ImGui::NewLine();
@@ -188,7 +187,6 @@ void ImguiLayer::drawSettings() {
 
         ImGui::Text("scene");
         ImGui::Combo("", &settings().scene_index, scenes.data(), static_cast<int>(scenes.size()));
-
     }
     ImGui::End();
 }
@@ -224,4 +222,9 @@ void ImguiLayer::drawOverlay(const Statistics& statistics) {
         ImGui::Combo("", &settings().algorithm_index, algorithms.data(), static_cast<int>(algorithms.size()));
     }
     ImGui::End();
+}
+
+void ImguiLayer::updateInfo(const Statistics& statistics, const CameraState& camera_state) {
+    statistics_ = statistics;
+    camera_state_ = camera_state;
 }

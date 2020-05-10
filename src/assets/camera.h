@@ -24,14 +24,15 @@ class Camera {
 public:
     Camera(const CameraState& s);
 
-    [[nodiscard]] mat4 model_view() { return glm::lookAt(eye(), lookAt(), up()); }
-    [[nodiscard]] vec3 direction() { return normalize(state_.look_at - state_.eye); }
-    [[nodiscard]] const vec3& eye() { return state_.eye; };
-    [[nodiscard]] const vec3& lookAt() { return state_.look_at; }
-    [[nodiscard]] const vec3& up() { return state_.up; }
-    [[nodiscard]] float fovy() { return state_.field_of_view; }
-    [[nodiscard]] float aspectRatio() { return state_.aspect_ratio; }
+    [[nodiscard]] mat4 model_view() const { return glm::lookAt(eye(), lookAt(), up()); }
+    [[nodiscard]] vec3 direction() const { return normalize(state_.look_at - state_.eye); }
+    [[nodiscard]] const vec3& eye() const { return state_.eye; };
+    [[nodiscard]] const vec3& lookAt() const { return state_.look_at; }
+    [[nodiscard]] const vec3& up() const { return state_.up; }
+    [[nodiscard]] float fovy() const { return state_.field_of_view; }
+    [[nodiscard]] float aspectRatio() const { return state_.aspect_ratio; }
     [[nodiscard]] bool hasSky() const { return state_.has_sky; }
+    [[nodiscard]] CameraState state() const { return state_; }
 
     void setDirection(const vec3& direction) { state_.look_at = state_.eye + length(state_.look_at - state_.eye); }
     void setEye(const vec3& eye) {
