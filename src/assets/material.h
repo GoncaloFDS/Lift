@@ -4,7 +4,7 @@
 
 namespace assets {
 
-enum class ShadingModel : uint32_t { Lambertian = 0, Metallic = 1, Dielectric = 2, Isotropic = 3, Emissive = 4 };
+enum class ShadingModel : uint32_t { Lambertian = 0, Metallic = 1, Dielectric = 2, Emissive = 3 };
 enum class AlphaMode : uint32_t { Opaque = 0, Mask = 1, Blend = 2 };
 
 struct Material {
@@ -23,7 +23,7 @@ struct Material {
     static Material lambertian(const glm::vec3& albedo, int32_t texture_id = -1);
     static Material metallic(const glm::vec3& albedo, float roughness, int32_t texture_id = -1);
     static Material dielectric(const glm::vec3& albedo, float refraction_index, int32_t texture_id = -1);
-    static Material emissive(const glm::vec3& albedo, int32_t texture_id = -1);
+    static Material emissive(const glm::vec3& albedo, const glm::vec3& emissive, int32_t texture_id);
 };
 
 }  // namespace assets

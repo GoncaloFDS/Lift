@@ -1,6 +1,7 @@
 struct HitSample {
     vec4 color;// rgb + t
     vec4 scattered_dir;// xyz + w (is scatter needed)
+    bool done;
 };
 
 struct PerRayData {

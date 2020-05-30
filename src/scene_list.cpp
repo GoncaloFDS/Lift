@@ -167,7 +167,7 @@ SceneAssets SceneList::cornellBox(CameraState& camera) {
     const auto metal = Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.05f);
     const auto glass = Material::dielectric(vec3(1.0f), 1.5f);
 
-    auto box_0 = Model::createBox(vec3(0, 1, -165), vec3(165, 165, 0), lambertian);
+    auto box_0 = Model::createBox(vec3(0, 1, -165), vec3(165, 165, 0), glass);
     auto box_1 = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), metal);
 
     box_0.transform(rotate(translate(i, vec3(555 - 130 - 165, 0, -65)), radians(-18.0f), vec3(0, 1, 0)));
