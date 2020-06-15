@@ -141,7 +141,9 @@ set(src_files
         user_settings.h
         renderer.cpp
         renderer.h
-        assets/Lights.h algorithm_list.h algorithm_list.cpp)
+        assets/Lights.h
+        algorithm_list.h
+        algorithm_list.cpp)
 
 source_group("assets" FILES ${src_files_assets})
 source_group("core" FILES ${src_files_core})
@@ -163,7 +165,7 @@ include_directories(${glm_INCLUDE_DIRS})
 include_directories(${Vulkan_INCLUDE_DIRS})
 include_directories(${OptiX_INCLUDE})
 include_directories(${EXTERNAL_DIR}/imgui)
-include_directories(${EXTERNAL_DIR}/tinygltf)
+include_directories(${EXTERNAL_DIR}/stb_image)
 include_directories(${EXTERNAL_DIR}/tinyobj)
 include_directories(${EXTERNAL_DIR}/random/include)
 include_directories(${EXTERNAL_DIR}/spdlog/include)

@@ -10,9 +10,6 @@
 [submodule "external/json"]
 	path = external/json
 	url = https://github.com/nlohmann/json
-[submodule "external/tinygltf"]
-	path = external/tinygltf
-	url = https://github.com/syoyo/tinygltf
 [submodule "external/tinyobj"]
 	path = external/tinyobj
 	url = https://github.com/syoyo/tinyobjloader.git
