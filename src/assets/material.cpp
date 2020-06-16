@@ -47,7 +47,7 @@ Material Material::dielectric(const glm::vec3& albedo, const float refraction_in
 Material Material::emissive(const glm::vec3& albedo, const glm::vec3& emissive, int32_t texture_id) {
     return {
         glm::vec4(albedo, 1),
-         emissive,
+        emissive,
         0.0f,
         glm::vec3(0.0f),
         0.0f,

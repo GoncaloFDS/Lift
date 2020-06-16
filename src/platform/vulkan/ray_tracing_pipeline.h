@@ -1,7 +1,9 @@
 #pragma once
 
+#include "buffer.h"
 #include "core/utilities.h"
 #include <algorithm_list.h>
+#include <glm/vec4.hpp>
 #include <memory>
 #include <vector>
 
@@ -58,6 +60,10 @@ private:
     uint32_t procedural_hit_group_index_;
 
     Algorithm algorithm_;
+
+    glm::vec4 lights[500];
+    std::unique_ptr<vulkan::Buffer> light_paths_buffer_;
+    std::unique_ptr<vulkan::DeviceMemory> light_paths_buffer_memory_;
 };
 
 }  // namespace vulkan

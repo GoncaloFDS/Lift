@@ -13,7 +13,7 @@ layout(binding = 4) readonly buffer IndexArray { uint Indices[]; };
 layout(binding = 5) readonly buffer MaterialArray { Material[] Materials; };
 layout(binding = 6) readonly buffer OffsetArray { uvec2[] Offsets; };
 layout(binding = 7) uniform sampler2D[] TextureSamplers;
-layout(binding = 8) readonly buffer SphereArray { vec4[] Spheres; };
+layout(binding = 9) readonly buffer SphereArray { vec4[] Spheres; };
 
 #include "utils/brdfs.glsl"
 #include "utils/vertex.glsl"
