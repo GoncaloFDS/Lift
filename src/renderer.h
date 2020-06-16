@@ -1,5 +1,6 @@
 #pragma once
 
+#include "algorithm_list.h"
 #include "vulkan/device_procedures.h"
 #include "vulkan/ray_tracing_properties.h"
 #include <denoiser/denoiser_optix.h>
@@ -52,8 +53,7 @@ public:
 
     void denoiseImage();
 
-    void createRayTracingPipeline(assets::Scene& scene);
-    void createSwapChain(assets::Scene& scene);
+    void createSwapChain(assets::Scene& scene, Algorithm algorithm);
     void deleteSwapChain();
     void deleteAccelerationStructures();
     void recreateSwapChain(assets::Scene& scene);
@@ -83,6 +83,7 @@ public:
 private:
     void createBottomLevelStructures(VkCommandBuffer command_buffer, assets::Scene& scene);
     void createTopLevelStructures(VkCommandBuffer command_buffer, assets::Scene& scene);
+    void createRayTracingPipeline(assets::Scene& scene, Algorithm algorithm);
 
 private:
     std::unique_ptr<vulkan::Surface> surface_;
@@ -129,10 +130,10 @@ private:
     bool vsync_ = false;
     bool is_denoised = false;
 
-    VkCommandBuffer current_command_buffer_;
-    uint32_t current_image_index_;
-    VkSemaphore current_image_available_semaphore_;
-    VkSemaphore current_render_finished_semaphore_;
+    VkCommandBuffer current_command_buffer_{};
+    uint32_t current_image_index_{};
+    VkSemaphore current_image_available_semaphore_{};
+    VkSemaphore current_render_finished_semaphore_{};
 
     DenoiserOptix denoiser_;
 };

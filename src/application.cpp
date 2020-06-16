@@ -147,7 +147,7 @@ void Application::setPhysicalDevice(VkPhysicalDevice physical_device) {
 }
 
 void Application::createSwapChain() {
-    renderer_->createSwapChain(*scene_);
+    renderer_->createSwapChain(*scene_, static_cast<Algorithm>(user_settings_.algorithm_index));
 
     user_interface_ = std::make_unique<ImguiLayer>(renderer_->commandPool(),
                                                    renderer_->swapChain(),
@@ -163,7 +163,9 @@ void Application::deleteSwapChain() {
 
 void Application::onUpdate() {
     // Check if the scene has been changed by the user.
-    if (scene_index_ != static_cast<uint32_t>(user_settings_.scene_index)) {
+    if (scene_index_ != static_cast<uint32_t>(user_settings_.scene_index) ||
+        previous_settings_.algorithm_index != user_settings_.algorithm_index) {
+        previous_settings_ = user_settings_;
         renderer_->waitDeviceIdle();
         deleteSwapChain();
         renderer_->deleteAccelerationStructures();

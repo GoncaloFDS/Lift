@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/utilities.h"
+#include <algorithm_list.h>
 #include <memory>
 #include <vector>
 
@@ -27,7 +28,8 @@ public:
                        const TopLevelAccelerationStructure& acceleration_structure,
                        const ImageView& output_image_view,
                        const std::vector<assets::UniformBuffer>& uniform_buffers,
-                       const assets::Scene& scene);
+                       const assets::Scene& scene,
+                       Algorithm algorithm);
     ~RayTracingPipeline();
 
     [[nodiscard]] VkPipeline handle() const { return pipeline_; }
@@ -54,6 +56,8 @@ private:
     uint32_t shadow_miss_index_;
     uint32_t triangle_hit_group_index_;
     uint32_t procedural_hit_group_index_;
+
+    Algorithm algorithm_;
 };
 
 }  // namespace vulkan

@@ -1,0 +1,95 @@
+#version 460
+#extension GL_GOOGLE_include_directive : require
+#extension GL_NV_ray_tracing : require
+
+#include "utils/sampling.glsl"
+#include "utils/ray_payload.glsl"
+#include "utils/uniform_buffer_object.glsl"
+
+layout(binding = 0, set = 0) uniform accelerationStructureNV scene_;
+layout(binding = 1, rgba32f) uniform image2D output_image_;
+layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
+
+layout(location = 0) rayPayloadNV PerRayData prd_;
+
+#define EPS 0.05
+const float PI = 3.141592653589;
+
+void main() {
+    vec3 result = vec3(0);
+
+
+    for (int curr_sample = 0; curr_sample < ubo_.number_of_samples; curr_sample++) {
+        // Random init
+        uint seed = tea(gl_LaunchIDNV.y * gl_LaunchSizeNV.x + gl_LaunchIDNV.x, ubo_.frame * ubo_.number_of_samples + curr_sample + ubo_.seed);
+        float r1 = radinv_fl(seed, 2);
+        float r2 = radinv_fl(seed, 3);
+
+        // Subpixel Jitter
+        vec2 subpixel_jitter = (ubo_.frame + curr_sample) == 0 ? vec2(0.0f, 0.0f) : vec2(r1 - 0.5f, r2 - 0.5f);
+
+        const vec2 pixel_center = vec2(gl_LaunchIDNV.xy) + vec2(0.5) + subpixel_jitter;
+        const vec2 in_uv = pixel_center / vec2(gl_LaunchSizeNV.xy);
+        vec2 d = in_uv * 2.0 - 1.0;
+
+        vec4 origin = ubo_.model_view_inverse * vec4(0, 0, 0, 1);
+        vec4 target = ubo_.projection_inverse * vec4(d.x, d.y, 1, 1);
+        vec4 direction = ubo_.model_view_inverse * vec4(normalize(target.xyz), 0);
+        uint ray_flags = gl_RayFlagsOpaqueNV;
+        uint cullMask = 0xff;
+        float tmin = 0.001;
+        float tmax = 10000.0;
+
+        prd_.emitted = vec3(0.0f);
+        prd_.radiance = vec3(0.0f);
+        prd_.attenuation = vec3(1.0f);
+        prd_.done = false;
+        prd_.seed = seed;
+        prd_.depth = 0;
+
+        for (;;) {
+            traceNV(scene_,
+            ray_flags,
+            cullMask,
+            0,
+            0,
+            0,
+            origin.xyz,
+            tmin,
+            direction.xyz,
+            tmax,
+            0);
+
+            result += prd_.emitted;
+            result += prd_.radiance * prd_.attenuation * vec3(1, 0, 0);
+
+            if (prd_.done || prd_.depth >= ubo_.number_of_bounces ) {
+                break;
+            }
+
+            origin.xyz = prd_.origin;
+            direction.xyz = prd_.direction;
+
+            // russian roulette termination
+            if (prd_.depth >= 1) {
+                float pcont = max(prd_.attenuation.x, max(prd_.attenuation.y, prd_.attenuation.z));
+                if (radinv_fl(seed, 4 + 3 * prd_.depth) >= pcont){
+                    break;
+                }
+                prd_.attenuation /= pcont;
+            }
+
+            prd_.depth++;
+        }
+
+    }
+
+    result = result / ubo_.number_of_samples;
+    if (ubo_.frame > 1) {
+        float a = 1.0 / float(ubo_.frame);
+        vec3 old_color = imageLoad(output_image_, ivec2(gl_LaunchIDNV.xy)).xyz;
+        imageStore(output_image_, ivec2(gl_LaunchIDNV.xy), vec4(mix(old_color, result, a), 1.0f));
+    } else {
+        imageStore(output_image_, ivec2(gl_LaunchIDNV.xy), vec4(result, 1.0f));
+    }
+}

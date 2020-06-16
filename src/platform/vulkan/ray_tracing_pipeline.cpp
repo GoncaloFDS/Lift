@@ -21,8 +21,9 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
                                        const TopLevelAccelerationStructure& acceleration_structure,
                                        const ImageView& output_image_view,
                                        const std::vector<assets::UniformBuffer>& uniform_buffers,
-                                       const assets::Scene& scene) :
-    swap_chain_(swap_chain) {
+                                       const assets::Scene& scene,
+                                       const Algorithm algorithm)
+    : swap_chain_(swap_chain), algorithm_(algorithm) {
     // Create descriptor pool/sets.
     const auto& device = swap_chain.device();
     const std::vector<DescriptorBinding> descriptor_bindings = {
@@ -139,7 +140,12 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
     pipeline_layout_ = std::make_unique<class PipelineLayout>(device, descriptor_set_manager_->descriptorSetLayout());
 
     // Load shaders.
-    const ShaderModule ray_gen_shader(device, "../resources/shaders/path.rgen.spv");
+    std::string rgen_path = "../resources/shaders/path.rgen.spv";
+    if (algorithm == Algorithm::BDPT) {
+       rgen_path = "../resources/shaders/bdpt.rgen.spv";
+    }
+
+    const ShaderModule ray_gen_shader(device, rgen_path);
     const ShaderModule miss_shader(device, "../resources/shaders/path.rmiss.spv");
     const ShaderModule shadow_miss_shader(device, "../resources/shaders/shadow.rmiss.spv");
     const ShaderModule closest_hit_shader(device, "../resources/shaders/path.rchit.spv");
