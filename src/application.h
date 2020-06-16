@@ -10,8 +10,8 @@
 #include "vulkan/frame_buffer.h"
 #include "vulkan/ray_tracing_properties.h"
 #include "vulkan/window_data.h"
-#include <assets/Lights.h>
 #include <assets/camera.h>
+#include <assets/lights.h>
 #include <imgui/imgui_layer.h>
 #include <memory>
 #include <vector>

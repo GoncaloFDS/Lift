@@ -54,7 +54,7 @@ Model Model::loadModel(const std::string& filename) {
     }
 
     if (!err.empty()) {
-        LF_ERROR("Error loadyiing obj: {0}", err);
+        LF_ERROR("Error loading obj: {0}", err);
     }
 
     std::vector<Material> materials;

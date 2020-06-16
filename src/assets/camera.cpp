@@ -1,7 +1,6 @@
 ﻿#include <core/timer.h>
 
 #include "camera.h"
-#include <algorithm>
 
 Camera::Camera(const CameraState& s) {
    state_ = s;

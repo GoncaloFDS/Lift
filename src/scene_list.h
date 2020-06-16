@@ -18,9 +18,9 @@ class SceneList final {
 public:
     static SceneAssets rayTracingInOneWeekend(CameraState& camera);
     static SceneAssets lucyInOneWeekend(CameraState& camera);
+    static SceneAssets teapot(CameraState& camera);
     static SceneAssets cornellBox(CameraState& camera);
-    static SceneAssets cornellBoxLucy(CameraState& camera);
-    static SceneAssets sponza(CameraState& camera);
+    static SceneAssets cornellBoxDragon(CameraState& camera);
 
     static const std::vector<std::pair<std::string, std::function<SceneAssets(CameraState&)>>> all_scenes;
 };

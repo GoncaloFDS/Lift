@@ -17,7 +17,7 @@ layout(binding = 8) readonly buffer SphereArray { vec4[] Spheres; };
 
 #include "utils/brdfs.glsl"
 #include "utils/vertex.glsl"
-#include "utils/sampling.h"
+#include "utils/sampling.glsl"
 
 hitAttributeNV vec4 sphere_;
 layout(location = 0) rayPayloadInNV PerRayData prd_;
@@ -28,7 +28,6 @@ const float pi = 3.1415926535897932384626433832795;
 vec2 GetSphereTexCoord(const vec3 point) {
     const float phi = atan(point.x, point.z);
     const float theta = asin(point.y);
-    const float pi = 3.1415926535897932384626433832795;
 
     return vec2 ((phi + pi) / (2* pi),
     1 - (theta + pi /2) / pi);
@@ -60,8 +59,14 @@ void main() {
     HitSample hit = scatter(material, gl_WorldRayDirectionNV, normal, tex_coords, prd_.seed);
 
     prd_.direction = hit.scattered_dir.xyz;
-    prd_.origin = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
+    prd_.origin = point;
     prd_.attenuation *= hit.color.xyz;
+
+    if (hit.done) {
+        prd_.done = hit.done;
+        prd_.radiance = hit.color.xyz;
+        return;
+    }
 
     const float lz1 = rnd(seed);
     const float lz2 = rnd(seed);

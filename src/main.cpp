@@ -13,7 +13,6 @@ void setVulkanDevice(Application& application);
 
 int main(int argc, const char* argv[]) noexcept {
     Log::init();
-    LF_WARN("Initialized Log");
     const Options options(argc, argv);
     const UserSettings user_settings = createUserSettings(options);
     const vulkan::WindowData window_properties {"Lift",

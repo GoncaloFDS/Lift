@@ -36,7 +36,7 @@ set(src_files_assets
         assets/vertex.h
         assets/camera.cpp
         assets/camera.h
-        assets/mateiral.cpp)
+        assets/material.cpp)
 
 set(src_files_imgui
         ImGui/imgui_impl_glfw.cpp
@@ -141,7 +141,7 @@ set(src_files
         user_settings.h
         renderer.cpp
         renderer.h
-        assets/Lights.h
+        assets/lights.h
         algorithm_list.h
         algorithm_list.cpp)
 

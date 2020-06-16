@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Lights.h"
 #include "core/glm.h"
+#include "lights.h"
 #include <memory>
 
 namespace vulkan {

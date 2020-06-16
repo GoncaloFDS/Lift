@@ -16,7 +16,7 @@ layout(binding = 7) uniform sampler2D[] TextureSamplers;
 
 #include "utils/brdfs.glsl"
 #include "utils/vertex.glsl"
-#include "utils/sampling.h"
+#include "utils/sampling.glsl"
 
 hitAttributeNV vec2 hit_attributes;
 layout(location = 0) rayPayloadInNV PerRayData prd_;
@@ -43,8 +43,7 @@ void main() {
     const Material material = Materials[v0.material_index];
 
     const vec3 barycentrics = vec3(1.0 - hit_attributes.x - hit_attributes.y, hit_attributes.x, hit_attributes.y);
-//    vec3 normal = normalize(Mix(v0.normal, v1.normal, v2.normal, barycentrics));
-    vec3 normal = normalize(cross(v1.position - v0.position, v2.position - v0.position));
+    vec3 normal = normalize(Mix(v0.normal, v1.normal, v2.normal, barycentrics));
     if (material.refraction_index <= 0.0f) {
         normal = faceforward(normal, gl_WorldRayDirectionNV, normal);
     }

@@ -11,11 +11,11 @@ using assets::Model;
 using assets::Texture;
 
 const std::vector<std::pair<std::string, std::function<SceneAssets(CameraState&)>>> SceneList::all_scenes = {
-    {"Cornell Box", cornellBox},
-    {"Cornell Box & Lucy", cornellBoxLucy},
-    {"Ray Tracing In One Weekend", rayTracingInOneWeekend},
-    {"Lucy In One Weekend", lucyInOneWeekend},
-    {"Crytek Sponza", sponza},
+    {"teapot", teapot},
+    {"cornell box", cornellBox},
+    {"cornell box dragon", cornellBoxDragon},
+    {"ray tracing in one weekend", rayTracingInOneWeekend},
+    {"lucy in one weekend", lucyInOneWeekend},
 };
 
 SceneAssets SceneList::rayTracingInOneWeekend(CameraState& camera) {
@@ -103,19 +103,22 @@ SceneAssets SceneList::lucyInOneWeekend(CameraState& camera) {
             if (length(center - vec3(4, 0.2f, 0)) > 0.9) {
                 if (choose_mat < 0.8f)  // Diffuse
                 {
-                    models.push_back(Model::createSphere(
-                        center,
-                        0.2f,
-                        Material::lambertian(vec3(Random::get(0.f, 1.f) * Random::get(0.f, 1.f), Random::get(0.f, 1.f) * Random::get(0.f, 1.f), Random::get(0.f, 1.f) * Random::get(0.f, 1.f))),
-                        is_procedural));
+                    models.push_back(
+                        Model::createSphere(center,
+                                            0.2f,
+                                            Material::lambertian(vec3(Random::get(0.f, 1.f) * Random::get(0.f, 1.f),
+                                                                      Random::get(0.f, 1.f) * Random::get(0.f, 1.f),
+                                                                      Random::get(0.f, 1.f) * Random::get(0.f, 1.f))),
+                                            is_procedural));
                 } else if (choose_mat < 0.95f)  // Metal
                 {
-                    models.push_back(Model::createSphere(
-                        center,
-                        0.2f,
-                        Material::metallic(vec3(0.5f * (1 + Random::get(0.f, 1.f)), 0.5f * (1 + Random::get(0.f, 1.f)), 0.5f * (1 + Random::get(0.f, 1.f))),
-                                           0.5f * Random::get(0.f, 1.f)),
-                        is_procedural));
+                    models.push_back(Model::createSphere(center,
+                                                         0.2f,
+                                                         Material::metallic(vec3(0.5f * (1 + Random::get(0.f, 1.f)),
+                                                                                 0.5f * (1 + Random::get(0.f, 1.f)),
+                                                                                 0.5f * (1 + Random::get(0.f, 1.f))),
+                                                                            0.5f * Random::get(0.f, 1.f)),
+                                                         is_procedural));
                 } else  // Glass
                 {
                     models.push_back(
@@ -152,7 +155,7 @@ SceneAssets SceneList::lucyInOneWeekend(CameraState& camera) {
     return std::forward_as_tuple(std::move(models), std::vector<Texture>());
 }
 
-SceneAssets SceneList::cornellBox(CameraState& camera) {
+SceneAssets SceneList::teapot(CameraState& camera) {
     camera.eye = vec3(278, 278, 800);
     camera.look_at = vec3(278, 278, 0);
     camera.up = vec3(0, 1, 0);
@@ -167,21 +170,23 @@ SceneAssets SceneList::cornellBox(CameraState& camera) {
     const auto metal = Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.05f);
     const auto glass = Material::dielectric(vec3(1.0f), 1.5f);
 
-    auto box_0 = Model::createBox(vec3(0, 1, -165), vec3(165, 165, 0), glass);
-    auto box_1 = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), metal);
+    auto box_back = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), metal);
+    auto teapot = Model::loadModel("../resources/models/teapot.obj");
 
-    box_0.transform(rotate(translate(i, vec3(555 - 130 - 165, 0, -65)), radians(-18.0f), vec3(0, 1, 0)));
-    box_1.transform(rotate(translate(i, vec3(555 - 265 - 165, 0, -295)), radians(15.0f), vec3(0, 1, 0)));
+    teapot.transform(rotate(scale(translate(i, vec3(390, 60, -65)), vec3(5)), radians(-18.0f), vec3(0, 1, 0)));
+    box_back.transform(rotate(translate(i, vec3(125, 0, -295)), radians(15.0f), vec3(0, 1, 0)));
+
+    teapot.setMaterial(glass);
 
     std::vector<Model> models;
     models.push_back(Model::createCornellBox(555));
-    models.push_back(box_0);
-    models.push_back(box_1);
+    models.push_back(teapot);
+    models.push_back(box_back);
 
     return std::make_tuple(std::move(models), std::vector<Texture>());
 }
 
-SceneAssets SceneList::cornellBoxLucy(CameraState& camera) {
+SceneAssets SceneList::cornellBox(CameraState& camera) {
     camera.eye = vec3(278, 278, 800);
     camera.look_at = vec3(278, 278, 0);
     camera.up = vec3(0, 1, 0);
@@ -191,45 +196,49 @@ SceneAssets SceneList::cornellBoxLucy(CameraState& camera) {
     camera.gamma_correction = true;
     camera.has_sky = false;
 
-    const auto sphere = Model::createSphere(vec3(555 - 130, 165.0f, -165.0f / 2 - 65),
-                                            80.0f,
-                                            Material::dielectric(vec3(1.0f), 1.5f),
-                                            true);
-    auto lucy_0 = Model::loadModel("../resources/models/lucy.obj");
+    const auto lambertian = Material::lambertian(vec3(0.73f, 0.73f, 0.73f));
 
-    lucy_0.transform(rotate(scale(translate(mat4(1), vec3(555 - 300 - 165 / 2, -8, -295 - 165 / 2)), vec3(0.6f)),
-                            radians(75.0f),
-                            vec3(0, 1, 0)));
-    lucy_0.setMaterial(Material::dielectric(vec3(1.0f), 1.5f));
+    auto box_front = Model::createBox(vec3(0, 1, -165), vec3(165, 165, 0), lambertian);
+    auto box_back = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), lambertian);
+
+    box_front.transform(rotate(translate(mat4(1), vec3(260, 0, -65)), radians(-18.0f), vec3(0, 1, 0)));
+    box_back.transform(rotate(translate(mat4(1), vec3(125, 0, -295)), radians(15.0f), vec3(0, 1, 0)));
 
     std::vector<Model> models;
     models.push_back(Model::createCornellBox(555));
-    models.push_back(sphere);
-    models.push_back(lucy_0);
+    models.push_back(box_front);
+    models.push_back(box_back);
 
-    return std::forward_as_tuple(std::move(models), std::vector<Texture>());
+    return std::make_tuple(std::move(models), std::vector<Texture>());
 }
 
-SceneAssets SceneList::sponza(CameraState& camera) {
-    camera.eye = vec3(60, 490, -25);
-    camera.look_at = vec3(139, 322, -324);
+SceneAssets SceneList::cornellBoxDragon(CameraState& camera) {
+    camera.eye = vec3(278, 278, 800);
+    camera.look_at = vec3(278, 278, 0);
     camera.up = vec3(0, 1, 0);
     camera.field_of_view = 40;
     camera.aperture = 0.0f;
     camera.focus_distance = 10.0f;
     camera.gamma_correction = true;
-    camera.has_sky = true;
+    camera.has_sky = false;
 
-    auto sponza = Model::loadModel("../resources/models/Sponza.obj");
-    std::vector<Texture> textures;
-    textures.push_back(assets::Texture::loadTexture("../resources/textures/sponza/spnza_bricks_a_diff.png"));
+    const auto metal = Material::metallic(vec3(0.7f, 0.0f, 0.0f), 0.85f);
+    const auto metal_2 = Material::metallic(vec3(0.2f, 0.2f, 0.8f), 0.55f);
 
-    sponza.transform(rotate(scale(translate(mat4(1), vec3(555 - 300 - 165 / 2, -8, -295 - 165 / 2)), vec3(0.6f)),
-                            radians(75.0f),
-                            vec3(0, 1, 0)));
+    auto teapot = Model::loadModel("../resources/models/teapot.obj");
+
+    teapot.transform(rotate(scale(translate(mat4(1), vec3(390, 60, -65)), vec3(5)), radians(-18.0f), vec3(0, 1, 0)));
+    teapot.setMaterial(metal_2);
+
+    auto dragon = Model::loadModel("../resources/models/dragon.obj");
+    dragon.transform(
+        rotate(scale(translate(mat4(1), vec3(250, 160, -350)), vec3(600)), radians(135.0f), vec3(0, 1, 0)));
+    dragon.setMaterial(metal);
 
     std::vector<Model> models;
-    models.push_back(sponza);
+    models.push_back(Model::createCornellBox(555));
+    models.push_back(teapot);
+    models.push_back(dragon);
 
-    return std::forward_as_tuple(std::move(models), std::move(textures));
+    return std::forward_as_tuple(std::move(models), std::vector<Texture>());
 }

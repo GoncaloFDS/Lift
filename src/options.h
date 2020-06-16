@@ -26,5 +26,4 @@ public:
     uint32_t width {};
     uint32_t height {};
     bool fullscreen {};
-    bool vSync {};
 };
