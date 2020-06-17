@@ -13,7 +13,7 @@ layout(binding = 4) readonly buffer IndexArray { uint Indices[]; };
 layout(binding = 5) readonly buffer MaterialArray { Material[] Materials; };
 layout(binding = 6) readonly buffer OffsetArray { uvec2[] Offsets; };
 layout(binding = 7) uniform sampler2D[] TextureSamplers;
-layout(binding = 8) buffer LightPaths { vec4[] light_paths_; };
+layout(binding = 8) buffer LightPaths { LightPathNode[] light_paths_; };
 
 #include "utils/brdfs.glsl"
 #include "utils/vertex.glsl"
@@ -72,7 +72,7 @@ void main() {
     prd_.seed = seed;
 
     // MIS
-    ParallelogramLight light = ubo_.light;
+    Light light = ubo_.light;
 
     const vec3 light_pos = light.corner.xyz + light.v1.xyz * lz1 + light.v2.xyz * lz2;
     vec3 light_dir  = light_pos - prd_.origin;

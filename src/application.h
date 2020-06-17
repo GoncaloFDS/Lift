@@ -90,7 +90,4 @@ private:
     uint32_t number_of_samples_ {};
     uint32_t number_of_frames_ {};
     bool reset_accumulation_ {};
-
-    ParallelogramLight light_;
-
 };

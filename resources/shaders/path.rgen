@@ -9,7 +9,6 @@
 layout(binding = 0, set = 0) uniform accelerationStructureNV scene_;
 layout(binding = 1, rgba32f) uniform image2D output_image_;
 layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
-layout(binding = 8) buffer LightPaths { vec4[] light_paths_; };
 
 layout(location = 0) rayPayloadNV PerRayData prd_;
 

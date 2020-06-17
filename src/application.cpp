@@ -51,16 +51,8 @@ Application::~Application() {
 
 void Application::run() {
     Timer::start();
-
-    light_ = {
-        {213.0f, 553.0f, -328.0f, 0},
-        {130.0f, 0.0f, 0.0f, 0},
-        {0.0f, 0.0f, 130.0f, 0},
-        {0.0f, -1.0f, 0.0f, 0},
-        {10.0f, 10.0f, 10.0f, 0},
-    };
-
     renderer_->setupDenoiser();
+
     while (is_running_) {
         window_->poolEvents();
 
@@ -122,7 +114,7 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     ubo.enable_mis = user_settings_.enable_mis;
     ubo.has_sky = camera_->hasSky();
     ubo.frame = number_of_frames_;
-    ubo.light = light_;
+    ubo.light = scene_->light();
 
     return ubo;
 }
@@ -195,17 +187,21 @@ void Application::onUpdate() {
 }
 
 void Application::loadScene(const uint32_t scene_index) {
-    auto [models, textures] = SceneList::all_scenes[scene_index].second(camera_initial_state_);
+    auto assets = SceneList::all_scenes[scene_index].second();
 
     LF_WARN("Loading Scene {0}", SceneList::all_scenes[scene_index].first.c_str());
 
-    if (textures.empty()) {
-        textures.push_back(assets::Texture::loadTexture("../resources/textures/white.png"));
+    if (assets.textures.empty()) {
+        assets.textures.push_back(assets::Texture::loadTexture("../resources/textures/white.png"));
     }
 
-    scene_ = std::make_unique<assets::Scene>(renderer_->commandPool(), std::move(models), std::move(textures), true);
+    scene_ = std::make_unique<assets::Scene>(renderer_->commandPool(),
+                                             std::move(assets.models),
+                                             std::move(assets.textures),
+                                             assets.light);
     scene_index_ = scene_index;
 
+    camera_initial_state_ = assets.camera;
     user_settings_.fov = camera_initial_state_.field_of_view;
     user_settings_.aperture = camera_initial_state_.aperture;
     user_settings_.focus_distance = camera_initial_state_.focus_distance;

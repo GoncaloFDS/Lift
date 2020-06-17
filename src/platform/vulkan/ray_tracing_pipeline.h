@@ -3,6 +3,7 @@
 #include "buffer.h"
 #include "core/utilities.h"
 #include <algorithm_list.h>
+#include <assets/lights.h>
 #include <glm/vec4.hpp>
 #include <memory>
 #include <vector>
@@ -61,9 +62,8 @@ private:
 
     Algorithm algorithm_;
 
-    glm::vec4 lights[500];
+    LightPathNode light_paths_[500];
     std::unique_ptr<vulkan::Buffer> light_paths_buffer_;
-    std::unique_ptr<vulkan::DeviceMemory> light_paths_buffer_memory_;
 };
 
 }  // namespace vulkan

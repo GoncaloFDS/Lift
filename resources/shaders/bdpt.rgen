@@ -9,6 +9,7 @@
 layout(binding = 0, set = 0) uniform accelerationStructureNV scene_;
 layout(binding = 1, rgba32f) uniform image2D output_image_;
 layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
+layout(binding = 8) buffer LightPaths { LightPathNode[] light_paths_; };
 
 layout(location = 0) rayPayloadNV PerRayData prd_;
 
@@ -47,6 +48,9 @@ void main() {
         prd_.seed = seed;
         prd_.depth = 0;
 
+        light_paths_[2].color = vec4(1, 0, 1, 1);
+        light_paths_[2].normal = vec4(0, 0, 1, 1);
+        light_paths_[2].position = vec4(0, 1, 0, 1);
         for (;;) {
             traceNV(scene_,
             ray_flags,
@@ -61,7 +65,7 @@ void main() {
             0);
 
             result += prd_.emitted;
-            result += prd_.radiance * prd_.attenuation * vec3(1, 0, 0);
+            result += prd_.radiance * prd_.attenuation;
 
             if (prd_.done || prd_.depth >= ubo_.number_of_bounces ) {
                 break;

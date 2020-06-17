@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "assets/camera.h"
+#include "assets/lights.h"
 #include "core/glm.h"
 
 namespace assets {
@@ -12,15 +13,20 @@ class Model;
 class Texture;
 }  // namespace assets
 
-typedef std::tuple<std::vector<assets::Model>, std::vector<assets::Texture>> SceneAssets;
+struct SceneAssets {
+    std::vector<assets::Model> models;
+    std::vector<assets::Texture> textures;
+    CameraState camera;
+    Light light;
+};
 
 class SceneList final {
 public:
-    static SceneAssets rayTracingInOneWeekend(CameraState& camera);
-    static SceneAssets lucyInOneWeekend(CameraState& camera);
-    static SceneAssets teapot(CameraState& camera);
-    static SceneAssets cornellBox(CameraState& camera);
-    static SceneAssets cornellBoxDragon(CameraState& camera);
+    static SceneAssets rayTracingInOneWeekend();
+    static SceneAssets lucyInOneWeekend();
+    static SceneAssets teapot();
+    static SceneAssets cornellBox();
+    static SceneAssets cornellBoxDragon();
 
-    static const std::vector<std::pair<std::string, std::function<SceneAssets(CameraState&)>>> all_scenes;
+    static const std::vector<std::pair<std::string, std::function<SceneAssets()>>> all_scenes;
 };

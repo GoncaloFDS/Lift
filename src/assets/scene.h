@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/utilities.h"
+#include "lights.h"
 #include <memory>
 #include <vector>
 
@@ -26,11 +27,12 @@ public:
     Scene(vulkan::CommandPool& command_pool,
           std::vector<Model>&& models,
           std::vector<Texture>&& textures,
-          bool used_for_ray_tracing);
+          Light light);
     ~Scene();
 
     [[nodiscard]] const std::vector<Model>& models() const { return models_; }
     [[nodiscard]] bool hasProcedurals() const { return static_cast<bool>(procedural_buffer_); }
+    [[nodiscard]] Light light() const { return light_; }
 
     [[nodiscard]] const vulkan::Buffer& vertexBuffer() const { return *vertex_buffer_; }
     [[nodiscard]] const vulkan::Buffer& indexBuffer() const { return *index_buffer_; }
@@ -44,6 +46,7 @@ public:
 private:
     const std::vector<Model> models_;
     const std::vector<Texture> textures_;
+    Light light_;
 
     std::unique_ptr<vulkan::Buffer> vertex_buffer_;
     std::unique_ptr<vulkan::DeviceMemory> vertex_buffer_memory_;

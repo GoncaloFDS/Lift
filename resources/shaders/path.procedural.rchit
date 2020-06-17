@@ -73,7 +73,7 @@ void main() {
     prd_.seed = seed;
 
     // MIS
-    ParallelogramLight light = ubo_.light;
+    Light light = ubo_.light;
 
     const vec3 light_pos = light.corner.xyz + light.v1.xyz * lz1 + light.v2.xyz * lz2;
     vec3 light_dir  = light_pos - prd_.origin;

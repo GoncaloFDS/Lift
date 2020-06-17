@@ -10,7 +10,7 @@ using assets::Material;
 using assets::Model;
 using assets::Texture;
 
-const std::vector<std::pair<std::string, std::function<SceneAssets(CameraState&)>>> SceneList::all_scenes = {
+const std::vector<std::pair<std::string, std::function<SceneAssets()>>> SceneList::all_scenes = {
     {"teapot", teapot},
     {"cornell box", cornellBox},
     {"cornell box dragon", cornellBoxDragon},
@@ -18,7 +18,8 @@ const std::vector<std::pair<std::string, std::function<SceneAssets(CameraState&)
     {"lucy in one weekend", lucyInOneWeekend},
 };
 
-SceneAssets SceneList::rayTracingInOneWeekend(CameraState& camera) {
+SceneAssets SceneList::rayTracingInOneWeekend() {
+    CameraState camera;
     camera.eye = vec3(13, 2, 3);
     camera.look_at = vec3(0);
     camera.up = vec3(0, 1, 0);
@@ -28,6 +29,14 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraState& camera) {
     camera.focus_distance = 10.0f;
     camera.gamma_correction = true;
     camera.has_sky = true;
+
+    Light light = {
+        {213.0f, 553.0f, -328.0f, 0},
+        {130.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 130.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {10.0f, 10.0f, 10.0f, 0},
+    };
 
     const bool is_procedural = true;
 
@@ -63,22 +72,23 @@ SceneAssets SceneList::rayTracingInOneWeekend(CameraState& camera) {
                 } else  // Glass
                 {
                     models.push_back(
-                        Model::createSphere(center, 0.2f, Material::dielectric(vec3(1.0f), 1.5f), is_procedural));
+                        Model::createSphere(center, 0.2f, Material::dielectric(1.5f), is_procedural));
                 }
             }
         }
     }
 
-    models.push_back(Model::createSphere(vec3(0, 1, 0), 1.0f, Material::dielectric(vec3(1.0f), 1.5f), is_procedural));
+    models.push_back(Model::createSphere(vec3(0, 1, 0), 1.0f, Material::dielectric(1.5f), is_procedural));
     models.push_back(
         Model::createSphere(vec3(-4, 1, 0), 1.0f, Material::lambertian(vec3(0.4f, 0.2f, 0.1f)), is_procedural));
     models.push_back(
         Model::createSphere(vec3(4, 1, 0), 1.0f, Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.0f), is_procedural));
 
-    return std::forward_as_tuple(std::move(models), std::vector<Texture>());
+    return SceneAssets{ std::move(models), std::vector<Texture>(), camera, light};
 }
 
-SceneAssets SceneList::lucyInOneWeekend(CameraState& camera) {
+SceneAssets SceneList::lucyInOneWeekend() {
+    CameraState camera;
     camera.eye = vec3(13, 2, 3);
     camera.look_at = vec3(0);
     camera.up = vec3(0, 1, 0);
@@ -87,6 +97,14 @@ SceneAssets SceneList::lucyInOneWeekend(CameraState& camera) {
     camera.focus_distance = 10.0f;
     camera.gamma_correction = true;
     camera.has_sky = true;
+
+    Light light = {
+        {213.0f, 553.0f, -328.0f, 0},
+        {130.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 130.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {10.0f, 10.0f, 10.0f, 0},
+    };
 
     const bool is_procedural = true;
 
@@ -122,7 +140,7 @@ SceneAssets SceneList::lucyInOneWeekend(CameraState& camera) {
                 } else  // Glass
                 {
                     models.push_back(
-                        Model::createSphere(center, 0.2f, Material::dielectric(vec3(1.0f), 1.5f), is_procedural));
+                        Model::createSphere(center, 0.2f, Material::dielectric(1.5f), is_procedural));
                 }
             }
         }
@@ -144,7 +162,7 @@ SceneAssets SceneList::lucyInOneWeekend(CameraState& camera) {
     lucy_2.transform(
         rotate(scale(translate(i, vec3(4, -0.08f, 0)), vec3(scale_factor)), radians(90.0f), vec3(0, 1, 0)));
 
-    lucy_0.setMaterial(Material::dielectric(vec3(1.0f), 1.5f));
+    lucy_0.setMaterial(Material::dielectric(1.5f));
     lucy_1.setMaterial(Material::lambertian(vec3(0.4f, 0.2f, 0.1f)));
     lucy_2.setMaterial(Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.05f));
 
@@ -152,10 +170,11 @@ SceneAssets SceneList::lucyInOneWeekend(CameraState& camera) {
     models.push_back(std::move(lucy_1));
     models.push_back(std::move(lucy_2));
 
-    return std::forward_as_tuple(std::move(models), std::vector<Texture>());
+    return SceneAssets{ std::move(models), std::vector<Texture>(), camera, light};
 }
 
-SceneAssets SceneList::teapot(CameraState& camera) {
+SceneAssets SceneList::teapot() {
+    CameraState camera;
     camera.eye = vec3(278, 278, 800);
     camera.look_at = vec3(278, 278, 0);
     camera.up = vec3(0, 1, 0);
@@ -165,10 +184,18 @@ SceneAssets SceneList::teapot(CameraState& camera) {
     camera.gamma_correction = true;
     camera.has_sky = false;
 
+    Light light = {
+        {213.0f, 553.0f, -328.0f, 0},
+        {130.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 130.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {10.0f, 10.0f, 10.0f, 0},
+    };
+
     const auto i = mat4(1);
     const auto lambertian = Material::lambertian(vec3(0.73f, 0.73f, 0.73f));
     const auto metal = Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.05f);
-    const auto glass = Material::dielectric(vec3(1.0f), 1.5f);
+    const auto glass = Material::dielectric(1.5f, 0);
 
     auto box_back = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), metal);
     auto teapot = Model::loadModel("../resources/models/teapot.obj");
@@ -183,10 +210,11 @@ SceneAssets SceneList::teapot(CameraState& camera) {
     models.push_back(teapot);
     models.push_back(box_back);
 
-    return std::make_tuple(std::move(models), std::vector<Texture>());
+    return SceneAssets{ std::move(models), std::vector<Texture>(), camera, light};
 }
 
-SceneAssets SceneList::cornellBox(CameraState& camera) {
+SceneAssets SceneList::cornellBox() {
+    CameraState camera;
     camera.eye = vec3(278, 278, 800);
     camera.look_at = vec3(278, 278, 0);
     camera.up = vec3(0, 1, 0);
@@ -196,6 +224,14 @@ SceneAssets SceneList::cornellBox(CameraState& camera) {
     camera.gamma_correction = true;
     camera.has_sky = false;
 
+    Light light = {
+        {213.0f, 553.0f, -328.0f, 0},
+        {130.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 130.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {10.0f, 10.0f, 10.0f, 0},
+    };
+    
     const auto lambertian = Material::lambertian(vec3(0.73f, 0.73f, 0.73f));
 
     auto box_front = Model::createBox(vec3(0, 1, -165), vec3(165, 165, 0), lambertian);
@@ -209,10 +245,11 @@ SceneAssets SceneList::cornellBox(CameraState& camera) {
     models.push_back(box_front);
     models.push_back(box_back);
 
-    return std::make_tuple(std::move(models), std::vector<Texture>());
+    return SceneAssets{ std::move(models), std::vector<Texture>(), camera, light};
 }
 
-SceneAssets SceneList::cornellBoxDragon(CameraState& camera) {
+SceneAssets SceneList::cornellBoxDragon() {
+    CameraState camera;
     camera.eye = vec3(278, 278, 800);
     camera.look_at = vec3(278, 278, 0);
     camera.up = vec3(0, 1, 0);
@@ -221,9 +258,17 @@ SceneAssets SceneList::cornellBoxDragon(CameraState& camera) {
     camera.focus_distance = 10.0f;
     camera.gamma_correction = true;
     camera.has_sky = false;
+    
+    Light light = {
+        {213.0f, 553.0f, -328.0f, 0},
+        {130.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 130.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {10.0f, 10.0f, 10.0f, 0},
+    };
 
-    const auto metal = Material::metallic(vec3(0.7f, 0.0f, 0.0f), 0.85f);
-    const auto metal_2 = Material::metallic(vec3(0.2f, 0.2f, 0.8f), 0.55f);
+    const auto metal = Material::metallic(vec3(0.9f, 0.4f, 0.0f), 0.85f);
+    const auto metal_2 = Material::metallic(vec3(0.0f, 0.67f, 0.8f), 0.55f);
 
     auto teapot = Model::loadModel("../resources/models/teapot.obj");
 
@@ -240,5 +285,5 @@ SceneAssets SceneList::cornellBoxDragon(CameraState& camera) {
     models.push_back(teapot);
     models.push_back(dragon);
 
-    return std::forward_as_tuple(std::move(models), std::vector<Texture>());
+    return SceneAssets{ std::move(models), std::vector<Texture>(), camera, light};
 }

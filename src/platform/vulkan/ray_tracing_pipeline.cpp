@@ -66,10 +66,9 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
     descriptor_set_manager_ =
         std::make_unique<DescriptorSetManager>(device, descriptor_bindings, uniform_buffers.size());
 
-    const auto buffer_size = sizeof(lights);
+    const auto buffer_size = sizeof(light_paths_);
     light_paths_buffer_ = std::make_unique<vulkan::Buffer>(device, buffer_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
-    light_paths_buffer_memory_ = std::make_unique<vulkan::DeviceMemory>(
-        light_paths_buffer_->allocateMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
+    light_paths_buffer_->allocateMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     auto& descriptor_sets = descriptor_set_manager_->descriptorSets();
 

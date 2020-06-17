@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "lights.h"
 #include "model.h"
 #include "sphere.h"
 #include "texture.h"
@@ -51,8 +52,9 @@ void createDeviceBuffer(vulkan::CommandPool& command_pool,
 Scene::Scene(vulkan::CommandPool& command_pool,
              std::vector<Model>&& models,
              std::vector<Texture>&& textures,
-             bool used_for_ray_tracing) :
+             Light light) :
     models_(std::move(models)),
+    light_(light),
     textures_(std::move(textures)) {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
@@ -84,15 +86,13 @@ Scene::Scene(vulkan::CommandPool& command_pool,
         }
     }
 
-    const auto flag = used_for_ray_tracing ? VK_BUFFER_USAGE_STORAGE_BUFFER_BIT : 0;
-
     createDeviceBuffer(command_pool,
-                       VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | flag,
+                       VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
                        vertices,
                        vertex_buffer_,
                        vertex_buffer_memory_);
     createDeviceBuffer(command_pool,
-                       VK_BUFFER_USAGE_INDEX_BUFFER_BIT | flag,
+                       VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
                        indices,
                        index_buffer_,
                        index_buffer_memory_);

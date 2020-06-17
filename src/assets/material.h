@@ -22,8 +22,8 @@ struct Material {
 
     static Material lambertian(const glm::vec3& albedo, int32_t texture_id = -1);
     static Material metallic(const glm::vec3& albedo, float roughness, int32_t texture_id = -1);
-    static Material dielectric(const glm::vec3& albedo, float refraction_index, int32_t texture_id = -1);
-    static Material emissive(const glm::vec3& albedo, const glm::vec3& emissive, int32_t texture_id);
+    static Material dielectric(float refraction_index, int32_t texture_id = -1);
+    static Material emissive(const glm::vec3& albedo, const glm::vec3& emissive, int32_t texture_id = -1);
 };
 
 }  // namespace assets
