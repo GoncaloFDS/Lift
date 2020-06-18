@@ -42,6 +42,7 @@ public:
     [[nodiscard]] uint32_t shadowMissShaderIndex() const { return shadow_miss_index_; }
     [[nodiscard]] uint32_t triangleHitGroupIndex() const { return triangle_hit_group_index_; }
     [[nodiscard]] uint32_t proceduralHitGroupIndex() const { return procedural_hit_group_index_; }
+    [[nodiscard]] uint32_t lightHitGroupIndex() const { return light_hit_group_index_; }
 
     [[nodiscard]] VkDescriptorSet descriptorSet(uint32_t index) const;
     [[nodiscard]] const class PipelineLayout& pipelineLayout() const { return *pipeline_layout_; }
@@ -59,6 +60,7 @@ private:
     uint32_t shadow_miss_index_;
     uint32_t triangle_hit_group_index_;
     uint32_t procedural_hit_group_index_;
+    uint32_t light_hit_group_index_;
 
     Algorithm algorithm_;
 

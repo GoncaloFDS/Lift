@@ -418,7 +418,8 @@ void Renderer::createRayTracingPipeline(assets::Scene& scene, Algorithm algorith
         {ray_tracing_pipeline_->shadowMissShaderIndex(), {}}};
     const std::vector<vulkan::ShaderBindingTable::Entry> hit_groups = {
         {ray_tracing_pipeline_->triangleHitGroupIndex(), {}},
-        {ray_tracing_pipeline_->proceduralHitGroupIndex(), {}}};
+        {ray_tracing_pipeline_->proceduralHitGroupIndex(), {}},
+        {ray_tracing_pipeline_->lightHitGroupIndex(), {}}};
 
     shader_binding_table_ = std::make_unique<vulkan::ShaderBindingTable>(*device_procedures_,
                                                                          *ray_tracing_pipeline_,

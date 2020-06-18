@@ -155,16 +155,19 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
 
     // Load shaders.
     std::string rgen_path = "../resources/shaders/path.rgen.spv";
+    std::string chit_path = "../resources/shaders/path.rchit.spv";
     if (algorithm == Algorithm::BDPT) {
         rgen_path = "../resources/shaders/bdpt.rgen.spv";
+        chit_path = "../resources/shaders/bdpt.rchit.spv";
     }
 
     const ShaderModule ray_gen_shader(device, rgen_path);
     const ShaderModule miss_shader(device, "../resources/shaders/path.rmiss.spv");
     const ShaderModule shadow_miss_shader(device, "../resources/shaders/shadow.rmiss.spv");
-    const ShaderModule closest_hit_shader(device, "../resources/shaders/path.rchit.spv");
+    const ShaderModule closest_hit_shader(device, chit_path);
     const ShaderModule procedural_closest_hit_shader(device, "../resources/shaders/path.procedural.rchit.spv");
     const ShaderModule procedural_intersection_shader(device, "../resources/shaders/path.procedural.rint.spv");
+    const ShaderModule light_closest_hit_shader(device, "../resources/shaders/light.rchit.spv");
 
     std::vector<VkPipelineShaderStageCreateInfo> shader_stages = {
         ray_gen_shader.createShaderStage(VK_SHADER_STAGE_RAYGEN_BIT_NV),
@@ -173,6 +176,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
         closest_hit_shader.createShaderStage(VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV),
         procedural_closest_hit_shader.createShaderStage(VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV),
         procedural_intersection_shader.createShaderStage(VK_SHADER_STAGE_INTERSECTION_BIT_NV),
+        light_closest_hit_shader.createShaderStage(VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV),
     };
 
     // Shader groups
@@ -226,12 +230,23 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
     procedural_hit_group_info.intersectionShader = 5;
     procedural_hit_group_index_ = 4;
 
+    VkRayTracingShaderGroupCreateInfoNV light_hit_group_info = {};
+    light_hit_group_info.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV;
+    light_hit_group_info.pNext = nullptr;
+    light_hit_group_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_NV;
+    light_hit_group_info.generalShader = VK_SHADER_UNUSED_NV;
+    light_hit_group_info.closestHitShader = 6;
+    light_hit_group_info.anyHitShader = VK_SHADER_UNUSED_NV;
+    light_hit_group_info.intersectionShader = VK_SHADER_UNUSED_NV;
+    light_hit_group_index_ = 5;
+
     std::vector<VkRayTracingShaderGroupCreateInfoNV> groups = {
         ray_gen_group_info,
         miss_group_info,
         shadow_miss_group_info,
         triangle_hit_group_info,
         procedural_hit_group_info,
+        light_hit_group_info,
     };
 
     // Create raytracing pipeline

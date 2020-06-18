@@ -13,45 +13,44 @@ layout(binding = 4) readonly buffer IndexArray { uint Indices[]; };
 layout(binding = 5) readonly buffer MaterialArray { Material[] Materials; };
 layout(binding = 6) readonly buffer OffsetArray { uvec2[] Offsets; };
 layout(binding = 7) uniform sampler2D[] TextureSamplers;
-layout(binding = 9) readonly buffer SphereArray { vec4[] Spheres; };
+layout(binding = 8) buffer LightPaths { LightPathNode[] light_paths_; };
 
 #include "utils/brdfs.glsl"
 #include "utils/vertex.glsl"
 #include "utils/sampling.glsl"
 
-hitAttributeNV vec4 sphere_;
+hitAttributeNV vec2 hit_attributes;
 layout(location = 0) rayPayloadInNV PerRayData prd_;
 layout(location = 2) rayPayloadNV bool shadow_prd_;
 
 const float pi = 3.1415926535897932384626433832795;
 
-vec2 GetSphereTexCoord(const vec3 point) {
-    const float phi = atan(point.x, point.z);
-    const float theta = asin(point.y);
+vec2 Mix(vec2 a, vec2 b, vec2 c, vec3 barycentrics) {
+    return a * barycentrics.x + b * barycentrics.y + c * barycentrics.z;
+}
 
-    return vec2 ((phi + pi) / (2* pi),
-    1 - (theta + pi /2) / pi);
+vec3 Mix(vec3 a, vec3 b, vec3 c, vec3 barycentrics) {
+    return a * barycentrics.x + b * barycentrics.y + c * barycentrics.z;
 }
 
 void main() {
-    // Get the material.
+    // Compute the ray hit point properties.
     const uvec2 offsets = Offsets[gl_InstanceCustomIndexNV];
     const uint indexOffset = offsets.x;
     const uint vertexOffset = offsets.y;
-    const Vertex v0 = unpackVertex(vertexOffset + Indices[indexOffset]);
+    const Vertex v0 = unpackVertex(vertexOffset + Indices[indexOffset + gl_PrimitiveID * 3 + 0]);
+    const Vertex v1 = unpackVertex(vertexOffset + Indices[indexOffset + gl_PrimitiveID * 3 + 1]);
+    const Vertex v2 = unpackVertex(vertexOffset + Indices[indexOffset + gl_PrimitiveID * 3 + 2]);
     const Material material = Materials[v0.material_index];
 
-    // Compute the ray hit point properties.
-    const vec4 sphere = Spheres[gl_InstanceCustomIndexNV];
-    const vec3 center = sphere.xyz;
-    const float radius = sphere.w;
-    const vec3 point = gl_WorldRayOriginNV + gl_HitTNV * gl_WorldRayDirectionNV;
-    vec3 normal = (point - center) / radius;
-    //    const vec3 normal = faceforward(n0, gl_WorldRayDirectionNV, n0);
+    const vec3 barycentrics = vec3(1.0 - hit_attributes.x - hit_attributes.y, hit_attributes.x, hit_attributes.y);
+    vec3 normal = normalize(Mix(v0.normal, v1.normal, v2.normal, barycentrics));
     if (material.refraction_index <= 0.0f) {
         normal = faceforward(normal, gl_WorldRayDirectionNV, normal);
     }
-    const vec2 tex_coords = GetSphereTexCoord(normal);
+    const vec2 tex_coords = Mix(v0.tex_coords, v1.tex_coords, v2.tex_coords, barycentrics);
+    ///////////////////////////////
+
 
     // Diffuse hemisphere sampling
     uint seed = prd_.seed;
@@ -59,7 +58,7 @@ void main() {
     HitSample hit = scatter(material, gl_WorldRayDirectionNV, normal, tex_coords, prd_.seed);
 
     prd_.direction = hit.scattered_dir.xyz;
-    prd_.origin = point;
+    prd_.origin = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
     prd_.attenuation *= hit.color.xyz;
 
     if (hit.done) {
@@ -72,7 +71,7 @@ void main() {
     const float lz2 = rnd(seed);
     prd_.seed = seed;
 
-    // NEE
+    // MIS
     Light light = ubo_.light;
 
     const vec3 light_pos = light.corner.xyz + light.v1.xyz * lz1 + light.v2.xyz * lz2;
@@ -105,10 +104,8 @@ void main() {
         if (!shadow_prd_) {
             const float A = length(cross(light.v1.xyz, light.v2.xyz));
             weight = n_dot_l * ln_dot_l * A / (pi * light_dist * light_dist);
-
         }
     }
 
     prd_.radiance += light.emission.xyz * weight;
-
 }

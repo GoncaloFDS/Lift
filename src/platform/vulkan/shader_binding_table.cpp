@@ -49,15 +49,15 @@ ShaderBindingTable::ShaderBindingTable(const DeviceProcedures& device_procedures
                                        const RayTracingProperties& ray_tracing_properties,
                                        const std::vector<Entry>& ray_gen_programs,
                                        const std::vector<Entry>& miss_programs,
-                                       const std::vector<Entry>& hit_groups) :
-    ray_gen_entry_size_(getEntrySize(ray_tracing_properties, ray_gen_programs)),
-    miss_entry_size_(getEntrySize(ray_tracing_properties, miss_programs)),
-    hit_group_entry_size_(getEntrySize(ray_tracing_properties, hit_groups)), ray_gen_offset_(0),
-    miss_offset_(ray_gen_programs.size() * ray_gen_entry_size_),
-    hit_group_offset_(miss_offset_ + miss_programs.size() * miss_entry_size_) {
+                                       const std::vector<Entry>& hit_groups)
+    : ray_gen_entry_size_(getEntrySize(ray_tracing_properties, ray_gen_programs)),
+      miss_entry_size_(getEntrySize(ray_tracing_properties, miss_programs)),
+      hit_group_entry_size_(getEntrySize(ray_tracing_properties, hit_groups)), ray_gen_offset_(0),
+      miss_offset_(ray_gen_programs.size() * ray_gen_entry_size_),
+      hit_group_offset_(miss_offset_ + miss_programs.size() * miss_entry_size_) {
     // Compute the size of the table.
-    const size_t sbtSize = ray_gen_programs.size() * ray_gen_entry_size_ + miss_programs.size() * miss_entry_size_
-        + hit_groups.size() * hit_group_entry_size_;
+    const size_t sbtSize = ray_gen_programs.size() * ray_gen_entry_size_ + miss_programs.size() * miss_entry_size_ +
+                           hit_groups.size() * hit_group_entry_size_;
 
     // Allocate buffer & memory.
     const auto& device = ray_tracing_properties.device();
