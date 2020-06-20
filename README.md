@@ -27,3 +27,12 @@ cd Lift
  -D VCPKG_TARGET_TRIPLET=x64-windows-static -D CMAKE_TOOLCHAIN_FILE=build/vcpkg.windows/scripts/buildsystems/vcpkg.cmake
 ```
 
+## Includes code from
+
+* [GPSnoopy/RayTracingInVulkan](https://github.com/GPSnoopy/RayTracingInVulkan)
+
+## References
+
+* [Introduction to Real-Time Ray Tracing with Vulkan](https://devblogs.nvidia.com/vulkan-raytracing/)
+* [Siggraph 2019 OptiX 7 Course Tutorial Code](https://gitlab.com/ingowald/optix7course)
+* [vk_denoise](https://github.com/nvpro-samples/vk_denoise)

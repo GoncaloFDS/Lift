@@ -51,7 +51,7 @@ void main() {
             traceNV(scene_,
             ray_flags,
             cullMask,
-            2,
+            0,
             0,
             0,
             origin.xyz,
@@ -81,8 +81,6 @@ void main() {
 
             prd_.depth++;
         }
-
-//        result += prd_.emitted;
     }
 
     result = result / ubo_.number_of_samples;
