@@ -54,11 +54,12 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
          VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
          VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV},
 
-        // Lights
+        // light and camera nodes
         {8, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV | VK_SHADER_STAGE_RAYGEN_BIT_NV},
+        {9, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV | VK_SHADER_STAGE_RAYGEN_BIT_NV},
 
         // The Procedural buffer (Spheres).
-        {9,
+        {10,
          1,
          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
          VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV | VK_SHADER_STAGE_INTERSECTION_BIT_NV}};
@@ -66,8 +67,12 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
     descriptor_set_manager_ =
         std::make_unique<DescriptorSetManager>(device, descriptor_bindings, uniform_buffers.size());
 
-    light_paths_buffer_ = std::make_unique<vulkan::Buffer>(device, sizeof(light_paths_), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
-    light_paths_buffer_->allocateMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    light_nodes_buffer_ =
+        std::make_unique<vulkan::Buffer>(device, sizeof(light_nodes_), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    light_nodes_buffer_->allocateMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    camera_nodes_buffer_ =
+        std::make_unique<vulkan::Buffer>(device, sizeof(camera_nodes_), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    camera_nodes_buffer_->allocateMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     auto& descriptor_sets = descriptor_set_manager_->descriptorSets();
 
@@ -113,10 +118,15 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
         // Image and texture samplers.
         std::vector<VkDescriptorImageInfo> image_infos(scene.textureSamplers().size());
 
-        // Lights
-        VkDescriptorBufferInfo light_paths_buffer_info = {};
-        light_paths_buffer_info.buffer = light_paths_buffer_->handle();
-        light_paths_buffer_info.range = VK_WHOLE_SIZE;
+        // light paths
+        VkDescriptorBufferInfo light_nodes_buffer_info = {};
+        light_nodes_buffer_info.buffer = light_nodes_buffer_->handle();
+        light_nodes_buffer_info.range = VK_WHOLE_SIZE;
+
+        // camera paths
+        VkDescriptorBufferInfo camera_nodes_buffer_info = {};
+        camera_nodes_buffer_info.buffer = camera_nodes_buffer_->handle();
+        camera_nodes_buffer_info.range = VK_WHOLE_SIZE;
 
         for (size_t t = 0; t != image_infos.size(); ++t) {
             auto& image_info = image_infos[t];
@@ -134,7 +144,8 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
             descriptor_sets.bind(i, 5, material_buffer_info),
             descriptor_sets.bind(i, 6, offsets_buffer_info),
             descriptor_sets.bind(i, 7, *image_infos.data(), static_cast<uint32_t>(image_infos.size())),
-            descriptor_sets.bind(i, 8, light_paths_buffer_info),
+            descriptor_sets.bind(i, 8, light_nodes_buffer_info),
+            descriptor_sets.bind(i, 9, camera_nodes_buffer_info),
         };
 
         // Procedural buffer (optional)
@@ -144,7 +155,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
             procedural_buffer_info.buffer = scene.proceduralBuffer().handle();
             procedural_buffer_info.range = VK_WHOLE_SIZE;
 
-            descriptor_writes.push_back(descriptor_sets.bind(i, 9, procedural_buffer_info));
+            descriptor_writes.push_back(descriptor_sets.bind(i, 10, procedural_buffer_info));
         }
 
         descriptor_sets.updateDescriptors(descriptor_writes);

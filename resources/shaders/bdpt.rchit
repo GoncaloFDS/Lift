@@ -5,6 +5,7 @@
 
 #include "utils/material.glsl"
 #include "utils/uniform_buffer_object.glsl"
+#include "utils/ray_payload.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureNV scene_;
 layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
@@ -13,7 +14,8 @@ layout(binding = 4) readonly buffer IndexArray { uint Indices[]; };
 layout(binding = 5) readonly buffer MaterialArray { Material[] Materials; };
 layout(binding = 6) readonly buffer OffsetArray { uvec2[] Offsets; };
 layout(binding = 7) uniform sampler2D[] TextureSamplers;
-layout(binding = 8) buffer LightPaths { LightPathNode[] light_paths_; };
+layout(binding = 8) buffer LightNodes { PathNode[] light_nodes_; };
+layout(binding = 9) buffer CameraNodes { PathNode[] camera_nodes_; };
 
 #include "utils/brdfs.glsl"
 #include "utils/vertex.glsl"
@@ -72,14 +74,13 @@ void main() {
     prd_.seed = seed;
 
     // MIS
-    Light light = ubo_.light;
 
-    const vec3 light_pos = light.corner.xyz + light.v1.xyz * lz1 + light.v2.xyz * lz2;
+    const vec3 light_pos = light_nodes_[0].position.xyz;
     vec3 light_dir  = light_pos - prd_.origin;
     const float light_dist = length(light_dir);
     light_dir = normalize(light_dir);
     const float n_dot_l = dot(normal, light_dir);
-    const float ln_dot_l = -dot(light.normal.xyz, light_dir);
+    const float ln_dot_l = -dot(light_nodes_[0].normal.xyz, light_dir);
 
     float weight = 0.0f;
 
@@ -102,10 +103,11 @@ void main() {
         2 /*payload location*/);
 
         if (!shadow_prd_) {
-            const float A = length(cross(light.v1.xyz, light.v2.xyz));
+//            const float A = length(cross(light.v1.xyz, light.v2.xyz));
+            const float A = 1000;
             weight = n_dot_l * ln_dot_l * A / (pi * light_dist * light_dist);
         }
     }
 
-    prd_.radiance += light.emission.xyz * weight;
+//    prd_.radiance += light.emission.xyz * weight;
 }

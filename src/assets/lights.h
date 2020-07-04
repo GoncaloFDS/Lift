@@ -10,7 +10,7 @@ struct Light {
     glm::vec4 emission;
 };
 
-struct LightPathNode {
+struct PathNode {
     glm::vec4 color;
     glm::vec4 position;
     glm::vec4 normal;

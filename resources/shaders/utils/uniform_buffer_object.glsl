@@ -6,12 +6,6 @@ struct Light {
     vec4 emission;
 };
 
-struct LightPathNode {
-    vec4 color;
-    vec4 position;
-    vec4 normal;
-};
-
 struct UniformBufferObject {
     Light light;
     mat4 model_view;

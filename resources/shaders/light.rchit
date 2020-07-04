@@ -5,6 +5,7 @@
 
 #include "utils/material.glsl"
 #include "utils/uniform_buffer_object.glsl"
+#include "utils/ray_payload.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureNV scene_;
 layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
@@ -13,7 +14,7 @@ layout(binding = 4) readonly buffer IndexArray { uint Indices[]; };
 layout(binding = 5) readonly buffer MaterialArray { Material[] Materials; };
 layout(binding = 6) readonly buffer OffsetArray { uvec2[] Offsets; };
 layout(binding = 7) uniform sampler2D[] TextureSamplers;
-layout(binding = 8) buffer LightPaths { LightPathNode[] light_paths_; };
+layout(binding = 8) buffer LightNodes { PathNode[] light_nodes_; };
 
 #include "utils/brdfs.glsl"
 #include "utils/vertex.glsl"
@@ -21,7 +22,7 @@ layout(binding = 8) buffer LightPaths { LightPathNode[] light_paths_; };
 
 hitAttributeNV vec2 hit_attributes;
 layout(location = 0) rayPayloadInNV PerRayData prd_;
-layout(location = 2) rayPayloadNV bool shadow_prd_;
+layout(location = 1) rayPayloadInNV LightNode light_node_;
 
 const float pi = 3.1415926535897932384626433832795;
 
@@ -51,13 +52,14 @@ void main() {
     const vec2 tex_coords = Mix(v0.tex_coords, v1.tex_coords, v2.tex_coords, barycentrics);
     ///////////////////////////////
 
-
     // Diffuse hemisphere sampling
-    uint seed = prd_.seed;
+    uint seed = tea(gl_LaunchIDNV.y * gl_LaunchSizeNV.x + gl_LaunchIDNV.x, ubo_.frame * ubo_.number_of_samples + light_node_.index);
 
-    HitSample hit = scatter(material, gl_WorldRayDirectionNV, normal, tex_coords, prd_.seed);
+    HitSample hit = scatter(material, gl_WorldRayDirectionNV, normal, tex_coords, seed);
 
-    prd_.direction = hit.scattered_dir.xyz;
-    prd_.origin = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
-    prd_.attenuation = prd_.radiance = vec3(0.7, 0.1, 0.6);
+    light_nodes_[light_node_.index].position = vec4(gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV, 0);
+    light_nodes_[light_node_.index].normal = vec4(hit.scattered_dir.xyz, 0);
+    light_node_.color = hit.color;
+    light_nodes_[light_node_.index].color = light_node_.color;
+//    prd_.attenuation = prd_.radiance = vec3(0.7, 0.1, 0.6);
 }

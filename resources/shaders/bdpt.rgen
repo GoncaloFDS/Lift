@@ -4,20 +4,66 @@
 
 #include "utils/sampling.glsl"
 #include "utils/ray_payload.glsl"
+#include "utils/random.glsl"
 #include "utils/uniform_buffer_object.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureNV scene_;
 layout(binding = 1, rgba32f) uniform image2D output_image_;
 layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
-layout(binding = 8) buffer LightPaths { LightPathNode[] light_paths_; };
+layout(binding = 8) buffer LightNodes { PathNode[] light_nodes_; };
+layout(binding = 9) buffer CameraNodes { PathNode[] camera_nodes_; };
 
 layout(location = 0) rayPayloadNV PerRayData prd_;
+layout(location = 1) rayPayloadNV LightNode light_node_;
 
 #define EPS 0.05
 const float PI = 3.141592653589;
 
 void main() {
     vec3 result = vec3(0);
+
+    uint ray_flags = gl_RayFlagsOpaqueNV;
+    uint cullMask = 0xff;
+    float tmin = 0.001;
+    float tmax = 10000.0;
+
+    uint seed = tea(gl_LaunchIDNV.y * gl_LaunchSizeNV.x + gl_LaunchIDNV.x, ubo_.frame);
+
+    Light light = ubo_.light;
+    const float lz1 = rnd(seed);
+    const float lz2 = rnd(seed);
+    const vec3 light_pos = light.corner.xyz + light.v1.xyz * lz1 + light.v2.xyz * lz2;
+    vec3 ro = light_pos;
+    vec3 rd = light.normal.xyz + randomInUnitSphere(seed);
+
+    for (int light_sample = 0; light_sample < 3; light_sample++) {
+        light_nodes_[light_sample].position = vec4(0);
+        light_nodes_[light_sample].normal = vec4(0);
+        light_nodes_[light_sample].color = vec4(0);
+    }
+
+    for (int light_sample = 0; light_sample < 3; light_sample++) {
+        Light light = ubo_.light;
+
+        uint seed = tea(gl_LaunchIDNV.y * gl_LaunchSizeNV.x + gl_LaunchIDNV.x, ubo_.frame * ubo_.number_of_samples + light_sample + ubo_.seed);
+        light_node_.index = light_sample;
+
+        traceNV(scene_,
+        ray_flags,
+        cullMask,
+        2,
+        0,
+        0,
+        ro,
+        tmin,
+        rd,
+        tmax,
+        1
+        );
+
+        ro = light_nodes_[light_sample].position.xyz;
+        rd = light_nodes_[light_sample].normal.xyz + randomInUnitSphere(seed);
+    }
 
 
     for (int curr_sample = 0; curr_sample < ubo_.number_of_samples; curr_sample++) {
@@ -36,10 +82,6 @@ void main() {
         vec4 origin = ubo_.model_view_inverse * vec4(0, 0, 0, 1);
         vec4 target = ubo_.projection_inverse * vec4(d.x, d.y, 1, 1);
         vec4 direction = ubo_.model_view_inverse * vec4(normalize(target.xyz), 0);
-        uint ray_flags = gl_RayFlagsOpaqueNV;
-        uint cullMask = 0xff;
-        float tmin = 0.001;
-        float tmax = 10000.0;
 
         prd_.emitted = vec3(0.0f);
         prd_.radiance = vec3(0.0f);
@@ -48,9 +90,9 @@ void main() {
         prd_.seed = seed;
         prd_.depth = 0;
 
-        light_paths_[2].color = vec4(1, 0, 1, 1);
-        light_paths_[2].normal = vec4(0, 0, 1, 1);
-        light_paths_[2].position = vec4(0, 1, 0, 1);
+        light_nodes_[2].color = vec4(1, 0, 1, 1);
+        light_nodes_[2].normal = vec4(0, 0, 1, 1);
+        light_nodes_[2].position = vec4(0, 1, 0, 1);
         for (;;) {
             traceNV(scene_,
             ray_flags,
@@ -67,7 +109,7 @@ void main() {
             result += prd_.emitted;
             result += prd_.radiance * prd_.attenuation;
 
-            if (prd_.done || prd_.depth >= ubo_.number_of_bounces ) {
+            if (prd_.done || prd_.depth >= ubo_.number_of_bounces) {
                 break;
             }
 

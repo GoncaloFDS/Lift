@@ -10,7 +10,7 @@ float schlick(const float cosine, const float refraction_index) {
 HitSample lambertian(const Material mat, const vec3 direction, const vec3 normal, const vec2 tex_coords, inout uint seed) {
     const bool is_scattered = dot(direction, normal) < 0;
     const vec4 color = mat.albedo_texture >= 0 ? texture(TextureSamplers[mat.albedo_texture], tex_coords) : mat.albedo;
-    const vec4 scattered_dir = vec4(normal + RandomInUnitSphere(seed), is_scattered ? 1 : 0);
+    const vec4 scattered_dir = vec4(normal + randomInUnitSphere(seed), is_scattered ? 1 : 0);
 
     return HitSample(color, scattered_dir, false);
 }
@@ -20,7 +20,7 @@ HitSample metallic(const Material mat, const vec3 direction, const vec3 normal, 
     const bool is_scattered = dot(direction, normal) < 0;
 
     const vec4 color = mat.albedo_texture >= 0 ? texture(TextureSamplers[mat.albedo_texture], tex_coords) : mat.albedo;
-    const vec4 scattered_dir = vec4(reflected + mat.metallic_factor * RandomInUnitSphere(seed), is_scattered ? 1 : 0);
+    const vec4 scattered_dir = vec4(reflected + mat.metallic_factor * randomInUnitSphere(seed), is_scattered ? 1 : 0);
 
     return HitSample(color, scattered_dir, false);
 }
@@ -36,7 +36,7 @@ HitSample dieletric(const Material mat, const vec3 direction, const vec3 normal,
 
     const vec4 color = mat.albedo_texture >= 0 ? texture(TextureSamplers[mat.albedo_texture], tex_coords) : vec4(1);
 
-    return RandomFloat(seed) < reflect_prob ?
+    return randomFloat(seed) < reflect_prob ?
     HitSample(color, vec4(reflect(direction, normal), 1), false) :
     HitSample(color, vec4(refracted, 1), false);
 }

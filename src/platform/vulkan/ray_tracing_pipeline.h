@@ -64,8 +64,10 @@ private:
 
     Algorithm algorithm_;
 
-    LightPathNode light_paths_[500];
-    std::unique_ptr<vulkan::Buffer> light_paths_buffer_;
+    PathNode light_nodes_[32];
+    PathNode camera_nodes_[32];
+    std::unique_ptr<vulkan::Buffer> light_nodes_buffer_;
+    std::unique_ptr<vulkan::Buffer> camera_nodes_buffer_;
 };
 
 }  // namespace vulkan
