@@ -6,6 +6,7 @@
 #include "utils/material.glsl"
 #include "utils/uniform_buffer_object.glsl"
 #include "utils/ray_payload.glsl"
+#include "utils/path_node.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureNV scene_;
 layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };

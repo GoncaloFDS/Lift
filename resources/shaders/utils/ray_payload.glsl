@@ -1,9 +1,3 @@
-struct HitSample {
-    vec4 color;// rgb + t
-    vec4 scattered_dir;// xyz + w (is scatter needed)
-    bool done;
-};
-
 struct PerRayData {
     vec3 emitted;
     vec3 radiance;
@@ -13,15 +7,4 @@ struct PerRayData {
     uint seed;
     int depth;
     bool done;
-};
-
-struct LightNode {
-    int index;
-    vec4 color;
-};
-
-struct PathNode {
-    vec4 color;
-    vec4 position;
-    vec4 normal;
 };

@@ -6,6 +6,7 @@
 #include "utils/ray_payload.glsl"
 #include "utils/random.glsl"
 #include "utils/uniform_buffer_object.glsl"
+#include "utils/path_node.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureNV scene_;
 layout(binding = 1, rgba32f) uniform image2D output_image_;

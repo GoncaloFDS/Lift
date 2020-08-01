@@ -18,6 +18,7 @@ layout(binding = 10) readonly buffer SphereArray { vec4[] Spheres; };
 #include "utils/brdfs.glsl"
 #include "utils/vertex.glsl"
 #include "utils/sampling.glsl"
+#include "utils/ray_payload.glsl"
 
 hitAttributeNV vec4 sphere_;
 layout(location = 0) rayPayloadInNV PerRayData prd_;

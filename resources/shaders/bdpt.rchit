@@ -5,7 +5,7 @@
 
 #include "utils/material.glsl"
 #include "utils/uniform_buffer_object.glsl"
-#include "utils/ray_payload.glsl"
+#include "utils/path_node.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureNV scene_;
 layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
@@ -20,6 +20,7 @@ layout(binding = 9) buffer CameraNodes { PathNode[] camera_nodes_; };
 #include "utils/brdfs.glsl"
 #include "utils/vertex.glsl"
 #include "utils/sampling.glsl"
+#include "utils/ray_payload.glsl"
 
 hitAttributeNV vec2 hit_attributes;
 layout(location = 0) rayPayloadInNV PerRayData prd_;

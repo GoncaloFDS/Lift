@@ -1,5 +1,10 @@
 #include "random.glsl"
-#include "ray_payload.glsl"
+
+struct HitSample {
+    vec4 color;// rgb + t
+    vec4 scattered_dir;// xyz + w (is scatter needed)
+    bool done;
+};
 
 float schlick(const float cosine, const float refraction_index) {
     float r0 = (1 - refraction_index) / (1 + refraction_index);

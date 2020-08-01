@@ -17,6 +17,7 @@ layout(binding = 7) uniform sampler2D[] TextureSamplers;
 #include "utils/brdfs.glsl"
 #include "utils/vertex.glsl"
 #include "utils/sampling.glsl"
+#include "utils/ray_payload.glsl"
 
 hitAttributeNV vec2 hit_attributes;
 layout(location = 0) rayPayloadInNV PerRayData prd_;
