@@ -28,7 +28,6 @@ void DenoiserOptix::setup(vulkan::Device& device, uint32_t queue_index) {
     OptixPixelFormat pixel_format = OPTIX_PIXEL_FORMAT_FLOAT4;
 
     denoiser_options_.inputKind = OPTIX_DENOISER_INPUT_RGB;
-    denoiser_options_.pixelFormat = pixel_format;
     OPTIX_CHECK(optixDenoiserCreate(optix_device_context_, &denoiser_options_, &denoiser_));
     OPTIX_CHECK(optixDenoiserSetModel(denoiser_, OPTIX_DENOISER_MODEL_KIND_HDR, nullptr, 0));
     LF_INFO("Initialized Optix Denoiser");
@@ -78,7 +77,7 @@ void DenoiserOptix::denoiseImage(vulkan::Device& device,
                                               &input_layer,
                                               p_intensity_,
                                               p_scratch_,
-                                              denoiser_sizes_.recommendedScratchSizeInBytes));
+                                              denoiser_sizes_.withoutOverlapScratchSizeInBytes));
 
     OptixDenoiserParams denoiser_params {};
     denoiser_params.denoiseAlpha = false;
@@ -96,7 +95,7 @@ void DenoiserOptix::denoiseImage(vulkan::Device& device,
                                     0,
                                     &output_layer,
                                     p_scratch_,
-                                    denoiser_sizes_.recommendedScratchSizeInBytes));
+                                    denoiser_sizes_.withoutOverlapScratchSizeInBytes));
 
     CUDA_CHECK(cudaStreamSynchronize(nullptr));
 
@@ -130,7 +129,7 @@ void DenoiserOptix::allocateBuffers(vulkan::Device& device) {
         optixDenoiserComputeMemoryResources(denoiser_, image_size_.width, image_size_.height, &denoiser_sizes_));
 
     cudaMalloc((void**) &p_state_, denoiser_sizes_.stateSizeInBytes);
-    cudaMalloc((void**) &p_scratch_, denoiser_sizes_.recommendedScratchSizeInBytes);
+    cudaMalloc((void**) &p_scratch_, denoiser_sizes_.withoutOverlapScratchSizeInBytes);
     cudaMalloc((void**) &p_intensity_, sizeof(float));
     cudaMalloc((void**) &p_min_rgb_, 4 * sizeof(float));
 
@@ -142,7 +141,7 @@ void DenoiserOptix::allocateBuffers(vulkan::Device& device) {
                                    p_state_,
                                    denoiser_sizes_.stateSizeInBytes,
                                    p_scratch_,
-                                   denoiser_sizes_.recommendedScratchSizeInBytes));
+                                   denoiser_sizes_.withoutOverlapScratchSizeInBytes));
 }
 
 void DenoiserOptix::createBufferCuda(vulkan::Device& device, CudaBuffer& cuda_buffer) {
