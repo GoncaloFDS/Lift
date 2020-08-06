@@ -18,12 +18,13 @@ public:
     [[nodiscard]] uint64_t maxInstanceCount() const { return props_.maxInstanceCount; }
     [[nodiscard]] uint32_t maxRecursionDepth() const { return props_.maxRecursionDepth; }
     [[nodiscard]] uint32_t maxShaderGroupStride() const { return props_.maxShaderGroupStride; }
-    [[nodiscard]] uint64_t maxTriangleCount() const { return props_.maxTriangleCount; }
+    [[nodiscard]] uint64_t maxPrimitiveCount() const { return props_.maxPrimitiveCount; }
     [[nodiscard]] uint32_t shaderGroupBaseAlignment() const { return props_.shaderGroupBaseAlignment; }
+    [[nodiscard]] uint32_t shaderGroupHandleCaptureReplaySize() const { return props_.shaderGroupHandleCaptureReplaySize; }
     [[nodiscard]] uint32_t shaderGroupHandleSize() const { return props_.shaderGroupHandleSize; }
 
 private:
     const class Device& device_;
-    VkPhysicalDeviceRayTracingPropertiesNV props_ {};
+    VkPhysicalDeviceRayTracingPropertiesKHR props_ {};
 };
 }  // namespace vulkan

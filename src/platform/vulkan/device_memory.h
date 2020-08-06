@@ -11,7 +11,11 @@ public:
     DeviceMemory& operator=(const DeviceMemory&) = delete;
     DeviceMemory& operator=(DeviceMemory&&) = delete;
 
-    DeviceMemory(const Device& device, size_t size, uint32_t memory_type_bits, VkMemoryPropertyFlags properties);
+    DeviceMemory(const Device& device,
+                 size_t size,
+                 uint32_t memory_type_bits,
+                 VkMemoryAllocateFlags allocate_flags,
+                 VkMemoryPropertyFlags property_flags);
     DeviceMemory(DeviceMemory&& other) noexcept;
     ~DeviceMemory();
 
@@ -22,7 +26,7 @@ public:
     void unmap();
 
 private:
-    [[nodiscard]] uint32_t findMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties) const;
+    [[nodiscard]] uint32_t findMemoryType(uint32_t type_filter, VkMemoryPropertyFlags property_flags) const;
 
     const class Device& device_;
     VkDeviceMemory memory_ {};

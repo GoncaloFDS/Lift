@@ -36,6 +36,7 @@ void copyFromStagingBuffer(vulkan::CommandPool& command_pool,
 
 template<class T>
 void createDeviceBuffer(vulkan::CommandPool& command_pool,
+                        const char* name,
                         const VkBufferUsageFlags usage,
                         const std::vector<T>& content,
                         std::unique_ptr<vulkan::Buffer>& buffer,
@@ -43,8 +44,12 @@ void createDeviceBuffer(vulkan::CommandPool& command_pool,
     const auto& device = command_pool.device();
     const auto content_size = sizeof(content[0]) * content.size();
 
+    const VkMemoryAllocateFlags allocate_flags =
+        usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT ? VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT : 0;
+
     buffer = std::make_unique<vulkan::Buffer>(device, content_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage);
-    memory = std::make_unique<vulkan::DeviceMemory>(buffer->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+    memory = std::make_unique<vulkan::DeviceMemory>(
+        buffer->allocateMemory(allocate_flags, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
     copyFromStagingBuffer(command_pool, *buffer, content);
 }
@@ -52,15 +57,13 @@ void createDeviceBuffer(vulkan::CommandPool& command_pool,
 Scene::Scene(vulkan::CommandPool& command_pool,
              std::vector<Model>&& models,
              std::vector<Texture>&& textures,
-             Light light) :
-    models_(std::move(models)),
-    light_(light),
-    textures_(std::move(textures)) {
+             Light light)
+    : models_(std::move(models)), light_(light), textures_(std::move(textures)) {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     std::vector<Material> materials;
     std::vector<glm::vec4> procedurals;
-    std::vector<std::pair<glm::vec3, glm::vec3>> aabbs;
+    std::vector<VkAabbPositionsKHR> aabbs;
     std::vector<glm::uvec2> offsets;
 
     for (const auto& model : models_) {
@@ -78,7 +81,8 @@ Scene::Scene(vulkan::CommandPool& command_pool,
 
         const auto sphere = dynamic_cast<const Sphere*>(model.procedural());
         if (sphere != nullptr) {
-            aabbs.push_back(sphere->boundingBox());
+            const auto aabb = sphere->boundingBox();
+            aabbs.push_back({aabb.first.x, aabb.first.y, aabb.first.z, aabb.second.x, aabb.second.y, aabb.second.z});
             procedurals.emplace_back(sphere->center, sphere->radius);
         } else {
             aabbs.emplace_back();
@@ -86,30 +90,42 @@ Scene::Scene(vulkan::CommandPool& command_pool,
         }
     }
 
+    const auto flag = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+
     createDeviceBuffer(command_pool,
-                       VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                       "Vertices",
+                       VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | flag,
                        vertices,
                        vertex_buffer_,
                        vertex_buffer_memory_);
     createDeviceBuffer(command_pool,
-                       VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                       "indices",
+                       VK_BUFFER_USAGE_INDEX_BUFFER_BIT | flag,
                        indices,
                        index_buffer_,
                        index_buffer_memory_);
     createDeviceBuffer(command_pool,
-                       VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                       "materials",
+                       flag,
                        materials,
                        material_buffer_,
                        material_buffer_memory_);
     createDeviceBuffer(command_pool,
-                       VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                       "offsets",
+                       flag,
                        offsets,
                        offset_buffer_,
                        offset_buffer_memory_);
 
-    createDeviceBuffer(command_pool, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, aabbs, aabb_buffer_, aabb_buffer_memory_);
     createDeviceBuffer(command_pool,
-                       VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                       "aabbs",
+                       flag,
+                       aabbs,
+                       aabb_buffer_,
+                       aabb_buffer_memory_);
+    createDeviceBuffer(command_pool,
+                       "procedurals",
+                       flag,
                        procedurals,
                        procedural_buffer_,
                        procedural_buffer_memory_);

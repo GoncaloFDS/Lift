@@ -59,7 +59,7 @@ Image::~Image() {
 
 DeviceMemory Image::allocateMemory(const VkMemoryPropertyFlags properties) const {
     const auto requirements = getMemoryRequirements();
-    DeviceMemory memory(device_, requirements.size, requirements.memoryTypeBits, properties);
+    DeviceMemory memory(device_, requirements.size, requirements.memoryTypeBits, 0, properties);
 
     vulkanCheck(vkBindImageMemory(device_.handle(), image_, memory.handle(), 0), "bind image memory");
 

@@ -21,13 +21,13 @@ foreach(shader ${shader_files})
         add_custom_command(
                 OUTPUT ${output_file}
                 COMMAND ${CMAKE_COMMAND} -E make_directory ${output_dir}
-                COMMAND ${Vulkan_GLSLANG_VALIDATOR} -V ${full_path} -o ${output_file}
+                COMMAND ${Vulkan_GLSLANG_VALIDATOR} --target-env vulkan1.2 -V ${full_path} -o ${output_file}
                 DEPENDS ${full_path}
         )
     else()
         add_custom_command(
                 OUTPUT ${output_file}
-                COMMAND mkdir --parents ${output_dir} && ${Vulkan_GLSLANG_VALIDATOR} -V ${full_path} -o ${output_file}
+                COMMAND mkdir --parents ${output_dir} && ${Vulkan_GLSLANG_VALIDATOR} --target-env vulkan1.2 -V ${full_path} -o ${output_file}
                 DEPENDS ${full_path}
         )
     endif()

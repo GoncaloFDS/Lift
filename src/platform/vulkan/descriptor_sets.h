@@ -27,7 +27,7 @@ public:
     bind(uint32_t index, uint32_t binding, const VkDescriptorImageInfo& image_info, uint32_t count = 1) const;
     [[nodiscard]] VkWriteDescriptorSet bind(uint32_t index,
                                             uint32_t binding,
-                                            const VkWriteDescriptorSetAccelerationStructureNV& structure_info,
+                                            const VkWriteDescriptorSetAccelerationStructureKHR& structure_info,
                                             uint32_t count = 1) const;
 
     void updateDescriptors(const std::vector<VkWriteDescriptorSet>& descriptor_writes);

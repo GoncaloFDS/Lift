@@ -36,6 +36,10 @@ public:
     [[nodiscard]] size_t missOffset() const { return miss_offset_; }
     [[nodiscard]] size_t hitGroupOffset() const { return hit_group_offset_; }
 
+    [[nodiscard]] size_t rayGenSize() const { return ray_gen_size_; }
+    [[nodiscard]] size_t missSize() const { return miss_size_; }
+    [[nodiscard]] size_t hitGroupSize() const { return hit_group_size_; }
+
     [[nodiscard]] size_t rayGenEntrySize() const { return ray_gen_entry_size_; }
     [[nodiscard]] size_t missEntrySize() const { return miss_entry_size_; }
     [[nodiscard]] size_t hitGroupEntrySize() const { return hit_group_entry_size_; }
@@ -44,6 +48,10 @@ private:
     const size_t ray_gen_entry_size_;
     const size_t miss_entry_size_;
     const size_t hit_group_entry_size_;
+
+    const size_t ray_gen_size_;
+    const size_t miss_size_;
+    const size_t hit_group_size_;
 
     const size_t ray_gen_offset_;
     const size_t miss_offset_;

@@ -1,13 +1,13 @@
 #version 460
 #extension GL_EXT_nonuniform_qualifier : require
 #extension GL_GOOGLE_include_directive : require
-#extension GL_NV_ray_tracing : require
+#extension GL_EXT_ray_tracing : require
 
 #include "utils/material.glsl"
 #include "utils/uniform_buffer_object.glsl"
 #include "utils/path_node.glsl"
 
-layout(binding = 0, set = 0) uniform accelerationStructureNV scene_;
+layout(binding = 0, set = 0) uniform accelerationStructureEXT scene_;
 layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
 layout(binding = 3) readonly buffer VertexArray { float Vertices[]; };
 layout(binding = 4) readonly buffer IndexArray { uint Indices[]; };
@@ -22,9 +22,9 @@ layout(binding = 9) buffer CameraNodes { PathNode[] camera_nodes_; };
 #include "utils/sampling.glsl"
 #include "utils/ray_payload.glsl"
 
-hitAttributeNV vec2 hit_attributes;
-layout(location = 0) rayPayloadInNV PerRayData prd_;
-layout(location = 2) rayPayloadNV bool shadow_prd_;
+hitAttributeEXT vec2 hit_attributes;
+layout(location = 0) rayPayloadInEXT PerRayData prd_;
+layout(location = 2) rayPayloadEXT bool shadow_prd_;
 
 const float pi = 3.1415926535897932384626433832795;
 
@@ -38,7 +38,7 @@ vec3 Mix(vec3 a, vec3 b, vec3 c, vec3 barycentrics) {
 
 void main() {
     // Compute the ray hit point properties.
-    const uvec2 offsets = Offsets[gl_InstanceCustomIndexNV];
+    const uvec2 offsets = Offsets[gl_InstanceCustomIndexEXT];
     const uint indexOffset = offsets.x;
     const uint vertexOffset = offsets.y;
     const Vertex v0 = unpackVertex(vertexOffset + Indices[indexOffset + gl_PrimitiveID * 3 + 0]);
@@ -49,7 +49,7 @@ void main() {
     const vec3 barycentrics = vec3(1.0 - hit_attributes.x - hit_attributes.y, hit_attributes.x, hit_attributes.y);
     vec3 normal = normalize(Mix(v0.normal, v1.normal, v2.normal, barycentrics));
     if (material.refraction_index <= 0.0f) {
-        normal = faceforward(normal, gl_WorldRayDirectionNV, normal);
+        normal = faceforward(normal, gl_WorldRayDirectionEXT, normal);
     }
     const vec2 tex_coords = Mix(v0.tex_coords, v1.tex_coords, v2.tex_coords, barycentrics);
     ///////////////////////////////
@@ -58,10 +58,10 @@ void main() {
     // Diffuse hemisphere sampling
     uint seed = prd_.seed;
 
-    HitSample hit = scatter(material, gl_WorldRayDirectionNV, normal, tex_coords, prd_.seed);
+    HitSample hit = scatter(material, gl_WorldRayDirectionEXT, normal, tex_coords, prd_.seed);
 
     prd_.direction = hit.scattered_dir.xyz;
-    prd_.origin = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
+    prd_.origin = gl_WorldRayOriginEXT  + gl_WorldRayDirectionEXT * gl_HitTEXT;
     prd_.attenuation *= hit.color.xyz;
 
     if (hit.done) {
@@ -91,7 +91,7 @@ void main() {
         float tmin = 0.005;
         float tmax = light_dist;
 
-        traceNV(scene_,
+        traceRayEXT(scene_,
         gl_RayFlagsTerminateOnFirstHitNV | gl_RayFlagsOpaqueNV | gl_RayFlagsSkipClosestHitShaderNV,
         0xFF,
         1 /* sbtRecordOffset */,

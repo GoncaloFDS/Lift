@@ -54,7 +54,10 @@ ShaderBindingTable::ShaderBindingTable(const DeviceProcedures& device_procedures
       miss_entry_size_(getEntrySize(ray_tracing_properties, miss_programs)),
       hit_group_entry_size_(getEntrySize(ray_tracing_properties, hit_groups)), ray_gen_offset_(0),
       miss_offset_(ray_gen_programs.size() * ray_gen_entry_size_),
-      hit_group_offset_(miss_offset_ + miss_programs.size() * miss_entry_size_) {
+      hit_group_offset_(miss_offset_ + miss_programs.size() * miss_entry_size_),
+      ray_gen_size_(ray_gen_programs.size() * ray_gen_entry_size_), miss_size_(miss_programs.size() * miss_entry_size_),
+      hit_group_size_(hit_groups.size() * hit_group_entry_size_) {
+
     // Compute the size of the table.
     const size_t sbtSize = ray_gen_programs.size() * ray_gen_entry_size_ + miss_programs.size() * miss_entry_size_ +
                            hit_groups.size() * hit_group_entry_size_;
@@ -70,12 +73,12 @@ ShaderBindingTable::ShaderBindingTable(const DeviceProcedures& device_procedures
     const size_t groupCount = ray_gen_programs.size() + miss_programs.size() + hit_groups.size();
     std::vector<uint8_t> shaderHandleStorage(groupCount * handleSize);
 
-    vulkanCheck(device_procedures.vkGetRayTracingShaderGroupHandlesNV(device.handle(),
-                                                                      ray_tracing_pipeline.handle(),
-                                                                      0,
-                                                                      static_cast<uint32_t>(groupCount),
-                                                                      shaderHandleStorage.size(),
-                                                                      shaderHandleStorage.data()),
+    vulkanCheck(device_procedures.vkGetRayTracingShaderGroupHandlesKHR(device.handle(),
+                                                                       ray_tracing_pipeline.handle(),
+                                                                       0,
+                                                                       static_cast<uint32_t>(groupCount),
+                                                                       shaderHandleStorage.size(),
+                                                                       shaderHandleStorage.data()),
                 "get ray tracing shader group handles");
 
     // Copy the shader identifiers followed by their resource pointers or root constants:

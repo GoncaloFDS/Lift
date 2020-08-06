@@ -16,30 +16,17 @@ Func getProcedure(const Device& device, const char* const name) {
 }
 
 DeviceProcedures::DeviceProcedures(const class Device& device) :
-    vkCreateAccelerationStructureNV(
-        getProcedure<PFN_vkCreateAccelerationStructureNV>(device, "vkCreateAccelerationStructureNV")),
-    vkDestroyAccelerationStructureNV(
-        getProcedure<PFN_vkDestroyAccelerationStructureNV>(device, "vkDestroyAccelerationStructureNV")),
-    vkGetAccelerationStructureMemoryRequirementsNV(getProcedure<PFN_vkGetAccelerationStructureMemoryRequirementsNV>(
-        device,
-        "vkGetAccelerationStructureMemoryRequirementsNV")),
-    vkBindAccelerationStructureMemoryNV(
-        getProcedure<PFN_vkBindAccelerationStructureMemoryNV>(device, "vkBindAccelerationStructureMemoryNV")),
-    vkCmdBuildAccelerationStructureNV(
-        getProcedure<PFN_vkCmdBuildAccelerationStructureNV>(device, "vkCmdBuildAccelerationStructureNV")),
-    vkCmdCopyAccelerationStructureNV(
-        getProcedure<PFN_vkCmdCopyAccelerationStructureNV>(device, "vkCmdCopyAccelerationStructureNV")),
-    vkCmdTraceRaysNV(getProcedure<PFN_vkCmdTraceRaysNV>(device, "vkCmdTraceRaysNV")),
-    vkCreateRayTracingPipelinesNV(
-        getProcedure<PFN_vkCreateRayTracingPipelinesNV>(device, "vkCreateRayTracingPipelinesNV")),
-    vkGetRayTracingShaderGroupHandlesNV(
-        getProcedure<PFN_vkGetRayTracingShaderGroupHandlesNV>(device, "vkGetRayTracingShaderGroupHandlesNV")),
-    vkGetAccelerationStructureHandleNV(
-        getProcedure<PFN_vkGetAccelerationStructureHandleNV>(device, "vkGetAccelerationStructureHandleNV")),
-    vkCmdWriteAccelerationStructuresPropertiesNV(
-        getProcedure<PFN_vkCmdWriteAccelerationStructuresPropertiesNV>(device,
-                                                                       "vkCmdWriteAccelerationStructuresPropertiesNV")),
-    vkCompileDeferredNV(getProcedure<PFN_vkCompileDeferredNV>(device, "vkCompileDeferredNV")), device_(device) {
+    vkCreateAccelerationStructureKHR(getProcedure<PFN_vkCreateAccelerationStructureKHR>(device, "vkCreateAccelerationStructureKHR")),
+    vkDestroyAccelerationStructureKHR(getProcedure<PFN_vkDestroyAccelerationStructureKHR>(device, "vkDestroyAccelerationStructureKHR")),
+    vkGetAccelerationStructureMemoryRequirementsKHR(getProcedure<PFN_vkGetAccelerationStructureMemoryRequirementsKHR>(device, "vkGetAccelerationStructureMemoryRequirementsKHR")),
+    vkBindAccelerationStructureMemoryKHR(getProcedure<PFN_vkBindAccelerationStructureMemoryKHR>(device, "vkBindAccelerationStructureMemoryKHR")),
+    vkCmdBuildAccelerationStructureKHR(getProcedure<PFN_vkCmdBuildAccelerationStructureKHR>(device, "vkCmdBuildAccelerationStructureKHR")),
+    vkCmdCopyAccelerationStructureKHR(getProcedure<PFN_vkCmdCopyAccelerationStructureKHR>(device, "vkCmdCopyAccelerationStructureKHR")),
+    vkCmdTraceRaysKHR(getProcedure<PFN_vkCmdTraceRaysKHR>(device, "vkCmdTraceRaysKHR")),
+    vkCreateRayTracingPipelinesKHR(getProcedure<PFN_vkCreateRayTracingPipelinesKHR>(device, "vkCreateRayTracingPipelinesKHR")),
+    vkGetRayTracingShaderGroupHandlesKHR(getProcedure<PFN_vkGetRayTracingShaderGroupHandlesKHR>(device, "vkGetRayTracingShaderGroupHandlesKHR")),
+    vkGetAccelerationStructureDeviceAddressKHR(getProcedure<PFN_vkGetAccelerationStructureDeviceAddressKHR>(device, "vkGetAccelerationStructureDeviceAddressKHR")),
+    vkCmdWriteAccelerationStructuresPropertiesKHR(getProcedure<PFN_vkCmdWriteAccelerationStructuresPropertiesKHR>(device, "vkCmdWriteAccelerationStructuresPropertiesKHR")), device_(device) {
 }
 
 DeviceProcedures::~DeviceProcedures() = default;

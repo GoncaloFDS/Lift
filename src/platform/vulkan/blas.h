@@ -1,7 +1,7 @@
 #pragma once
 
 #include "acceleration_structure.h"
-#include <vector>
+#include "bottom_level_geometry.h"
 
 namespace assets {
 class Procedural;
@@ -17,7 +17,7 @@ public:
     BottomLevelAccelerationStructure& operator=(BottomLevelAccelerationStructure&&) = delete;
 
     BottomLevelAccelerationStructure(const class DeviceProcedures& device_procedures,
-                                     const std::vector<VkGeometryNV>& geometries,
+                                     const BottomLevelGeometry& geometries,
                                      bool allow_update);
     BottomLevelAccelerationStructure(BottomLevelAccelerationStructure&& other) noexcept;
     ~BottomLevelAccelerationStructure();
@@ -29,18 +29,8 @@ public:
                   VkDeviceSize result_offset,
                   bool update_only) const;
 
-    static VkGeometryNV createGeometry(const assets::Scene& scene,
-                                       uint32_t vertex_offset,
-                                       uint32_t vertex_count,
-                                       uint32_t index_offset,
-                                       uint32_t index_count,
-                                       bool is_opaque);
-
-    static VkGeometryNV
-    createGeometryAabb(const assets::Scene& scene, uint32_t aabb_offset, uint32_t aabb_count, bool is_opaque);
-
 private:
-    std::vector<VkGeometryNV> geometries_;
+   BottomLevelGeometry geometries_;
 };
 
 }  // namespace vulkan

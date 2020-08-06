@@ -76,7 +76,7 @@ VkWriteDescriptorSet DescriptorSets::bind(const uint32_t index,
 
 VkWriteDescriptorSet DescriptorSets::bind(uint32_t index,
                                           uint32_t binding,
-                                          const VkWriteDescriptorSetAccelerationStructureNV& structure_info,
+                                          const VkWriteDescriptorSetAccelerationStructureKHR& structure_info,
                                           const uint32_t count) const {
     VkWriteDescriptorSet descriptor_write = {};
     descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

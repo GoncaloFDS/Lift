@@ -79,7 +79,7 @@ struct TextureDedicated
 
 struct AccelerationDedicatedNV
 {
-  VkAccelerationStructureNV accel{VK_NULL_HANDLE};
+  VkAccelerationStructureKHR accel{VK_NULL_HANDLE};
   VkDeviceMemory            allocation{VK_NULL_HANDLE};
 };
 

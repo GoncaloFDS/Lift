@@ -18,8 +18,9 @@ findQueue(const std::vector<VkQueueFamilyProperties>& queue_families,
     const auto family = std::find_if(queue_families.begin(),
                                      queue_families.end(),
                                      [required_bits, excluded_bits](const VkQueueFamilyProperties& queue_family) {
-                                         return queue_family.queueCount > 0 && queue_family.queueFlags & required_bits
-                                             && !(queue_family.queueFlags & excluded_bits);
+                                         return queue_family.queueCount > 0 &&
+                                                queue_family.queueFlags & required_bits &&
+                                                !(queue_family.queueFlags & excluded_bits);
                                      });
 
     LF_ASSERT(family != queue_families.end(), "found no matching {0} queue", name);
@@ -38,10 +39,13 @@ const std::vector<const char*> Device::required_extensions_ = {VK_KHR_SWAPCHAIN_
                                                                VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME,
                                                                VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME,
                                                                VK_KHR_EXTERNAL_FENCE_EXTENSION_NAME,
+                                                               VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
+                                                               VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME,
+                                                               VK_KHR_RAY_TRACING_EXTENSION_NAME,
                                                                VK_KHR_EXTERNAL_FENCE_WIN32_EXTENSION_NAME};
 
-Device::Device(VkPhysicalDevice physical_device, const class Surface& surface) :
-    physical_device_(physical_device), surface_(surface) {
+Device::Device(VkPhysicalDevice physical_device, const class Surface& surface)
+    : physical_device_(physical_device), surface_(surface) {
 
     checkRequiredExtensions(physical_device);
 

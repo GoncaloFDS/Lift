@@ -27,7 +27,7 @@ public:
     AccelerationStructure(AccelerationStructure&& other) noexcept;
     virtual ~AccelerationStructure();
 
-    [[nodiscard]] VkAccelerationStructureNV handle() const { return acceleration_structure_; }
+    [[nodiscard]] VkAccelerationStructureKHR handle() const { return acceleration_structure_; }
     [[nodiscard]] const class Device& device() const { return device_; }
     [[nodiscard]] const class DeviceProcedures& deviceProcedures() const { return device_procedures_; }
 
@@ -40,7 +40,9 @@ public:
 
 protected:
     AccelerationStructure(const class DeviceProcedures& device_procedures,
-                          const VkAccelerationStructureCreateInfoNV& create_info);
+                          const VkAccelerationStructureTypeKHR acceleration_structure_type,
+                          const std::vector<VkAccelerationStructureCreateGeometryTypeInfoKHR>& geometries,
+                          const bool allow_update);
 
     const class DeviceProcedures& device_procedures_;
     const bool allow_update_;
@@ -48,7 +50,7 @@ protected:
 private:
     const class Device& device_;
 
-    VkAccelerationStructureNV acceleration_structure_ {};
+    VkAccelerationStructureKHR acceleration_structure_ {};
 };
 
 }  // namespace vulkan

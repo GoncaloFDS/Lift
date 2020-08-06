@@ -15,10 +15,12 @@ public:
     [[nodiscard]] VkBuffer handle() const { return buffer_; }
     [[nodiscard]] const class Device& device() const { return device_; }
 
-    DeviceMemory allocateMemory(VkMemoryPropertyFlags properties);
-    [[nodiscard]] VkMemoryRequirements getMemoryRequirements() const;
+    DeviceMemory allocateMemory(const VkMemoryPropertyFlags property_flags);
+    DeviceMemory allocateMemory(const VkMemoryAllocateFlags allocateFlags, const VkMemoryPropertyFlags propertyFlags);
+    [[nodiscard]] VkMemoryRequirements memoryRequirements() const;
+    [[nodiscard]] VkDeviceAddress deviceAddress() const;
 
-    void copyFrom(CommandPool& command_pool, const Buffer& src, VkDeviceSize size);
+    void copyFrom(CommandPool& command_pool, const Buffer& src, VkDeviceSize size) const;
 
 private:
     const class Device& device_;
