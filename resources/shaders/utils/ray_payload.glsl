@@ -7,4 +7,5 @@ struct PerRayData {
     uint seed;
     int depth;
     bool done;
+    bool countEmitted;
 };

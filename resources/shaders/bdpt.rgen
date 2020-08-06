@@ -91,9 +91,6 @@ void main() {
         prd_.seed = seed;
         prd_.depth = 0;
 
-        light_nodes_[2].color = vec4(1, 0, 1, 1);
-        light_nodes_[2].normal = vec4(0, 0, 1, 1);
-        light_nodes_[2].position = vec4(0, 1, 0, 1);
         for (;;) {
             traceNV(scene_,
             ray_flags,

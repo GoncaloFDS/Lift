@@ -110,5 +110,5 @@ void main() {
         }
     }
 
-//    prd_.radiance += light.emission.xyz * weight;
+    prd_.radiance += light_nodes_[0].color.xyz * 0.1;
 }

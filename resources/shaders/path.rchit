@@ -57,9 +57,17 @@ void main() {
 
     HitSample hit = scatter(material, gl_WorldRayDirectionNV, normal, tex_coords, prd_.seed);
 
+    if(prd_.countEmitted) {
+        prd_.emitted = material.emissive_factor;
+    }
+    else {
+        prd_.emitted = vec3(0);
+    }
+
     prd_.direction = hit.scattered_dir.xyz;
     prd_.origin = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
     prd_.attenuation *= hit.color.xyz;
+    prd_.countEmitted = false;
 
     if (hit.done) {
         prd_.done = hit.done;

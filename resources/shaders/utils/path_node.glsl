@@ -5,6 +5,6 @@ struct PathNode {
 };
 
 struct LightNode {
-    int index;
     vec4 color;
+    int index;
 };
