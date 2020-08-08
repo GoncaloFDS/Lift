@@ -8,7 +8,11 @@ class Surface;
 
 class Device final {
 public:
-    Device(VkPhysicalDevice physical_device, const Surface& surface);
+    Device(VkPhysicalDevice physical_device,
+           const Surface& surface,
+           const std::vector<const char*>& required_extensions,
+           const VkPhysicalDeviceFeatures& device_features,
+           const void* next_device_features);
     ~Device();
 
     [[nodiscard]] VkDevice handle() const { return device_; }
@@ -27,9 +31,7 @@ public:
     void waitIdle() const;
 
 private:
-    static void checkRequiredExtensions(VkPhysicalDevice physical_device);
-
-    static const std::vector<const char*> required_extensions_;
+    void checkRequiredExtensions(VkPhysicalDevice physical_device, const std::vector<const char*>& required_extensions);
 
     const VkPhysicalDevice physical_device_;
     const class Surface& surface_;

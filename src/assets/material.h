@@ -4,26 +4,20 @@
 
 namespace assets {
 
-enum class ShadingModel : uint32_t { Lambertian = 0, Metallic = 1, Dielectric = 2, Emissive = 3 };
-enum class AlphaMode : uint32_t { Opaque = 0, Mask = 1, Blend = 2 };
+struct alignas(16) Material {
+    // Note: diffuse chance is 1.0f - (specular_chance+refraction_chance)
+    glm::vec3  albedo;              // the color used for diffuse lighting
+    float specular_chance;      // percentage chance of doing a specular reflection
+    glm::vec3  emissive;            // how much the surface glows
+    float specular_roughness;   // how rough the specular reflections are
+    glm::vec3  specular_color;       // the color tint of specular reflections
+    float IOR;                 // index of refraction. used by fresnel and refraction.
+    glm::vec3  refraction_color;     // absorption for beer's law
+    float refraction_chance;    // percent chance of doing a refractive transmission
+    float refraction_roughness; // how rough the refractive transmissions are
 
-struct Material {
-    glm::vec4 albedo;
-    glm::vec3 emissive_factor;
-    float metallic_factor;
-    glm::vec3 specular_factor;
-    float roughness_factor;
-    float refraction_index;
-    float glossiness_factor;
-    ShadingModel shading_model;
-    int32_t albedo_texture;
-
-    // Default constructors
-
-    static Material lambertian(const glm::vec3& albedo, int32_t texture_id = -1);
-    static Material metallic(const glm::vec3& albedo, float roughness, int32_t texture_id = -1);
-    static Material dielectric(float refraction_index, int32_t texture_id = -1);
-    static Material emissive(const glm::vec3& albedo, const glm::vec3& emissive, int32_t texture_id = -1);
+    static Material createLambertian(const glm::vec3& color);
+    static Material createEmissive(const glm::vec3& color);
 };
 
 }  // namespace assets

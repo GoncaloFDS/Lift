@@ -21,7 +21,7 @@ size_t getEntrySize(const RayTracingProperties& ray_tracing_properties,
 
     // A SBT entry is made of a program ID and a set of 4-byte parameters (offsets or push constants)
     // and must be 16-bytes-aligned.
-    return roundUp(ray_tracing_properties.shaderGroupHandleSize() + maxArgs, 16);
+    return roundUp(ray_tracing_properties.shaderGroupHandleSize() + maxArgs, ray_tracing_properties.shaderGroupBaseAlignment());
 }
 
 size_t copyShaderData(uint8_t* const dst,

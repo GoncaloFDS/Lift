@@ -11,7 +11,6 @@ struct UserSettings final {
     int algorithm_index {};
 
     bool is_denoised {};
-    bool enable_mis {};
     bool accumulate_rays {};
     uint32_t number_of_samples {};
     uint32_t number_of_bounces {};
@@ -36,6 +35,6 @@ struct UserSettings final {
                fov != prev.fov ||
                aperture != prev.aperture ||
                focus_distance != prev.focus_distance ||
-               enable_mis != prev.enable_mis;
+               gamma_correction != prev.gamma_correction;
     }
 };

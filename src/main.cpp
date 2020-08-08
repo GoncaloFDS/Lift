@@ -39,7 +39,6 @@ UserSettings createUserSettings(const Options& options) {
 
     user_settings.accumulate_rays = true;
     user_settings.is_denoised = false;
-    user_settings.enable_mis = true;
     user_settings.number_of_samples = options.samples;
     user_settings.number_of_bounces = options.bounces;
     user_settings.max_number_of_samples = options.max_samples;

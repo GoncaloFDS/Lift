@@ -3,21 +3,150 @@
 #extension GL_EXT_ray_tracing : require
 
 #include "utils/sampling.glsl"
+#include "utils/material.glsl"
 #include "utils/ray_payload.glsl"
 #include "utils/uniform_buffer_object.glsl"
+#include "utils/random.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT scene_;
 layout(binding = 1, rgba32f) uniform image2D output_image_;
 layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
 
-layout(location = 0) rayPayloadEXT PerRayData prd_;
+layout(location = 0) rayPayloadEXT RayPayload ray_;
 
 #define EPS 0.05
 const float PI = 3.141592653589;
 
-void main() {
-    vec3 result = vec3(0);
+float fresnelReflectAmount(float n1, float n2, vec3 normal, vec3 incident, float f0, float f90) {
+    // Schlick aproximation
+    float r0 = (n1-n2) / (n1+n2);
+    r0 *= r0;
+    float cosX = -dot(normal, incident);
+    if (n1 > n2)
+    {
+        float n = n1/n2;
+        float sinT2 = n*n*(1.0-cosX*cosX);
+        // Total internal reflection
+        if (sinT2 > 1.0)
+        return f90;
+        cosX = sqrt(1.0-sinT2);
+    }
+    float x = 1.0-cosX;
+    float ret = r0+(1.0-r0)*x*x*x*x*x;
 
+    // adjust reflect multiplier for object reflectivity
+    return mix(f0, f90, ret);
+}
+
+vec3 getColorForRay(in vec3 start_ray_pos, in vec3 start_ray_dir, inout uint seed) {
+    uint ray_flags = gl_RayFlagsOpaqueNV;
+    uint cullMask = 0xff;
+    float tmin = 0.001;
+    float tmax = 10000.0;
+
+    vec3 ret = vec3(0.0f, 0.0f, 0.0f);
+    vec3 throughput = vec3(1.0f, 1.0f, 1.0f);
+    vec3 ray_pos = start_ray_pos;
+    vec3 ray_dir = start_ray_dir;
+
+    for (uint depth = 0; depth < ubo_.number_of_bounces; depth++) {
+        // shoot a ray out into the world
+        ray_.t = tmax;
+        ray_.mat = getZeroedMaterial();
+        ray_.missed = false;
+        ray_.from_inside = false;
+        traceRayEXT(scene_, ray_flags, cullMask, 0, 0, 0, ray_pos, tmin, ray_dir, tmax, 0);
+
+        // if the ray missed, we are done
+        if (ray_.missed) {
+            ret += vec3(0.3, 0.3, 0.8) * throughput;// sky
+            break;
+        }
+
+        //        ret = ray_.mat.albedo;
+        //        return ret;
+
+        if (ray_.from_inside) {
+            throughput *= exp(-ray_.mat.refraction_color * ray_.t);
+        }
+
+        float specular_chance = ray_.mat.specular_chance;
+        float refraction_chance = ray_.mat.refraction_chance;
+
+        float ray_probability = 1.0f;
+        if (specular_chance > 0.0f) {
+            specular_chance = fresnelReflectAmount(
+            ray_.from_inside ? ray_.mat.IOR : 1.0,
+            !ray_.from_inside ? ray_.mat.IOR : 1.0,
+            ray_dir,
+            ray_.normal,
+            ray_.mat.specular_chance,
+            1.0f
+            );
+
+            float chace_multiplier = (1.0f - specular_chance) / (1.0f - ray_.mat.specular_chance);
+            refraction_chance *= chace_multiplier;
+        }
+
+        float do_specular = 0.0f;
+        float do_refraction = 0.0f;
+        float ray_select_roll = randomFloat(seed);
+
+        if (specular_chance > 0.0f && ray_select_roll < specular_chance) {
+            do_specular = 1.0f;
+            ray_probability = specular_chance;
+        }
+        else if (refraction_chance > 0.0f && ray_select_roll < specular_chance + refraction_chance) {
+            do_refraction = 1.0f;
+            ray_probability = refraction_chance;
+        }
+        else {
+            ray_probability = 1.0f - (specular_chance + refraction_chance);
+        }
+
+        ray_probability = max(ray_probability, 0.001f);
+
+        // update the ray position
+        if (do_refraction == 1.0f) {
+            ray_pos = (ray_pos + ray_dir * ray_.t) - ray_.normal * 0.01f;
+        }
+        else {
+            ray_pos = (ray_pos + ray_dir * ray_.t) + ray_.normal * 0.01f;
+        }
+
+        // calculate new ray direction
+        vec3 diffuse_ray_dir = normalize(ray_.normal + randomUnitVector(seed));
+
+        vec3 specular_ray_dir = reflect(ray_dir, ray_.normal);
+        specular_ray_dir = normalize(mix(specular_ray_dir, diffuse_ray_dir, ray_.mat.specular_roughness * ray_.mat.specular_roughness));
+
+        vec3 refraction_ray_dir = refract(ray_dir, ray_.normal, ray_.from_inside ? ray_.mat.IOR : 1.0 / ray_.mat.IOR);
+        refraction_ray_dir = normalize(mix(refraction_ray_dir, normalize(-ray_.normal + randomUnitVector(seed)), ray_.mat.refraction_roughness * ray_.mat.refraction_roughness));
+
+        ray_dir = mix(diffuse_ray_dir, specular_ray_dir, do_specular);
+        ray_dir = mix(ray_dir, refraction_ray_dir, do_refraction);
+
+        // add in emissive light
+        ret += ray_.mat.emissive * throughput;
+
+        if (do_refraction == 0.0f) {
+            throughput *= mix(ray_.mat.albedo, ray_.mat.specular_color, do_specular);
+        }
+
+        throughput /= ray_probability;
+
+        // Russian Roulette
+        float p = max(throughput.r, max(throughput.g, throughput.b));
+        if (randomFloat(seed) > p) {
+            break;
+        }
+        throughput *= 1.0f/p;
+    }
+    return ret;
+}
+
+void main() {
+    vec3 pixel_color = vec3(0);
 
     for (int curr_sample = 0; curr_sample < ubo_.number_of_samples; curr_sample++) {
         // Random init
@@ -35,61 +164,15 @@ void main() {
         vec4 origin = ubo_.model_view_inverse * vec4(0, 0, 0, 1);
         vec4 target = ubo_.projection_inverse * vec4(d.x, d.y, 1, 1);
         vec4 direction = ubo_.model_view_inverse * vec4(normalize(target.xyz), 0);
-        uint ray_flags = gl_RayFlagsOpaqueNV;
-        uint cullMask = 0xff;
-        float tmin = 0.001;
-        float tmax = 10000.0;
 
-        prd_.emitted = vec3(0.0f);
-        prd_.radiance = vec3(0.0f);
-        prd_.attenuation = vec3(1.0f);
-        prd_.countEmitted = true;
-        prd_.done = false;
-        prd_.seed = seed;
-        prd_.depth = 0;
-
-        for (;;) {
-            traceRayEXT(scene_,
-            ray_flags,
-            cullMask,
-            0,
-            0,
-            0,
-            origin.xyz,
-            tmin,
-            direction.xyz,
-            tmax,
-            0);
-
-            result += prd_.emitted;
-            result += prd_.radiance * prd_.attenuation;
-
-            if (prd_.done || prd_.depth >= ubo_.number_of_bounces ) {
-                break;
-            }
-
-            origin.xyz = prd_.origin;
-            direction.xyz = prd_.direction;
-
-            // russian roulette termination
-            if (prd_.depth >= 1) {
-                float pcont = max(prd_.attenuation.x, max(prd_.attenuation.y, prd_.attenuation.z));
-                if (radinv_fl(seed, 4 + 3 * prd_.depth) >= pcont){
-                    break;
-                }
-                prd_.attenuation /= pcont;
-            }
-
-            prd_.depth++;
-        }
+        pixel_color += getColorForRay(origin.xyz, direction.xyz, seed) / float(ubo_.number_of_samples);
     }
 
-    result = result / ubo_.number_of_samples;
     if (ubo_.frame > 1) {
-        float a = 1.0 / float(ubo_.frame);
+        float a = 1.0 / float(ubo_.frame + 1);
         vec3 old_color = imageLoad(output_image_, ivec2(gl_LaunchIDEXT.xy)).xyz;
-        imageStore(output_image_, ivec2(gl_LaunchIDEXT.xy), vec4(mix(old_color, result, a), 1.0f));
+        imageStore(output_image_, ivec2(gl_LaunchIDEXT.xy), vec4(mix(old_color, pixel_color, a), 1.0f));
     } else {
-        imageStore(output_image_, ivec2(gl_LaunchIDEXT.xy), vec4(result, 1.0f));
+        imageStore(output_image_, ivec2(gl_LaunchIDEXT.xy), vec4(pixel_color, 1.0f));
     }
 }

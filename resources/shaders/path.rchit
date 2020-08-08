@@ -14,14 +14,13 @@ layout(binding = 5) readonly buffer MaterialArray { Material[] Materials; };
 layout(binding = 6) readonly buffer OffsetArray { uvec2[] Offsets; };
 layout(binding = 7) uniform sampler2D[] TextureSamplers;
 
-#include "utils/brdfs.glsl"
 #include "utils/vertex.glsl"
 #include "utils/sampling.glsl"
 #include "utils/ray_payload.glsl"
 
 hitAttributeEXT vec2 hit_attributes;
-layout(location = 0) rayPayloadInEXT PerRayData prd_;
-layout(location = 2) rayPayloadEXT bool shadow_prd_;
+layout(location = 0) rayPayloadInEXT RayPayload ray_;
+layout(location = 2) rayPayloadEXT bool shadow_ray_;
 
 const float pi = 3.1415926535897932384626433832795;
 
@@ -45,76 +44,18 @@ void main() {
 
     const vec3 barycentrics = vec3(1.0 - hit_attributes.x - hit_attributes.y, hit_attributes.x, hit_attributes.y);
     vec3 normal = normalize(Mix(v0.normal, v1.normal, v2.normal, barycentrics));
-    if (material.refraction_index <= 0.0f) {
-        normal = faceforward(normal, gl_WorldRayDirectionEXT, normal);
-    }
+//    if (material.refraction_index <= 0.0f) {
+//        normal = faceforward(normal, gl_WorldRayDirectionEXT, normal);
+//    }
     const vec2 tex_coords = Mix(v0.tex_coords, v1.tex_coords, v2.tex_coords, barycentrics);
     ///////////////////////////////
 
+//    ray_ = scatter(material, gl_WorldRayDirectionEXT, normal, tex_coords, gl_HitTEXT, ray_.seed);
+    ray_.t = gl_HitTEXT;
+    ray_.mat = material;
+//    ray_.mat.albedo = vec4(0.8, 0.8, 0.8, 1);
+    ray_.normal = normal;
+    ray_.from_inside = dot(normal, gl_WorldRayDirectionEXT) > 0;
 
-    // Diffuse hemisphere sampling
-    uint seed = prd_.seed;
 
-    HitSample hit = scatter(material, gl_WorldRayDirectionEXT, normal, tex_coords, prd_.seed);
-
-    if(prd_.countEmitted) {
-        prd_.emitted = material.emissive_factor;
-    }
-    else {
-        prd_.emitted = vec3(0);
-    }
-
-    prd_.direction = hit.scattered_dir.xyz;
-    prd_.origin = gl_WorldRayOriginEXT  + gl_WorldRayDirectionEXT * gl_HitTEXT;
-    prd_.attenuation *= hit.color.xyz;
-    prd_.countEmitted = false;
-
-    if (hit.done) {
-        prd_.done = hit.done;
-        prd_.radiance = hit.color.xyz;
-        return;
-    }
-
-    const float lz1 = rnd(seed);
-    const float lz2 = rnd(seed);
-    prd_.seed = seed;
-
-    // NEE
-    Light light = ubo_.light;
-
-    const vec3 light_pos = light.corner.xyz + light.v1.xyz * lz1 + light.v2.xyz * lz2;
-    vec3 light_dir  = light_pos - prd_.origin;
-    const float light_dist = length(light_dir);
-    light_dir = normalize(light_dir);
-    const float n_dot_l = dot(normal, light_dir);
-    const float ln_dot_l = -dot(light.normal.xyz, light_dir);
-
-    float weight = 0.0f;
-
-    shadow_prd_ = true;
-
-    if (n_dot_l > 0.0f && ln_dot_l > 0.0f) {
-        float tmin = 0.005;
-        float tmax = light_dist;
-
-        traceRayEXT(scene_,
-        gl_RayFlagsTerminateOnFirstHitNV | gl_RayFlagsOpaqueNV | gl_RayFlagsSkipClosestHitShaderNV,
-        0xFF,
-        1 /* sbtRecordOffset */,
-        0 /* sbtRecordStride */,
-        1 /* missIndex */,
-        prd_.origin,
-        tmin,
-        light_dir,
-        tmax,
-        2 /*payload location*/);
-
-        if (!shadow_prd_) {
-            const float A = length(cross(light.v1.xyz, light.v2.xyz));
-            weight = n_dot_l * ln_dot_l * A / (pi * light_dist * light_dist);
-
-        }
-    }
-
-    prd_.radiance += light.emission.xyz * weight;
 }

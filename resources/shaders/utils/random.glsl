@@ -1,5 +1,8 @@
 #extension GL_EXT_control_flow_attributes : require
 
+const float c_pi = 3.14159265359f;
+const float c_twopi = 2.0f * c_pi;
+
 // Generates a seed for a random number generator from 2 inputs plus a backoff
 // https://github.com/nvpro-samples/optix_prime_baking/blob/master/random.h
 // https://en.wikipedia.org/wiki/Tiny_Encryption_Algorithm
@@ -44,4 +47,13 @@ vec3 randomInUnitSphere(inout uint seed) {
             return p;
         }
     }
+}
+
+vec3 randomUnitVector(inout uint state) {
+    float z = randomFloat(state) * 2.0f - 1.0f;
+    float a = randomFloat(state) * c_twopi;
+    float r = sqrt(1.0f - z * z);
+    float x = r * cos(a);
+    float y = r * sin(a);
+    return vec3(x, y, z);
 }

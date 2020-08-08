@@ -111,7 +111,6 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     ubo.number_of_bounces = user_settings_.number_of_bounces;
     ubo.seed = Random::get(0u, 1000u);
     ubo.gamma_correction = user_settings_.gamma_correction;
-    ubo.enable_mis = user_settings_.enable_mis;
     ubo.has_sky = camera_->hasSky();
     ubo.frame = number_of_frames_;
     ubo.light = scene_->light();

@@ -104,31 +104,11 @@ Scene::Scene(vulkan::CommandPool& command_pool,
                        indices,
                        index_buffer_,
                        index_buffer_memory_);
-    createDeviceBuffer(command_pool,
-                       "materials",
-                       flag,
-                       materials,
-                       material_buffer_,
-                       material_buffer_memory_);
-    createDeviceBuffer(command_pool,
-                       "offsets",
-                       flag,
-                       offsets,
-                       offset_buffer_,
-                       offset_buffer_memory_);
+    createDeviceBuffer(command_pool, "materials", flag, materials, material_buffer_, material_buffer_memory_);
+    createDeviceBuffer(command_pool, "offsets", flag, offsets, offset_buffer_, offset_buffer_memory_);
 
-    createDeviceBuffer(command_pool,
-                       "aabbs",
-                       flag,
-                       aabbs,
-                       aabb_buffer_,
-                       aabb_buffer_memory_);
-    createDeviceBuffer(command_pool,
-                       "procedurals",
-                       flag,
-                       procedurals,
-                       procedural_buffer_,
-                       procedural_buffer_memory_);
+    createDeviceBuffer(command_pool, "aabbs", flag, aabbs, aabb_buffer_, aabb_buffer_memory_);
+    createDeviceBuffer(command_pool, "procedurals", flag, procedurals, procedural_buffer_, procedural_buffer_memory_);
 
     // Upload all textures
     texture_images_.reserve(textures_.size());

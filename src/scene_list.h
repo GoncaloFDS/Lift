@@ -27,6 +27,7 @@ public:
     static SceneAssets teapot();
     static SceneAssets cornellBox();
     static SceneAssets cornellBoxDragon();
+    static SceneAssets sponza();
 
     static const std::vector<std::pair<std::string, std::function<SceneAssets()>>> all_scenes;
 };
