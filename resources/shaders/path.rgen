@@ -59,7 +59,7 @@ vec3 getColorForRay(in vec3 start_ray_pos, in vec3 start_ray_dir, inout uint see
 
         // if the ray missed, we are done
         if (ray_.missed) {
-            ret += vec3(0.3, 0.3, 0.8) * throughput;// sky
+            ret += vec3(0.0) * throughput;// sky
             break;
         }
 
@@ -84,8 +84,8 @@ vec3 getColorForRay(in vec3 start_ray_pos, in vec3 start_ray_dir, inout uint see
             1.0f
             );
 
-            float chace_multiplier = (1.0f - specular_chance) / (1.0f - ray_.mat.specular_chance);
-            refraction_chance *= chace_multiplier;
+            float chance_multiplier = (1.0f - specular_chance) / (1.0f - ray_.mat.specular_chance);
+            refraction_chance *= chance_multiplier;
         }
 
         float do_specular = 0.0f;
@@ -120,7 +120,7 @@ vec3 getColorForRay(in vec3 start_ray_pos, in vec3 start_ray_dir, inout uint see
         vec3 specular_ray_dir = reflect(ray_dir, ray_.normal);
         specular_ray_dir = normalize(mix(specular_ray_dir, diffuse_ray_dir, ray_.mat.specular_roughness * ray_.mat.specular_roughness));
 
-        vec3 refraction_ray_dir = refract(ray_dir, ray_.normal, ray_.from_inside ? ray_.mat.IOR : 1.0 / ray_.mat.IOR);
+        vec3 refraction_ray_dir = refract(ray_dir, ray_.normal, ray_.from_inside ? ray_.mat.IOR : 1.0f / ray_.mat.IOR);
         refraction_ray_dir = normalize(mix(refraction_ray_dir, normalize(-ray_.normal + randomUnitVector(seed)), ray_.mat.refraction_roughness * ray_.mat.refraction_roughness));
 
         ray_dir = mix(diffuse_ray_dir, specular_ray_dir, do_specular);

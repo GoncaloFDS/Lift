@@ -11,9 +11,9 @@ using assets::Model;
 using assets::Texture;
 
 const std::vector<std::pair<std::string, std::function<SceneAssets()>>> SceneList::all_scenes = {
+    {"cornell box dragon", cornellBoxDragon},
     {"cornell box", cornellBox},
     {"teapot", teapot},
-    {"cornell box dragon", cornellBoxDragon},
     {"ray tracing in one weekend", rayTracingInOneWeekend},
     {"lucy in one weekend", lucyInOneWeekend},
     {"sponza", sponza},
@@ -207,16 +207,10 @@ SceneAssets SceneList::teapot() {
     const auto i = mat4(1);
     const auto lambertian = Material::createLambertian(vec3(0.73f, 0.73f, 0.73f));
 
-    Material metal = {};
-    metal.albedo = vec3(0.9f, 0.25f, 0.25f);
-    metal.emissive = vec3(0.0f, 0.0f, 0.0f);
-    metal.specular_chance = 0.02f;
-    metal.specular_roughness = 0.0f;
-    metal.specular_color = vec3(1.0f, 1.0f, 1.0f) * 0.8f;
-    metal.IOR = 1.1f;
-    metal.refraction_chance = 0.0f;
-    metal.refraction_roughness = 0.0f;
-    metal.refraction_color = vec3(0.0f, 0.5f, 1.0f);
+    Material metal;
+    metal.specular_chance = 0.8f;
+    metal.specular_roughness = 0.1f;
+    metal.specular_color = vec3(0.9f, 0.4f, 0.0f);
 
     Material glass = {};
     glass.albedo = vec3(0.9f, 0.25f, 0.25f);
@@ -227,7 +221,7 @@ SceneAssets SceneList::teapot() {
     glass.IOR = 1.1f;
     glass.refraction_chance = 1.0f;
     glass.refraction_roughness = 0.0f;
-    glass.refraction_color = vec3(0.0f, 0.5f, 1.0f);
+    glass.refraction_color = vec3(0.0f, 0.0f, 0.0f);
 
     auto box_back = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), metal);
     auto teapot = Model::loadModel("../resources/models/teapot.obj");
@@ -265,19 +259,9 @@ SceneAssets SceneList::cornellBox() {
     };
 
     const auto lambertian = Material::createLambertian(vec3(0.73f, 0.73f, 0.73f));
-    Material mat = {};
-    mat.albedo = vec3(0.9f, 0.25f, 0.25f);
-    mat.emissive = vec3(0.0f, 0.0f, 0.0f);
-    mat.specular_chance = 0.02f;
-    mat.specular_roughness = 0.0f;
-    mat.specular_color = vec3(1.0f, 1.0f, 1.0f) * 0.8f;
-    mat.IOR = 1.1f;
-    mat.refraction_chance = 1.0f;
-    mat.refraction_roughness = 0.0f;
-    mat.refraction_color = vec3(0.0f, 0.5f, 1.0f);
 
     auto box_front = Model::createBox(vec3(0, 1, -165), vec3(165, 165, 0), lambertian);
-    auto box_back = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), mat);
+    auto box_back = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), lambertian);
 
     box_front.transform(rotate(translate(mat4(1), vec3(260, 0, -65)), radians(-18.0f), vec3(0, 1, 0)));
     box_back.transform(rotate(translate(mat4(1), vec3(125, 0, -295)), radians(15.0f), vec3(0, 1, 0)));
@@ -291,44 +275,55 @@ SceneAssets SceneList::cornellBox() {
 }
 
 SceneAssets SceneList::cornellBoxDragon() {
-    //    CameraState camera;
-    //    camera.eye = vec3(278, 278, 800);
-    //    camera.look_at = vec3(278, 278, 0);
-    //    camera.up = vec3(0, 1, 0);
-    //    camera.field_of_view = 40;
-    //    camera.aperture = 0.0f;
-    //    camera.focus_distance = 10.0f;
-    //    camera.gamma_correction = true;
-    //    camera.has_sky = false;
-    //
-    //    Light light = {
-    //        {213.0f, 553.0f, -328.0f, 0},
-    //        {130.0f, 0.0f, 0.0f, 0},
-    //        {0.0f, 0.0f, 130.0f, 0},
-    //        {0.0f, -1.0f, 0.0f, 0},
-    //        {10.0f, 10.0f, 10.0f, 0},
-    //    };
-    //
-    //    const auto metal = Material::metallic(vec3(0.9f, 0.4f, 0.0f), 0.85f);
-    //    const auto metal_2 = Material::metallic(vec3(0.0f, 0.67f, 0.8f), 0.55f);
-    //
-    //    auto teapot = Model::loadModel("../resources/models/teapot.obj");
-    //
-    //    teapot.transform(rotate(scale(translate(mat4(1), vec3(390, 60, -65)), vec3(5)), radians(-18.0f), vec3(0, 1,
-    //    0))); teapot.setMaterial(metal_2);
-    //
-    //    auto dragon = Model::loadModel("../resources/models/dragon.obj");
-    //    dragon.transform(
-    //        rotate(scale(translate(mat4(1), vec3(250, 160, -350)), vec3(600)), radians(135.0f), vec3(0, 1, 0)));
-    //    dragon.setMaterial(metal);
-    //
-    //    std::vector<Model> models;
-    //    models.push_back(Model::createCornellBox(555));
-    //    models.push_back(teapot);
-    //    models.push_back(dragon);
-    //
-    //    return SceneAssets {std::move(models), std::vector<Texture>(), camera, light};
-    return {};
+    CameraState camera;
+    camera.eye = vec3(278, 278, 800);
+    camera.look_at = vec3(278, 278, 0);
+    camera.up = vec3(0, 1, 0);
+    camera.field_of_view = 40;
+    camera.aperture = 0.0f;
+    camera.focus_distance = 10.0f;
+    camera.gamma_correction = true;
+    camera.has_sky = false;
+
+    Light light = {
+        {213.0f, 553.0f, -328.0f, 0},
+        {130.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 130.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {10.0f, 10.0f, 10.0f, 0},
+    };
+
+    Material mat1;
+    mat1.specular_chance = 0.8f;
+    mat1.specular_roughness = 0.6f;
+    mat1.specular_color = vec3(0.9f, 0.4f, 0.0f);
+
+    Material glass = {};
+    glass.albedo = vec3(0.9f, 0.25f, 0.25f);
+    glass.emissive = vec3(0.0f, 0.0f, 0.0f);
+    glass.specular_chance = 0.02f;
+    glass.specular_roughness = 0.0f;
+    glass.specular_color = vec3(1.0f, 1.0f, 1.0f) * 0.8f;
+    glass.IOR = 1.1f;
+    glass.refraction_chance = 1.0f;
+    glass.refraction_roughness = 0.0f;
+    glass.refraction_color = vec3(1.0f, 0.0f, 0.0f);
+    //        const auto metal = Material::metallic(vec3(0.9f, 0.4f, 0.0f), 0.85f);
+    //        const auto metal_2 = Material::metallic(vec3(0.0f, 0.67f, 0.8f), 0.55f);
+
+    auto teapot = Model::createSphere(vec3(400.0f, 150.0f, -165.0f), 80.0f, glass, false);
+
+    auto dragon = Model::loadModel("../resources/models/dragon.obj");
+    dragon.transform(
+        rotate(scale(translate(mat4(1), vec3(250, 160, -350)), vec3(600)), radians(135.0f), vec3(0, 1, 0)));
+    dragon.setMaterial(mat1);
+
+    std::vector<Model> models;
+    models.push_back(Model::createCornellBox(555));
+    models.push_back(teapot);
+    models.push_back(dragon);
+
+    return SceneAssets {std::move(models), std::vector<Texture>(), camera, light};
 }
 
 SceneAssets SceneList::sponza() {

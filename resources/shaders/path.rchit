@@ -54,8 +54,8 @@ void main() {
     ray_.t = gl_HitTEXT;
     ray_.mat = material;
 //    ray_.mat.albedo = vec4(0.8, 0.8, 0.8, 1);
-    ray_.normal = normal;
     ray_.from_inside = dot(normal, gl_WorldRayDirectionEXT) > 0;
+    ray_.normal = normal * (ray_.from_inside ? -1.0f : 1.0f);
 
 
 }
