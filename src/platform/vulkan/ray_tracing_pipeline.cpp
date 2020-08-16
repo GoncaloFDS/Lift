@@ -236,6 +236,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
     pipeline_info.layout = pipeline_layout_->handle();
     pipeline_info.basePipelineHandle = nullptr;
     pipeline_info.basePipelineIndex = 0;
+    pipeline_info.libraries.sType = VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR;
 
     vulkanCheck(device_procedures
                     .vkCreateRayTracingPipelinesKHR(device.handle(), nullptr, 1, &pipeline_info, nullptr, &pipeline_),

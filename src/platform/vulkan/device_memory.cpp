@@ -19,7 +19,7 @@ DeviceMemory::DeviceMemory(const Device& device,
 
     VkMemoryAllocateInfo alloc_info = {};
     alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    alloc_info.pNext = nullptr;
+    alloc_info.pNext = &flags_info;
     alloc_info.allocationSize = size;
     alloc_info.memoryTypeIndex = findMemoryType(memory_type_bits, property_flags);
 

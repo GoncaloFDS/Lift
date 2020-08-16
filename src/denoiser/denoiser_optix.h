@@ -30,7 +30,7 @@ public:
                       vulkan::Image& in_image,
                       vulkan::Image& out_image);
     void destroy();
-    void createBufferCuda(vulkan::Device& device, CudaBuffer& cuda_buffer);
+    static void createBufferCuda(vulkan::Device& device, CudaBuffer& cuda_buffer);
 
 
 private:

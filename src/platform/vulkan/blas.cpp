@@ -13,7 +13,7 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(const class D
                                                                    const BottomLevelGeometry& geometries,
                                                                    const bool allow_update)
     : AccelerationStructure(device_procedures,
-                            VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR,
+                            VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR,
                             geometries.createGeometryTypeInfo(),
                             allow_update),
       geometries_(geometries) {

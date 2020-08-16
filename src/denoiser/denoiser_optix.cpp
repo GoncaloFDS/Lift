@@ -101,13 +101,13 @@ void DenoiserOptix::denoiseImage(vulkan::Device& device,
 
     out_image.transitionImageLayout(command_pool, vk::ImageLayout::eTransferDstOptimal);
     out_image.copyFromBuffer(command_pool, pixel_buffer_out_.buf_vk.buffer);
-    out_image.transitionImageLayout(command_pool, vk::ImageLayout::eTransferSrcOptimal);
+    out_image.transitionImageLayout(command_pool, vk::ImageLayout::eGeneral);
 }
 
 void DenoiserOptix::allocateBuffers(vulkan::Device& device) {
     destroy();
 
-    vk::DeviceSize buffer_size = image_size_.width * image_size_.height * sizeof(float4);
+    vk::DeviceSize buffer_size = image_size_.width * image_size_.height * sizeof(float) * 4;
 
     vk::BufferUsageFlags in_usage_flags {vk::BufferUsageFlagBits::eUniformBuffer |
                                          vk::BufferUsageFlagBits::eTransferDst};
@@ -146,14 +146,16 @@ void DenoiserOptix::allocateBuffers(vulkan::Device& device) {
 
 void DenoiserOptix::createBufferCuda(vulkan::Device& device, CudaBuffer& cuda_buffer) {
     vk::Device vkDevice {device.handle()};
+
     cuda_buffer.handle = vkDevice.getMemoryWin32HandleKHR(
         {cuda_buffer.buf_vk.allocation, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32});
     auto req = vkDevice.getBufferMemoryRequirements(cuda_buffer.buf_vk.buffer);
 
     cudaExternalMemoryHandleDesc cuda_ext_memory_handle_desc {};
+    cuda_ext_memory_handle_desc.size = req.size;
     cuda_ext_memory_handle_desc.type = cudaExternalMemoryHandleTypeOpaqueWin32;
     cuda_ext_memory_handle_desc.handle.win32.handle = cuda_buffer.handle;
-    cuda_ext_memory_handle_desc.size = req.size;
+
 
     cudaExternalMemory_t cuda_ext_vertex_buffer {};
     CUDA_CHECK(cudaImportExternalMemory(&cuda_ext_vertex_buffer, &cuda_ext_memory_handle_desc));

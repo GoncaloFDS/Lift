@@ -90,7 +90,8 @@ void TopLevelAccelerationStructure::generate(VkCommandBuffer command_buffer,
     build_info.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
     build_info.update = update_only;
     build_info.srcAccelerationStructure = previous_structure;
-    build_info.dstAccelerationStructure = handle(), build_info.geometryArrayOfPointers = false;
+    build_info.dstAccelerationStructure = handle(),
+    build_info.geometryArrayOfPointers = false;
     build_info.geometryCount = 1;
     build_info.ppGeometries = &p_geometry;
     build_info.scratchData.deviceAddress = scratch_buffer.deviceAddress() + scratch_offset;
