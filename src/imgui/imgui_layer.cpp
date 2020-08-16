@@ -174,7 +174,6 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
                                 &fmax,
                                 "%.1f");
             ImGui::Checkbox("gamma correction", &settings().gamma_correction);
-            ImGui::Checkbox("show statistics", &settings().show_overlay);
             glm::vec3 camera_pos = camera_state_.eye;
             ImGui::Text("camera position: (%f %f %f)", camera_pos.x, camera_pos.y, camera_pos.z);
             ImGui::NewLine();
@@ -183,6 +182,7 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
         ImGui::Text("debug settings"); {
             ImGui::Separator();
             ImGui::Checkbox("render normals", &settings().debug_normals);
+            ImGui::Checkbox("show statistics", &settings().show_overlay);
         }
 
         ImGui::NewLine();

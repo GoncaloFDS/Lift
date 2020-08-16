@@ -3,6 +3,7 @@
 #include "core/utilities.h"
 #include "lights.h"
 #include <memory>
+#include <scene_list.h>
 #include <vector>
 
 namespace vulkan {
@@ -14,6 +15,7 @@ class Image;
 
 namespace assets {
 class Model;
+struct Material;
 class Texture;
 class TextureImage;
 
@@ -24,10 +26,7 @@ public:
     Scene& operator=(const Scene&) = delete;
     Scene& operator=(Scene&&) = delete;
 
-    Scene(vulkan::CommandPool& command_pool,
-          std::vector<Model>&& models,
-          std::vector<Texture>&& textures,
-          Light light);
+    Scene(vulkan::CommandPool& command_pool, SceneAssets& scene_assets);
     ~Scene();
 
     [[nodiscard]] const std::vector<Model>& models() const { return models_; }
@@ -45,6 +44,7 @@ public:
 
 private:
     const std::vector<Model> models_;
+    const std::vector<Material> materials_;
     const std::vector<Texture> textures_;
     Light light_;
 

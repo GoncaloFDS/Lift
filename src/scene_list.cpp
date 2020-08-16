@@ -1,220 +1,41 @@
 #include "scene_list.h"
-#include "assets/material.h"
+#include "assets/cornell_box.h"
 #include "assets/model.h"
 #include "assets/texture.h"
-#include "pbrtParser/Scene.h"
 #include <core/log.h>
-#include <effolkronium/random.hpp>
 
 using namespace glm;
-using Random = effolkronium::random_static;
 using assets::Material;
 using assets::Model;
 using assets::Texture;
 
 const std::vector<std::pair<std::string, std::function<SceneAssets()>>> SceneList::all_scenes = {
-    {"pbrt", pbrt},
-    {"cornell box dragon", cornellBoxDragon},
     {"cornell box", cornellBox},
     {"teapot", teapot},
-    {"ray tracing in one weekend", rayTracingInOneWeekend},
-    {"lucy in one weekend", lucyInOneWeekend},
-    {"sponza", sponza},
+    {"cornell box dragon", cornellBoxDragon},
+    {"dining room", diningRoom},
+    {"classroom", classroom},
 };
 
-SceneAssets SceneList::rayTracingInOneWeekend() {
-    //    CameraState camera;
-    //    camera.eye = vec3(13, 2, 3);
-    //    camera.look_at = vec3(0);
-    //    camera.up = vec3(0, 1, 0);
-    //    camera.field_of_view = 40;
-    //    camera.field_of_view = 20;
-    //    camera.aperture = 0.1f;
-    //    camera.focus_distance = 10.0f;
-    //    camera.gamma_correction = true;
-    //    camera.has_sky = true;
-    //
-    //    Light light = {
-    //        {213.0f, 553.0f, -328.0f, 0},
-    //        {130.0f, 0.0f, 0.0f, 0},
-    //        {0.0f, 0.0f, 130.0f, 0},
-    //        {0.0f, -1.0f, 0.0f, 0},
-    //        {10.0f, 10.0f, 10.0f, 0},
-    //    };
-    //
-    //    const bool is_procedural = true;
-    //
-    //    std::vector<Model> models;
-    //
-    //    models.push_back(
-    //        Model::createSphere(vec3(0, -1000, 0), 1000, Material::lambertian(vec3(0.5f, 0.5f, 0.5f)),
-    //        is_procedural));
-    //
-    //    for (int a = -11; a < 11; ++a) {
-    //        for (int b = -11; b < 11; ++b) {
-    //            const float choose_mat = Random::get(0.0f, 1.0f);
-    //            const vec3 center(a + 0.9f * Random::get(0.0f, 1.0f), 0.2f, b + 0.9f * Random::get(0.0f, 1.0f));
-    //
-    //            if (length(center - vec3(4, 0.2f, 0)) > 0.9) {
-    //                if (choose_mat < 0.8f)  // Diffuse
-    //                {
-    //                    models.push_back(Model::createSphere(
-    //                        center,
-    //                        0.2f,
-    //                        Material::lambertian(vec3(Random::get(0.0f, 1.0f) * Random::get(0.0f, 1.0f),
-    //                                                  Random::get(0.0f, 1.0f) * Random::get(0.0f, 1.0f),
-    //                                                  Random::get(0.0f, 1.0f) * Random::get(0.0f, 1.0f))),
-    //                        is_procedural));
-    //                } else if (choose_mat < 0.95f)  // Metal
-    //                {
-    //                    models.push_back(Model::createSphere(center,
-    //                                                         0.2f,
-    //                                                         Material::metallic(vec3(0.5f * (1 +
-    //                                                         Random::get(0.0f, 1.0f)),
-    //                                                                                 0.5f * (1 +
-    //                                                                                 Random::get(0.0f, 1.0f)), 0.5f *
-    //                                                                                 (1 + Random::get(0.0f, 1.0f))),
-    //                                                                            0.5f * Random::get(0.0f, 1.0f)),
-    //                                                         is_procedural));
-    //                } else  // Glass
-    //                {
-    //                    models.push_back(Model::createSphere(center, 0.2f, Material::dielectric(1.5f),
-    //                    is_procedural));
-    //                }
-    //            }
-    //        }
-    //    }
-    //
-    //    models.push_back(Model::createSphere(vec3(0, 1, 0), 1.0f, Material::dielectric(1.5f), is_procedural));
-    //    models.push_back(
-    //        Model::createSphere(vec3(-4, 1, 0), 1.0f, Material::lambertian(vec3(0.4f, 0.2f, 0.1f)), is_procedural));
-    //    models.push_back(
-    //        Model::createSphere(vec3(4, 1, 0), 1.0f, Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.0f),
-    //        is_procedural));
-    //
-    //    return SceneAssets {std::move(models), std::vector<Texture>(), camera, light};
-    return {};
-}
-
-SceneAssets SceneList::lucyInOneWeekend() {
-    //    CameraState camera;
-    //    camera.eye = vec3(13, 2, 3);
-    //    camera.look_at = vec3(0);
-    //    camera.up = vec3(0, 1, 0);
-    //    camera.field_of_view = 20;
-    //    camera.aperture = 0.05f;
-    //    camera.focus_distance = 10.0f;
-    //    camera.gamma_correction = true;
-    //    camera.has_sky = true;
-    //
-    //    Light light = {
-    //        {213.0f, 553.0f, -328.0f, 0},
-    //        {130.0f, 0.0f, 0.0f, 0},
-    //        {0.0f, 0.0f, 130.0f, 0},
-    //        {0.0f, -1.0f, 0.0f, 0},
-    //        {10.0f, 10.0f, 10.0f, 0},
-    //    };
-    //
-    //    const bool is_procedural = true;
-    //
-    //    std::vector<Model> models;
-    //
-    //    models.push_back(
-    //        Model::createSphere(vec3(0, -1000, 0), 1000, Material::lambertian(vec3(0.5f, 0.5f, 0.5f)),
-    //        is_procedural));
-    //
-    //    for (int a = -11; a < 11; ++a) {
-    //        for (int b = -11; b < 11; ++b) {
-    //            const float choose_mat = Random::get(0.f, 1.f);
-    //            const vec3 center(a + 0.9f * Random::get(0.f, 1.f), 0.2f, b + 0.9f * Random::get(0.f, 1.f));
-    //
-    //            if (length(center - vec3(4, 0.2f, 0)) > 0.9) {
-    //                if (choose_mat < 0.8f)  // Diffuse
-    //                {
-    //                    models.push_back(
-    //                        Model::createSphere(center,
-    //                                            0.2f,
-    //                                            Material::lambertian(vec3(Random::get(0.f, 1.f) *
-    //                                            Random::get(0.f, 1.f),
-    //                                                                      Random::get(0.f, 1.f) *
-    //                                                                      Random::get(0.f, 1.f), Random::get(0.f, 1.f)
-    //                                                                      * Random::get(0.f, 1.f))),
-    //                                            is_procedural));
-    //                } else if (choose_mat < 0.95f)  // Metal
-    //                {
-    //                    models.push_back(Model::createSphere(center,
-    //                                                         0.2f,
-    //                                                         Material::metallic(vec3(0.5f * (1 +
-    //                                                         Random::get(0.f, 1.f)),
-    //                                                                                 0.5f * (1 +
-    //                                                                                 Random::get(0.f, 1.f)), 0.5f * (1
-    //                                                                                 + Random::get(0.f, 1.f))),
-    //                                                                            0.5f * Random::get(0.f, 1.f)),
-    //                                                         is_procedural));
-    //                } else  // Glass
-    //                {
-    //                    models.push_back(Model::createSphere(center, 0.2f, Material::dielectric(1.5f),
-    //                    is_procedural));
-    //                }
-    //            }
-    //        }
-    //    }
-    //
-    //    auto lucy_0 = Model::loadModel("../resources/models/lucy.obj");
-    //    auto lucy_1 = lucy_0;
-    //    auto lucy_2 = lucy_0;
-    //
-    //    const auto i = mat4(1);
-    //    const float scale_factor = 0.0035f;
-    //
-    //    lucy_0.transform(
-    //        rotate(scale(translate(i, vec3(0, -0.08f, 0)), vec3(scale_factor)), radians(90.0f), vec3(0, 1, 0)));
-    //
-    //    lucy_1.transform(
-    //        rotate(scale(translate(i, vec3(-4, -0.08f, 0)), vec3(scale_factor)), radians(90.0f), vec3(0, 1, 0)));
-    //
-    //    lucy_2.transform(
-    //        rotate(scale(translate(i, vec3(4, -0.08f, 0)), vec3(scale_factor)), radians(90.0f), vec3(0, 1, 0)));
-    //
-    //    lucy_0.setMaterial(Material::dielectric(1.5f));
-    //    lucy_1.setMaterial(Material::lambertian(vec3(0.4f, 0.2f, 0.1f)));
-    //    lucy_2.setMaterial(Material::metallic(vec3(0.7f, 0.6f, 0.5f), 0.05f));
-    //
-    //    models.push_back(std::move(lucy_0));
-    //    models.push_back(std::move(lucy_1));
-    //    models.push_back(std::move(lucy_2));
-    //
-    //    return SceneAssets {std::move(models), std::vector<Texture>(), camera, light};
-    return {};
-}
-
 SceneAssets SceneList::teapot() {
-    CameraState camera;
-    camera.eye = vec3(278, 278, 800);
-    camera.look_at = vec3(278, 278, 0);
-    camera.up = vec3(0, 1, 0);
-    camera.field_of_view = 40;
-    camera.aperture = 0.0f;
-    camera.focus_distance = 10.0f;
-    camera.gamma_correction = true;
-    camera.has_sky = false;
+    SceneAssets scene_assets;
+    scene_assets.camera.eye = vec3(278, 278, 800);
+    scene_assets.camera.look_at = vec3(278, 278, 0);
+    scene_assets.camera.up = vec3(0, 1, 0);
+    scene_assets.camera.field_of_view = 40;
+    scene_assets.camera.aperture = 0.0f;
+    scene_assets.camera.focus_distance = 10.0f;
+    scene_assets.camera.gamma_correction = true;
+    scene_assets.camera.has_sky = false;
 
-    Light light = {
-        {213.0f, 553.0f, -328.0f, 0},
-        {130.0f, 0.0f, 0.0f, 0},
-        {0.0f, 0.0f, 130.0f, 0},
-        {0.0f, -1.0f, 0.0f, 0},
-        {10.0f, 10.0f, 10.0f, 0},
-    };
-
-    const auto i = mat4(1);
-    const auto lambertian = Material::createLambertian(vec3(0.73f, 0.73f, 0.73f));
-
+    std::string metal_id("metal");
     Material metal;
     metal.specular_chance = 0.8f;
     metal.specular_roughness = 0.1f;
     metal.specular_color = vec3(0.9f, 0.4f, 0.0f);
+    scene_assets.materials["metal"] = metal;
 
+    std::string glass_id("glass");
     Material glass = {};
     glass.albedo = vec3(0.9f, 0.25f, 0.25f);
     glass.emissive = vec3(0.0f, 0.0f, 0.0f);
@@ -225,88 +46,68 @@ SceneAssets SceneList::teapot() {
     glass.refraction_chance = 1.0f;
     glass.refraction_roughness = 0.0f;
     glass.refraction_color = vec3(0.0f, 0.0f, 0.0f);
+    scene_assets.materials[glass_id] = glass;
 
-    auto box_back = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), metal);
+    auto box_back = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), metal_id);
+    box_back.transform(rotate(translate(mat4(1), vec3(125, 0, -295)), radians(15.0f), vec3(0, 1, 0)));
+    scene_assets.models.push_back(box_back);
+
     auto teapot = Model::loadModel("../resources/models/teapot.obj");
+    teapot.transform(rotate(scale(translate(mat4(1), vec3(390, 60, -85)), vec3(5)), radians(-18.0f), vec3(0, 1, 0)));
+    teapot.setMaterial(glass_id);
+    scene_assets.models.push_back(teapot);
 
-    teapot.transform(rotate(scale(translate(i, vec3(390, 60, -65)), vec3(5)), radians(-18.0f), vec3(0, 1, 0)));
-    box_back.transform(rotate(translate(i, vec3(125, 0, -295)), radians(15.0f), vec3(0, 1, 0)));
+    assets::CornellBox::create(555, scene_assets);
 
-    teapot.setMaterial(glass);
-
-    std::vector<Model> models;
-    models.push_back(Model::createCornellBox(555));
-    models.push_back(teapot);
-    models.push_back(box_back);
-
-    return SceneAssets {std::move(models), std::vector<Texture>(), camera, light};
+    return scene_assets;
 }
 
 SceneAssets SceneList::cornellBox() {
-    CameraState camera;
-    camera.eye = vec3(278, 278, 800);
-    camera.look_at = vec3(278, 278, 0);
-    camera.up = vec3(0, 1, 0);
-    camera.field_of_view = 40;
-    camera.aperture = 0.0f;
-    camera.focus_distance = 10.0f;
-    camera.gamma_correction = true;
-    camera.has_sky = false;
+    SceneAssets scene_assets;
+    scene_assets.camera.eye = vec3(278, 278, 800);
+    scene_assets.camera.look_at = vec3(278, 278, 0);
+    scene_assets.camera.up = vec3(0, 1, 0);
+    scene_assets.camera.field_of_view = 40;
+    scene_assets.camera.aperture = 0.0f;
+    scene_assets.camera.focus_distance = 10.0f;
+    scene_assets.camera.gamma_correction = true;
+    scene_assets.camera.has_sky = false;
 
-    Light light = {
-        {213.0f, 553.0f, -328.0f, 0},
-        {130.0f, 0.0f, 0.0f, 0},
-        {0.0f, 0.0f, 130.0f, 0},
-        {0.0f, -1.0f, 0.0f, 0},
-        {10.0f, 10.0f, 10.0f, 0},
-    };
+    std::string gray("gray diffuse");
+    scene_assets.materials[gray] = Material::createLambertian(vec3(0.73f, 0.73f, 0.73f));
 
-    const auto lambertian = Material::createLambertian(vec3(0.73f, 0.73f, 0.73f));
-
-    auto box_front = Model::createBox(vec3(0, 1, -165), vec3(165, 165, 0), lambertian);
-    auto box_back = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), lambertian);
+    auto box_front = Model::createBox(vec3(0, 1, -165), vec3(165, 165, 0), gray);
+    auto box_back = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), gray);
 
     box_front.transform(rotate(translate(mat4(1), vec3(260, 0, -65)), radians(-18.0f), vec3(0, 1, 0)));
     box_back.transform(rotate(translate(mat4(1), vec3(125, 0, -295)), radians(15.0f), vec3(0, 1, 0)));
 
-    std::vector<Model> models;
-    models.push_back(Model::createCornellBox(555));
-    models.push_back(box_front);
-    models.push_back(box_back);
-    auto t = std::vector<Texture>();
+    assets::CornellBox::create(555, scene_assets);
+    scene_assets.models.push_back(box_front);
+    scene_assets.models.push_back(box_back);
 
-    SceneAssets s;
-    s.models = std::move(models);
-    s.textures = std::vector<Texture>();
-    s.light = light;
-    s.camera = camera;
-    return s;
+    return scene_assets;
 }
 
 SceneAssets SceneList::cornellBoxDragon() {
-    CameraState camera;
-    camera.eye = vec3(278, 278, 800);
-    camera.look_at = vec3(278, 278, 0);
-    camera.up = vec3(0, 1, 0);
-    camera.field_of_view = 40;
-    camera.aperture = 0.0f;
-    camera.focus_distance = 10.0f;
-    camera.gamma_correction = true;
-    camera.has_sky = false;
+    SceneAssets scene_assets;
+    scene_assets.camera.eye = vec3(278, 278, 800);
+    scene_assets.camera.look_at = vec3(278, 278, 0);
+    scene_assets.camera.up = vec3(0, 1, 0);
+    scene_assets.camera.field_of_view = 40;
+    scene_assets.camera.aperture = 0.0f;
+    scene_assets.camera.focus_distance = 10.0f;
+    scene_assets.camera.gamma_correction = true;
+    scene_assets.camera.has_sky = false;
 
-    Light light = {
-        {213.0f, 553.0f, -328.0f, 0},
-        {130.0f, 0.0f, 0.0f, 0},
-        {0.0f, 0.0f, 130.0f, 0},
-        {0.0f, -1.0f, 0.0f, 0},
-        {10.0f, 10.0f, 10.0f, 0},
-    };
-
+    std::string mat1_id("mat1");
     Material mat1;
     mat1.specular_chance = 0.8f;
     mat1.specular_roughness = 0.6f;
     mat1.specular_color = vec3(0.9f, 0.4f, 0.0f);
+    scene_assets.materials[mat1_id] = mat1;
 
+    std::string glass_id("glass_id");
     Material glass = {};
     glass.albedo = vec3(0.9f, 0.25f, 0.25f);
     glass.emissive = vec3(0.0f, 0.0f, 0.0f);
@@ -317,90 +118,113 @@ SceneAssets SceneList::cornellBoxDragon() {
     glass.refraction_chance = 1.0f;
     glass.refraction_roughness = 0.0f;
     glass.refraction_color = vec3(1.0f, 0.0f, 0.0f);
-    //        const auto metal = Material::metallic(vec3(0.9f, 0.4f, 0.0f), 0.85f);
-    //        const auto metal_2 = Material::metallic(vec3(0.0f, 0.67f, 0.8f), 0.55f);
+    scene_assets.materials[glass_id] = glass;
 
-    auto teapot = Model::createSphere(vec3(400.0f, 150.0f, -165.0f), 80.0f, glass, false);
+    auto sphere = Model::createSphere(vec3(400.0f, 150.0f, -165.0f), 80.0f, glass_id, false);
+    scene_assets.models.push_back(sphere);
 
     auto dragon = Model::loadModel("../resources/models/dragon.obj");
-    dragon.transform(
-        rotate(scale(translate(mat4(1), vec3(250, 160, -350)), vec3(600)), radians(135.0f), vec3(0, 1, 0)));
-    dragon.setMaterial(mat1);
+    auto t = rotate(scale(translate(mat4(1), vec3(250, 160, -350)), vec3(600)), radians(135.0f), vec3(0, 1, 0));
+    dragon.transform(t);
+    dragon.setMaterial(mat1_id);
+    scene_assets.models.push_back(dragon);
 
-    std::vector<Model> models;
-    models.push_back(Model::createCornellBox(555));
-    models.push_back(teapot);
-    models.push_back(dragon);
+    assets::CornellBox::create(555, scene_assets);
 
-    return SceneAssets {std::move(models), std::vector<Texture>(), camera, light};
+    return scene_assets;
 }
 
-SceneAssets SceneList::sponza() {
-    //    CameraState camera;
-    //    camera.eye = vec3(800, 600, -10);
-    //    camera.look_at = vec3(300, 430, -13);
-    //    camera.up = vec3(0, 1, 0);
-    //    camera.field_of_view = 40;
-    //    camera.aperture = 0.0f;
-    //    camera.focus_distance = 10.0f;
-    //    camera.gamma_correction = true;
-    //    camera.has_sky = false;
-    //
-    //    Light light = {
-    //        {213.0f, 5053.0f, -328.0f, 0},
-    //        {1300.0f, 0.0f, 0.0f, 0},
-    //        {0.0f, 0.0f, 1300.0f, 0},
-    //        {0.0f, -1.0f, 0.0f, 0},
-    //        {10.0f, 10.0f, 10.0f, 0},
-    //    };
-    //
-    //    const auto metal = Material::metallic(vec3(0.9f, 0.4f, 0.0f), 0.85f);
-    //
-    //    auto sponza = Model::loadModel("../resources/models/sponza.obj");
-    //
-    ////    sponza.transform(rotate(scale(translate(mat4(1), vec3(390, 60, -65)), vec3(1)), radians(-18.0f), vec3(0, 1,
-    /// 0)));
-    //
-    //    std::vector<Model> models;
-    //    models.push_back(sponza);
-    //
-    //    return SceneAssets {std::move(models), std::vector<Texture>(), camera, light};
-    return {};
+SceneAssets SceneList::diningRoom() {
+    SceneAssets scene_assets;
+    scene_assets.camera.eye = vec3(-1, 2, 9);
+    scene_assets.camera.look_at = vec3(-1, 2, 0);
+    scene_assets.camera.up = vec3(0, 1, 0);
+    scene_assets.camera.field_of_view = 40;
+    scene_assets.camera.aperture = 0.0f;
+    scene_assets.camera.focus_distance = 10.0f;
+    scene_assets.camera.aspect_ratio = 1;
+    scene_assets.camera.gamma_correction = true;
+    scene_assets.camera.has_sky = false;
+
+    std::shared_ptr<pbrt::Scene> scene = pbrt::importPBRT("../resources/scenes/dining-room/scene.pbrt");
+    //        std::shared_ptr<pbrt::Scene> scene = pbrt::importPBRT("../resources/scenes/cornell-box/scene.pbrt");
+    scene->makeSingleLevel();
+    scene_assets.textures = std::vector<Texture>();
+
+    traverse(scene->world, scene_assets);
+
+    scene_assets.materials["emissive"] = Material::createEmissive(vec3(150.0f));
+    //    auto sphere = Model::createSphere(vec3(90, 30, 2), 15.0f, "emissive", false);
+    auto sphere = Model::createSphere(vec3(0, 3, 0), .3f, "emissive", false);
+    scene_assets.models.push_back(sphere);
+
+    return scene_assets;
 }
 
-namespace std {
-template<>
-struct hash<assets::Vertex> final {
-    size_t operator()(assets::Vertex const& vertex) const noexcept {
-        return combine(hash<vec3>()(vertex.position),
-                       combine(hash<vec3>()(vertex.normal),
-                               combine(hash<vec2>()(vertex.texCoord), hash<int>()(vertex.materialIndex))));
-    }
+SceneAssets SceneList::classroom() {
+    SceneAssets scene_assets;
+    scene_assets.camera.eye = vec3(-1, 1, 3);
+    scene_assets.camera.look_at = vec3(-1, 1, 0);
+    scene_assets.camera.up = vec3(0, 1, 0);
+    scene_assets.camera.field_of_view = 40;
+    scene_assets.camera.aperture = 0.0f;
+    scene_assets.camera.focus_distance = 10.0f;
+    scene_assets.camera.aspect_ratio = 1;
+    scene_assets.camera.gamma_correction = true;
+    scene_assets.camera.has_sky = false;
 
-private:
-    static size_t combine(size_t hash0, size_t hash1) {
-        return hash0 ^ (hash1 + 0x9e3779b9 + (hash0 << 6) + (hash0 >> 2));
-    }
-};
-}  // namespace std
+    std::shared_ptr<pbrt::Scene> scene = pbrt::importPBRT("../resources/scenes/classroom/scene.pbrt");
+    scene->makeSingleLevel();
+    scene_assets.textures = std::vector<Texture>();
+
+    traverse(scene->world, scene_assets);
+
+    scene_assets.materials["emissive"] = Material::createEmissive(vec3(150.0f));
+    auto sphere = Model::createSphere(vec3(0, 1.5, 0), .3f, "emissive", false);
+    scene_assets.models.push_back(sphere);
+
+    return scene_assets;
+}
 
 void traverse(const pbrt::Object::SP& object, SceneAssets& scene_assets) {
+    scene_assets.materials["default"] = Material::createLambertian(vec3(0.75f));
 
     for (const auto& shape : object->shapes) {
-        LF_INFO("Material -> {}", shape->material->name);
-
+        auto material_id = shape->material->name;
+        if (!scene_assets.materials.contains(material_id)) {
+            if (auto substrate = std::dynamic_pointer_cast<pbrt::SubstrateMaterial>(shape->material)) {
+                LF_INFO("Implemented Material -> {}", material_id);
+                Material material {};
+                material.albedo = vec3(substrate->kd.x, substrate->kd.y, substrate->kd.z);
+                material.specular_color = vec3(substrate->ks.x, substrate->ks.y, substrate->ks.z);
+                material.specular_roughness = substrate->uRoughness;
+                scene_assets.materials[material_id] = material;
+            } else if (auto metal = std::dynamic_pointer_cast<pbrt::MetalMaterial>(shape->material)) {
+                LF_INFO("Implemented Material -> {}", material_id);
+                Material material {};
+                material.specular_color = normalize(vec3(metal->eta.x, metal->eta.y, metal->eta.z));
+                material.specular_roughness = metal->uRoughness;
+                material.specular_chance = 1.0f - metal->vRoughness;
+                scene_assets.materials[material_id] = material;
+            } else if (auto matte = std::dynamic_pointer_cast<pbrt::MatteMaterial>(shape->material)) {
+                LF_INFO("Implemented Material -> {}", material_id);
+                Material material {};
+                material.albedo = vec3(matte->kd.x, matte->kd.y, matte->kd.z);
+                scene_assets.materials[material_id] = material;
+            } else {
+                LF_WARN("Skipped Material -> {}", material_id);
+                material_id = "default";
+            }
+        }
 
         if (pbrt::TriangleMesh::SP mesh = std::dynamic_pointer_cast<pbrt::TriangleMesh>(shape)) {
-            std::vector<Material> materials;
-            Material mat = Material::createLambertian(vec3(0.75f));
-            materials.push_back(mat);
             // Geometry
             std::vector<assets::Vertex> vertices;
             std::vector<uint32_t> indices;
 
-//            LF_INFO("vertex count {}", mesh->vertex.size());
-//            LF_INFO("normal count {}", mesh->normal.size());
-//            LF_INFO("index count {}", mesh->index.size());
+            //            LF_INFO("vertex count {}", mesh->vertex.size());
+            //            LF_INFO("normal count {}", mesh->normal.size());
+            //            LF_INFO("index count {}", mesh->index.size());
 
             for (uint32_t i = 0; i < mesh->vertex.size(); i++) {
                 assets::Vertex vertex = {};
@@ -414,7 +238,7 @@ void traverse(const pbrt::Object::SP& object, SceneAssets& scene_assets) {
                     vertex.normal = vec3(0);
                 }
 
-                vertex.materialIndex = 0;
+                vertex.material_index = 0;
 
                 vertices.push_back(vertex);
             }
@@ -436,7 +260,7 @@ void traverse(const pbrt::Object::SP& object, SceneAssets& scene_assets) {
                 }
             }
 
-            scene_assets.models.emplace_back(std::move(vertices), std::move(indices), std::move(materials), nullptr);
+            scene_assets.models.emplace_back(std::move(vertices), std::move(indices), material_id, nullptr);
 
         } else {
             LF_ERROR("pbrt shape not supported");
@@ -445,51 +269,7 @@ void traverse(const pbrt::Object::SP& object, SceneAssets& scene_assets) {
 
     LF_INFO("shape count {}", object->shapes.size());
 
-    for (const auto& inst : object->instances) { traverse(inst->object, scene_assets); }
-}
-
-SceneAssets SceneList::pbrt() {
-    CameraState camera;
-    camera.eye = vec3(-1, 2, 9);
-    camera.look_at = vec3(-1, 2, 0);
-    camera.up = vec3(0, 1, 0);
-    camera.field_of_view = 40;
-    camera.aperture = 0.0f;
-    camera.focus_distance = 10.0f;
-    camera.aspect_ratio = 1;
-    camera.gamma_correction = true;
-    camera.has_sky = false;
-
-    Light light = {
-        {213.0f, 553.0f, -328.0f, 0},
-        {130.0f, 0.0f, 0.0f, 0},
-        {0.0f, 0.0f, 130.0f, 0},
-        {0.0f, -1.0f, 0.0f, 0},
-        {10.0f, 10.0f, 10.0f, 0},
-    };
-
-    try {
-        std::shared_ptr<pbrt::Scene> scene = pbrt::importPBRT("../resources/scenes/dining-room/scene.pbrt");
-//        std::shared_ptr<pbrt::Scene> scene = pbrt::importPBRT("../resources/scenes/cornell-box/scene.pbrt");
-        scene->makeSingleLevel();
-        SceneAssets scene_assets;
-        scene_assets.camera = camera;
-        scene_assets.light = light;
-        scene_assets.textures = std::vector<Texture>();
-
-        traverse(scene->world, scene_assets);
-
-        Material emissive = Material::createEmissive(vec3(30.0f));
-        auto sphere = Model::createSphere(vec3(90, 30, 2), 15.0f, emissive, false);
-        scene_assets.models.push_back(sphere);
-
-        return scene_assets;
-
-    } catch (std::runtime_error& e) {
-        std::cerr << "**** ERROR IN PARSING ****" << std::endl << e.what() << std::endl;
-        std::cerr << "(this means that either there's something wrong with that PBRT file, or that the parser can't "
-                     "handle it)"
-                  << std::endl;
-        exit(1);
+    for (const auto& inst : object->instances) {
+        traverse(inst->object, scene_assets);
     }
 }

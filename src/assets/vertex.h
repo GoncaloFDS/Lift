@@ -9,12 +9,12 @@ namespace assets {
 struct Vertex final {
     glm::vec3 position;
     glm::vec3 normal;
-    glm::vec2 texCoord;
-    int32_t materialIndex;
+    glm::vec2 tex_coords;
+    int32_t material_index;
 
     bool operator==(const Vertex& other) const {
-        return position == other.position && normal == other.normal && texCoord == other.texCoord
-            && materialIndex == other.materialIndex;
+        return position == other.position && normal == other.normal && tex_coords == other.tex_coords &&
+               material_index == other.material_index;
     }
 
     static VkVertexInputBindingDescription getBindingDescription() {
@@ -41,15 +41,32 @@ struct Vertex final {
         attribute_descriptions[2].binding = 0;
         attribute_descriptions[2].location = 2;
         attribute_descriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-        attribute_descriptions[2].offset = offsetof(Vertex, texCoord);
+        attribute_descriptions[2].offset = offsetof(Vertex, tex_coords);
 
         attribute_descriptions[3].binding = 0;
         attribute_descriptions[3].location = 3;
         attribute_descriptions[3].format = VK_FORMAT_R32_SINT;
-        attribute_descriptions[3].offset = offsetof(Vertex, materialIndex);
+        attribute_descriptions[3].offset = offsetof(Vertex, material_index);
 
         return attribute_descriptions;
     }
 };
 
 }  // namespace assets
+
+namespace std {
+template<>
+struct hash<assets::Vertex> final {
+    size_t operator()(assets::Vertex const& vertex) const noexcept {
+        auto h1 = combine(hash<glm::vec2>()(vertex.tex_coords), hash<int>()(vertex.material_index));
+        auto h2 = combine(hash<glm::vec3>()(vertex.normal), h1);
+        return combine(hash<glm::vec3>()(vertex.position), h2);
+    }
+
+private:
+    static size_t combine(size_t hash0, size_t hash1) {
+        return hash0 ^ (hash1 + 0x9e3779b9 + (hash0 << 6) + (hash0 >> 2));
+    }
+};
+
+}  // namespace std

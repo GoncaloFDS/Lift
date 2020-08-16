@@ -133,7 +133,9 @@ void Application::setPhysicalDevice(VkPhysicalDevice physical_device) {
 
     renderer_->createAccelerationStructures(*scene_);
 
-    while (window_->isMinimized()) { window_->waitForEvents(); }
+    while (window_->isMinimized()) {
+        window_->waitForEvents();
+    }
 
     createSwapChain();
 }
@@ -195,10 +197,7 @@ void Application::loadScene(const uint32_t scene_index) {
         assets.textures.push_back(assets::Texture::loadTexture("../resources/textures/white.png"));
     }
 
-    scene_ = std::make_unique<assets::Scene>(renderer_->commandPool(),
-                                             std::move(assets.models),
-                                             std::move(assets.textures),
-                                             assets.light);
+    scene_ = std::make_unique<assets::Scene>(renderer_->commandPool(), assets);
     scene_index_ = scene_index;
 
     camera_initial_state_ = assets.camera;

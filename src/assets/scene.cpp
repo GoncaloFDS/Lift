@@ -54,11 +54,9 @@ void createDeviceBuffer(vulkan::CommandPool& command_pool,
     copyFromStagingBuffer(command_pool, *buffer, content);
 }
 
-Scene::Scene(vulkan::CommandPool& command_pool,
-             std::vector<Model>&& models,
-             std::vector<Texture>&& textures,
-             Light light)
-    : models_(std::move(models)), light_(light), textures_(std::move(textures)) {
+Scene::Scene(vulkan::CommandPool& command_pool, SceneAssets& scene_assets)
+    : models_(std::move(scene_assets.models)), light_(scene_assets.light), textures_(std::move(scene_assets.textures)) {
+
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     std::vector<Material> materials;
@@ -66,18 +64,23 @@ Scene::Scene(vulkan::CommandPool& command_pool,
     std::vector<VkAabbPositionsKHR> aabbs;
     std::vector<glm::uvec2> offsets;
 
+    for (auto& material : scene_assets.materials) {
+        materials.push_back(material.second);
+    }
+
     for (const auto& model : models_) {
         const auto index_offset = static_cast<uint32_t>(indices.size());
         const auto vertex_offset = static_cast<uint32_t>(vertices.size());
-        const auto material_offset = static_cast<uint32_t>(materials.size());
 
         offsets.emplace_back(index_offset, vertex_offset);
 
         vertices.insert(vertices.end(), model.vertices().begin(), model.vertices().end());
         indices.insert(indices.end(), model.indices().begin(), model.indices().end());
-        materials.insert(materials.end(), model.materials().begin(), model.materials().end());
 
-        for (size_t i = vertex_offset; i != vertices.size(); ++i) { vertices[i].materialIndex += material_offset; }
+        for (size_t i = vertex_offset; i != vertices.size(); ++i) {
+            auto material_index = std::distance(scene_assets.materials.begin(), scene_assets.materials.find(model.materialId()));
+            vertices[i].material_index = static_cast<int32_t>(material_index);
+        }
 
         const auto sphere = dynamic_cast<const Sphere*>(model.procedural());
         if (sphere != nullptr) {
