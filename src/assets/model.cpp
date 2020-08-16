@@ -28,7 +28,7 @@ private:
 namespace assets {
 
 Model Model::loadModel(const std::string& filename) {
-    LF_WARN("Loading model {0}", filename);
+    LF_INFO("Loading model {0}", filename);
 
     const auto timer = std::chrono::high_resolution_clock::now();
     const std::string material_path = std::filesystem::path(filename).parent_path().string();
@@ -50,11 +50,11 @@ Model Model::loadModel(const std::string& filename) {
     }
 
     if (!warn.empty()) {
-        LF_WARN("Warning: {0}", warn);
+        LF_ERROR("Warning: {0}", warn);
     }
 
     if (!err.empty()) {
-        LF_ERROR("Error loading obj: {0}", err);
+        LF_FATAL("Error loading obj: {0}", err);
     }
 
     std::vector<Material> materials;

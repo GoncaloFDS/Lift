@@ -26,6 +26,7 @@ struct UniformBufferObject {
     uint32_t gamma_correction {};  // bool
     uint32_t has_sky {};           // bool
     uint32_t frame {};
+    uint32_t debug_normals {};  // bool
 };
 
 class UniformBuffer {

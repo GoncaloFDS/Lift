@@ -9,5 +9,5 @@ void Log::init() {
      spdlog::set_pattern("%^[%T] %n: %v%$");
     s_logger_ = spdlog::stdout_color_mt("lift");
     s_logger_->set_level(spdlog::level::debug);
-    LF_WARN("Initialized Log");
+    LF_INFO("Initialized Log");
 }

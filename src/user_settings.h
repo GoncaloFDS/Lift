@@ -16,6 +16,9 @@ struct UserSettings final {
     uint32_t number_of_bounces {};
     uint32_t max_number_of_samples {};
 
+    // debug
+    bool debug_normals {};
+
     // Camera
     float fov {};
     float aperture {};
@@ -35,6 +38,8 @@ struct UserSettings final {
                fov != prev.fov ||
                aperture != prev.aperture ||
                focus_distance != prev.focus_distance ||
-               gamma_correction != prev.gamma_correction;
+               gamma_correction != prev.gamma_correction ||
+               debug_normals != prev.debug_normals;
     }
+
 };

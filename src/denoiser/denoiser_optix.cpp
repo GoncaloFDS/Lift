@@ -10,7 +10,7 @@
 OptixDeviceContext optix_device_context_;
 
 static void contextLogCb(unsigned int level, const char* tag, const char* message, void* cbdata) {
-    LF_WARN("[CUDA] {0}", message);
+    LF_INFO("[CUDA] {0}", message);
 }
 
 void DenoiserOptix::setup(vulkan::Device& device, uint32_t queue_index) {

@@ -328,7 +328,7 @@ void Renderer::createAccelerationStructures(assets::Scene& scene) {
     const auto elapsed =
         std::chrono::duration<float, std::chrono::seconds::period>(std::chrono::high_resolution_clock::now() - timer)
             .count();
-    LF_WARN("Built acceleration structures in {0}s", elapsed);
+    LF_INFO("Built acceleration structures in {0}s", elapsed);
 }
 
 void Renderer::deleteAccelerationStructures() {

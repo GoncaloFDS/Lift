@@ -170,6 +170,7 @@ include_directories(${EXTERNAL_DIR}/tinyobj)
 include_directories(${EXTERNAL_DIR}/random/include)
 include_directories(${EXTERNAL_DIR}/spdlog/include)
 include_directories(${EXTERNAL_DIR}/glm)
+include_directories(${EXTERNAL_DIR}/pbrt/include)
 include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 link_directories(${Vulkan_LIBRARY})
 
@@ -197,8 +198,21 @@ add_executable(${exe_name}
         ${src_files}
         )
 
+#find_library(pbrt_lib pbrtParser "${CMAKE_SOURCE_DIR}/external/pbrt/lib")
+
 set_target_properties(${exe_name} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-target_link_libraries(${exe_name} ${Boost_LIBRARIES} glfw imgui spdlog ${Vulkan_LIBRARIES} ${optix_LIBRARY} ${CUDA_LIBRARIES} ${CUDA_CUDA_LIBRARY})
+target_link_libraries(${exe_name}
+        ${Boost_LIBRARIES}
+        glfw
+        imgui
+        spdlog
+        ${Vulkan_LIBRARIES}
+        ${optix_LIBRARY}
+        ${CUDA_LIBRARIES}
+        ${CUDA_CUDA_LIBRARY}
+        pbrtParser)
+
+#message(${pbrt_lib})
 
 add_dependencies(${exe_name} Resources)
 

@@ -18,7 +18,7 @@ Profiler::~Profiler() {
 
     const auto s = duration_.count();
     if (!message_.empty()) {
-        LF_WARN("{0} -> {1}", message_, s);
+        LF_INFO("{0} -> {1}", message_, s);
     }
     s_map[id_] = s;
 }

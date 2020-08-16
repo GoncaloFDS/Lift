@@ -1,0 +1,138 @@
+Integrator "path" "integer maxdepth" [ 65 ] 
+Transform [ 0.999914 0.000835626 0.013058 -0 -0 0.997959 -0.063863 -0 0.0130847 -0.0638576 -0.997873 -0 0.460159 -2.13584 9.87771 1]
+Sampler "sobol" "integer pixelsamples" [ 64 ] 
+PixelFilter "triangle" "float xwidth" [ 1.000000 ] "float ywidth" [ 1.000000 ] 
+Film "image" "integer xresolution" [ 1280 ] "integer yresolution" [ 720 ] "string filename" [ "dining-room.png" ] 
+Camera "perspective" "float fov" [ 35.983398 ] 
+WorldBegin
+	Texture "Texture01" "spectrum" "imagemap" "string filename" [ "textures/picture3.tga" ] "bool trilinear" [ "true" ] 
+	Texture "Texture02" "spectrum" "imagemap" "string filename" [ "textures/Tiles.tga" ] "bool trilinear" [ "true" ] 
+	Texture "Texture03" "spectrum" "imagemap" "string filename" [ "textures/Teacup.tga" ] "bool trilinear" [ "true" ] 
+	MakeNamedMaterial "WhitePlastic" "string type" [ "substrate" ] "rgb Ks" [ 0.040000 0.040000 0.040000 ] "rgb Kd" [ 1.000000 1.000000 1.000000 ] "float uroughness" [ 0.100000 ] "float vroughness" [ 0.100000 ] "bool remaproughness" [ "false" ] 
+	MakeNamedMaterial "Chrome" "string type" [ "metal" ] "rgb eta" [ 4.369683 2.916703 1.654701 ] "rgb k" [ 5.206434 4.231365 3.754947 ] "bool remaproughness" [ "false" ] "float uroughness" [ 0.050000 ] "float vroughness" [ 0.050000 ] 
+	MakeNamedMaterial "BlackRubber" "string type" [ "substrate" ] "rgb Ks" [ 0.040000 0.040000 0.040000 ] "rgb Kd" [ 0.050000 0.050000 0.050000 ] "float uroughness" [ 0.200000 ] "float vroughness" [ 0.200000 ] "bool remaproughness" [ "false" ] 
+	MakeNamedMaterial "Walls" "string type" [ "matte" ] "rgb Kd" [ 0.200000 0.200000 0.200000 ] 
+	MakeNamedMaterial "Artwork" "string type" [ "matte" ] "texture Kd" [ "Texture01" ] 
+	MakeNamedMaterial "None" "string type" [ "matte" ] "rgb Kd" [ 0.000000 0.000000 0.000000 ] 
+	MakeNamedMaterial "FloorTiles" "string type" [ "matte" ] "texture Kd" [ "Texture02" ] 
+	MakeNamedMaterial "BlackPaint" "string type" [ "substrate" ] "rgb Ks" [ 0.040000 0.040000 0.040000 ] "rgb Kd" [ 0.010000 0.010000 0.010000 ] "float uroughness" [ 0.200000 ] "float vroughness" [ 0.200000 ] "bool remaproughness" [ "false" ] 
+	MakeNamedMaterial "WhiteMarble" "string type" [ "matte" ] "rgb Kd" [ 0.325037 0.325037 0.325037 ] 
+	MakeNamedMaterial "Gold" "string type" [ "metal" ] "rgb eta" [ 0.143119 0.374957 1.442479 ] "rgb k" [ 3.983160 2.385721 1.603215 ] "bool remaproughness" [ "false" ] "float uroughness" [ 0.100000 ] "float vroughness" [ 0.100000 ] 
+	MakeNamedMaterial "Ceramic" "string type" [ "substrate" ] "rgb Ks" [ 0.040000 0.040000 0.040000 ] "rgb Kd" [ 1.000000 1.000000 1.000000 ] "float uroughness" [ 0.010000 ] "float vroughness" [ 0.010000 ] "bool remaproughness" [ "false" ] 
+	MakeNamedMaterial "RoughMetal" "string type" [ "metal" ] "rgb eta" [ 1.657460 0.880369 0.521229 ] "rgb k" [ 9.223869 6.269523 4.837001 ] "bool remaproughness" [ "false" ] "float uroughness" [ 0.100000 ] "float vroughness" [ 0.100000 ] 
+	MakeNamedMaterial "PaintedCeramic" "string type" [ "substrate" ] "rgb Ks" [ 0.040000 0.040000 0.040000 ] "texture Kd" [ "Texture03" ] "float uroughness" [ 0.010000 ] "float vroughness" [ 0.010000 ] "bool remaproughness" [ "false" ] 
+	MakeNamedMaterial "SkirtWood" "string type" [ "substrate" ] "rgb Ks" [ 0.040000 0.040000 0.040000 ] "rgb Kd" [ 0.684615 0.684615 0.684615 ] "float uroughness" [ 0.100000 ] "float vroughness" [ 0.100000 ] "bool remaproughness" [ "false" ] 
+	MakeNamedMaterial "FrostedGlass" "string type" [ "substrate" ] "rgb Ks" [ 0.040000 0.040000 0.040000 ] "rgb Kd" [ 0.793110 0.793110 0.793110 ] "float uroughness" [ 0.100000 ] "float vroughness" [ 0.100000 ] "bool remaproughness" [ "false" ] 
+	NamedMaterial "FrostedGlass" 
+	Shape "plymesh" "string filename" [ "models/Mesh013.ply" ] 
+	NamedMaterial "WhitePlastic" 
+	Shape "plymesh" "string filename" [ "models/Mesh016.ply" ] 
+	Shape "plymesh" "string filename" [ "models/Mesh015.ply" ] 
+	NamedMaterial "FrostedGlass" 
+	Shape "plymesh" "string filename" [ "models/Mesh023.ply" ] 
+	NamedMaterial "WhitePlastic" 
+	Shape "plymesh" "string filename" [ "models/Mesh020.ply" ] 
+	Shape "plymesh" "string filename" [ "models/Mesh017.ply" ] 
+	NamedMaterial "None" 
+	Shape "plymesh" "string filename" [ "models/Mesh024.ply" ] 
+	NamedMaterial "BlackPaint" 
+	Shape "plymesh" "string filename" [ "models/Mesh041.ply" ] 
+	Shape "plymesh" "string filename" [ "models/Mesh011.ply" ] 
+	NamedMaterial "Ceramic" 
+	Shape "plymesh" "string filename" [ "models/Mesh026.ply" ] 
+	NamedMaterial "Gold" 
+	Shape "plymesh" "string filename" [ "models/Mesh018.ply" ] 
+	NamedMaterial "RoughMetal" 
+	Shape "plymesh" "string filename" [ "models/Mesh007.ply" ] 
+	NamedMaterial "PaintedCeramic" 
+	Shape "plymesh" "string filename" [ "models/Mesh005.ply" ] 
+	NamedMaterial "Gold" 
+	Shape "plymesh" "string filename" [ "models/Mesh019.ply" ] 
+	NamedMaterial "Ceramic" 
+	Shape "plymesh" "string filename" [ "models/Mesh021.ply" ] 
+	Shape "plymesh" "string filename" [ "models/Mesh037.ply" ] 
+	NamedMaterial "Gold" 
+	Shape "plymesh" "string filename" [ "models/Mesh004.ply" ] 
+	NamedMaterial "PaintedCeramic" 
+	Shape "plymesh" "string filename" [ "models/Mesh014.ply" ] 
+	NamedMaterial "Gold" 
+	Shape "plymesh" "string filename" [ "models/Mesh012.ply" ] 
+	NamedMaterial "Ceramic" 
+	Shape "plymesh" "string filename" [ "models/Mesh028.ply" ] 
+	NamedMaterial "RoughMetal" 
+	Shape "plymesh" "string filename" [ "models/Mesh025.ply" ] 
+	NamedMaterial "Ceramic" 
+	Shape "plymesh" "string filename" [ "models/Mesh008.ply" ] 
+	NamedMaterial "WhitePlastic" 
+	Shape "plymesh" "string filename" [ "models/Mesh032.ply" ] 
+	NamedMaterial "Chrome" 
+	Shape "plymesh" "string filename" [ "models/Mesh035.ply" ] 
+	NamedMaterial "BlackRubber" 
+	Shape "plymesh" "string filename" [ "models/Mesh042.ply" ] 
+	NamedMaterial "WhitePlastic" 
+	Shape "plymesh" "string filename" [ "models/Mesh010.ply" ] 
+	NamedMaterial "Chrome" 
+	Shape "plymesh" "string filename" [ "models/Mesh036.ply" ] 
+	NamedMaterial "BlackRubber" 
+	Shape "plymesh" "string filename" [ "models/Mesh027.ply" ] 
+	NamedMaterial "WhitePlastic" 
+	Shape "plymesh" "string filename" [ "models/Mesh043.ply" ] 
+	NamedMaterial "Chrome" 
+	Shape "plymesh" "string filename" [ "models/Mesh044.ply" ] 
+	NamedMaterial "BlackRubber" 
+	Shape "plymesh" "string filename" [ "models/Mesh031.ply" ] 
+	NamedMaterial "WhitePlastic" 
+	Shape "plymesh" "string filename" [ "models/Mesh022.ply" ] 
+	NamedMaterial "Chrome" 
+	Shape "plymesh" "string filename" [ "models/Mesh038.ply" ] 
+	NamedMaterial "BlackRubber" 
+	Shape "plymesh" "string filename" [ "models/Mesh030.ply" ] 
+	NamedMaterial "WhitePlastic" 
+	Shape "plymesh" "string filename" [ "models/Mesh046.ply" ] 
+	NamedMaterial "Chrome" 
+	Shape "plymesh" "string filename" [ "models/Mesh047.ply" ] 
+	NamedMaterial "BlackRubber" 
+	Shape "plymesh" "string filename" [ "models/Mesh034.ply" ] 
+	NamedMaterial "WhiteMarble" 
+	Shape "plymesh" "string filename" [ "models/Mesh033.ply" ] 
+	NamedMaterial "FloorTiles" 
+	TransformBegin
+		Transform [ 1 0 0 0 0 1 0 0 0 0 1.05106 0 0 0 -0.452102 1]
+		Shape "plymesh" "string filename" [ "models/Mesh006.ply" ] 
+	TransformEnd
+	NamedMaterial "Walls" 
+	Shape "plymesh" "string filename" [ "models/Mesh048.ply" ] 
+	NamedMaterial "WhitePlastic" 
+	Shape "plymesh" "string filename" [ "models/Mesh049.ply" ] 
+	NamedMaterial "Chrome" 
+	Shape "plymesh" "string filename" [ "models/Mesh051.ply" ] 
+	NamedMaterial "BlackRubber" 
+	Shape "plymesh" "string filename" [ "models/Mesh040.ply" ] 
+	NamedMaterial "Ceramic" 
+	Shape "plymesh" "string filename" [ "models/Mesh003.ply" ] 
+	Shape "plymesh" "string filename" [ "models/Mesh002.ply" ] 
+	NamedMaterial "Gold" 
+	Shape "plymesh" "string filename" [ "models/Mesh009.ply" ] 
+	NamedMaterial "RoughMetal" 
+	Shape "plymesh" "string filename" [ "models/Mesh045.ply" ] 
+	NamedMaterial "PaintedCeramic" 
+	Shape "plymesh" "string filename" [ "models/Mesh029.ply" ] 
+	NamedMaterial "Gold" 
+	Shape "plymesh" "string filename" [ "models/Mesh039.ply" ] 
+	NamedMaterial "Ceramic" 
+	Shape "plymesh" "string filename" [ "models/Mesh050.ply" ] 
+	NamedMaterial "Artwork" 
+	TransformBegin
+		Transform [ -1 0 1.50996e-007 0 0 1 0 0 -1.50996e-007 0 -1 0 -0.621391 4.02309 -4.47482 1]
+		Shape "plymesh" "string filename" [ "models/Mesh001.ply" ] 
+	TransformEnd
+	NamedMaterial "SkirtWood" 
+	Shape "plymesh" "string filename" [ "models/Mesh000.ply" ] 
+	NamedMaterial "Walls" 
+	Shape "trianglemesh" "integer indices" [ 0 1 2 0 2 3 ] "point P" [ -6.29999 8.03075 10.044 -6.29999 -1.51685 10.044 -6.29999 -1.51685 -4.644 -6.29999 8.03075 -4.644 ] "normal N" [ 1 -4.37114e-008 -1.39876e-007 1 -4.37114e-008 -1.39876e-007 1 -4.37114e-008 -1.39876e-007 1 -4.37114e-008 -1.39876e-007 ] "float uv" [ 0 0 1 0 1 1 0 1 ] 
+	LightSource "distant" "point from" [ 0.886980 0.288862 0.360313 ] "point to" [ 0.000000 0.000000 0.000000 ] "rgb L" [ 10.000000 10.000000 10.000000 ] 
+	TransformBegin
+		Transform [ -1 0 8.74228e-008 0 -8.74228e-008 0 -1 0 0 1 0 0 0 0 0 1]
+		LightSource "infinite" "string mapname" [ "textures/Skydome.pfm" ] 
+	TransformEnd
+WorldEnd

@@ -146,7 +146,7 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
     const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
 
     if (ImGui::Begin("Settings", &settings().show_settings, flags)) {
-        if (ImGui::CollapsingHeader("ray tracing")) {
+        ImGui::Text("ray tracing"); {
             ImGui::Separator();
             ImGui::Checkbox("enable denoising", &settings().is_denoised);
             ImGui::Checkbox("accumulate rays between frames", &settings().accumulate_rays);
@@ -157,7 +157,8 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
             ImGui::NewLine();
         }
 
-        if (ImGui::CollapsingHeader("camera settings")) {
+        ImGui::Text("camera settings"); {
+            ImGui::Separator();
             float fmin = 0.1f, fmax = 1000.0f;
             ImGui::SliderScalar("camera move speed",
                                 ImGuiDataType_Float,
@@ -177,6 +178,11 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
             glm::vec3 camera_pos = camera_state_.eye;
             ImGui::Text("camera position: (%f %f %f)", camera_pos.x, camera_pos.y, camera_pos.z);
             ImGui::NewLine();
+        }
+
+        ImGui::Text("debug settings"); {
+            ImGui::Separator();
+            ImGui::Checkbox("render normals", &settings().debug_normals);
         }
 
         ImGui::NewLine();

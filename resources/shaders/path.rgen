@@ -63,8 +63,11 @@ vec3 getColorForRay(in vec3 start_ray_pos, in vec3 start_ray_dir, inout uint see
             break;
         }
 
-        //        ret = ray_.mat.albedo;
-        //        return ret;
+        if (ubo_.debug_normals) {
+            vec3 n = remap(ray_.normal, -1.0f, 1.0f, 0.0f, 1.0f);
+            ret = n;
+            return ret;
+        }
 
         if (ray_.from_inside) {
             throughput *= exp(-ray_.mat.refraction_color * ray_.t);
@@ -108,10 +111,10 @@ vec3 getColorForRay(in vec3 start_ray_pos, in vec3 start_ray_dir, inout uint see
 
         // update the ray position
         if (do_refraction == 1.0f) {
-            ray_pos = (ray_pos + ray_dir * ray_.t) - ray_.normal * 0.01f;
+            ray_pos = (ray_pos + ray_dir * ray_.t) - ray_.normal * 0.001f;
         }
         else {
-            ray_pos = (ray_pos + ray_dir * ray_.t) + ray_.normal * 0.01f;
+            ray_pos = (ray_pos + ray_dir * ray_.t) + ray_.normal * 0.001f;
         }
 
         // calculate new ray direction
@@ -168,11 +171,9 @@ void main() {
         pixel_color += getColorForRay(origin.xyz, direction.xyz, seed) / float(ubo_.number_of_samples);
     }
 
-    if (ubo_.frame > 1) {
-        float a = 1.0 / float(ubo_.frame + 1);
-        vec3 old_color = imageLoad(output_image_, ivec2(gl_LaunchIDEXT.xy)).xyz;
-        imageStore(output_image_, ivec2(gl_LaunchIDEXT.xy), vec4(mix(old_color, pixel_color, a), 1.0f));
-    } else {
-        imageStore(output_image_, ivec2(gl_LaunchIDEXT.xy), vec4(pixel_color, 1.0f));
-    }
+    vec4 last_frame_color = imageLoad(output_image_, ivec2(gl_LaunchIDEXT.xy));
+    float blend = (ubo_.frame < 2 || last_frame_color.a == 0.0) ? 1.0f : 1.0f / ( 1.0f + (1.0f / last_frame_color.a));
+    pixel_color = mix(last_frame_color.rgb, pixel_color, blend);
+
+    imageStore(output_image_, ivec2(gl_LaunchIDEXT.xy), vec4(pixel_color, blend));
 }

@@ -111,6 +111,7 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     ubo.number_of_bounces = user_settings_.number_of_bounces;
     ubo.seed = Random::get(0u, 1000u);
     ubo.gamma_correction = user_settings_.gamma_correction;
+    ubo.debug_normals = user_settings_.debug_normals;
     ubo.has_sky = camera_->hasSky();
     ubo.frame = number_of_frames_;
     ubo.light = scene_->light();
@@ -188,7 +189,7 @@ void Application::onUpdate() {
 void Application::loadScene(const uint32_t scene_index) {
     auto assets = SceneList::all_scenes[scene_index].second();
 
-    LF_WARN("Loading Scene {0}", SceneList::all_scenes[scene_index].first.c_str());
+    LF_INFO("Loading Scene {0}", SceneList::all_scenes[scene_index].first.c_str());
 
     if (assets.textures.empty()) {
         assets.textures.push_back(assets::Texture::loadTexture("../resources/textures/white.png"));

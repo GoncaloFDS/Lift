@@ -6,7 +6,7 @@
 namespace assets {
 
 Texture Texture::loadTexture(const std::string& filename) {
-    LF_WARN("Loading texture {0}", filename);
+    LF_INFO("Loading texture {0}", filename);
     const auto timer = std::chrono::high_resolution_clock::now();
 
     // Load the texture in normal host memory.

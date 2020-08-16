@@ -21,4 +21,5 @@ struct UniformBufferObject {
     bool gamma_correction;
     bool has_sky;
     uint frame;
+    bool debug_normals;
 };

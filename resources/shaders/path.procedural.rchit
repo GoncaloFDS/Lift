@@ -48,10 +48,6 @@ void main() {
     const float radius = sphere.w;
     const vec3 point = gl_WorldRayOriginEXT  + gl_HitTEXT * gl_WorldRayDirectionEXT;
     vec3 normal = (point - center) / radius;
-    //    const vec3 normal = faceforward(n0, gl_WorldRayDirectionEXT, n0);
-    //    if (material.ior <= 0.0f) {
-    //        normal = faceforward(normal, gl_WorldRayDirectionEXT, normal);
-    //    }
     const vec2 tex_coords = GetSphereTexCoord(normal);
     ///////////////////////////////
 

@@ -2,6 +2,8 @@
 #include "assets/material.h"
 #include "assets/model.h"
 #include "assets/texture.h"
+#include "pbrtParser/Scene.h"
+#include <core/log.h>
 #include <effolkronium/random.hpp>
 
 using namespace glm;
@@ -11,6 +13,7 @@ using assets::Model;
 using assets::Texture;
 
 const std::vector<std::pair<std::string, std::function<SceneAssets()>>> SceneList::all_scenes = {
+    {"pbrt", pbrt},
     {"cornell box dragon", cornellBoxDragon},
     {"cornell box", cornellBox},
     {"teapot", teapot},
@@ -270,8 +273,14 @@ SceneAssets SceneList::cornellBox() {
     models.push_back(Model::createCornellBox(555));
     models.push_back(box_front);
     models.push_back(box_back);
+    auto t = std::vector<Texture>();
 
-    return SceneAssets {std::move(models), std::vector<Texture>(), camera, light};
+    SceneAssets s;
+    s.models = std::move(models);
+    s.textures = std::vector<Texture>();
+    s.light = light;
+    s.camera = camera;
+    return s;
 }
 
 SceneAssets SceneList::cornellBoxDragon() {
@@ -357,4 +366,130 @@ SceneAssets SceneList::sponza() {
     //
     //    return SceneAssets {std::move(models), std::vector<Texture>(), camera, light};
     return {};
+}
+
+namespace std {
+template<>
+struct hash<assets::Vertex> final {
+    size_t operator()(assets::Vertex const& vertex) const noexcept {
+        return combine(hash<vec3>()(vertex.position),
+                       combine(hash<vec3>()(vertex.normal),
+                               combine(hash<vec2>()(vertex.texCoord), hash<int>()(vertex.materialIndex))));
+    }
+
+private:
+    static size_t combine(size_t hash0, size_t hash1) {
+        return hash0 ^ (hash1 + 0x9e3779b9 + (hash0 << 6) + (hash0 >> 2));
+    }
+};
+}  // namespace std
+
+void traverse(const pbrt::Object::SP& object, SceneAssets& scene_assets) {
+
+    for (const auto& shape : object->shapes) {
+        LF_INFO("Material -> {}", shape->material->name);
+
+
+        if (pbrt::TriangleMesh::SP mesh = std::dynamic_pointer_cast<pbrt::TriangleMesh>(shape)) {
+            std::vector<Material> materials;
+            Material mat = Material::createLambertian(vec3(0.75f));
+            materials.push_back(mat);
+            // Geometry
+            std::vector<assets::Vertex> vertices;
+            std::vector<uint32_t> indices;
+
+//            LF_INFO("vertex count {}", mesh->vertex.size());
+//            LF_INFO("normal count {}", mesh->normal.size());
+//            LF_INFO("index count {}", mesh->index.size());
+
+            for (uint32_t i = 0; i < mesh->vertex.size(); i++) {
+                assets::Vertex vertex = {};
+                const auto& pos = mesh->vertex[i];
+                vertex.position = vec3(pos.x, pos.y, pos.z);
+
+                if (i < mesh->normal.size()) {
+                    const auto& normal = mesh->normal[i];
+                    vertex.normal = vec3(normal.x, normal.y, normal.z);
+                } else {
+                    vertex.normal = vec3(0);
+                }
+
+                vertex.materialIndex = 0;
+
+                vertices.push_back(vertex);
+            }
+
+            for (const auto& index : mesh->index) {
+                indices.push_back(index.x);
+                indices.push_back(index.y);
+                indices.push_back(index.z);
+
+                // fix normals
+                auto v0 = vertices[index.x];
+                if (v0.normal == vec3(0)) {
+                    auto v1 = vertices[index.y];
+                    auto v2 = vertices[index.z];
+                    auto normal = normalize(cross(v1.position - v0.position, v2.position - v0.position));
+                    vertices[index.x].normal = normal;
+                    vertices[index.y].normal = normal;
+                    vertices[index.z].normal = normal;
+                }
+            }
+
+            scene_assets.models.emplace_back(std::move(vertices), std::move(indices), std::move(materials), nullptr);
+
+        } else {
+            LF_ERROR("pbrt shape not supported");
+        }
+    }
+
+    LF_INFO("shape count {}", object->shapes.size());
+
+    for (const auto& inst : object->instances) { traverse(inst->object, scene_assets); }
+}
+
+SceneAssets SceneList::pbrt() {
+    CameraState camera;
+    camera.eye = vec3(-1, 2, 9);
+    camera.look_at = vec3(-1, 2, 0);
+    camera.up = vec3(0, 1, 0);
+    camera.field_of_view = 40;
+    camera.aperture = 0.0f;
+    camera.focus_distance = 10.0f;
+    camera.aspect_ratio = 1;
+    camera.gamma_correction = true;
+    camera.has_sky = false;
+
+    Light light = {
+        {213.0f, 553.0f, -328.0f, 0},
+        {130.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 130.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {10.0f, 10.0f, 10.0f, 0},
+    };
+
+    try {
+        std::shared_ptr<pbrt::Scene> scene = pbrt::importPBRT("../resources/scenes/dining-room/scene.pbrt");
+//        std::shared_ptr<pbrt::Scene> scene = pbrt::importPBRT("../resources/scenes/cornell-box/scene.pbrt");
+        scene->makeSingleLevel();
+        SceneAssets scene_assets;
+        scene_assets.camera = camera;
+        scene_assets.light = light;
+        scene_assets.textures = std::vector<Texture>();
+
+        traverse(scene->world, scene_assets);
+
+        Material emissive = Material::createEmissive(vec3(30.0f));
+        auto sphere = Model::createSphere(vec3(90, 30, 2), 15.0f, emissive, false);
+        scene_assets.models.push_back(sphere);
+
+        return scene_assets;
+
+    } catch (std::runtime_error& e) {
+        std::cerr << "**** ERROR IN PARSING ****" << std::endl << e.what() << std::endl;
+        std::cerr << "(this means that either there's something wrong with that PBRT file, or that the parser can't "
+                     "handle it)"
+                  << std::endl;
+        exit(1);
+    }
 }

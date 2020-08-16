@@ -12,6 +12,17 @@
 #define M_PIf 3.14159265358979323846f
 #endif
 
+float remap(float s, float a1, float a2, float b1, float b2) {
+    return b1 + (s-a1)*(b2-b1)/(a2-a1);
+}
+
+vec3 remap(vec3 v, float a1, float a2, float b1, float b2) {
+    v.x = remap(v.x, a1, a2, b1, b2);
+    v.y = remap(v.y, a1, a2, b1, b2);
+    v.z = remap(v.z, a1, a2, b1, b2);
+    return v;
+}
+
 uint tea(uint val0, uint val1)
 {
   uint v0 = val0;

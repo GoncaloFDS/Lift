@@ -121,7 +121,7 @@ TopLevelAccelerationStructure::createInstance(const BottomLevelAccelerationStruc
                            // in some cases, this flag should be passed by the application.
     instance.instanceShaderBindingTableRecordOffset = hit_group_id;
     // Set the hit group index, that will be used to find the shader code to execute when hitting the geometry.
-    instance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;  // Disable culling - more fine control
+    instance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FRONT_COUNTERCLOCKWISE_BIT_KHR;  // Disable culling - more fine control
                                                                                  // could be provided by the application
     instance.accelerationStructureReference = address;
 

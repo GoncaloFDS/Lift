@@ -79,6 +79,7 @@ set(MAIN_PROJECT "Lift")
 add_subdirectory(resources)
 add_subdirectory(src)
 add_subdirectory(external/spdlog)
+add_subdirectory(external/pbrt-parser)
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ${MAIN_PROJECT})
 
 

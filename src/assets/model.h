@@ -36,12 +36,11 @@ public:
     [[nodiscard]] uint32_t indexCount() const { return static_cast<uint32_t>(indices_.size()); }
     [[nodiscard]] uint32_t materialCount() const { return static_cast<uint32_t>(materials_.size()); }
 
-private:
     Model(std::vector<Vertex>&& vertices,
           std::vector<uint32_t>&& indices,
           std::vector<Material>&& materials,
           const class Procedural* procedural);
-
+private:
     std::vector<Vertex> vertices_;
     std::vector<uint32_t> indices_;
     std::vector<Material> materials_;

@@ -28,6 +28,7 @@ public:
     static SceneAssets cornellBox();
     static SceneAssets cornellBoxDragon();
     static SceneAssets sponza();
+    static SceneAssets pbrt();
 
     static const std::vector<std::pair<std::string, std::function<SceneAssets()>>> all_scenes;
 };

@@ -44,18 +44,11 @@ void main() {
 
     const vec3 barycentrics = vec3(1.0 - hit_attributes.x - hit_attributes.y, hit_attributes.x, hit_attributes.y);
     vec3 normal = normalize(Mix(v0.normal, v1.normal, v2.normal, barycentrics));
-//    if (material.refraction_index <= 0.0f) {
-//        normal = faceforward(normal, gl_WorldRayDirectionEXT, normal);
-//    }
     const vec2 tex_coords = Mix(v0.tex_coords, v1.tex_coords, v2.tex_coords, barycentrics);
     ///////////////////////////////
 
-//    ray_ = scatter(material, gl_WorldRayDirectionEXT, normal, tex_coords, gl_HitTEXT, ray_.seed);
     ray_.t = gl_HitTEXT;
     ray_.mat = material;
-//    ray_.mat.albedo = vec4(0.8, 0.8, 0.8, 1);
     ray_.from_inside = dot(normal, gl_WorldRayDirectionEXT) > 0;
     ray_.normal = normal * (ray_.from_inside ? -1.0f : 1.0f);
-
-
 }
