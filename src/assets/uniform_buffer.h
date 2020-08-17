@@ -12,7 +12,6 @@ class DeviceMemory;
 
 namespace assets {
 struct UniformBufferObject {
-    Light light {};
     glm::mat4 modelView {};
     glm::mat4 projection {};
     glm::mat4 model_view_inverse {};

@@ -59,6 +59,16 @@ SceneAssets SceneList::teapot() {
 
     assets::CornellBox::create(555, scene_assets);
 
+    Light light = {
+        {213.0f, 553.0f, -328.0f, 0},
+        {130.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 130.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {10.0f, 10.0f, 10.0f, 0},
+    };
+
+    scene_assets.lights.push_back(light);
+
     return scene_assets;
 }
 
@@ -86,6 +96,15 @@ SceneAssets SceneList::cornellBox() {
     scene_assets.models.push_back(box_front);
     scene_assets.models.push_back(box_back);
 
+    Light light = {
+        {213.0f, 553.0f, -328.0f, 0},
+        {130.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 130.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {10.0f, 10.0f, 10.0f, 0},
+    };
+
+    scene_assets.lights.push_back(light);
     return scene_assets;
 }
 
@@ -222,9 +241,9 @@ void traverse(const pbrt::Object::SP& object, SceneAssets& scene_assets) {
             std::vector<assets::Vertex> vertices;
             std::vector<uint32_t> indices;
 
-            //            LF_INFO("vertex count {}", mesh->vertex.size());
-            //            LF_INFO("normal count {}", mesh->normal.size());
-            //            LF_INFO("index count {}", mesh->index.size());
+            // LF_INFO("vertex count {}", mesh->vertex.size());
+            // LF_INFO("normal count {}", mesh->normal.size());
+            // LF_INFO("index count {}", mesh->index.size());
 
             for (uint32_t i = 0; i < mesh->vertex.size(); i++) {
                 assets::Vertex vertex = {};

@@ -31,11 +31,11 @@ public:
 
     [[nodiscard]] const std::vector<Model>& models() const { return models_; }
     [[nodiscard]] bool hasProcedurals() const { return static_cast<bool>(procedural_buffer_); }
-    [[nodiscard]] Light light() const { return light_; }
 
     [[nodiscard]] const vulkan::Buffer& vertexBuffer() const { return *vertex_buffer_; }
     [[nodiscard]] const vulkan::Buffer& indexBuffer() const { return *index_buffer_; }
     [[nodiscard]] const vulkan::Buffer& materialBuffer() const { return *material_buffer_; }
+    [[nodiscard]] const vulkan::Buffer& lightBuffer() const { return *light_buffer_; }
     [[nodiscard]] const vulkan::Buffer& offsetsBuffer() const { return *offset_buffer_; }
     [[nodiscard]] const vulkan::Buffer& aabbBuffer() const { return *aabb_buffer_; }
     [[nodiscard]] const vulkan::Buffer& proceduralBuffer() const { return *procedural_buffer_; }
@@ -43,10 +43,10 @@ public:
     [[nodiscard]] std::vector<VkSampler> textureSamplers() const { return texture_sampler_handles_; }
 
 private:
-    const std::vector<Model> models_;
-    const std::vector<Material> materials_;
-    const std::vector<Texture> textures_;
-    Light light_;
+    std::vector<Model> models_;
+    std::vector<Material> materials_;
+    std::vector<Light> lights_;
+    std::vector<Texture> textures_;
 
     std::unique_ptr<vulkan::Buffer> vertex_buffer_;
     std::unique_ptr<vulkan::DeviceMemory> vertex_buffer_memory_;
@@ -56,6 +56,9 @@ private:
 
     std::unique_ptr<vulkan::Buffer> material_buffer_;
     std::unique_ptr<vulkan::DeviceMemory> material_buffer_memory_;
+
+    std::unique_ptr<vulkan::Buffer> light_buffer_;
+    std::unique_ptr<vulkan::DeviceMemory> light_buffer_memory_;
 
     std::unique_ptr<vulkan::Buffer> offset_buffer_;
     std::unique_ptr<vulkan::DeviceMemory> offset_buffer_memory_;

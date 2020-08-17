@@ -19,9 +19,9 @@ struct Material;
 struct SceneAssets {
     std::vector<assets::Model> models;
     std::map<std::string, assets::Material> materials;
+    std::vector<Light> lights;
     std::vector<assets::Texture> textures;
     CameraState camera;
-    Light light;
 };
 
 class SceneList {

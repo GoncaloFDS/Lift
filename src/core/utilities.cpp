@@ -6,8 +6,9 @@ namespace vulkan {
 
 void vulkanCheck(VkResult result, const char* operation) {
     if (result != VK_SUCCESS) {
-        LF_ASSERT(false, "Failed to {0} '{1}'", operation, toString(result));
+        LF_ERROR("Failed to {0} '{1}'", operation, toString(result));
     }
+    LF_ASSERT(result == VK_SUCCESS, "Failed Vulkan Check");
 }
 
 const char* toString(VkResult result) {

@@ -55,17 +55,17 @@ void createDeviceBuffer(vulkan::CommandPool& command_pool,
 }
 
 Scene::Scene(vulkan::CommandPool& command_pool, SceneAssets& scene_assets)
-    : models_(std::move(scene_assets.models)), light_(scene_assets.light), textures_(std::move(scene_assets.textures)) {
+    : models_(std::move(scene_assets.models)), lights_(std::move(scene_assets.lights)),
+      textures_(std::move(scene_assets.textures)) {
 
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
-    std::vector<Material> materials;
     std::vector<glm::vec4> procedurals;
     std::vector<VkAabbPositionsKHR> aabbs;
     std::vector<glm::uvec2> offsets;
 
     for (auto& material : scene_assets.materials) {
-        materials.push_back(material.second);
+        materials_.push_back(material.second);
     }
 
     for (const auto& model : models_) {
@@ -78,7 +78,8 @@ Scene::Scene(vulkan::CommandPool& command_pool, SceneAssets& scene_assets)
         indices.insert(indices.end(), model.indices().begin(), model.indices().end());
 
         for (size_t i = vertex_offset; i != vertices.size(); ++i) {
-            auto material_index = std::distance(scene_assets.materials.begin(), scene_assets.materials.find(model.materialId()));
+            auto material_index =
+                std::distance(scene_assets.materials.begin(), scene_assets.materials.find(model.materialId()));
             vertices[i].material_index = static_cast<int32_t>(material_index);
         }
 
@@ -107,7 +108,8 @@ Scene::Scene(vulkan::CommandPool& command_pool, SceneAssets& scene_assets)
                        indices,
                        index_buffer_,
                        index_buffer_memory_);
-    createDeviceBuffer(command_pool, "materials", flag, materials, material_buffer_, material_buffer_memory_);
+    createDeviceBuffer(command_pool, "materials", flag, materials_, material_buffer_, material_buffer_memory_);
+    createDeviceBuffer(command_pool, "lights", flag, lights_, light_buffer_, light_buffer_memory_);
     createDeviceBuffer(command_pool, "offsets", flag, offsets, offset_buffer_, offset_buffer_memory_);
 
     createDeviceBuffer(command_pool, "aabbs", flag, aabbs, aabb_buffer_, aabb_buffer_memory_);
@@ -137,6 +139,8 @@ Scene::~Scene() {
     offset_buffer_memory_.reset();
     material_buffer_.reset();
     material_buffer_memory_.reset();
+    light_buffer_.reset();
+    light_buffer_memory_.reset();
     index_buffer_.reset();
     index_buffer_memory_.reset();
     vertex_buffer_.reset();

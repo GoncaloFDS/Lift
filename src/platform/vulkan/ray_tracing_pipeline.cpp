@@ -44,20 +44,25 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
          VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
 
-        // Vertex buffer, Index buffer, Material buffer, Offset buffer
+        // Vertex buffer
         {4, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
+        // Index buffer
         {5, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
+        // Material buffer
         {6, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
-        {7, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
+        // Lights buffer,
+        {7, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_KHR},
+        // Offset buffer
+        {8, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
 
         // Textures and image samplers
-        {8,
+        {9,
          static_cast<uint32_t>(scene.textureSamplers().size()),
          VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
          VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
 
         // The Procedural buffer (Spheres).
-        {9,
+        {10,
          1,
          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
          VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_INTERSECTION_BIT_KHR}};
@@ -106,6 +111,11 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
         material_buffer_info.buffer = scene.materialBuffer().handle();
         material_buffer_info.range = VK_WHOLE_SIZE;
 
+        // Light buffer
+        VkDescriptorBufferInfo light_buffer_info = {};
+        light_buffer_info.buffer = scene.lightBuffer().handle();
+        light_buffer_info.range = VK_WHOLE_SIZE;
+
         // Offsets buffer
         VkDescriptorBufferInfo offsets_buffer_info = {};
         offsets_buffer_info.buffer = scene.offsetsBuffer().handle();
@@ -129,8 +139,9 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
             descriptor_sets.bind(i, 4, vertex_buffer_info),
             descriptor_sets.bind(i, 5, index_buffer_info),
             descriptor_sets.bind(i, 6, material_buffer_info),
-            descriptor_sets.bind(i, 7, offsets_buffer_info),
-            descriptor_sets.bind(i, 8, *image_infos.data(), static_cast<uint32_t>(image_infos.size())),
+            descriptor_sets.bind(i, 7, light_buffer_info),
+            descriptor_sets.bind(i, 8, offsets_buffer_info),
+            descriptor_sets.bind(i, 9, *image_infos.data(), static_cast<uint32_t>(image_infos.size())),
         };
 
         // Procedural buffer (optional)
@@ -140,7 +151,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
             procedural_buffer_info.buffer = scene.proceduralBuffer().handle();
             procedural_buffer_info.range = VK_WHOLE_SIZE;
 
-            descriptor_writes.push_back(descriptor_sets.bind(i, 9, procedural_buffer_info));
+            descriptor_writes.push_back(descriptor_sets.bind(i, 10, procedural_buffer_info));
         }
 
         descriptor_sets.updateDescriptors(descriptor_writes);
