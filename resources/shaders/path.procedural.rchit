@@ -5,6 +5,8 @@
 
 #include "utils/material.glsl"
 #include "utils/uniform_buffer_object.glsl"
+#include "utils/sampling.glsl"
+#include "utils/ray_payload.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT scene_;
 layout(binding = 3) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
@@ -16,22 +18,18 @@ layout(binding = 8) uniform sampler2D[] TextureSamplers;
 layout(binding = 9) readonly buffer SphereArray { vec4[] Spheres; };
 
 #include "utils/vertex.glsl"
-#include "utils/sampling.glsl"
-#include "utils/ray_payload.glsl"
-
 
 hitAttributeEXT vec4 sphere_;
+
 layout(location = 0) rayPayloadInEXT RayPayload ray_;
 layout(location = 2) rayPayloadEXT bool shadow_ray_;
-
-const float pi = 3.1415926535897932384626433832795;
 
 vec2 GetSphereTexCoord(const vec3 point) {
     const float phi = atan(point.x, point.z);
     const float theta = asin(point.y);
 
-    return vec2 ((phi + pi) / (2* pi),
-    1 - (theta + pi /2) / pi);
+    return vec2 ((phi + c_pi) / (2* c_pi),
+    1 - (theta + c_pi /2) / c_pi);
 }
 
 void main() {

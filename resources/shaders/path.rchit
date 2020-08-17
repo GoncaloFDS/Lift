@@ -5,6 +5,7 @@
 
 #include "utils/material.glsl"
 #include "utils/uniform_buffer_object.glsl"
+#include "utils/ray_payload.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT scene_;
 layout(binding = 3) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
@@ -15,14 +16,11 @@ layout(binding = 7) readonly buffer OffsetArray { uvec2[] Offsets; };
 layout(binding = 8) uniform sampler2D[] TextureSamplers;
 
 #include "utils/vertex.glsl"
-#include "utils/sampling.glsl"
-#include "utils/ray_payload.glsl"
 
 hitAttributeEXT vec2 hit_attributes;
+
 layout(location = 0) rayPayloadInEXT RayPayload ray_;
 layout(location = 2) rayPayloadEXT bool shadow_ray_;
-
-const float pi = 3.1415926535897932384626433832795;
 
 vec2 Mix(vec2 a, vec2 b, vec2 c, vec3 barycentrics) {
     return a * barycentrics.x + b * barycentrics.y + c * barycentrics.z;
