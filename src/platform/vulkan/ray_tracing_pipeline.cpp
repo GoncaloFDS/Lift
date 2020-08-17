@@ -20,6 +20,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
                                        const SwapChain& swap_chain,
                                        const TopLevelAccelerationStructure& acceleration_structure,
                                        const ImageView& output_image_view,
+                                       const ImageView& accumulation_image_view,
                                        const std::vector<assets::UniformBuffer>& uniform_buffers,
                                        const assets::Scene& scene,
                                        const Algorithm algorithm)
@@ -33,29 +34,30 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
          VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR,
          VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
 
-        // Output Image
+        // Output & Accumulation Image
         {1, 1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_KHR},
+        {2, 1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_KHR},
 
-        // Scene & Camera
-        {2,
+        // Scene & Camera (Uniform Buffer)
+        {3,
          1,
          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
          VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
 
         // Vertex buffer, Index buffer, Material buffer, Offset buffer
-        {3, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
         {4, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
         {5, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
         {6, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
+        {7, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
 
         // Textures and image samplers
-        {7,
+        {8,
          static_cast<uint32_t>(scene.textureSamplers().size()),
          VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
          VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
 
         // The Procedural buffer (Spheres).
-        {8,
+        {9,
          1,
          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
          VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_INTERSECTION_BIT_KHR}};
@@ -78,6 +80,11 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
         VkDescriptorImageInfo output_image_info = {};
         output_image_info.imageView = output_image_view.handle();
         output_image_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+        // Accumulation image
+        VkDescriptorImageInfo accumulation_image_info = {};
+        accumulation_image_info.imageView = accumulation_image_view.handle();
+        accumulation_image_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
         // Uniform buffer
         VkDescriptorBufferInfo uniform_buffer_info = {};
@@ -117,12 +124,13 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
         std::vector<VkWriteDescriptorSet> descriptor_writes = {
             descriptor_sets.bind(i, 0, structure_info),
             descriptor_sets.bind(i, 1, output_image_info),
-            descriptor_sets.bind(i, 2, uniform_buffer_info),
-            descriptor_sets.bind(i, 3, vertex_buffer_info),
-            descriptor_sets.bind(i, 4, index_buffer_info),
-            descriptor_sets.bind(i, 5, material_buffer_info),
-            descriptor_sets.bind(i, 6, offsets_buffer_info),
-            descriptor_sets.bind(i, 7, *image_infos.data(), static_cast<uint32_t>(image_infos.size())),
+            descriptor_sets.bind(i, 2, accumulation_image_info),
+            descriptor_sets.bind(i, 3, uniform_buffer_info),
+            descriptor_sets.bind(i, 4, vertex_buffer_info),
+            descriptor_sets.bind(i, 5, index_buffer_info),
+            descriptor_sets.bind(i, 6, material_buffer_info),
+            descriptor_sets.bind(i, 7, offsets_buffer_info),
+            descriptor_sets.bind(i, 8, *image_infos.data(), static_cast<uint32_t>(image_infos.size())),
         };
 
         // Procedural buffer (optional)
@@ -132,7 +140,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
             procedural_buffer_info.buffer = scene.proceduralBuffer().handle();
             procedural_buffer_info.range = VK_WHOLE_SIZE;
 
-            descriptor_writes.push_back(descriptor_sets.bind(i, 8, procedural_buffer_info));
+            descriptor_writes.push_back(descriptor_sets.bind(i, 9, procedural_buffer_info));
         }
 
         descriptor_sets.updateDescriptors(descriptor_writes);

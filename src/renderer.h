@@ -76,7 +76,7 @@ public:
     }
     [[nodiscard]] const std::vector<assets::UniformBuffer>& uniformBuffers() const { return uniform_buffers_; }
 
-    void createOutputImage();
+    void createImages();
 
     void setDenoised(bool b) { is_denoised = b; }
 
@@ -117,6 +117,10 @@ private:
     std::unique_ptr<vulkan::Image> output_image_;
     std::unique_ptr<vulkan::DeviceMemory> output_image_memory_;
     std::unique_ptr<vulkan::ImageView> output_image_view_;
+
+    std::unique_ptr<vulkan::Image> accumulation_image_;
+    std::unique_ptr<vulkan::DeviceMemory> accumulation_image_memory_;
+    std::unique_ptr<vulkan::ImageView> accumulation_image_view_;
 
     std::unique_ptr<vulkan::Image> denoised_image_;
     std::unique_ptr<vulkan::DeviceMemory> denoised_image_memory_;

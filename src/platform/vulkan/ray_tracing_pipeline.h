@@ -30,6 +30,7 @@ public:
                        const SwapChain& swap_chain,
                        const TopLevelAccelerationStructure& acceleration_structure,
                        const ImageView& output_image_view,
+                       const ImageView& accumulation_image_view,
                        const std::vector<assets::UniformBuffer>& uniform_buffers,
                        const assets::Scene& scene,
                        Algorithm algorithm);

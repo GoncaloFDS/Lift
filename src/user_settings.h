@@ -23,9 +23,13 @@ struct UserSettings final {
     float fov {};
     float aperture {};
     float focus_distance {};
-    bool gamma_correction {};
     float camera_move_speed {};
     float camera_mouse_speed {};
+
+    // Post processing
+    bool gamma_correction {};
+    bool tone_map {};
+    float exposure {};
 
     // UI
     bool show_settings {};
@@ -38,7 +42,6 @@ struct UserSettings final {
                fov != prev.fov ||
                aperture != prev.aperture ||
                focus_distance != prev.focus_distance ||
-               gamma_correction != prev.gamma_correction ||
                debug_normals != prev.debug_normals;
     }
 

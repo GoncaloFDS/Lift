@@ -46,6 +46,10 @@ UserSettings createUserSettings(const Options& options) {
     user_settings.show_settings = !options.benchmark;
     user_settings.show_overlay = true;
 
+    user_settings.gamma_correction = true;
+    user_settings.tone_map = true;
+    user_settings.exposure = 1.0f;
+
     return user_settings;
 }
 

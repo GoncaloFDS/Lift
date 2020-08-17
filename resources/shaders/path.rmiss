@@ -6,7 +6,7 @@
 #include "utils/ray_payload.glsl"
 #include "utils/uniform_buffer_object.glsl"
 
-layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
+layout(binding = 3) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
 
 layout(location = 0) rayPayloadInEXT RayPayload ray_;
 
