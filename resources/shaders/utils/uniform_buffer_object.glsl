@@ -17,10 +17,12 @@ struct UniformBufferObject {
     uint number_of_samples;
     uint number_of_bounces;
     uint seed;
+    bool next_event_estimation;
     bool gamma_correction;
     bool tone_map;
     float exposure;
     bool has_sky;
     uint frame;
     bool debug_normals;
+    bool debug_radiance;
 };

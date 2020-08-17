@@ -12,12 +12,14 @@ struct UserSettings final {
 
     bool is_denoised {};
     bool accumulate_rays {};
+    bool next_event_estimation {};
     uint32_t number_of_samples {};
     uint32_t number_of_bounces {};
     uint32_t max_number_of_samples {};
 
     // debug
     bool debug_normals {};
+    bool debug_radiance {};
 
     // Camera
     float fov {};
@@ -37,12 +39,14 @@ struct UserSettings final {
 
     [[nodiscard]] bool requiresAccumulationReset(const UserSettings& prev) const {
         return accumulate_rays != prev.accumulate_rays ||
+               next_event_estimation != prev.next_event_estimation ||
                number_of_samples != prev.number_of_samples ||
                number_of_bounces != prev.number_of_bounces ||
                fov != prev.fov ||
                aperture != prev.aperture ||
                focus_distance != prev.focus_distance ||
-               debug_normals != prev.debug_normals;
+               debug_normals != prev.debug_normals ||
+               debug_radiance != prev.debug_radiance;
     }
 
 };
