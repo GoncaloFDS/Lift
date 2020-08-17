@@ -6,7 +6,6 @@
 #include "utils/material.glsl"
 #include "utils/ray_payload.glsl"
 #include "utils/uniform_buffer_object.glsl"
-#include "utils/random.glsl"
 #include "utils/tone_mapping.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT scene_;
@@ -15,30 +14,6 @@ layout(binding = 2, rgba32f) uniform image2D accumulation_image_;
 layout(binding = 3) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
 
 layout(location = 0) rayPayloadEXT RayPayload ray_;
-
-#define EPS 0.05
-const float PI = 3.141592653589;
-
-float fresnelReflectAmount(float n1, float n2, vec3 normal, vec3 incident, float f0, float f90) {
-    // Schlick aproximation
-    float r0 = (n1-n2) / (n1+n2);
-    r0 *= r0;
-    float cosX = -dot(normal, incident);
-    if (n1 > n2)
-    {
-        float n = n1/n2;
-        float sinT2 = n*n*(1.0-cosX*cosX);
-        // Total internal reflection
-        if (sinT2 > 1.0)
-        return f90;
-        cosX = sqrt(1.0-sinT2);
-    }
-    float x = 1.0-cosX;
-    float ret = r0+(1.0-r0)*x*x*x*x*x;
-
-    // adjust reflect multiplier for object reflectivity
-    return mix(f0, f90, ret);
-}
 
 vec3 getColorForRay(in vec3 start_ray_pos, in vec3 start_ray_dir, inout uint seed) {
     uint ray_flags = gl_RayFlagsOpaqueNV;
@@ -154,20 +129,14 @@ void main() {
     vec3 pixel_color = vec3(0);
 
     for (int curr_sample = 0; curr_sample < ubo_.number_of_samples; curr_sample++) {
-        // Random init
-        uint seed = tea(gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x + gl_LaunchIDEXT.x, ubo_.frame * ubo_.number_of_samples + curr_sample + ubo_.seed);
-        float r1 = radinv_fl(seed, 2);
-        float r2 = radinv_fl(seed, 3);
+        uint seed = initRandom(gl_LaunchIDEXT.xy, ubo_.seed + ubo_.frame + curr_sample);
 
-        // Subpixel Jitter
-        vec2 subpixel_jitter = (ubo_.frame + curr_sample) == 0 ? vec2(0.0f, 0.0f) : vec2(r1 - 0.5f, r2 - 0.5f);
-
-        const vec2 pixel_center = vec2(gl_LaunchIDEXT.xy) + vec2(0.5) + subpixel_jitter;
-        const vec2 in_uv = pixel_center / vec2(gl_LaunchSizeEXT.xy);
-        vec2 d = in_uv * 2.0 - 1.0;
+        const vec2 jitter = vec2(randomFloat(seed), randomFloat(seed)) - 0.5f;
+        const vec2 uv_jittered = (gl_LaunchIDEXT.xy + jitter) / vec2(gl_LaunchSizeEXT.xy);
+        const vec2 screen = uv_jittered * 2.0 - 1.0;
 
         vec4 origin = ubo_.model_view_inverse * vec4(0, 0, 0, 1);
-        vec4 target = ubo_.projection_inverse * vec4(d.x, d.y, 1, 1);
+        vec4 target = ubo_.projection_inverse * vec4(screen.x, screen.y, 1, 1);
         vec4 direction = ubo_.model_view_inverse * vec4(normalize(target.xyz), 0);
 
         pixel_color += getColorForRay(origin.xyz, direction.xyz, seed) / float(ubo_.number_of_samples);

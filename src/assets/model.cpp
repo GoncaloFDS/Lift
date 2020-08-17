@@ -140,10 +140,8 @@ Model Model::createSphere(const vec3& center, float radius, std::string material
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
-    const float pi = 3.14159265358979f;
-
     for (int j = 0; j <= stacks; ++j) {
-        const float j0 = pi * j / stacks;
+        const float j0 = glm::pi<float>() * j / stacks;
 
         // Vertex
         const float v = radius * -std::sin(j0);
@@ -154,7 +152,7 @@ Model Model::createSphere(const vec3& center, float radius, std::string material
         const float n1 = std::cos(j0);
 
         for (int i = 0; i <= slices; ++i) {
-            const float i0 = 2 * pi * i / slices;
+            const float i0 = 2 * glm::pi<float>() * i / slices;
 
             const vec3 position(center.x + v * std::sin(i0), center.y + z, center.z + v * std::cos(i0));
 
