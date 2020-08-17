@@ -90,7 +90,7 @@ void Renderer::init(VkPhysicalDevice physical_device, assets::Scene& scene, vulk
     denoiser_.setup(*device_, 0);
 }
 
-void Renderer::createOutputImage() {
+void Renderer::createImages() {
     const auto extent = swapChain().extent();
     output_image_ = std::make_unique<vulkan::Image>(device(),
                                                     extent,
@@ -102,6 +102,19 @@ void Renderer::createOutputImage() {
         std::make_unique<vulkan::DeviceMemory>(output_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
     output_image_view_ = std::make_unique<vulkan::ImageView>(device(),
                                                              output_image_->handle(),
+                                                             VK_FORMAT_R32G32B32A32_SFLOAT,
+                                                             VK_IMAGE_ASPECT_COLOR_BIT);
+
+    accumulation_image_ = std::make_unique<vulkan::Image>(device(),
+                                                    extent,
+                                                    VK_FORMAT_R32G32B32A32_SFLOAT,
+                                                    VK_IMAGE_TILING_OPTIMAL,
+                                                    VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                                                        VK_IMAGE_USAGE_SAMPLED_BIT);
+    accumulation_image_memory_ =
+        std::make_unique<vulkan::DeviceMemory>(accumulation_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+    accumulation_image_view_ = std::make_unique<vulkan::ImageView>(device(),
+                                                             accumulation_image_->handle(),
                                                              VK_FORMAT_R32G32B32A32_SFLOAT,
                                                              VK_IMAGE_ASPECT_COLOR_BIT);
 
@@ -218,6 +231,14 @@ void Renderer::traceCommand(VkCommandBuffer command_buffer, uint32_t image_index
 
     vulkan::ImageMemoryBarrier::insert(command_buffer,
                                        output_image_->handle(),
+                                       subresource_range,
+                                       0,
+                                       VK_ACCESS_SHADER_WRITE_BIT,
+                                       VK_IMAGE_LAYOUT_UNDEFINED,
+                                       VK_IMAGE_LAYOUT_GENERAL);
+
+    vulkan::ImageMemoryBarrier::insert(command_buffer,
+                                       accumulation_image_->handle(),
                                        subresource_range,
                                        0,
                                        VK_ACCESS_SHADER_WRITE_BIT,
@@ -465,6 +486,7 @@ void Renderer::createRayTracingPipeline(assets::Scene& scene, Algorithm algorith
                                                                          swapChain(),
                                                                          top_as_[0],
                                                                          *output_image_view_,
+                                                                         *accumulation_image_view_,
                                                                          uniformBuffers(),
                                                                          scene,
                                                                          algorithm);
@@ -497,7 +519,7 @@ void Renderer::createSwapChain(assets::Scene& scene, Algorithm algorithm) {
         uniform_buffers_.emplace_back(*device_);
     }
 
-    createOutputImage();
+    createImages();
     graphics_pipeline_ = std::make_unique<vulkan::GraphicsPipeline>(*swap_chain_, *depth_buffer_);
 
     for (const auto& image_view : swap_chain_->imageViews()) {
@@ -512,12 +534,15 @@ void Renderer::createSwapChain(assets::Scene& scene, Algorithm algorithm) {
 void Renderer::deleteSwapChain() {
     shader_binding_table_.reset();
     ray_tracing_pipeline_.reset();
+    output_image_memory_.reset();
     output_image_view_.reset();
     output_image_.reset();
+    accumulation_image_memory_.reset();
+    accumulation_image_view_.reset();
+    accumulation_image_.reset();
     denoised_image_memory_.reset();
     denoised_image_view_.reset();
     denoised_image_.reset();
-    output_image_memory_.reset();
     command_buffers_.reset();
     swap_chain_framebuffers_.clear();
     graphics_pipeline_.reset();

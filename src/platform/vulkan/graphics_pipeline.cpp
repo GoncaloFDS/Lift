@@ -16,8 +16,8 @@
 
 namespace vulkan {
 
-GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain, const DepthBuffer& depth_buffer) :
-    swap_chain_(swap_chain) {
+GraphicsPipeline::GraphicsPipeline(const SwapChain& swap_chain, const DepthBuffer& depth_buffer)
+    : swap_chain_(swap_chain) {
     const auto& device = swap_chain.device();
     const auto binding_description = assets::Vertex::getBindingDescription();
     const auto attribute_descriptions = assets::Vertex::getAttributeDescriptions();
@@ -171,15 +171,15 @@ void GraphicsPipeline::updateOutputImage(const vulkan::ImageView& output_image, 
     const auto& device = swap_chain_.device();
 
     auto& descriptor_sets = descriptor_set_manager_->descriptorSets();
-        // Image and texture samplers
-        VkDescriptorImageInfo image_info {};
-        image_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-        image_info.imageView = output_image.handle();
-        image_info.sampler = sampler_->handle();
+    // Image and texture samplers
+    VkDescriptorImageInfo image_info {};
+    image_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+    image_info.imageView = output_image.handle();
+    image_info.sampler = sampler_->handle();
 
-        const std::vector<VkWriteDescriptorSet> descriptor_writes = {descriptor_sets.bind(0, 0, image_info, 1)};
+    const std::vector<VkWriteDescriptorSet> descriptor_writes = {descriptor_sets.bind(0, 0, image_info, 1)};
 
-        descriptor_sets.updateDescriptors(descriptor_writes);
+    descriptor_sets.updateDescriptors(descriptor_writes);
 }
 
 }  // namespace vulkan

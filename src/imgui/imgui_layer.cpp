@@ -173,9 +173,23 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
                                 &fmin,
                                 &fmax,
                                 "%.1f");
-            ImGui::Checkbox("gamma correction", &settings().gamma_correction);
             glm::vec3 camera_pos = camera_state_.eye;
             ImGui::Text("camera position: (%f %f %f)", camera_pos.x, camera_pos.y, camera_pos.z);
+            ImGui::NewLine();
+        }
+
+        ImGui::Text("post processing"); {
+            ImGui::Separator();
+            ImGui::Checkbox("gamma correction", &settings().gamma_correction);
+            ImGui::Checkbox("tone map", &settings().tone_map);
+            float fmin = 0.0f, fmax = 10.0f;
+            ImGui::SliderScalar("exposure",
+                                ImGuiDataType_Float,
+                                &settings().exposure,
+                                &fmin,
+                                &fmax,
+                                "%.1f",
+                                2.0f);
             ImGui::NewLine();
         }
 
@@ -183,9 +197,8 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
             ImGui::Separator();
             ImGui::Checkbox("render normals", &settings().debug_normals);
             ImGui::Checkbox("show statistics", &settings().show_overlay);
+            ImGui::NewLine();
         }
-
-        ImGui::NewLine();
 
         std::vector<const char*> scenes;
         scenes.reserve(SceneList::all_scenes.size());
@@ -207,7 +220,7 @@ void ImguiLayer::drawOverlay(const Statistics& statistics) {
     const ImVec2 pos = ImVec2(io.DisplaySize.x - distance, distance);
     const ImVec2 pos_pivot = ImVec2(1.0f, 0.0f);
     ImGui::SetNextWindowPos(pos, ImGuiCond_Always, pos_pivot);
-    ImGui::SetNextWindowBgAlpha(0.3f);
+    ImGui::SetNextWindowBgAlpha(0.7f);
 
     const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration |
                        ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;

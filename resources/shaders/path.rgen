@@ -7,10 +7,12 @@
 #include "utils/ray_payload.glsl"
 #include "utils/uniform_buffer_object.glsl"
 #include "utils/random.glsl"
+#include "utils/tone_mapping.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT scene_;
 layout(binding = 1, rgba32f) uniform image2D output_image_;
-layout(binding = 2) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
+layout(binding = 2, rgba32f) uniform image2D accumulation_image_;
+layout(binding = 3) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
 
 layout(location = 0) rayPayloadEXT RayPayload ray_;
 
@@ -171,9 +173,22 @@ void main() {
         pixel_color += getColorForRay(origin.xyz, direction.xyz, seed) / float(ubo_.number_of_samples);
     }
 
-    vec4 last_frame_color = imageLoad(output_image_, ivec2(gl_LaunchIDEXT.xy));
+    vec4 last_frame_color = imageLoad(accumulation_image_, ivec2(gl_LaunchIDEXT.xy));
     float blend = (ubo_.frame < 2 || last_frame_color.a == 0.0) ? 1.0f : 1.0f / ( 1.0f + (1.0f / last_frame_color.a));
     pixel_color = mix(last_frame_color.rgb, pixel_color, blend);
+
+    imageStore(accumulation_image_, ivec2(gl_LaunchIDEXT.xy), vec4(pixel_color, blend));
+
+    // post processing
+    pixel_color *= ubo_.exposure;
+
+    if (ubo_.tone_map) {
+        pixel_color = ACESFilm(pixel_color);
+    }
+
+    if (ubo_.gamma_correction) {
+        pixel_color = linearToSRGB(pixel_color);
+    }
 
     imageStore(output_image_, ivec2(gl_LaunchIDEXT.xy), vec4(pixel_color, blend));
 }
