@@ -101,7 +101,7 @@ SceneAssets SceneList::cornellBox() {
         {130.0f, 0.0f, 0.0f, 0},
         {0.0f, 0.0f, 130.0f, 0},
         {0.0f, -1.0f, 0.0f, 0},
-        {10.0f, 10.0f, 10.0f, 0},
+        {15.0f, 15.0f, 15.0f, 0},
     };
 
     scene_assets.lights.push_back(light);
@@ -150,6 +150,16 @@ SceneAssets SceneList::cornellBoxDragon() {
 
     assets::CornellBox::create(555, scene_assets);
 
+    Light light = {
+        {213.0f, 553.0f, -328.0f, 0},
+        {130.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 130.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {15.0f, 15.0f, 15.0f, 0},
+    };
+
+    scene_assets.lights.push_back(light);
+
     return scene_assets;
 }
 
@@ -177,6 +187,16 @@ SceneAssets SceneList::diningRoom() {
     auto sphere = Model::createSphere(vec3(0, 3, 0), .3f, "emissive", false);
     scene_assets.models.push_back(sphere);
 
+    Light light = {
+        {1, 6, 1, 0},
+        {1.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 1.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {15.0f, 15.0f, 15.0f, 0},
+    };
+
+    scene_assets.lights.push_back(light);
+
     return scene_assets;
 }
 
@@ -202,6 +222,15 @@ SceneAssets SceneList::classroom() {
     auto sphere = Model::createSphere(vec3(0, 1.5, 0), .3f, "emissive", false);
     scene_assets.models.push_back(sphere);
 
+    Light light = {
+        {1, 1.5, 1, 0},
+        {1.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 1.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {15.0f, 15.0f, 15.0f, 0},
+    };
+
+    scene_assets.lights.push_back(light);
     return scene_assets;
 }
 

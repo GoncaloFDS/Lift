@@ -15,6 +15,7 @@ layout(binding = 3) readonly uniform UniformBufferObjectStruct { UniformBufferOb
 layout(binding = 7) readonly buffer LightArray { Light[] lights_; };
 
 layout(location = 0) rayPayloadEXT RayPayload ray_;
+layout(location = 2) rayPayloadEXT bool shadow_ray_;
 
 vec3 getColorForRay(in vec3 start_ray_pos, in vec3 start_ray_dir, inout uint seed) {
     uint ray_flags = gl_RayFlagsOpaqueNV;
@@ -22,7 +23,8 @@ vec3 getColorForRay(in vec3 start_ray_pos, in vec3 start_ray_dir, inout uint see
     float tmin = 0.001;
     float tmax = 10000.0;
 
-    vec3 ret = vec3(0.0f, 0.0f, 0.0f);
+    vec3 result = vec3(0.0f, 0.0f, 0.0f);
+    vec3 radiance = vec3(0.0f, 0.0f, 0.0f);
     vec3 throughput = vec3(1.0f, 1.0f, 1.0f);
     vec3 ray_pos = start_ray_pos;
     vec3 ray_dir = start_ray_dir;
@@ -37,14 +39,12 @@ vec3 getColorForRay(in vec3 start_ray_pos, in vec3 start_ray_dir, inout uint see
 
         // if the ray missed, we are done
         if (ray_.missed) {
-            ret += vec3(0.0) * throughput;// sky
+            result += vec3(0.0) * throughput;// sky
             break;
         }
 
         if (ubo_.debug_normals) {
-            vec3 n = remap(ray_.normal, -1.0f, 1.0f, 0.0f, 1.0f);
-            ret = n;
-            return ret;
+            return remap(ray_.normal, -1.0f, 1.0f, 0.0f, 1.0f);
         }
 
         if (ray_.from_inside) {
@@ -89,10 +89,10 @@ vec3 getColorForRay(in vec3 start_ray_pos, in vec3 start_ray_dir, inout uint see
 
         // update the ray position
         if (do_refraction == 1.0f) {
-            ray_pos = (ray_pos + ray_dir * ray_.t) - ray_.normal * 0.001f;
+            ray_pos = (ray_pos + ray_dir * ray_.t) - ray_.normal * 0.01f;
         }
         else {
-            ray_pos = (ray_pos + ray_dir * ray_.t) + ray_.normal * 0.001f;
+            ray_pos = (ray_pos + ray_dir * ray_.t) + ray_.normal * 0.01f;
         }
 
         // calculate new ray direction
@@ -107,14 +107,49 @@ vec3 getColorForRay(in vec3 start_ray_pos, in vec3 start_ray_dir, inout uint see
         ray_dir = mix(diffuse_ray_dir, specular_ray_dir, do_specular);
         ray_dir = mix(ray_dir, refraction_ray_dir, do_refraction);
 
-        // add in emissive light
-        ret += ray_.mat.emissive * throughput;
+        if (!ubo_.next_event_estimation) {
+            result += ray_.mat.emissive * throughput;
+        }
 
         if (do_refraction == 0.0f) {
             throughput *= mix(ray_.mat.albedo, ray_.mat.specular_color, do_specular);
         }
 
         throughput /= ray_probability;
+
+        if (ubo_.next_event_estimation) {
+            Light light = lights_[0];
+
+            const vec3 light_pos = light.corner.xyz + light.v1.xyz * randomFloat(seed) + light.v2.xyz * randomFloat(seed);
+            vec3 light_dir = light_pos - ray_pos;
+            const float light_dist = length(light_dir);
+            light_dir = normalize(light_dir);
+            const float n_dot_l = dot(ray_.normal, light_dir);
+            const float ln_dot_l = -dot(light.normal.xyz, light_dir);
+
+            float weight = 0.0f;
+            shadow_ray_ = true;
+
+            if (n_dot_l > 0.0f && ln_dot_l > 0.0f) {
+                float tmin = 0.005f;
+                float tmax = light_dist;
+                uint shadow_ray_flags = gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT;
+
+                traceRayEXT(scene_, shadow_ray_flags, 0xFF, 0, 0, 1, ray_pos, tmin, light_dir, tmax, 2);
+
+                if (!shadow_ray_) {
+                    const float A = length(cross(light.v1.xyz, light.v2.xyz));
+                    weight = n_dot_l * ln_dot_l * A / (c_pi * light_dist * light_dist);
+                }
+            }
+
+            if (depth == 0) {
+                result += ray_.mat.emissive;
+            }
+
+            radiance += light.emission.xyz * weight * 0.3f;
+            result += radiance * throughput;
+        }
 
         // Russian Roulette
         float p = max(throughput.r, max(throughput.g, throughput.b));
@@ -123,7 +158,7 @@ vec3 getColorForRay(in vec3 start_ray_pos, in vec3 start_ray_dir, inout uint see
         }
         throughput *= 1.0f/p;
     }
-    return ret;
+    return ubo_.debug_radiance ? radiance : result;
 }
 
 void main() {
@@ -144,7 +179,7 @@ void main() {
     }
 
     vec4 last_frame_color = imageLoad(accumulation_image_, ivec2(gl_LaunchIDEXT.xy));
-    float blend = (ubo_.frame < 2 || last_frame_color.a == 0.0) ? 1.0f : 1.0f / ( 1.0f + (1.0f / last_frame_color.a));
+    float blend = (ubo_.frame < 2 || last_frame_color.a == 0.0) ? 1.0f : 1.0f / (1.0f + (1.0f / last_frame_color.a));
     pixel_color = mix(last_frame_color.rgb, pixel_color, blend);
 
     imageStore(accumulation_image_, ivec2(gl_LaunchIDEXT.xy), vec4(pixel_color, blend));

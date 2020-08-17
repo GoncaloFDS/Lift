@@ -104,6 +104,7 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     // https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
     ubo.model_view_inverse = glm::inverse(ubo.modelView);
     ubo.projection_inverse = glm::inverse(ubo.projection);
+    ubo.next_event_estimation = user_settings_.next_event_estimation;
     ubo.aperture = user_settings_.aperture;
     ubo.focus_distance = user_settings_.focus_distance;
     ubo.total_number_of_samples = total_number_of_samples_;
@@ -114,6 +115,7 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     ubo.tone_map = user_settings_.tone_map;
     ubo.exposure = user_settings_.exposure;
     ubo.debug_normals = user_settings_.debug_normals;
+    ubo.debug_radiance = user_settings_.debug_radiance;
     ubo.has_sky = camera_->hasSky();
     ubo.frame = number_of_frames_;
 

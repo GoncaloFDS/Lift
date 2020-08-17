@@ -11,7 +11,7 @@ class DeviceMemory;
 }  // namespace vulkan
 
 namespace assets {
-struct UniformBufferObject {
+struct alignas(16) UniformBufferObject {
     glm::mat4 modelView {};
     glm::mat4 projection {};
     glm::mat4 model_view_inverse {};
@@ -22,12 +22,14 @@ struct UniformBufferObject {
     uint32_t number_of_samples {};
     uint32_t number_of_bounces {};
     uint32_t seed {};
+    uint32_t next_event_estimation {};  // bool
     uint32_t gamma_correction {};  // bool
     uint32_t tone_map {};  // bool
     float exposure {};
     uint32_t has_sky {};           // bool
     uint32_t frame {};
     uint32_t debug_normals {};  // bool
+    uint32_t debug_radiance {};  // bool
 };
 
 class UniformBuffer {

@@ -150,6 +150,7 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
             ImGui::Separator();
             ImGui::Checkbox("enable denoising", &settings().is_denoised);
             ImGui::Checkbox("accumulate rays between frames", &settings().accumulate_rays);
+            ImGui::Checkbox("next event estimation", &settings().next_event_estimation);
             uint32_t min = 1, max = 16;
             ImGui::SliderScalar("samples per pixel", ImGuiDataType_U32, &settings().number_of_samples, &min, &max);
             min = 1, max = 32;
@@ -196,6 +197,7 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
         ImGui::Text("debug settings"); {
             ImGui::Separator();
             ImGui::Checkbox("render normals", &settings().debug_normals);
+            ImGui::Checkbox("render radiance", &settings().debug_radiance);
             ImGui::Checkbox("show statistics", &settings().show_overlay);
             ImGui::NewLine();
         }
