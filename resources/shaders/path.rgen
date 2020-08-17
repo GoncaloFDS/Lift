@@ -12,6 +12,7 @@ layout(binding = 0, set = 0) uniform accelerationStructureEXT scene_;
 layout(binding = 1, rgba32f) uniform image2D output_image_;
 layout(binding = 2, rgba32f) uniform image2D accumulation_image_;
 layout(binding = 3) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
+layout(binding = 7) readonly buffer LightArray { Light[] lights_; };
 
 layout(location = 0) rayPayloadEXT RayPayload ray_;
 

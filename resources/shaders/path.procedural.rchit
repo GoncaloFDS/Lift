@@ -10,12 +10,12 @@
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT scene_;
 layout(binding = 3) readonly uniform UniformBufferObjectStruct { UniformBufferObject ubo_; };
-layout(binding = 4) readonly buffer VertexArray { float Vertices[]; };
-layout(binding = 5) readonly buffer IndexArray { uint Indices[]; };
-layout(binding = 6) readonly buffer MaterialArray { Material[] Materials; };
-layout(binding = 7) readonly buffer OffsetArray { uvec2[] Offsets; };
-layout(binding = 8) uniform sampler2D[] TextureSamplers;
-layout(binding = 9) readonly buffer SphereArray { vec4[] Spheres; };
+layout(binding = 4) readonly buffer VertexArray { float[] vertices_; };
+layout(binding = 5) readonly buffer IndexArray { uint[] indices_; };
+layout(binding = 6) readonly buffer MaterialArray { Material[] materials_; };
+layout(binding = 8) readonly buffer OffsetArray { uvec2[] offsets_; };
+layout(binding = 9) uniform sampler2D[] textures_;
+layout(binding = 10) readonly buffer SphereArray { vec4[] spheres_; };
 
 #include "utils/vertex.glsl"
 
@@ -34,14 +34,14 @@ vec2 GetSphereTexCoord(const vec3 point) {
 
 void main() {
     // Get the material.
-    const uvec2 offsets = Offsets[gl_InstanceCustomIndexEXT];
+    const uvec2 offsets = offsets_[gl_InstanceCustomIndexEXT];
     const uint indexOffset = offsets.x;
     const uint vertexOffset = offsets.y;
-    const Vertex v0 = unpackVertex(vertexOffset + Indices[indexOffset]);
-    const Material material = Materials[v0.material_index];
+    const Vertex v0 = unpackVertex(vertexOffset + indices_[indexOffset]);
+    const Material material = materials_[v0.material_index];
 
     // Compute the ray hit point properties.
-    const vec4 sphere = Spheres[gl_InstanceCustomIndexEXT];
+    const vec4 sphere = spheres_[gl_InstanceCustomIndexEXT];
     const vec3 center = sphere.xyz;
     const float radius = sphere.w;
     const vec3 point = gl_WorldRayOriginEXT  + gl_HitTEXT * gl_WorldRayDirectionEXT;

@@ -116,7 +116,6 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     ubo.debug_normals = user_settings_.debug_normals;
     ubo.has_sky = camera_->hasSky();
     ubo.frame = number_of_frames_;
-    ubo.light = scene_->light();
 
     return ubo;
 }

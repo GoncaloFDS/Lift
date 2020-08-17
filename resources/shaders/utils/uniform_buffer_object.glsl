@@ -7,7 +7,6 @@ struct Light {
 };
 
 struct UniformBufferObject {
-    Light light;
     mat4 model_view;
     mat4 projection;
     mat4 model_view_inverse;

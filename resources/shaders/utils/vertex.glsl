@@ -10,10 +10,10 @@ Vertex unpackVertex(uint index) {
     const uint offset = index * vertexSize;
 
     Vertex v;
-    v.position = vec3(Vertices[offset + 0], Vertices[offset + 1], Vertices[offset + 2]);
-    v.normal = vec3(Vertices[offset + 3], Vertices[offset + 4], Vertices[offset + 5]);
-    v.tex_coords = vec2(Vertices[offset + 6], Vertices[offset + 7]);
-    v.material_index = floatBitsToInt(Vertices[offset + 8]);
+    v.position = vec3(vertices_[offset + 0], vertices_[offset + 1], vertices_[offset + 2]);
+    v.normal = vec3(vertices_[offset + 3], vertices_[offset + 4], vertices_[offset + 5]);
+    v.tex_coords = vec2(vertices_[offset + 6], vertices_[offset + 7]);
+    v.material_index = floatBitsToInt(vertices_[offset + 8]);
 
     return v;
 }
