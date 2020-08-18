@@ -1,10 +1,13 @@
 # Lift
 
+![](images/Lift_P1oPhpLo6n.jpg)
+
+![](images/Lift_6vp85Sj4dG.jpg)
+
 ###### Build Instructions
 
-
-
-> Install CUDA 10.2, Optix 7.0 and vulkan SDK 1.2 (1.1 should also work)
+> Install CUDA 10.2, Optix 7.1 and vulkan SDK 1.2 \
+> While VK_KHR_ray_tracing is in beta the beta drivers are needed https://developer.nvidia.com/vulkan-driver
 *  Install Directories should be specified on cmake or you can set them as system variables
 
 > currently supported on visual studio and clion
