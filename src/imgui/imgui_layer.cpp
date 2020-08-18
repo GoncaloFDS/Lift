@@ -205,9 +205,12 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
         std::vector<const char*> scenes;
         scenes.reserve(SceneList::all_scenes.size());
         for (const auto& scene : SceneList::all_scenes) { scenes.push_back(scene.first.c_str()); }
+        ImGui::Combo("scene", &settings().scene_index, scenes.data(), static_cast<int>(scenes.size()));
 
-        ImGui::Text("scene");
-        ImGui::Combo("", &settings().scene_index, scenes.data(), static_cast<int>(scenes.size()));
+        std::vector<const char*> algorithms;
+        algorithms.reserve(AlgorithmList::all_algorithms.size());
+        for (const auto& algorithm : AlgorithmList::all_algorithms) { algorithms.push_back(algorithm.first.c_str()); }
+        ImGui::Combo("algorithm", &settings().algorithm_index, algorithms.data(), static_cast<int>(algorithms.size()));
     }
     ImGui::End();
 }
@@ -230,17 +233,13 @@ void ImguiLayer::drawOverlay(const Statistics& statistics) {
     if (ImGui::Begin("Statistics", &settings().show_overlay, flags)) {
         ImGui::Text("Statistics");
         ImGui::Separator();
-        ImGui::Text("frame size: (%dx%d)", statistics.framebufferSize.width, statistics.framebufferSize.height);
-        ImGui::Text("frame rate: %.1f fps", statistics.frameRate);
-        ImGui::Text("total samples:  %u", statistics.totalSamples);
-
+        ImGui::Text("frame size: (%dx%d)", statistics.framebuffer_size.width, statistics.framebuffer_size.height);
+        ImGui::Text("frame rate: %.1f fps", statistics.frame_rate);
+        ImGui::Text("total frame duration: %.1f ms", statistics.frame_time);
+        ImGui::Text("denoiser duration: %.1f ms", statistics.denoiser_time);
         ImGui::NewLine();
-        std::vector<const char*> algorithms;
-        algorithms.reserve(AlgorithmList::all_algorithms.size());
-        for (const auto& algorithm : AlgorithmList::all_algorithms) { algorithms.push_back(algorithm.first.c_str()); }
+        ImGui::Text("total samples:  %u", statistics.total_samples);
 
-        ImGui::Text("algorithm");
-        ImGui::Combo("", &settings().algorithm_index, algorithms.data(), static_cast<int>(algorithms.size()));
     }
     ImGui::End();
 }

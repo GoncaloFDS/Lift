@@ -1,5 +1,6 @@
 #include "application.h"
 #include <core/key_codes.h>
+#include <core/profiler.h>
 #include <core/timer.h>
 
 #include "algorithm_list.h"
@@ -69,18 +70,17 @@ void Application::run() {
 
         if (user_settings_.is_denoised) {
             renderer_->denoiseImage();
-            renderer_->setDenoised(true);
-        } else {
-            renderer_->setDenoised(false);
         }
 
         renderer_->display();
 
         // Update UI
         Statistics stats = {};
-        stats.framebufferSize = window_->framebufferSize();
-        stats.frameRate = static_cast<float>(1 / Timer::deltaTime);
-        stats.totalSamples = total_number_of_samples_;
+        stats.framebuffer_size = window_->framebufferSize();
+        stats.frame_rate = static_cast<float>(1 / Timer::deltaTime);
+        stats.frame_time = Timer::deltaTime * 1000.0f;
+        stats.denoiser_time = Profiler::getDuration(Profiler::Id::Denoise) * 1000.0f;
+        stats.total_samples = total_number_of_samples_;
         user_interface_->updateInfo(stats, camera_->state());
 
         // Render the UI
@@ -187,11 +187,14 @@ void Application::onUpdate() {
     total_number_of_samples_ += number_of_samples_;
     number_of_frames_++;
 
+    renderer_->setDenoised(user_settings_.is_denoised);
+
     camera_->setMoveSpeed(user_settings_.camera_move_speed);
     camera_->setMouseSpeed(user_settings_.camera_mouse_speed);
 }
 
 void Application::loadScene(const uint32_t scene_index) {
+    Profiler profiler("Scene loading took");
     auto assets = SceneList::all_scenes[scene_index].second();
 
     LF_INFO("Loading Scene {0}", SceneList::all_scenes[scene_index].first.c_str());

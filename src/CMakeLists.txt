@@ -15,6 +15,8 @@ set(src_files_core
         core/input.h
         core/timer.cpp
         core/timer.h
+        core/profiler.cpp
+        core/profiler.h
         )
 
 set(src_files_assets

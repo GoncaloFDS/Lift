@@ -1,13 +1,15 @@
 #pragma once
 
 #include <chrono>
+#include <map>
+#include <string>
 
 class Profiler {
 public:
-    enum class Id { SceneUpdate, Render, SceneLoad, Display, Download, Other };
+    enum class Id { SceneLoad, Trace, Display, Denoise, Other };
 
     Profiler::Profiler(Id id);
-    Profiler(std::string message);
+    Profiler(std::string id);
     ~Profiler();
 
     static auto getDuration(Id id) -> float;

@@ -6,6 +6,7 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <core/log.h>
+#include <core/profiler.h>
 #include <pbrtParser/Scene.h>
 #include <tiny_obj_loader.h>
 
@@ -15,8 +16,8 @@ namespace assets {
 
 Model Model::loadModel(const std::string& filename) {
     LF_INFO("Loading model {0}", filename);
+    Profiler profiler("Loading Model took");
 
-    const auto timer = std::chrono::high_resolution_clock::now();
     const std::string material_path = std::filesystem::path(filename).parent_path().string();
 
     tinyobj::attrib_t obj_attrib;
@@ -69,7 +70,7 @@ Model Model::loadModel(const std::string& filename) {
 
             if (!obj_attrib.texcoords.empty()) {
                 vertex.tex_coords = {obj_attrib.texcoords[2 * index.texcoord_index + 0],
-                                   1 - obj_attrib.texcoords[2 * index.texcoord_index + 1]};
+                                     1 - obj_attrib.texcoords[2 * index.texcoord_index + 1]};
             }
 
             if (unique_vertices.count(vertex) == 0) {
@@ -80,16 +81,6 @@ Model Model::loadModel(const std::string& filename) {
             indices.push_back(unique_vertices[vertex]);
         }
     }
-
-    const auto elapsed =
-        std::chrono::duration<float, std::chrono::seconds::period>(std::chrono::high_resolution_clock::now() - timer)
-            .count();
-
-    LF_INFO("Loaded model {0} in {1} -> {2} vertices and {3} materials",
-            filename,
-            elapsed,
-            obj_attrib.vertices.size(),
-            materials.size());
 
     return Model(std::move(vertices), std::move(indices), "default", nullptr);
 }

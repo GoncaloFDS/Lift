@@ -15,9 +15,13 @@ class SwapChain;
 struct UserSettings;
 
 struct Statistics final {
-    VkExtent2D framebufferSize;
-    float frameRate;
-    uint32_t totalSamples;
+    VkExtent2D framebuffer_size;
+    float frame_rate;
+    float frame_time;
+    float trace_time;
+    float denoiser_time;
+    float display_time;
+    uint32_t total_samples;
 };
 
 class ImguiLayer {

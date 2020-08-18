@@ -22,6 +22,7 @@
 #include "vulkan/swap_chain.h"
 #include "vulkan/tlas.h"
 #include <assets/scene.h>
+#include <core/profiler.h>
 
 Renderer::Renderer(const vulkan::Instance& instance) {
     surface_ = std::make_unique<vulkan::Surface>(instance);
@@ -328,12 +329,13 @@ void Renderer::display(VkCommandBuffer command_buffer, uint32_t image_index) {
 }
 
 void Renderer::denoiseImage() {
+    Profiler profiler(Profiler::Id::Denoise);
     denoiser_.denoiseImage(*device_, current_command_buffer_, *command_pool_, *output_image_, *denoised_image_);
 }
 
 void Renderer::createAccelerationStructures(assets::Scene& scene) {
     LF_INFO("Building acceleration structures...");
-    const auto timer = std::chrono::high_resolution_clock::now();
+    Profiler profiler("Building acceleration structures took");
 
     vulkan::SingleTimeCommands::submit(commandPool(), [this, &scene](VkCommandBuffer command_buffer) {
         createBottomLevelStructures(command_buffer, scene);
@@ -345,11 +347,6 @@ void Renderer::createAccelerationStructures(assets::Scene& scene) {
     top_scratch_buffer_memory_.reset();
     bottom_scratch_buffer_.reset();
     bottom_scratch_buffer_memory_.reset();
-
-    const auto elapsed =
-        std::chrono::duration<float, std::chrono::seconds::period>(std::chrono::high_resolution_clock::now() - timer)
-            .count();
-    LF_INFO("Built acceleration structures in {0}s", elapsed);
 }
 
 void Renderer::deleteAccelerationStructures() {

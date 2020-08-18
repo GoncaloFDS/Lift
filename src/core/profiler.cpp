@@ -1,5 +1,6 @@
 
 #include "profiler.h"
+#include "log.h"
 #include <utility>
 
 std::map<Profiler::Id, float> Profiler::s_map;
@@ -8,7 +9,7 @@ Profiler::Profiler(Id id) : duration_(0), id_(id) {
     start_ = std::chrono::high_resolution_clock::now();
 }
 
-Profiler::Profiler(std::string message) : duration_(0), message_(std::move(message)), id_(Id::Other) {
+Profiler::Profiler(std::string id) : duration_(0), message_(std::move(id)), id_(Id::Other) {
     start_ = std::chrono::high_resolution_clock::now();
 }
 
