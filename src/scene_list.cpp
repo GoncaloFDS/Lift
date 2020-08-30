@@ -19,8 +19,8 @@ const std::vector<std::pair<std::string, std::function<SceneAssets()>>> SceneLis
 
 SceneAssets SceneList::teapot() {
     SceneAssets scene_assets;
-    scene_assets.camera.eye = vec3(278, 278, 800);
-    scene_assets.camera.look_at = vec3(278, 278, 0);
+    scene_assets.camera.eye = vec3(0.5, 0.5, 1.44);
+    scene_assets.camera.look_at = vec3(0.5, 0.5, 0);
     scene_assets.camera.up = vec3(0, 1, 0);
     scene_assets.camera.field_of_view = 40;
     scene_assets.camera.aperture = 0.0f;
@@ -37,32 +37,32 @@ SceneAssets SceneList::teapot() {
 
     std::string glass_id("glass");
     Material glass = {};
-    glass.albedo = vec3(0.9f, 0.25f, 0.25f);
+    glass.albedo = vec3(1.0f);
     glass.emissive = vec3(0.0f, 0.0f, 0.0f);
     glass.specular_chance = 0.02f;
     glass.specular_roughness = 0.0f;
     glass.specular_color = vec3(1.0f, 1.0f, 1.0f) * 0.8f;
     glass.IOR = 1.1f;
-    glass.refraction_chance = 1.0f;
+    glass.refraction_chance = 0.9f;
     glass.refraction_roughness = 0.0f;
     glass.refraction_color = vec3(0.0f, 0.0f, 0.0f);
     scene_assets.materials[glass_id] = glass;
 
-    auto box_back = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), metal_id);
-    box_back.transform(rotate(translate(mat4(1), vec3(125, 0, -295)), radians(15.0f), vec3(0, 1, 0)));
+    auto box_back = Model::createBox(vec3(0, 0.00018, -0.297), vec3(0.297, 0.5946, 0), metal_id);
+    box_back.transform(rotate(translate(mat4(1), vec3(0.2252, 0, -0.5315)), radians(15.0f), vec3(0, 1, 0)));
     scene_assets.models.push_back(box_back);
 
     auto teapot = Model::loadModel("../resources/models/teapot.obj");
-    teapot.transform(rotate(scale(translate(mat4(1), vec3(390, 60, -85)), vec3(5)), radians(-18.0f), vec3(0, 1, 0)));
+    teapot.transform(rotate(scale(translate(mat4(1), vec3(0.703, 0.108, -0.153)), vec3(0.009f)), radians(-18.0f), vec3(0, 1, 0)));
     teapot.setMaterial(glass_id);
     scene_assets.models.push_back(teapot);
 
-    assets::CornellBox::create(555, scene_assets);
+    assets::CornellBox::create(1, scene_assets);
 
     Light light = {
-        {213.0f, 553.0f, -328.0f, 0},
-        {130.0f, 0.0f, 0.0f, 0},
-        {0.0f, 0.0f, 130.0f, 0},
+        {0.3837f, 0.998f, -0.59f, 0},
+        {0.234f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 0.234f, 0},
         {0.0f, -1.0f, 0.0f, 0},
         {10.0f, 10.0f, 10.0f, 0},
     };
@@ -74,8 +74,8 @@ SceneAssets SceneList::teapot() {
 
 SceneAssets SceneList::cornellBox() {
     SceneAssets scene_assets;
-    scene_assets.camera.eye = vec3(278, 278, 800);
-    scene_assets.camera.look_at = vec3(278, 278, 0);
+    scene_assets.camera.eye = vec3(0.5, 0.5, 1.44);
+    scene_assets.camera.look_at = vec3(0.5, 0.5, 0);
     scene_assets.camera.up = vec3(0, 1, 0);
     scene_assets.camera.field_of_view = 40;
     scene_assets.camera.aperture = 0.0f;
@@ -86,23 +86,24 @@ SceneAssets SceneList::cornellBox() {
     std::string gray("gray diffuse");
     scene_assets.materials[gray] = Material::createLambertian(vec3(0.73f, 0.73f, 0.73f));
 
-    auto box_front = Model::createBox(vec3(0, 1, -165), vec3(165, 165, 0), gray);
-    auto box_back = Model::createBox(vec3(0, 1, -165), vec3(165, 330, 0), gray);
+    auto box_front = Model::createBox(vec3(0, 0.00018, -0.297), vec3(0.297, 0.297, 0), gray);
+    auto box_back = Model::createBox(vec3(0, 0.00018, -0.297), vec3(0.297, 0.5946, 0), gray);
 
-    box_front.transform(rotate(translate(mat4(1), vec3(260, 0, -65)), radians(-18.0f), vec3(0, 1, 0)));
-    box_back.transform(rotate(translate(mat4(1), vec3(125, 0, -295)), radians(15.0f), vec3(0, 1, 0)));
+    box_front.transform(rotate(translate(mat4(1), vec3(0.468, 0, -0.117)), radians(-18.0f), vec3(0, 1, 0)));
+    box_back.transform(rotate(translate(mat4(1), vec3(0.2252, 0, -0.5315)), radians(15.0f), vec3(0, 1, 0)));
 
-    assets::CornellBox::create(555, scene_assets);
+    assets::CornellBox::create(1, scene_assets);
     scene_assets.models.push_back(box_front);
     scene_assets.models.push_back(box_back);
 
     Light light = {
-        {213.0f, 553.0f, -328.0f, 0},
-        {130.0f, 0.0f, 0.0f, 0},
-        {0.0f, 0.0f, 130.0f, 0},
+        {0.3837f, 0.998f, -0.59f, 0},
+        {0.234f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 0.234f, 0},
         {0.0f, -1.0f, 0.0f, 0},
         {15.0f, 15.0f, 15.0f, 0},
     };
+
 
     scene_assets.lights.push_back(light);
     return scene_assets;
@@ -110,8 +111,8 @@ SceneAssets SceneList::cornellBox() {
 
 SceneAssets SceneList::cornellBoxDragon() {
     SceneAssets scene_assets;
-    scene_assets.camera.eye = vec3(278, 278, 800);
-    scene_assets.camera.look_at = vec3(278, 278, 0);
+    scene_assets.camera.eye = vec3(0.5, 0.5, 1.44);
+    scene_assets.camera.look_at = vec3(0.5, 0.5, 0);
     scene_assets.camera.up = vec3(0, 1, 0);
     scene_assets.camera.field_of_view = 40;
     scene_assets.camera.aperture = 0.0f;
@@ -139,24 +140,25 @@ SceneAssets SceneList::cornellBoxDragon() {
     glass.refraction_color = vec3(1.0f, 0.0f, 0.0f);
     scene_assets.materials[glass_id] = glass;
 
-    auto sphere = Model::createSphere(vec3(400.0f, 150.0f, -165.0f), 80.0f, glass_id, false);
+    auto sphere = Model::createSphere(vec3(0.7f, 0.27f, -0.3f), 0.15f, glass_id, false);
     scene_assets.models.push_back(sphere);
 
     auto dragon = Model::loadModel("../resources/models/dragon.obj");
-    auto t = rotate(scale(translate(mat4(1), vec3(250, 160, -350)), vec3(600)), radians(135.0f), vec3(0, 1, 0));
+    auto t = rotate(scale(translate(mat4(1), vec3(0.468f, 0.288f, -0.63f)), vec3(1.08f)), radians(135.0f), vec3(0, 1, 0));
     dragon.transform(t);
     dragon.setMaterial(mat1_id);
     scene_assets.models.push_back(dragon);
 
-    assets::CornellBox::create(555, scene_assets);
+    assets::CornellBox::create(1, scene_assets);
 
     Light light = {
-        {213.0f, 553.0f, -328.0f, 0},
-        {130.0f, 0.0f, 0.0f, 0},
-        {0.0f, 0.0f, 130.0f, 0},
+        {0.3837f, 0.998f, -0.59f, 0},
+        {0.234f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 0.234f, 0},
         {0.0f, -1.0f, 0.0f, 0},
-        {15.0f, 15.0f, 15.0f, 0},
+        {10.0f, 10.0f, 10.0f, 0},
     };
+
 
     scene_assets.lights.push_back(light);
 
@@ -189,8 +191,8 @@ SceneAssets SceneList::diningRoom() {
 
     Light light = {
         {1, 6, 1, 0},
-        {1.0f, 0.0f, 0.0f, 0},
-        {0.0f, 0.0f, 1.0f, 0},
+        {3.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 3.0f, 0},
         {0.0f, -1.0f, 0.0f, 0},
         {15.0f, 15.0f, 15.0f, 0},
     };
@@ -218,16 +220,12 @@ SceneAssets SceneList::classroom() {
 
     traverse(scene->world, scene_assets);
 
-    scene_assets.materials["emissive"] = Material::createEmissive(vec3(150.0f));
-    auto sphere = Model::createSphere(vec3(0, 1.5, 0), .3f, "emissive", false);
-    scene_assets.models.push_back(sphere);
-
     Light light = {
-        {1, 1.5, 1, 0},
-        {1.0f, 0.0f, 0.0f, 0},
-        {0.0f, 0.0f, 1.0f, 0},
+        {1, 1.8, 1, 0},
+        {3.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 3.0f, 0},
         {0.0f, -1.0f, 0.0f, 0},
-        {15.0f, 15.0f, 15.0f, 0},
+        {10.0f, 10.0f, 10.0f, 0},
     };
 
     scene_assets.lights.push_back(light);
@@ -236,6 +234,8 @@ SceneAssets SceneList::classroom() {
 
 void traverse(const pbrt::Object::SP& object, SceneAssets& scene_assets) {
     scene_assets.materials["default"] = Material::createLambertian(vec3(0.75f));
+
+    LF_INFO("\tNumber of meshes: {}", object->shapes.size() / 3);
 
     for (const auto& shape : object->shapes) {
         auto material_id = shape->material->name;
@@ -308,6 +308,7 @@ void traverse(const pbrt::Object::SP& object, SceneAssets& scene_assets) {
                 }
             }
 
+            LF_INFO("\tNumber of triangles: {}", indices.size() / 3);
             scene_assets.models.emplace_back(std::move(vertices), std::move(indices), material_id, nullptr);
 
         } else {

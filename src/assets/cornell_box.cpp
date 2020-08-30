@@ -139,6 +139,29 @@ void CornellBox::create(const float scale, SceneAssets& scene_assets) {
         auto model = Model(std::move(vertices), std::move(indices), light, nullptr);
         scene_assets.models.push_back(model);
     }
+
+    {
+//        // Light
+//        std::vector<Vertex> vertices;
+//        std::vector<uint32_t> indices;
+//        auto i = static_cast<uint32_t>(vertices.size());
+//
+//        const float x0 = s * 0.2f;
+//        const float x1 = s * 0.8f;
+//        const float z0 = s * -0.2f;
+//        const float z1 = s * -0.8f;
+//        const float y1 = s * 0.898f;
+//
+//        vertices.push_back(Vertex {vec3(x0, y1, z1), vec3(0, -1, 0), vec2(0, 1), 3});
+//        vertices.push_back(Vertex {vec3(x1, y1, z1), vec3(0, -1, 0), vec2(1, 1), 3});
+//        vertices.push_back(Vertex {vec3(x1, y1, z0), vec3(0, -1, 0), vec2(1, 0), 3});
+//        vertices.push_back(Vertex {vec3(x0, y1, z0), vec3(0, -1, 0), vec2(0, 0), 3});
+//
+//        addTriangle(indices, i, 0, 1, 2);
+//        addTriangle(indices, i, 0, 2, 3);
+//        auto model = Model(std::move(vertices), std::move(indices), white, nullptr);
+//        scene_assets.models.push_back(model);
+    }
 }
 
 }  // namespace assets

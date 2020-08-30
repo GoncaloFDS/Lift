@@ -5,7 +5,7 @@
 
 #include "utils/material.glsl"
 #include "utils/uniform_buffer_object.glsl"
-#include "utils/sampling.glsl"
+#include "utils/random.glsl"
 #include "utils/ray_payload.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT scene_;
