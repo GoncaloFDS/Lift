@@ -35,7 +35,7 @@ void BottomLevelGeometry::addGeometryTriangles(const assets::Scene& scene,
     geometry.geometry.triangles.indexType = create_geometry_type_info.indexType;
     geometry.geometry.triangles.transformData = {};
     geometry.geometry.aabbs.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR;
-    geometry.flags = is_opaque ? VK_GEOMETRY_OPAQUE_BIT_KHR : 0;
+    geometry.flags = is_opaque ? VK_GEOMETRY_OPAQUE_BIT_KHR : VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR ;
 
     VkAccelerationStructureBuildOffsetInfoKHR build_offset_info = {};
     build_offset_info.firstVertex = vertex_offset / sizeof(assets::Vertex);
@@ -71,7 +71,7 @@ void BottomLevelGeometry::addGeometryAabb(const assets::Scene& scene,
     geometry.geometry.aabbs.pNext = nullptr;
     geometry.geometry.aabbs.data.deviceAddress = scene.aabbBuffer().deviceAddress();
     geometry.geometry.aabbs.stride = sizeof(VkAabbPositionsKHR);
-    geometry.flags = isOpaque ? VK_GEOMETRY_OPAQUE_BIT_KHR : 0;
+    geometry.flags = isOpaque ? VK_GEOMETRY_OPAQUE_BIT_KHR : VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR ;
 
     VkAccelerationStructureBuildOffsetInfoKHR build_offset_info = {};
     build_offset_info.firstVertex = 0;

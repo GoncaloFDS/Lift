@@ -81,6 +81,7 @@ Model Model::loadModel(const std::string& filename) {
             indices.push_back(unique_vertices[vertex]);
         }
     }
+    LF_INFO("\tNumber of triangles: {}", indices.size() / 3);
 
     return Model(std::move(vertices), std::move(indices), "default", nullptr);
 }

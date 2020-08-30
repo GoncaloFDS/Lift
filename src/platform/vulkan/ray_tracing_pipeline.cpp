@@ -164,7 +164,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
     std::string chit_path = "../resources/shaders/path.rchit.spv";
     if (algorithm == Algorithm::BDPT) {
         rgen_path = "../resources/shaders/bdpt.rgen.spv";
-        chit_path = "../resources/shaders/bdpt.rchit.spv";
+//        chit_path = "../resources/shaders/bdpt.rchit.spv";
     }
 
     const ShaderModule ray_gen_shader(device, rgen_path);

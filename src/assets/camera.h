@@ -16,8 +16,8 @@ struct CameraState {
     float aspect_ratio;
     bool gamma_correction;
     bool has_sky;
-    float move_speed {20.0f};
-    float look_speed {800.0f};
+    float move_speed {2.0f};
+    float look_speed {500.0f};
 };
 
 class Camera {
