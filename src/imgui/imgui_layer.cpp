@@ -166,8 +166,7 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
                                 &settings().camera_move_speed,
                                 &fmin,
                                 &fmax,
-                                "%.1f",
-                                2.0f);
+                                "%.1f");
             ImGui::SliderScalar("camera mouse speed",
                                 ImGuiDataType_Float,
                                 &settings().camera_mouse_speed,
@@ -189,8 +188,7 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
                                 &settings().exposure,
                                 &fmin,
                                 &fmax,
-                                "%.1f",
-                                2.0f);
+                                "%.1f");
             ImGui::NewLine();
         }
 
