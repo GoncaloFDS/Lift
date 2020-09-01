@@ -120,6 +120,10 @@ vec3 traceEyePath(in vec3 ro, in vec3 rd, inout uint seed) {
             return tcol;
         }
 
+        if(ubo_.debug_normals) {
+            return remap(ray_.normal, -1.0f, 1.0f, 0.0f, 1.0f);
+        }
+
         vec3 ld;
         float weight, light_dist;
         sampleLight(ro, ld, light_dist, weight, seed);

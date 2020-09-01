@@ -9,18 +9,16 @@ public:
 
     static void start();
     static void stop();
-    static void reset();
     static void restart();
     static void tick();
 
-    static auto isRunning() -> bool { return k_is_running_; }
+    static auto isRunning() -> bool { return is_running_; }
 
     // seconds passed since last frame
-    static float deltaTime;
-    static float elapsedTime;
+    static float delta_time;
+    static float elapsed_time;
 
 private:
-    static std::chrono::system_clock::time_point k_begin_;
-    static std::chrono::system_clock::time_point k_last_time_point_;
-    static bool k_is_running_;
+    static std::chrono::system_clock::time_point last_time_point_;
+    static bool is_running_;
 };

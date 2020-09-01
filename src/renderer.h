@@ -63,7 +63,6 @@ public:
     void waitDeviceIdle();
 
     void init(VkPhysicalDevice physical_device, assets::Scene& scene, vulkan::Instance& instance);
-    void setupDenoiser();
 
     void updateUniformBuffer(uint32_t image_index, assets::UniformBufferObject ubo);
 
@@ -77,8 +76,6 @@ public:
     [[nodiscard]] const std::vector<assets::UniformBuffer>& uniformBuffers() const { return uniform_buffers_; }
 
     void createImages();
-
-    void setDenoised(bool b) { is_denoised = b; }
 
 private:
     void createBottomLevelStructures(VkCommandBuffer command_buffer, assets::Scene& scene);

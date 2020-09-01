@@ -18,9 +18,8 @@ struct Statistics final {
     VkExtent2D framebuffer_size;
     float frame_rate;
     float frame_time;
-    float trace_time;
     float denoiser_time;
-    float display_time;
+    float total_time;
     uint32_t total_samples;
 };
 

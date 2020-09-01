@@ -31,7 +31,7 @@ const auto k_validation_layers = std::vector<const char*> {"VK_LAYER_KHRONOS_val
 #endif
 
 Application::Application(const UserSettings& user_settings, const vulkan::WindowData& window_properties)
-    : user_settings_(user_settings), vsync_(false), is_running_(true) {
+    : user_settings_(user_settings), is_running_(true) {
 
     const auto validation_layers = k_validation_layers;
 
@@ -52,7 +52,6 @@ Application::~Application() {
 
 void Application::run() {
     Timer::start();
-    renderer_->setupDenoiser();
 
     while (is_running_) {
         window_->poolEvents();
@@ -66,9 +65,13 @@ void Application::run() {
         auto ubo = getUniformBufferObject(renderer_->swapChain().extent());
         renderer_->beginCommand(*scene_, current_frame_);
 
-        renderer_->trace(*scene_);
-
-        if (user_settings_.is_denoised) {
+        if (!hasReachedTargetFrame()) {
+            renderer_->trace(*scene_);
+            if (user_settings_.is_denoised) {
+                renderer_->denoiseImage();
+            }
+        }
+        else if (user_settings_.denoise_final_image) {
             renderer_->denoiseImage();
         }
 
@@ -77,16 +80,25 @@ void Application::run() {
         // Update UI
         Statistics stats = {};
         stats.framebuffer_size = window_->framebufferSize();
-        stats.frame_rate = static_cast<float>(1 / Timer::deltaTime);
-        stats.frame_time = Timer::deltaTime * 1000.0f;
+        stats.frame_rate = static_cast<float>(1 / Timer::delta_time);
+        stats.frame_time = Timer::delta_time * 1000.0f;
         stats.denoiser_time = Profiler::getDuration(Profiler::Id::Denoise) * 1000.0f;
         stats.total_samples = total_number_of_samples_;
+        stats.total_time = Timer::elapsed_time;
         user_interface_->updateInfo(stats, camera_->state());
 
         // Render the UI
         renderer_->render(*user_interface_);
 
         renderer_->endCommand(*scene_, current_frame_, ubo);
+
+        if (!hasReachedTargetFrame()) {
+            total_number_of_samples_ += user_settings_.number_of_samples;
+            number_of_frames_++;
+        } else {
+            Timer::stop();
+        }
+
         Timer::tick();
     }
 
@@ -108,7 +120,7 @@ assets::UniformBufferObject Application::getUniformBufferObject(VkExtent2D exten
     ubo.aperture = user_settings_.aperture;
     ubo.focus_distance = user_settings_.focus_distance;
     ubo.total_number_of_samples = total_number_of_samples_;
-    ubo.number_of_samples = number_of_samples_;
+    ubo.number_of_samples = user_settings_.number_of_samples;
     ubo.number_of_bounces = user_settings_.number_of_bounces;
     ubo.seed = Random::get(0u, 1000u);
     ubo.gamma_correction = user_settings_.gamma_correction;
@@ -178,16 +190,16 @@ void Application::onUpdate() {
         !user_settings_.accumulate_rays || camera_changed) {
 
         total_number_of_samples_ = 0;
-        reset_accumulation_ = false;
         number_of_frames_ = 0;
+        reset_accumulation_ = false;
+        Timer::restart();
+    }
+
+    if (!user_settings_.is_denoised) {
+        Profiler::reset(Profiler::Id::Denoise);
     }
 
     previous_settings_ = user_settings_;
-    number_of_samples_ = user_settings_.number_of_samples;
-    total_number_of_samples_ += number_of_samples_;
-    number_of_frames_++;
-
-    renderer_->setDenoised(user_settings_.is_denoised);
 
     camera_->setMoveSpeed(user_settings_.camera_move_speed);
     camera_->setMouseSpeed(user_settings_.camera_mouse_speed);
@@ -311,6 +323,10 @@ bool Application::onKeyPress(KeyPressedEvent& e) {
 }
 
 bool Application::onKeyRelease(KeyReleasedEvent& e) {
+    if (user_interface_->wantsToCaptureKeyboard()) {
+        return true;
+    }
+
     if (e.keyCode() == LF_KEY_W) {
         camera_->setMoveDirection(Direction::FORWARD, -1.0f);
     }
@@ -330,4 +346,7 @@ bool Application::onKeyRelease(KeyReleasedEvent& e) {
         camera_->setMoveDirection(Direction::DOWN, -1.0f);
     }
     return false;
+}
+bool Application::hasReachedTargetFrame() const {
+    return user_settings_.target_frame_count != 0 && total_number_of_samples_ >= user_settings_.target_frame_count;
 }

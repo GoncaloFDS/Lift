@@ -163,6 +163,7 @@ void Renderer::beginCommand(assets::Scene& scene, size_t current_frame) {
 }
 
 void Renderer::trace(assets::Scene& scene) {
+    is_denoised = false;
     traceCommand(current_command_buffer_, current_image_index_, scene);
 }
 
@@ -331,6 +332,7 @@ void Renderer::display(VkCommandBuffer command_buffer, uint32_t image_index) {
 void Renderer::denoiseImage() {
     Profiler profiler(Profiler::Id::Denoise);
     denoiser_.denoiseImage(*device_, current_command_buffer_, *command_pool_, *output_image_, *denoised_image_);
+    is_denoised = true;
 }
 
 void Renderer::createAccelerationStructures(assets::Scene& scene) {
@@ -563,7 +565,4 @@ void Renderer::waitDeviceIdle() {
 
 void Renderer::updateUniformBuffer(const uint32_t image_index, assets::UniformBufferObject ubo) {
     uniform_buffers_[image_index].setValue(ubo);
-}
-
-void Renderer::setupDenoiser() {
 }

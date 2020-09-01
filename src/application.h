@@ -69,7 +69,8 @@ private:
     void deleteSwapChain();
     void createSwapChain();
 
-    const bool vsync_;
+    bool hasReachedTargetFrame() const;
+
     std::unique_ptr<vulkan::Window> window_;
     std::unique_ptr<class Renderer> renderer_;
 
@@ -85,9 +86,8 @@ private:
     UserSettings previous_settings_ {};
     std::unique_ptr<assets::Scene> scene_;
     std::unique_ptr<ImguiLayer> user_interface_;
-    double time_ {};
+
     uint32_t total_number_of_samples_ {};
-    uint32_t number_of_samples_ {};
     uint32_t number_of_frames_ {};
     bool reset_accumulation_ {};
 };

@@ -41,7 +41,7 @@ ImguiLayer::ImguiLayer(vulkan::CommandPool& command_pool,
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    if (!ImGui_ImplGlfw_InitForVulkan(window.handle(), false)) {
+    if (!ImGui_ImplGlfw_InitForVulkan(window.handle(), true)) {
         LF_ASSERT(false, "Failed to initialize Glfw -> Imgui");
         return;
     }
@@ -66,8 +66,7 @@ ImguiLayer::ImguiLayer(vulkan::CommandPool& command_pool,
     }
 
     auto& io = ImGui::GetIO();
-
-    io.IniFilename = nullptr;
+    //    ImGuiIO& io = ImGui::GetIO(); (void)io;
 
     const auto scale_factor = window.contentScale();
 
@@ -103,6 +102,7 @@ void ImguiLayer::render(VkCommandBuffer command_buffer, const vulkan::FrameBuffe
 
     drawSettings(camera_state_);
     drawOverlay(statistics_);
+    //    ImGui::ShowDemoWindow();
     //    ImGui::ShowStyleEditor();
     ImGui::Render();
 
@@ -116,7 +116,7 @@ void ImguiLayer::render(VkCommandBuffer command_buffer, const vulkan::FrameBuffe
     render_pass_info.framebuffer = frame_buffer.handle();
     render_pass_info.renderArea.offset = {0, 0};
     render_pass_info.renderArea.extent = render_pass_->swapChain().extent();
-    render_pass_info.clearValueCount = 0;  // static_cast<uint32_t>(clearValues.size());
+    render_pass_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
     render_pass_info.pClearValues = clear_values.data();
 
     vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
@@ -146,19 +146,28 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
     const auto flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
 
     if (ImGui::Begin("Settings", &settings().show_settings, flags)) {
-        ImGui::Text("ray tracing"); {
+        ImGui::Text("ray tracing");
+        {
             ImGui::Separator();
             ImGui::Checkbox("enable denoising", &settings().is_denoised);
             ImGui::Checkbox("accumulate rays between frames", &settings().accumulate_rays);
-            ImGui::Checkbox("next event estimation", &settings().next_event_estimation);
             uint32_t min = 1, max = 16;
             ImGui::SliderScalar("samples per pixel", ImGuiDataType_U32, &settings().number_of_samples, &min, &max);
             min = 1, max = 32;
             ImGui::SliderScalar("path length", ImGuiDataType_U32, &settings().number_of_bounces, &min, &max);
             ImGui::NewLine();
+            min = 0, max = 9999999;
+            ImGui::DragScalar("target frame count",
+                              ImGuiDataType_U32,
+                              &settings().target_frame_count,
+                              10.0f,
+                              &min,
+                              &max);
+            ImGui::Checkbox("denoise final image", &settings().denoise_final_image);
         }
 
-        ImGui::Text("camera settings"); {
+        ImGui::Text("camera settings");
+        {
             ImGui::Separator();
             float fmin = 0.1f, fmax = 1000.0f;
             ImGui::SliderScalar("camera move speed",
@@ -178,36 +187,36 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
             ImGui::NewLine();
         }
 
-        ImGui::Text("post processing"); {
+        ImGui::Text("post processing");
+        {
             ImGui::Separator();
             ImGui::Checkbox("gamma correction", &settings().gamma_correction);
             ImGui::Checkbox("tone map", &settings().tone_map);
             float fmin = 0.0f, fmax = 10.0f;
-            ImGui::SliderScalar("exposure",
-                                ImGuiDataType_Float,
-                                &settings().exposure,
-                                &fmin,
-                                &fmax,
-                                "%.1f");
+            ImGui::SliderScalar("exposure", ImGuiDataType_Float, &settings().exposure, &fmin, &fmax, "%.2f");
             ImGui::NewLine();
         }
 
-        ImGui::Text("debug settings"); {
+        ImGui::Text("debug settings");
+        {
             ImGui::Separator();
             ImGui::Checkbox("render normals", &settings().debug_normals);
-            ImGui::Checkbox("render radiance", &settings().debug_radiance);
             ImGui::Checkbox("show statistics", &settings().show_overlay);
             ImGui::NewLine();
         }
 
         std::vector<const char*> scenes;
         scenes.reserve(SceneList::all_scenes.size());
-        for (const auto& scene : SceneList::all_scenes) { scenes.push_back(scene.first.c_str()); }
+        for (const auto& scene : SceneList::all_scenes) {
+            scenes.push_back(scene.first.c_str());
+        }
         ImGui::Combo("scene", &settings().scene_index, scenes.data(), static_cast<int>(scenes.size()));
 
         std::vector<const char*> algorithms;
         algorithms.reserve(AlgorithmList::all_algorithms.size());
-        for (const auto& algorithm : AlgorithmList::all_algorithms) { algorithms.push_back(algorithm.first.c_str()); }
+        for (const auto& algorithm : AlgorithmList::all_algorithms) {
+            algorithms.push_back(algorithm.first.c_str());
+        }
         ImGui::Combo("algorithm", &settings().algorithm_index, algorithms.data(), static_cast<int>(algorithms.size()));
     }
     ImGui::End();
@@ -233,11 +242,11 @@ void ImguiLayer::drawOverlay(const Statistics& statistics) {
         ImGui::Separator();
         ImGui::Text("frame size: (%dx%d)", statistics.framebuffer_size.width, statistics.framebuffer_size.height);
         ImGui::Text("frame rate: %.1f fps", statistics.frame_rate);
-        ImGui::Text("total frame duration: %.1f ms", statistics.frame_time);
-        ImGui::Text("denoiser duration: %.1f ms", statistics.denoiser_time);
+        ImGui::Text("total frame duration: %.3f ms", statistics.frame_time);
+        ImGui::Text("denoiser duration: %.3f ms", statistics.denoiser_time);
         ImGui::NewLine();
-        ImGui::Text("total samples:  %u", statistics.total_samples);
-
+        ImGui::Text("total samples: %u", statistics.total_samples);
+        ImGui::Text("total elapsed time: %.3f s", statistics.total_time);
     }
     ImGui::End();
 }

@@ -34,8 +34,8 @@ bool Camera::onUpdate() {
 void Camera::orbit(const float dx, const float dy) {
     vec3 t = state_.look_at - state_.eye;
     if (fabs(dot(normalize(t), vec3(0, 1, 0))) < 0.999f || t.y * dy < 0) {
-        t = rotate(mat4(1.0f), dx * state_.look_speed * Timer::deltaTime, norm_vector_v_)
-            * rotate(mat4(1.0f), dy * state_.look_speed * Timer::deltaTime, norm_vector_u_) * vec4(t, 1);
+        t = rotate(mat4(1.0f), dx * state_.look_speed * Timer::delta_time, norm_vector_v_)
+            * rotate(mat4(1.0f), dy * state_.look_speed * Timer::delta_time, norm_vector_u_) * vec4(t, 1);
         state_.look_at = state_.eye + t;
         changed_ = true;
     }
@@ -68,7 +68,7 @@ void Camera::setMoveDirection(enum Direction direction, float amount) {
 void Camera::move() {
     if (move_dir_ != vec3(0.0f)) {
         vec3 dir = move_dir_.x * norm_vector_u_ + move_dir_.y * norm_vector_v_ + move_dir_.z * norm_vector_w_;
-        const auto mat = translate(mat4(1.0f), state_.move_speed * Timer::deltaTime * dir);
+        const auto mat = translate(mat4(1.0f), state_.move_speed * Timer::delta_time * dir);
         state_.eye = mat * vec4(state_.eye, 1.0f);
         state_.look_at = mat * vec4(state_.look_at, 1.0f);
         changed_ = true;
