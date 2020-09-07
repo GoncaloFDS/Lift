@@ -57,7 +57,7 @@ SceneAssets SceneList::teapot() {
     teapot.setMaterial(glass_id);
     scene_assets.models.push_back(teapot);
 
-    assets::CornellBox::create(1, scene_assets);
+    assets::CornellBox::create(1, scene_assets, false);
 
     Light light = {
         {0.3837f, 0.998f, -0.59f, 0},
@@ -92,7 +92,7 @@ SceneAssets SceneList::cornellBox() {
     box_front.transform(rotate(translate(mat4(1), vec3(0.468, 0, -0.117)), radians(-18.0f), vec3(0, 1, 0)));
     box_back.transform(rotate(translate(mat4(1), vec3(0.2252, 0, -0.5315)), radians(15.0f), vec3(0, 1, 0)));
 
-    assets::CornellBox::create(1, scene_assets);
+    assets::CornellBox::create(1, scene_assets, false);
     scene_assets.models.push_back(box_front);
     scene_assets.models.push_back(box_back);
 
@@ -149,14 +149,14 @@ SceneAssets SceneList::cornellBoxDragon() {
     dragon.setMaterial(mat1_id);
     scene_assets.models.push_back(dragon);
 
-    assets::CornellBox::create(1, scene_assets);
+    assets::CornellBox::create(1, scene_assets, true);
 
     Light light = {
         {0.3837f, 0.998f, -0.59f, 0},
         {0.234f, 0.0f, 0.0f, 0},
         {0.0f, 0.0f, 0.234f, 0},
         {0.0f, -1.0f, 0.0f, 0},
-        {10.0f, 10.0f, 10.0f, 0},
+        {70.0f, 70.0f, 70.0f, 0},
     };
 
 

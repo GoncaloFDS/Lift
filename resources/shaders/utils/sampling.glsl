@@ -73,7 +73,7 @@ void sampleBRDF(inout vec3 ray_dir, inout vec3 ray_pos, inout vec3 throughput, i
     ray_dir = mix(ray_dir, refraction_ray_dir, do_refraction);
 
     if (ray_.from_inside) {
-        throughput *= exp(-ray_.mat.refraction_color * ray_.t);
+        throughput *= exp(-ray_.mat.refraction_color);
     }
 
     if (do_refraction == 0.0f) {

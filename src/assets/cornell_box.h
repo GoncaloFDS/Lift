@@ -9,7 +9,7 @@ namespace assets {
 
 class CornellBox final {
 public:
-    static void create(const float scale, SceneAssets& scene_assets);
+    static void create(const float scale, SceneAssets& scene_assets, bool has_light_cover);
 };
 
 }  // namespace assets
