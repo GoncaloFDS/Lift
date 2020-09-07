@@ -18,6 +18,7 @@ struct UserSettings final {
     uint32_t max_number_of_samples {};
 
     uint32_t target_frame_count {};
+    float target_render_time {};
     bool denoise_final_image {};
 
     // debug

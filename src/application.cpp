@@ -348,5 +348,7 @@ bool Application::onKeyRelease(KeyReleasedEvent& e) {
     return false;
 }
 bool Application::hasReachedTargetFrame() const {
-    return user_settings_.target_frame_count != 0 && total_number_of_samples_ >= user_settings_.target_frame_count;
+    bool reached_frame = user_settings_.target_frame_count != 0 && total_number_of_samples_ >= user_settings_.target_frame_count;
+    bool reached_time = user_settings_.target_render_time > 0.0f && Timer::elapsed_time >= user_settings_.target_render_time;
+    return reached_frame || reached_time;
 }

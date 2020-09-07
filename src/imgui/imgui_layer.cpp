@@ -163,7 +163,16 @@ void ImguiLayer::drawSettings(const CameraState& camera_state) {
                               10.0f,
                               &min,
                               &max);
+            float fmin = 0.0f, fmax = FLT_MAX;
+            ImGui::DragScalar("target render time",
+                              ImGuiDataType_Float,
+                              &settings().target_render_time,
+                              10.0f,
+                              &fmin,
+                              &fmax,
+                              "%.3f");
             ImGui::Checkbox("denoise final image", &settings().denoise_final_image);
+            ImGui::NewLine();
         }
 
         ImGui::Text("camera settings");
