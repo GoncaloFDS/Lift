@@ -15,7 +15,7 @@ Options::Options(const int argc, const char* argv[]) {
     options_description renderer("renderer");
     renderer.add_options()
         ("samples,n", value<uint32_t>(&samples)->default_value(1), "number of rays per pixel")
-        ("bounces,b", value<uint32_t>(&bounces)->default_value(8), "maximum path length")
+        ("bounces,b", value<uint32_t>(&bounces)->default_value(32), "maximum path length")
         ("max-samples", value<uint32_t>(&max_samples)->default_value(2048), "accumulation target");
 
     options_description algorithm("algorithm");
@@ -28,8 +28,8 @@ Options::Options(const int argc, const char* argv[]) {
 
     options_description window("window");
     window.add_options()
-        ("width", value<uint32_t>(&width)->default_value(800), "window width")
-        ("height", value<uint32_t>(&height)->default_value(600), "window height")
+        ("width", value<uint32_t>(&width)->default_value(1920), "window width")
+        ("height", value<uint32_t>(&height)->default_value(1080), "window height")
         ("fullscreen", bool_switch(&fullscreen)->default_value(false), "fullscreen or windowed");
 
     options_description benchmark_options("benchmark");

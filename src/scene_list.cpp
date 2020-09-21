@@ -15,6 +15,7 @@ const std::vector<std::pair<std::string, std::function<SceneAssets()>>> SceneLis
     {"cornell box dragon", cornellBoxDragon},
     {"dining room", diningRoom},
     {"classroom", classroom},
+//    {"bathroom", bathroom},
 };
 
 SceneAssets SceneList::teapot() {
@@ -165,10 +166,12 @@ SceneAssets SceneList::cornellBoxDragon() {
     return scene_assets;
 }
 
+
+
 SceneAssets SceneList::diningRoom() {
     SceneAssets scene_assets;
-    scene_assets.camera.eye = vec3(-1, 2, 9);
-    scene_assets.camera.look_at = vec3(-1, 2, 0);
+    scene_assets.camera.eye = vec3(3, 4, 9);
+    scene_assets.camera.look_at = vec3(1.7, 3.4, 6);
     scene_assets.camera.up = vec3(0, 1, 0);
     scene_assets.camera.field_of_view = 40;
     scene_assets.camera.aperture = 0.0f;
@@ -184,17 +187,20 @@ SceneAssets SceneList::diningRoom() {
 
     traverse(scene->world, scene_assets);
 
-    scene_assets.materials["emissive"] = Material::createEmissive(vec3(150.0f));
+//    scene_assets.materials["emissive"] = Material::createEmissive(vec3(150.0f));
     //    auto sphere = Model::createSphere(vec3(90, 30, 2), 15.0f, "emissive", false);
-    auto sphere = Model::createSphere(vec3(0, 3, 0), .3f, "emissive", false);
-    scene_assets.models.push_back(sphere);
+//    auto sphere = Model::createSphere(vec3(0, 3, 0), .3f, "emissive", false);
+//    scene_assets.models.push_back(sphere);
 
+    vec3 v1 = vec3(-10, 2, 50);
+    vec3 v2 = vec3(-10, 1, -10);
+    vec3 normal = normalize(cross(v1, v2));
     Light light = {
-        {1, 6, 1, 0},
-        {3.0f, 0.0f, 0.0f, 0},
-        {0.0f, 0.0f, 3.0f, 0},
-        {0.0f, -1.0f, 0.0f, 0},
-        {15.0f, 15.0f, 15.0f, 0},
+        {22, 15, 4, 0},
+        vec4(v1, 0),
+        vec4(v2, 0),
+        vec4(normal, 0),
+        {500.0f, 500.0f, 500.0f, 0},
     };
 
     scene_assets.lights.push_back(light);
@@ -204,7 +210,7 @@ SceneAssets SceneList::diningRoom() {
 
 SceneAssets SceneList::classroom() {
     SceneAssets scene_assets;
-    scene_assets.camera.eye = vec3(-1, 1, 3);
+    scene_assets.camera.eye = vec3(-3, 2.8, 4);
     scene_assets.camera.look_at = vec3(-1, 1, 0);
     scene_assets.camera.up = vec3(0, 1, 0);
     scene_assets.camera.field_of_view = 40;
@@ -221,11 +227,41 @@ SceneAssets SceneList::classroom() {
     traverse(scene->world, scene_assets);
 
     Light light = {
-        {1, 1.8, 1, 0},
-        {3.0f, 0.0f, 0.0f, 0},
-        {0.0f, 0.0f, 3.0f, 0},
+        {-20, 1.8, 1, -3},
+        {-3.0f, 3.0f, 0.0f, 0},
+        {0.0f, 3.0f, 3.0f, 0},
         {0.0f, -1.0f, 0.0f, 0},
-        {10.0f, 10.0f, 10.0f, 0},
+        {1000.0f, 1000.0f, 1000.0f, 0},
+    };
+
+    scene_assets.lights.push_back(light);
+    return scene_assets;
+}
+
+SceneAssets SceneList::bathroom() {
+    SceneAssets scene_assets;
+    scene_assets.camera.eye = vec3(10, 25, 51);
+    scene_assets.camera.look_at = vec3(6, 25, 41);
+    scene_assets.camera.up = vec3(0, 1, 0);
+    scene_assets.camera.field_of_view = 40;
+    scene_assets.camera.aperture = 0.0f;
+    scene_assets.camera.focus_distance = 10.0f;
+    scene_assets.camera.aspect_ratio = 1;
+    scene_assets.camera.gamma_correction = true;
+    scene_assets.camera.has_sky = false;
+
+    std::shared_ptr<pbrt::Scene> scene = pbrt::importPBRT("../resources/scenes/bathroom/scene.pbrt");
+    scene->makeSingleLevel();
+    scene_assets.textures = std::vector<Texture>();
+
+    traverse(scene->world, scene_assets);
+
+    Light light = {
+        {10, 26, 3, 51},
+        {15.0f, 0.0f, 0.0f, 0},
+        {0.0f, 0.0f, 15.0f, 0},
+        {0.0f, -1.0f, 0.0f, 0},
+        {35.0f, 35.0f, 35.0f, 0},
     };
 
     scene_assets.lights.push_back(light);
@@ -258,6 +294,25 @@ void traverse(const pbrt::Object::SP& object, SceneAssets& scene_assets) {
                 LF_INFO("Implemented Material -> {}", material_id);
                 Material material {};
                 material.albedo = vec3(matte->kd.x, matte->kd.y, matte->kd.z);
+                scene_assets.materials[material_id] = material;
+            } else if (auto mirror = std::dynamic_pointer_cast<pbrt::MirrorMaterial>(shape->material)) {
+                LF_INFO("Implemented Material -> {}", material_id);
+                Material material {};
+                material.specular_chance = 1.0f;
+                material.specular_roughness = 0.0f;
+                scene_assets.materials[material_id] = material;
+            } else if (auto glass = std::dynamic_pointer_cast<pbrt::GlassMaterial>(shape->material)) {
+                LF_INFO("Implemented Material -> {}", material_id);
+                Material material {};
+                material.albedo = vec3(0.9f, 0.25f, 0.25f);
+                material.emissive = vec3(0.0f, 0.0f, 0.0f);
+                material.specular_chance = 0.02f;
+                material.specular_roughness = 0.0f;
+                material.specular_color = vec3(1.0f, 1.0f, 1.0f) * 0.8f;
+                material.IOR = 1.1f;
+                material.refraction_chance = 1.0f;
+                material.refraction_roughness = 0.0f;
+                material.refraction_color = vec3(1.0f, 0.0f, 0.0f);
                 scene_assets.materials[material_id] = material;
             } else {
                 LF_WARN("Skipped Material -> {}", material_id);

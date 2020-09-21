@@ -31,6 +31,7 @@ public:
     static SceneAssets cornellBoxDragon();
     static SceneAssets diningRoom();
     static SceneAssets classroom();
+    static SceneAssets bathroom();
 
     static const std::vector<std::pair<std::string, std::function<SceneAssets()>>> all_scenes;
 };

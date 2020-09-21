@@ -19,7 +19,7 @@ struct alignas(16) Material {
     static Material createLambertian(const glm::vec3& color);
     static Material createEmissive(const glm::vec3& color);
     Material()
-        : albedo(1.0f), emissive(0.0f), specular_chance(0.0f), specular_roughness(0.0f), specular_color(0.0f),
+        : albedo(1.0f), emissive(0.0f), specular_chance(0.0f), specular_roughness(0.0f), specular_color(1.0f),
           IOR(1.0f), refraction_chance(0.0f), refraction_roughness(0.0f), refraction_color(0.0f) {}
 };
 
