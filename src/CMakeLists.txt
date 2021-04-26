@@ -145,7 +145,7 @@ set(src_files
         renderer.h
         assets/lights.h
         algorithm_list.h
-        algorithm_list.cpp platform/vulkan/bottom_level_geometry.cpp platform/vulkan/bottom_level_geometry.h)
+        algorithm_list.cpp platform/vulkan/bottom_level_geometry.cpp platform/vulkan/bottom_level_geometry.h platform/vulkan/buffer_util.hpp)
 
 source_group("assets" FILES ${src_files_assets})
 source_group("core" FILES ${src_files_core})

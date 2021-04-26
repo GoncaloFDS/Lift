@@ -18,9 +18,8 @@ Func getProcedure(const Device& device, const char* const name) {
 DeviceProcedures::DeviceProcedures(const class Device& device) :
     vkCreateAccelerationStructureKHR(getProcedure<PFN_vkCreateAccelerationStructureKHR>(device, "vkCreateAccelerationStructureKHR")),
     vkDestroyAccelerationStructureKHR(getProcedure<PFN_vkDestroyAccelerationStructureKHR>(device, "vkDestroyAccelerationStructureKHR")),
-    vkGetAccelerationStructureMemoryRequirementsKHR(getProcedure<PFN_vkGetAccelerationStructureMemoryRequirementsKHR>(device, "vkGetAccelerationStructureMemoryRequirementsKHR")),
-    vkBindAccelerationStructureMemoryKHR(getProcedure<PFN_vkBindAccelerationStructureMemoryKHR>(device, "vkBindAccelerationStructureMemoryKHR")),
-    vkCmdBuildAccelerationStructureKHR(getProcedure<PFN_vkCmdBuildAccelerationStructureKHR>(device, "vkCmdBuildAccelerationStructureKHR")),
+    vkGetAccelerationStructureBuildSizesKHR(getProcedure<PFN_vkGetAccelerationStructureBuildSizesKHR>(device, "vkGetAccelerationStructureBuildSizesKHR")),
+    vkCmdBuildAccelerationStructuresKHR(getProcedure<PFN_vkCmdBuildAccelerationStructuresKHR>(device, "vkCmdBuildAccelerationStructuresKHR")),
     vkCmdCopyAccelerationStructureKHR(getProcedure<PFN_vkCmdCopyAccelerationStructureKHR>(device, "vkCmdCopyAccelerationStructureKHR")),
     vkCmdTraceRaysKHR(getProcedure<PFN_vkCmdTraceRaysKHR>(device, "vkCmdTraceRaysKHR")),
     vkCreateRayTracingPipelinesKHR(getProcedure<PFN_vkCreateRayTracingPipelinesKHR>(device, "vkCreateRayTracingPipelinesKHR")),

@@ -25,35 +25,33 @@ public:
         vkDestroyAccelerationStructureKHR;
 
     const std::function<void(VkDevice device,
-                             const VkAccelerationStructureMemoryRequirementsInfoKHR* p_info,
-                             VkMemoryRequirements2KHR* p_memory_requirements)>
-        vkGetAccelerationStructureMemoryRequirementsKHR;
-
-    const std::function<VkResult(VkDevice device,
-                                 uint32_t bind_info_count,
-                                 const VkBindAccelerationStructureMemoryInfoKHR* p_bind_infos)>
-        vkBindAccelerationStructureMemoryKHR;
+                             VkAccelerationStructureBuildTypeKHR build_type,
+                             const VkAccelerationStructureBuildGeometryInfoKHR* p_build_info,
+                             const uint32_t* p_max_primitive_counts,
+                             VkAccelerationStructureBuildSizesInfoKHR* p_size_info)>
+        vkGetAccelerationStructureBuildSizesKHR;
 
     const std::function<void(VkCommandBuffer command_buffer,
-                             uint32_t infoCount,
-                             const VkAccelerationStructureBuildGeometryInfoKHR* pInfos,
-                             const VkAccelerationStructureBuildOffsetInfoKHR* const* ppOffsetInfos)>
-        vkCmdBuildAccelerationStructureKHR;
+                             uint32_t info_count,
+                             const VkAccelerationStructureBuildGeometryInfoKHR* p_infos,
+                             const VkAccelerationStructureBuildRangeInfoKHR* const* pp_build_range_infos)>
+        vkCmdBuildAccelerationStructuresKHR;
 
     const std::function<void(VkCommandBuffer command_buffer, const VkCopyAccelerationStructureInfoKHR* mode)>
         vkCmdCopyAccelerationStructureKHR;
 
     const std::function<void(VkCommandBuffer command_buffer,
-                             const VkStridedBufferRegionKHR* p_raygen_shader_binding_table,
-                             const VkStridedBufferRegionKHR* p_miss_shader_binding_table,
-                             const VkStridedBufferRegionKHR* p_hit_shader_binding_table,
-                             const VkStridedBufferRegionKHR* p_callable_shader_binding_table,
+                             const VkStridedDeviceAddressRegionKHR* p_raygen_shader_binding_table,
+                             const VkStridedDeviceAddressRegionKHR* p_miss_shader_binding_table,
+                             const VkStridedDeviceAddressRegionKHR* p_hit_shader_binding_table,
+                             const VkStridedDeviceAddressRegionKHR* p_callable_shader_binding_table,
                              uint32_t width,
                              uint32_t height,
                              uint32_t depth)>
         vkCmdTraceRaysKHR;
 
     const std::function<VkResult(VkDevice device,
+                                 VkDeferredOperationKHR deferredOperation,
                                  VkPipelineCache pipeline_cache,
                                  uint32_t create_info_count,
                                  const VkRayTracingPipelineCreateInfoKHR* p_create_infos,
@@ -69,8 +67,7 @@ public:
                                  void* p_data)>
         vkGetRayTracingShaderGroupHandlesKHR;
 
-    const std::function<VkDeviceAddress(VkDevice device,
-                                        const VkAccelerationStructureDeviceAddressInfoKHR* p_info)>
+    const std::function<VkDeviceAddress(VkDevice device, const VkAccelerationStructureDeviceAddressInfoKHR* p_info)>
         vkGetAccelerationStructureDeviceAddressKHR;
 
     const std::function<void(VkCommandBuffer command_buffer,

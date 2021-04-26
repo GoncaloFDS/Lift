@@ -17,11 +17,14 @@ size_t getEntrySize(const RayTracingProperties& ray_tracing_properties,
     // Find the maximum number of parameters used by a single entry
     size_t maxArgs = 0;
 
-    for (const auto& entry : entries) { maxArgs = std::max(maxArgs, entry.inlineData.size()); }
+    for (const auto& entry : entries) {
+        maxArgs = std::max(maxArgs, entry.inlineData.size());
+    }
 
     // A SBT entry is made of a program ID and a set of 4-byte parameters (offsets or push constants)
     // and must be 16-bytes-aligned.
-    return roundUp(ray_tracing_properties.shaderGroupHandleSize() + maxArgs, ray_tracing_properties.shaderGroupBaseAlignment());
+    return roundUp(ray_tracing_properties.shaderGroupHandleSize() + maxArgs,
+                   ray_tracing_properties.shaderGroupBaseAlignment());
 }
 
 size_t copyShaderData(uint8_t* const dst,
@@ -65,8 +68,12 @@ ShaderBindingTable::ShaderBindingTable(const DeviceProcedures& device_procedures
     // Allocate buffer & memory.
     const auto& device = ray_tracing_properties.device();
 
-    buffer_ = std::make_unique<class Buffer>(device, sbtSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
-    buffer_memory_ = std::make_unique<DeviceMemory>(buffer_->allocateMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT));
+    buffer_ =
+        std::make_unique<class Buffer>(device,
+                                       sbtSize,
+                                       VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+    buffer_memory_ = std::make_unique<DeviceMemory>(
+        buffer_->allocateMemory(VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT));
 
     // Generate the table.
     const uint32_t handleSize = ray_tracing_properties.shaderGroupHandleSize();

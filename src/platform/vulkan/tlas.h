@@ -15,8 +15,7 @@ public:
     TopLevelAccelerationStructure& operator=(TopLevelAccelerationStructure&&) = delete;
 
     TopLevelAccelerationStructure(const class DeviceProcedures& device_procedures,
-                                  const std::vector<VkAccelerationStructureInstanceKHR>& instances,
-                                  bool allow_update);
+                                  VkDeviceAddress instance_address, uint32_t instances_count);
     TopLevelAccelerationStructure(TopLevelAccelerationStructure&& other) noexcept;
     ~TopLevelAccelerationStructure() override = default;
 
@@ -25,12 +24,8 @@ public:
     void generate(VkCommandBuffer command_buffer,
                   Buffer& scratch_buffer,
                   VkDeviceSize scratch_offset,
-                  DeviceMemory& result_memory,
-                  VkDeviceSize result_offset,
-                  Buffer& instance_buffer,
-                  DeviceMemory& instance_memory,
-                  VkDeviceSize instance_offset,
-                  bool update_only) const;
+                  Buffer& result_buffer,
+                  VkDeviceSize result_offset);
 
     static VkAccelerationStructureInstanceKHR createInstance(const BottomLevelAccelerationStructure& bottom_level_as,
                                                              const glm::mat4& transform,
@@ -38,7 +33,9 @@ public:
                                                              uint32_t hit_group_id);
 
 private:
-    std::vector<VkAccelerationStructureInstanceKHR> instances_;
+    uint32_t instances_count_;
+    VkAccelerationStructureGeometryInstancesDataKHR instances_vk_ {};
+    VkAccelerationStructureGeometryKHR top_as_geometry_{};
 };
 
 }  // namespace vulkan

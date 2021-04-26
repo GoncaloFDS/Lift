@@ -1,39 +1,20 @@
 #include "acceleration_structure.h"
 #include "device_procedures.h"
 #include "vulkan/device.h"
+#include "vulkan/buffer.h"
 #undef MemoryBarrier
 
 namespace vulkan {
 
-AccelerationStructure::AccelerationStructure(
-    const class DeviceProcedures& device_procedures,
-    const VkAccelerationStructureTypeKHR acceleration_structure_type,
-    const std::vector<VkAccelerationStructureCreateGeometryTypeInfoKHR>& geometries,
-    const bool allow_update)
-    : device_procedures_(device_procedures), allow_update_(allow_update), device_(device_procedures.device()) {
-    const auto flags = allow_update ? VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR :
-                                      VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR;
-
-    VkAccelerationStructureCreateInfoKHR create_info = {};
-    create_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
-    create_info.pNext = nullptr;
-    create_info.compactedSize = 0;
-    create_info.type = acceleration_structure_type;
-    create_info.flags = flags;
-    create_info.maxGeometryCount = static_cast<uint32_t>(geometries.size());
-    create_info.pGeometryInfos = geometries.data();
-    create_info.deviceAddress = 0;
-
-    vulkanCheck(device_procedures.vkCreateAccelerationStructureKHR(device_.handle(),
-                                                                   &create_info,
-                                                                   nullptr,
-                                                                   &acceleration_structure_),
-                "create acceleration structure");
+AccelerationStructure::AccelerationStructure(const class DeviceProcedures& device_procedures)
+    : device_procedures_(device_procedures), flags_(VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR),
+      device_(device_procedures.device()) {
 }
 
 AccelerationStructure::AccelerationStructure(AccelerationStructure&& other) noexcept
-    : device_procedures_(other.device_procedures_), allow_update_(other.allow_update_), device_(other.device_),
-      acceleration_structure_(other.acceleration_structure_) {
+    : device_procedures_(other.device_procedures_), flags_(other.flags_),
+      build_geometry_info_(other.build_geometry_info_), build_sizes_info_(other.build_sizes_info_),
+      device_(other.device_), acceleration_structure_(other.acceleration_structure_) {
     other.acceleration_structure_ = nullptr;
 }
 
@@ -44,38 +25,18 @@ AccelerationStructure::~AccelerationStructure() {
     }
 }
 
-AccelerationStructure::MemoryRequirements AccelerationStructure::getMemoryRequirements() const {
-    VkAccelerationStructureMemoryRequirementsInfoKHR memory_requirements_info {};
-    memory_requirements_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_KHR;
-    memory_requirements_info.pNext = nullptr;
-    memory_requirements_info.buildType = VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR;
-    memory_requirements_info.accelerationStructure = acceleration_structure_;
+VkAccelerationStructureBuildSizesInfoKHR
+AccelerationStructure::getBuildSizes(const uint32_t* p_max_primitive_counts) const {
+    VkAccelerationStructureBuildSizesInfoKHR sizes_info = {};
+    sizes_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
 
-    // If the descriptor already contains the geometry info, so we can directly compute the estimated size and required
-    // scratch memory.
-    VkMemoryRequirements2 memory_requirements = {};
-    memory_requirements.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
-    memory_requirements.pNext = nullptr;
+    device_procedures_.vkGetAccelerationStructureBuildSizesKHR(device_.handle(),
+                                                               VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
+                                                               &build_geometry_info_,
+                                                               p_max_primitive_counts,
+                                                               &sizes_info);
 
-    memory_requirements_info.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_KHR;
-    device_procedures_.vkGetAccelerationStructureMemoryRequirementsKHR(device_.handle(),
-                                                                       &memory_requirements_info,
-                                                                       &memory_requirements);
-    const auto resultRequirements = memory_requirements.memoryRequirements;
-
-    memory_requirements_info.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_KHR;
-    device_procedures_.vkGetAccelerationStructureMemoryRequirementsKHR(device_.handle(),
-                                                                       &memory_requirements_info,
-                                                                       &memory_requirements);
-    const auto buildRequirements = memory_requirements.memoryRequirements;
-
-    memory_requirements_info.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_UPDATE_SCRATCH_KHR;
-    device_procedures_.vkGetAccelerationStructureMemoryRequirementsKHR(device_.handle(),
-                                                                       &memory_requirements_info,
-                                                                       &memory_requirements);
-    const auto updateRequirements = memory_requirements.memoryRequirements;
-
-    return {resultRequirements, buildRequirements, updateRequirements};
+    return sizes_info;
 }
 
 void AccelerationStructure::memoryBarrier(VkCommandBuffer command_buffer) {
@@ -102,17 +63,17 @@ void AccelerationStructure::memoryBarrier(VkCommandBuffer command_buffer) {
                          nullptr);
 }
 
-AccelerationStructure::MemoryRequirements AccelerationStructure::getTotalRequirements(
-    const std::vector<AccelerationStructure::MemoryRequirements>& requirements) {
-    AccelerationStructure::MemoryRequirements total {};
+void AccelerationStructure::createAccelerationStructure(Buffer& result_buffer, VkDeviceSize result_offset) {
+    VkAccelerationStructureCreateInfoKHR create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
+    create_info.pNext = nullptr;
+    create_info.type = build_geometry_info_.type;
+    create_info.size = buildSizes().accelerationStructureSize;
+    create_info.buffer = result_buffer.handle();
+    create_info.offset = result_offset;
 
-    for (const auto& req : requirements) {
-        total.result.size += req.result.size;
-        total.build.size += req.build.size;
-        total.update.size += req.update.size;
-    }
-
-    return total;
+    device_procedures_.vkCreateAccelerationStructureKHR(device_.handle(), &create_info, nullptr, &acceleration_structure_);
 }
+
 
 }  // namespace vulkan

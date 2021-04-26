@@ -43,10 +43,12 @@ private:
     CUdeviceptr p_scratch_ {0};
     CUdeviceptr p_intensity_ {0};
     CUdeviceptr p_min_rgb_ {0};
+    CUcontext cuda_context_{nullptr};
 
     nvvk::AllocatorVkExport vk_allocator_;
 
     VkExtent2D image_size_ {};
     CudaBuffer pixel_buffer_in_;
     CudaBuffer pixel_buffer_out_;
+    CUstream cuda_stream_;
 };

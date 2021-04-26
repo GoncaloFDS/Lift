@@ -1,5 +1,6 @@
 #pragma once
 
+#include "buffer.h"
 #include "core/utilities.h"
 #include <memory>
 #include <vector>
@@ -31,6 +32,10 @@ public:
     ~ShaderBindingTable();
 
     [[nodiscard]] const class Buffer& buffer() const { return *buffer_; }
+
+    [[nodiscard]] VkDeviceAddress rayGenDeviceAddress() const { return buffer().deviceAddress() + rayGenOffset(); }
+    [[nodiscard]] VkDeviceAddress missDeviceAddress() const { return buffer().deviceAddress() + missOffset(); }
+    [[nodiscard]] VkDeviceAddress hitGroupDeviceAddress() const { return buffer().deviceAddress() + hitGroupOffset(); }
 
     [[nodiscard]] size_t rayGenOffset() const { return ray_gen_offset_; }
     [[nodiscard]] size_t missOffset() const { return miss_offset_; }

@@ -4,6 +4,7 @@
 #include "assets/texture.h"
 #include "assets/uniform_buffer.h"
 #include "core.h"
+#include "vulkan/acceleration_structure.h"
 #include "vulkan/blas.h"
 #include "vulkan/depth_buffer.h"
 #include "vulkan/extensions_vk.h"
@@ -23,6 +24,9 @@
 #include "vulkan/tlas.h"
 #include <assets/scene.h>
 #include <core/profiler.h>
+#include <vulkan/buffer_util.hpp>
+
+const uint64_t ACCELERATION_STRUCTURE_ALIGNMENT = 256;
 
 Renderer::Renderer(const vulkan::Instance& instance) {
     surface_ = std::make_unique<vulkan::Surface>(instance);
@@ -39,6 +43,26 @@ Renderer::~Renderer() {
     surface_.reset();
 }
 
+uint64_t roundUp(uint64_t size, uint64_t granularity) {
+    const auto divUp = (size + granularity - 1) / granularity;
+    return divUp * granularity;
+}
+
+template<class TAccelerationStructure>
+VkAccelerationStructureBuildSizesInfoKHR
+getTotalRequirements(const std::vector<TAccelerationStructure>& accelerationStructures) {
+    VkAccelerationStructureBuildSizesInfoKHR total {};
+
+    for (const auto& accelerationStructure : accelerationStructures) {
+        total.accelerationStructureSize +=
+            roundUp(accelerationStructure.buildSizes().accelerationStructureSize, ACCELERATION_STRUCTURE_ALIGNMENT);
+        total.buildScratchSize += accelerationStructure.buildSizes().buildScratchSize;
+        total.updateScratchSize += accelerationStructure.buildSizes().updateScratchSize;
+    }
+
+    return total;
+}
+
 void Renderer::init(VkPhysicalDevice physical_device, assets::Scene& scene, vulkan::Instance& instance) {
     LF_ASSERT(!device_, "physical device has already been set");
 
@@ -46,8 +70,8 @@ void Renderer::init(VkPhysicalDevice physical_device, assets::Scene& scene, vulk
     required_extensions.insert(required_extensions.end(),
                                {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                                 VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
-                                VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME,
-                                VK_KHR_RAY_TRACING_EXTENSION_NAME,
+                                VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+                                VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
                                 VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
                                 VK_KHR_MAINTENANCE3_EXTENSION_NAME,
                                 VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
@@ -72,10 +96,15 @@ void Renderer::init(VkPhysicalDevice physical_device, assets::Scene& scene, vulk
     device_features.fillModeNonSolid = true;
     device_features.samplerAnisotropy = true;
 
-    VkPhysicalDeviceRayTracingFeaturesKHR ray_tracing_features = {};
-    ray_tracing_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_FEATURES_KHR;
-    ray_tracing_features.pNext = &indexing_features;
-    ray_tracing_features.rayTracing = true;
+    VkPhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_features = {};
+    acceleration_structure_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR;
+    acceleration_structure_features.pNext = &indexing_features;
+    acceleration_structure_features.accelerationStructure = true;
+
+    VkPhysicalDeviceRayTracingPipelineFeaturesKHR ray_tracing_features = {};
+    ray_tracing_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR;
+    ray_tracing_features.pNext = &acceleration_structure_features;
+    ray_tracing_features.rayTracingPipeline = true;
 
     device_ = std::make_unique<vulkan::Device>(physical_device,
                                                *surface_,
@@ -106,18 +135,18 @@ void Renderer::createImages() {
                                                              VK_FORMAT_R32G32B32A32_SFLOAT,
                                                              VK_IMAGE_ASPECT_COLOR_BIT);
 
-    accumulation_image_ = std::make_unique<vulkan::Image>(device(),
-                                                    extent,
-                                                    VK_FORMAT_R32G32B32A32_SFLOAT,
-                                                    VK_IMAGE_TILING_OPTIMAL,
-                                                    VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-                                                        VK_IMAGE_USAGE_SAMPLED_BIT);
-    accumulation_image_memory_ =
-        std::make_unique<vulkan::DeviceMemory>(accumulation_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
+    accumulation_image_ = std::make_unique<vulkan::Image>(
+        device(),
+        extent,
+        VK_FORMAT_R32G32B32A32_SFLOAT,
+        VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+    accumulation_image_memory_ = std::make_unique<vulkan::DeviceMemory>(
+        accumulation_image_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
     accumulation_image_view_ = std::make_unique<vulkan::ImageView>(device(),
-                                                             accumulation_image_->handle(),
-                                                             VK_FORMAT_R32G32B32A32_SFLOAT,
-                                                             VK_IMAGE_ASPECT_COLOR_BIT);
+                                                                   accumulation_image_->handle(),
+                                                                   VK_FORMAT_R32G32B32A32_SFLOAT,
+                                                                   VK_IMAGE_ASPECT_COLOR_BIT);
 
     denoised_image_ = std::make_unique<vulkan::Image>(device(),
                                                       extent,
@@ -258,25 +287,22 @@ void Renderer::traceCommand(VkCommandBuffer command_buffer, uint32_t image_index
                             nullptr);
 
     // Describe the shader binding table.
-    VkStridedBufferRegionKHR raygen_shader_binding_table = {};
-    raygen_shader_binding_table.buffer = shader_binding_table_->buffer().handle();
-    raygen_shader_binding_table.offset = shader_binding_table_->rayGenOffset();
+    VkStridedDeviceAddressRegionKHR raygen_shader_binding_table = {};
+    raygen_shader_binding_table.deviceAddress = shader_binding_table_->rayGenDeviceAddress();
     raygen_shader_binding_table.stride = shader_binding_table_->rayGenEntrySize();
     raygen_shader_binding_table.size = shader_binding_table_->rayGenSize();
 
-    VkStridedBufferRegionKHR miss_shader_binding_table = {};
-    miss_shader_binding_table.buffer = shader_binding_table_->buffer().handle();
-    miss_shader_binding_table.offset = shader_binding_table_->missOffset();
+    VkStridedDeviceAddressRegionKHR miss_shader_binding_table = {};
+    miss_shader_binding_table.deviceAddress = shader_binding_table_->missDeviceAddress();
     miss_shader_binding_table.stride = shader_binding_table_->missEntrySize();
     miss_shader_binding_table.size = shader_binding_table_->missSize();
 
-    VkStridedBufferRegionKHR hit_shader_binding_table = {};
-    hit_shader_binding_table.buffer = shader_binding_table_->buffer().handle();
-    hit_shader_binding_table.offset = shader_binding_table_->hitGroupOffset();
+    VkStridedDeviceAddressRegionKHR hit_shader_binding_table = {};
+    hit_shader_binding_table.deviceAddress = shader_binding_table_->hitGroupDeviceAddress();
     hit_shader_binding_table.stride = shader_binding_table_->hitGroupEntrySize();
     hit_shader_binding_table.size = shader_binding_table_->hitGroupSize();
 
-    VkStridedBufferRegionKHR callable_shader_binding_table = {};
+    VkStridedDeviceAddressRegionKHR callable_shader_binding_table = {};
 
     device_procedures_->vkCmdTraceRaysKHR(command_buffer,
                                           &raygen_shader_binding_table,
@@ -341,7 +367,6 @@ void Renderer::createAccelerationStructures(assets::Scene& scene) {
 
     vulkan::SingleTimeCommands::submit(commandPool(), [this, &scene](VkCommandBuffer command_buffer) {
         createBottomLevelStructures(command_buffer, scene);
-        vulkan::AccelerationStructure::memoryBarrier(command_buffer);
         createTopLevelStructures(command_buffer, scene);
     });
 
@@ -375,8 +400,6 @@ void Renderer::createBottomLevelStructures(VkCommandBuffer command_buffer, asset
     uint32_t index_offset = 0;
     uint32_t aabb_offset = 0;
 
-    std::vector<vulkan::AccelerationStructure::MemoryRequirements> requirements;
-
     for (const auto& model : scene.models()) {
         const auto vertex_count = static_cast<uint32_t>(model.vertexCount());
         const auto index_count = static_cast<uint32_t>(model.indexCount());
@@ -386,8 +409,7 @@ void Renderer::createBottomLevelStructures(VkCommandBuffer command_buffer, asset
             geometries.addGeometryAabb(scene, aabb_offset, 1, true) :
             geometries.addGeometryTriangles(scene, vertex_offset, vertex_count, index_offset, index_count, true);
 
-        bottom_as_.emplace_back(*device_procedures_, geometries, false);
-        requirements.push_back(bottom_as_.back().getMemoryRequirements());
+        bottom_as_.emplace_back(*device_procedures_, geometries);
 
         vertex_offset += vertex_count * sizeof(assets::Vertex);
         index_offset += index_count * sizeof(uint32_t);
@@ -395,16 +417,18 @@ void Renderer::createBottomLevelStructures(VkCommandBuffer command_buffer, asset
     }
 
     // Allocate the structure memory.
-    const auto total = vulkan::AccelerationStructure::getTotalRequirements(requirements);
+    const auto total = getTotalRequirements(bottom_as_);
 
-    bottom_buffer_ = std::make_unique<vulkan::Buffer>(device(), total.result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR);
+    bottom_buffer_ = std::make_unique<vulkan::Buffer>(device(),
+                                                      total.accelerationStructureSize,
+                                                      VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR);
     bottom_buffer_memory_ =
         std::make_unique<vulkan::DeviceMemory>(bottom_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
-    bottom_scratch_buffer_ = std::make_unique<vulkan::Buffer>(device(),
-                                                              total.build.size,
-                                                              VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR |
-                                                                  VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+    bottom_scratch_buffer_ = std::make_unique<vulkan::Buffer>(
+        device(),
+        total.buildScratchSize,
+        VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR);
     bottom_scratch_buffer_memory_ = std::make_unique<vulkan::DeviceMemory>(
         bottom_scratch_buffer_->allocateMemory(VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT,
                                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
@@ -414,20 +438,15 @@ void Renderer::createBottomLevelStructures(VkCommandBuffer command_buffer, asset
     VkDeviceSize scratch_offset = 0;
 
     for (size_t i = 0; i != bottom_as_.size(); ++i) {
-        bottom_as_[i].generate(command_buffer,
-                               *bottom_scratch_buffer_,
-                               scratch_offset,
-                               *bottom_buffer_memory_,
-                               result_offset,
-                               false);
-        result_offset += requirements[i].result.size;
-        scratch_offset += requirements[i].build.size;
+        bottom_as_[i].generate(command_buffer, *bottom_scratch_buffer_, scratch_offset, *bottom_buffer_, result_offset);
+        result_offset +=
+            roundUp(bottom_as_[i].buildSizes().accelerationStructureSize, ACCELERATION_STRUCTURE_ALIGNMENT);
+        scratch_offset += bottom_as_[i].buildSizes().buildScratchSize;
     }
 }
 
 void Renderer::createTopLevelStructures(VkCommandBuffer command_buffer, assets::Scene& scene) {
     std::vector<VkAccelerationStructureInstanceKHR> instances;
-    std::vector<vulkan::AccelerationStructure::MemoryRequirements> requirements;
 
     // Hit group 0: triangles
     // Hit group 1: procedurals
@@ -441,43 +460,38 @@ void Renderer::createTopLevelStructures(VkCommandBuffer command_buffer, assets::
         instance_id++;
     }
 
-    top_as_.emplace_back(*device_procedures_, instances, false);
-    requirements.push_back(top_as_.back().getMemoryRequirements());
+    vulkan::BufferUtil::createDeviceBuffer(commandPool(),
+                                   "TLAS instances",
+                                   VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+                                   instances,
+                                   instances_buffer_,
+                                   instances_buffer_memory_);
+
+    vulkan::AccelerationStructure::memoryBarrier(command_buffer);
+
+    top_as_.emplace_back(*device_procedures_,
+                         instances_buffer_->deviceAddress(),
+                         static_cast<uint32_t>(instances.size()));
 
     // Allocate the structure memory.
-    const auto total = vulkan::AccelerationStructure::getTotalRequirements(requirements);
+    const auto total = getTotalRequirements(top_as_);
 
-    top_buffer_ = std::make_unique<vulkan::Buffer>(device(), total.result.size, VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR);
+    top_buffer_ = std::make_unique<vulkan::Buffer>(device(),
+                                                   total.accelerationStructureSize,
+                                                   VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR);
     top_buffer_memory_ =
         std::make_unique<vulkan::DeviceMemory>(top_buffer_->allocateMemory(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
     top_scratch_buffer_ = std::make_unique<vulkan::Buffer>(device(),
-                                                           total.build.size,
-                                                           VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR |
-                                                               VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
+                                                           total.buildScratchSize,
+                                                           VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
+                                                               VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR);
     top_scratch_buffer_memory_ = std::make_unique<vulkan::DeviceMemory>(
         top_scratch_buffer_->allocateMemory(VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT,
                                             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
 
-    const size_t instances_buffer_size = sizeof(VkAccelerationStructureInstanceKHR) * instances.size();
-    instances_buffer_ = std::make_unique<vulkan::Buffer>(device(),
-                                                         instances_buffer_size,
-                                                         VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR |
-                                                             VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT);
-    instances_buffer_memory_ = std::make_unique<vulkan::DeviceMemory>(
-        instances_buffer_->allocateMemory(VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT,
-                                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
-
     // Generate the structures.
-    top_as_[0].generate(command_buffer,
-                        *top_scratch_buffer_,
-                        0,
-                        *top_buffer_memory_,
-                        0,
-                        *instances_buffer_,
-                        *instances_buffer_memory_,
-                        0,
-                        false);
+    top_as_[0].generate(command_buffer, *top_scratch_buffer_, 0, *top_buffer_, 0);
 }
 
 void Renderer::createRayTracingPipeline(assets::Scene& scene, Algorithm algorithm) {

@@ -164,7 +164,7 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
     std::string chit_path = "../resources/shaders/path.rchit.spv";
     if (algorithm == Algorithm::BDPT) {
         rgen_path = "../resources/shaders/bdpt.rgen.spv";
-//        chit_path = "../resources/shaders/bdpt.rchit.spv";
+        //        chit_path = "../resources/shaders/bdpt.rchit.spv";
     }
 
     const ShaderModule ray_gen_shader(device, rgen_path);
@@ -251,15 +251,15 @@ RayTracingPipeline::RayTracingPipeline(const DeviceProcedures& device_procedures
     pipeline_info.pStages = shader_stages.data();
     pipeline_info.groupCount = static_cast<uint32_t>(groups.size());
     pipeline_info.pGroups = groups.data();
-    pipeline_info.maxRecursionDepth = 2;
+    pipeline_info.maxPipelineRayRecursionDepth = 2;
     pipeline_info.layout = pipeline_layout_->handle();
     pipeline_info.basePipelineHandle = nullptr;
     pipeline_info.basePipelineIndex = 0;
-    pipeline_info.libraries.sType = VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR;
 
-    vulkanCheck(device_procedures
-                    .vkCreateRayTracingPipelinesKHR(device.handle(), nullptr, 1, &pipeline_info, nullptr, &pipeline_),
-                "create ray tracing pipeline");
+    vulkanCheck(
+        device_procedures
+            .vkCreateRayTracingPipelinesKHR(device.handle(), nullptr, nullptr, 1, &pipeline_info, nullptr, &pipeline_),
+        "create ray tracing pipeline");
 }
 
 RayTracingPipeline::~RayTracingPipeline() {

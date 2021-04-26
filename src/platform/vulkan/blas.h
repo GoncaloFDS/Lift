@@ -17,17 +17,15 @@ public:
     BottomLevelAccelerationStructure& operator=(BottomLevelAccelerationStructure&&) = delete;
 
     BottomLevelAccelerationStructure(const class DeviceProcedures& device_procedures,
-                                     const BottomLevelGeometry& geometries,
-                                     bool allow_update);
+                                     const BottomLevelGeometry& geometries);
     BottomLevelAccelerationStructure(BottomLevelAccelerationStructure&& other) noexcept;
     ~BottomLevelAccelerationStructure();
 
     void generate(VkCommandBuffer command_buffer,
                   Buffer& scratch_buffer,
                   VkDeviceSize scratch_offset,
-                  DeviceMemory& result_memory,
-                  VkDeviceSize result_offset,
-                  bool update_only) const;
+                  Buffer& result_buffer,
+                  VkDeviceSize result_offset);
 
 private:
    BottomLevelGeometry geometries_;

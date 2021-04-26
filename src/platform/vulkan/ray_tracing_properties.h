@@ -11,20 +11,12 @@ public:
 
     [[nodiscard]] const class Device& device() const { return device_; }
 
-    [[nodiscard]] uint32_t maxDescriptorSetAccelerationStructures() const {
-        return props_.maxDescriptorSetAccelerationStructures;
-    }
-    [[nodiscard]] uint64_t maxGeometryCount() const { return props_.maxGeometryCount; }
-    [[nodiscard]] uint64_t maxInstanceCount() const { return props_.maxInstanceCount; }
-    [[nodiscard]] uint32_t maxRecursionDepth() const { return props_.maxRecursionDepth; }
-    [[nodiscard]] uint32_t maxShaderGroupStride() const { return props_.maxShaderGroupStride; }
-    [[nodiscard]] uint64_t maxPrimitiveCount() const { return props_.maxPrimitiveCount; }
-    [[nodiscard]] uint32_t shaderGroupBaseAlignment() const { return props_.shaderGroupBaseAlignment; }
-    [[nodiscard]] uint32_t shaderGroupHandleCaptureReplaySize() const { return props_.shaderGroupHandleCaptureReplaySize; }
-    [[nodiscard]] uint32_t shaderGroupHandleSize() const { return props_.shaderGroupHandleSize; }
+    [[nodiscard]] uint32_t shaderGroupBaseAlignment() const { return pipelineProps_.shaderGroupBaseAlignment; }
+    [[nodiscard]] uint32_t shaderGroupHandleSize() const { return pipelineProps_.shaderGroupHandleSize; }
 
 private:
     const class Device& device_;
-    VkPhysicalDeviceRayTracingPropertiesKHR props_ {};
+    VkPhysicalDeviceAccelerationStructurePropertiesKHR accelProps_{};
+    VkPhysicalDeviceRayTracingPipelinePropertiesKHR pipelineProps_{};
 };
 }  // namespace vulkan

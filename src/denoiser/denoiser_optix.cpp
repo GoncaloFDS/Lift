@@ -14,9 +14,28 @@ static void contextLogCb(unsigned int level, const char* tag, const char* messag
 }
 
 void DenoiserOptix::setup(vulkan::Device& device, uint32_t queue_index) {
-    CUDA_CHECK(cudaFree(nullptr));
+    CUresult cuRes = cuInit(0);
 
+    if (cuRes != CUDA_SUCCESS) {
+        LF_ERROR("ERROR: initOptiX() cuInit() failed: {0}", cuRes);
+        return;
+    }
+
+    CUdevice cuda_device = 0;
+    cuRes = cuCtxCreate(&cuda_context_, CU_CTX_SCHED_SPIN, cuda_device);
+    if (cuRes != CUDA_SUCCESS) {
+        LF_ERROR("ERROR: initOptiX() cuCtxCreate() failed: {0}", cuRes);
+        return;
+    }
+
+    // PERF Use CU_STREAM_NON_BLOCKING if there is any work running in parallel on multiple streams.
+    cuRes = cuStreamCreate(&cuda_stream_, CU_STREAM_DEFAULT);
+    if (cuRes != CUDA_SUCCESS) {
+        LF_ERROR("ERROR: initOptiX() cuStreamCreate() failed: {0}", cuRes);
+        return ;
+    }
     CUcontext cu_context;
+
     CUresult cu_result = cuCtxGetCurrent(&cu_context);
     if (cu_result != CUDA_SUCCESS) {
         LF_ERROR("Error querying current context: code -> {0}", cu_result);
@@ -109,17 +128,16 @@ void DenoiserOptix::allocateBuffers(vulkan::Device& device) {
 
     vk::DeviceSize buffer_size = image_size_.width * image_size_.height * sizeof(float) * 4;
 
-    vk::BufferUsageFlags in_usage_flags {vk::BufferUsageFlagBits::eUniformBuffer |
-                                         vk::BufferUsageFlagBits::eTransferDst};
-    vk::BufferUsageFlags out_usage_flags = in_usage_flags | vk::BufferUsageFlagBits::eTransferSrc;
+    vk::BufferUsageFlags usage_flags {vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst |
+                                      vk::BufferUsageFlagBits::eTransferSrc};
 
     pixel_buffer_in_.buf_vk =
         vk_allocator_.createBuffer(static_cast<VkDeviceSize>(buffer_size),
-                                   static_cast<VkBufferUsageFlags>(in_usage_flags),
+                                   static_cast<VkBufferUsageFlags>(usage_flags),
                                    static_cast<VkMemoryPropertyFlags>(vk::MemoryPropertyFlagBits::eDeviceLocal));
     pixel_buffer_out_.buf_vk =
         vk_allocator_.createBuffer(static_cast<VkDeviceSize>(buffer_size),
-                                   static_cast<VkBufferUsageFlags>(out_usage_flags),
+                                   static_cast<VkBufferUsageFlags>(usage_flags),
                                    static_cast<VkMemoryPropertyFlags>(vk::MemoryPropertyFlagBits::eDeviceLocal));
 
     createBufferCuda(device, pixel_buffer_in_);
@@ -133,7 +151,7 @@ void DenoiserOptix::allocateBuffers(vulkan::Device& device) {
     cudaMalloc((void**) &p_intensity_, sizeof(float));
     cudaMalloc((void**) &p_min_rgb_, 4 * sizeof(float));
 
-    CUstream stream = nullptr;
+    CUstream stream = cuda_stream_;
     OPTIX_CHECK(optixDenoiserSetup(denoiser_,
                                    stream,
                                    image_size_.width,
@@ -155,7 +173,6 @@ void DenoiserOptix::createBufferCuda(vulkan::Device& device, CudaBuffer& cuda_bu
     cuda_ext_memory_handle_desc.size = req.size;
     cuda_ext_memory_handle_desc.type = cudaExternalMemoryHandleTypeOpaqueWin32;
     cuda_ext_memory_handle_desc.handle.win32.handle = cuda_buffer.handle;
-
 
     cudaExternalMemory_t cuda_ext_vertex_buffer {};
     CUDA_CHECK(cudaImportExternalMemory(&cuda_ext_vertex_buffer, &cuda_ext_memory_handle_desc));

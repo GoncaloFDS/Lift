@@ -7,96 +7,51 @@
 
 namespace vulkan {
 
-std::vector<VkAccelerationStructureCreateGeometryTypeInfoKHR> getCreateGeometryTypeInfo(const size_t instance_count) {
-    VkAccelerationStructureCreateGeometryTypeInfoKHR create_geometry_type_info = {};
-    create_geometry_type_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_GEOMETRY_TYPE_INFO_KHR;
-    create_geometry_type_info.pNext = nullptr;
-    create_geometry_type_info.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
-    create_geometry_type_info.maxPrimitiveCount = static_cast<uint32_t>(instance_count);
-    create_geometry_type_info.allowsTransforms = true;
+TopLevelAccelerationStructure::TopLevelAccelerationStructure(const class DeviceProcedures& device_procedures,
+                                                             const VkDeviceAddress instance_address,
+                                                             const uint32_t instances_count)
+    : AccelerationStructure(device_procedures), instances_count_(instances_count) {
+    instances_vk_.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
+    instances_vk_.arrayOfPointers = VK_FALSE;
+    instances_vk_.data.deviceAddress = instance_address;
 
-    return std::vector<VkAccelerationStructureCreateGeometryTypeInfoKHR> {create_geometry_type_info};
-}
+    top_as_geometry_.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
+    top_as_geometry_.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
+    top_as_geometry_.geometry.instances = instances_vk_;
 
-TopLevelAccelerationStructure::TopLevelAccelerationStructure(
-    const class DeviceProcedures& device_procedures,
-    const std::vector<VkAccelerationStructureInstanceKHR>& instances,
-    const bool allow_update)
-    : AccelerationStructure(device_procedures,
-                            VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR,
-                            getCreateGeometryTypeInfo(instances.size()),
-                            allow_update),
-      instances_(instances) {
+    build_geometry_info_.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
+    build_geometry_info_.flags = flags_;
+    build_geometry_info_.geometryCount = 1;
+    build_geometry_info_.pGeometries = &top_as_geometry_;
+    build_geometry_info_.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
+    build_geometry_info_.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
+    build_geometry_info_.srcAccelerationStructure = nullptr;
+
+    build_sizes_info_ = getBuildSizes(&instances_count);
 }
 
 TopLevelAccelerationStructure::TopLevelAccelerationStructure(TopLevelAccelerationStructure&& other) noexcept
-    : AccelerationStructure(std::move(other)), instances_(std::move(other.instances_)) {
+    : AccelerationStructure(std::move(other)), instances_count_(other.instances_count_) {
 }
 
 void TopLevelAccelerationStructure::generate(VkCommandBuffer command_buffer,
                                              Buffer& scratch_buffer,
                                              VkDeviceSize scratch_offset,
-                                             DeviceMemory& result_memory,
-                                             VkDeviceSize result_offset,
-                                             Buffer& instance_buffer,
-                                             DeviceMemory& instance_memory,
-                                             VkDeviceSize instance_offset,
-                                             bool update_only) const {
-    LF_ASSERT(!update_only || allow_update_, "[TLAS] cannot update readonly structure")
+                                             Buffer& result_buffer,
+                                             const VkDeviceSize result_offset) {
+    createAccelerationStructure(result_buffer, result_offset);
 
-    const VkAccelerationStructureKHR previous_structure = update_only ? handle() : nullptr;
+    VkAccelerationStructureBuildRangeInfoKHR build_offset_info = {};
+    build_offset_info.primitiveCount = instances_count_;
 
-    // Copy the instance descriptors into the provider buffer.
-    const auto instances_buffer_size = instances_.size() * sizeof(VkAccelerationStructureInstanceKHR);
-    void* data = instance_memory.map(0, instances_buffer_size);
-    std::memcpy(data, instances_.data(), instances_buffer_size);
+    const VkAccelerationStructureBuildRangeInfoKHR* p_build_offset_info = &build_offset_info;
 
-    // Bind the acceleration structure descriptor to the actual memory that will contain it
-    VkBindAccelerationStructureMemoryInfoKHR bind_info = {};
-    bind_info.sType = VK_STRUCTURE_TYPE_BIND_ACCELERATION_STRUCTURE_MEMORY_INFO_KHR;
-    bind_info.pNext = nullptr;
-    bind_info.accelerationStructure = handle();
-    bind_info.memory = result_memory.handle();
-    bind_info.memoryOffset = result_offset;
-    bind_info.deviceIndexCount = 0;
-    bind_info.pDeviceIndices = nullptr;
+    build_geometry_info_.dstAccelerationStructure = handle();
+    build_geometry_info_.scratchData.deviceAddress = scratch_buffer.deviceAddress() + scratch_offset;
 
-    vulkanCheck(device_procedures_.vkBindAccelerationStructureMemoryKHR(device().handle(), 1, &bind_info),
-                "bind acceleration structure");
+    device_procedures_.vkCmdBuildAccelerationStructuresKHR(command_buffer, 1, &build_geometry_info_, &p_build_offset_info);
 
-    // Create instance geometry structures
-    VkAccelerationStructureGeometryKHR geometry = {};
-    geometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
-    geometry.pNext = nullptr;
-    geometry.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
-    geometry.geometry.instances.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
-    geometry.geometry.instances.arrayOfPointers = false;
-    geometry.geometry.instances.data.deviceAddress = instance_buffer.deviceAddress() + instance_offset;
 
-    VkAccelerationStructureBuildOffsetInfoKHR build_offset_info = {};
-    build_offset_info.primitiveCount = static_cast<uint32_t>(instances_.size());
-
-    // Build the actual bottom-level acceleration structure
-    const auto flags = allow_update_ ? VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR :
-                                       VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR;
-
-    const VkAccelerationStructureGeometryKHR* p_geometry = &geometry;
-    const VkAccelerationStructureBuildOffsetInfoKHR* p_build_offset_info = &build_offset_info;
-
-    VkAccelerationStructureBuildGeometryInfoKHR build_info = {};
-    build_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
-    build_info.pNext = nullptr;
-    build_info.flags = flags;
-    build_info.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
-    build_info.update = update_only;
-    build_info.srcAccelerationStructure = previous_structure;
-    build_info.dstAccelerationStructure = handle(),
-    build_info.geometryArrayOfPointers = false;
-    build_info.geometryCount = 1;
-    build_info.ppGeometries = &p_geometry;
-    build_info.scratchData.deviceAddress = scratch_buffer.deviceAddress() + scratch_offset;
-
-    device_procedures_.vkCmdBuildAccelerationStructureKHR(command_buffer, 1, &build_info, &p_build_offset_info);
 }
 
 VkAccelerationStructureInstanceKHR
@@ -109,7 +64,6 @@ TopLevelAccelerationStructure::createInstance(const BottomLevelAccelerationStruc
 
     VkAccelerationStructureDeviceAddressInfoKHR addressInfo = {};
     addressInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
-    addressInfo.pNext = nullptr;
     addressInfo.accelerationStructure = bottom_level_as.handle();
 
     const VkDeviceAddress address =
@@ -121,8 +75,9 @@ TopLevelAccelerationStructure::createInstance(const BottomLevelAccelerationStruc
                            // in some cases, this flag should be passed by the application.
     instance.instanceShaderBindingTableRecordOffset = hit_group_id;
     // Set the hit group index, that will be used to find the shader code to execute when hitting the geometry.
-    instance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FRONT_COUNTERCLOCKWISE_BIT_KHR;  // Disable culling - more fine control
-                                                                                 // could be provided by the application
+    instance.flags =
+        VK_GEOMETRY_INSTANCE_TRIANGLE_FRONT_COUNTERCLOCKWISE_BIT_KHR;  // Disable culling - more fine control
+                                                                       // could be provided by the application
     instance.accelerationStructureReference = address;
 
     // The instance.transform value only contains 12 values, corresponding to a 4x3 matrix,

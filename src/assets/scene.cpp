@@ -7,52 +7,9 @@
 #include "vulkan/buffer.h"
 #include "vulkan/command_pool.h"
 #include "vulkan/image_view.h"
+#include <vulkan/buffer_util.hpp>
 
 namespace assets {
-
-template<class T>
-void copyFromStagingBuffer(vulkan::CommandPool& command_pool,
-                           vulkan::Buffer& dst_buffer,
-                           const std::vector<T>& content) {
-    const auto& device = command_pool.device();
-    const auto content_size = sizeof(content[0]) * content.size();
-
-    // Create a temporary host-visible staging buffer.
-    auto staging_buffer = std::make_unique<vulkan::Buffer>(device, content_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
-    auto staging_buffer_memory =
-        staging_buffer->allocateMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-    // Copy the host data into the staging buffer.
-    const auto data = staging_buffer_memory.map(0, content_size);
-    std::memcpy(data, content.data(), content_size);
-    staging_buffer_memory.unmap();
-
-    // Copy the staging buffer to the device buffer.
-    dst_buffer.copyFrom(command_pool, *staging_buffer, content_size);
-
-    // Delete the buffer before the memory
-    staging_buffer.reset();
-}
-
-template<class T>
-void createDeviceBuffer(vulkan::CommandPool& command_pool,
-                        const char* name,
-                        const VkBufferUsageFlags usage,
-                        const std::vector<T>& content,
-                        std::unique_ptr<vulkan::Buffer>& buffer,
-                        std::unique_ptr<vulkan::DeviceMemory>& memory) {
-    const auto& device = command_pool.device();
-    const auto content_size = sizeof(content[0]) * content.size();
-
-    const VkMemoryAllocateFlags allocate_flags =
-        usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT ? VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT : 0;
-
-    buffer = std::make_unique<vulkan::Buffer>(device, content_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage);
-    memory = std::make_unique<vulkan::DeviceMemory>(
-        buffer->allocateMemory(allocate_flags, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT));
-
-    copyFromStagingBuffer(command_pool, *buffer, content);
-}
 
 Scene::Scene(vulkan::CommandPool& command_pool, SceneAssets& scene_assets)
     : models_(std::move(scene_assets.models)), lights_(std::move(scene_assets.lights)),
@@ -96,24 +53,24 @@ Scene::Scene(vulkan::CommandPool& command_pool, SceneAssets& scene_assets)
 
     const auto flag = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 
-    createDeviceBuffer(command_pool,
+    vulkan::BufferUtil::createDeviceBuffer(command_pool,
                        "Vertices",
                        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | flag,
                        vertices,
                        vertex_buffer_,
                        vertex_buffer_memory_);
-    createDeviceBuffer(command_pool,
+    vulkan::BufferUtil::createDeviceBuffer(command_pool,
                        "indices",
                        VK_BUFFER_USAGE_INDEX_BUFFER_BIT | flag,
                        indices,
                        index_buffer_,
                        index_buffer_memory_);
-    createDeviceBuffer(command_pool, "materials", flag, materials_, material_buffer_, material_buffer_memory_);
-    createDeviceBuffer(command_pool, "lights", flag, lights_, light_buffer_, light_buffer_memory_);
-    createDeviceBuffer(command_pool, "offsets", flag, offsets, offset_buffer_, offset_buffer_memory_);
+    vulkan::BufferUtil::createDeviceBuffer(command_pool, "materials", flag, materials_, material_buffer_, material_buffer_memory_);
+    vulkan::BufferUtil::createDeviceBuffer(command_pool, "lights", flag, lights_, light_buffer_, light_buffer_memory_);
+    vulkan::BufferUtil::createDeviceBuffer(command_pool, "offsets", flag, offsets, offset_buffer_, offset_buffer_memory_);
 
-    createDeviceBuffer(command_pool, "aabbs", flag, aabbs, aabb_buffer_, aabb_buffer_memory_);
-    createDeviceBuffer(command_pool, "procedurals", flag, procedurals, procedural_buffer_, procedural_buffer_memory_);
+    vulkan::BufferUtil::createDeviceBuffer(command_pool, "aabbs", flag, aabbs, aabb_buffer_, aabb_buffer_memory_);
+    vulkan::BufferUtil::createDeviceBuffer(command_pool, "procedurals", flag, procedurals, procedural_buffer_, procedural_buffer_memory_);
 
     // Upload all textures
     texture_images_.reserve(textures_.size());

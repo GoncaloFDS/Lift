@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/utilities.h"
-#include <vector>
 
 namespace vulkan {
 class Buffer;
@@ -14,12 +13,6 @@ class DeviceProcedures;
 
 class AccelerationStructure {
 public:
-    struct MemoryRequirements {
-        VkMemoryRequirements result;
-        VkMemoryRequirements build;
-        VkMemoryRequirements update;
-    };
-
     AccelerationStructure(const AccelerationStructure&) = delete;
     AccelerationStructure& operator=(const AccelerationStructure&) = delete;
     AccelerationStructure& operator=(AccelerationStructure&&) = delete;
@@ -30,22 +23,22 @@ public:
     [[nodiscard]] VkAccelerationStructureKHR handle() const { return acceleration_structure_; }
     [[nodiscard]] const class Device& device() const { return device_; }
     [[nodiscard]] const class DeviceProcedures& deviceProcedures() const { return device_procedures_; }
-
-    [[nodiscard]] MemoryRequirements getMemoryRequirements() const;
+    [[nodiscard]] const VkAccelerationStructureBuildSizesInfoKHR buildSizes() const { return build_sizes_info_; }
 
     static void memoryBarrier(VkCommandBuffer command_buffer);
 
-    static MemoryRequirements
-    getTotalRequirements(const std::vector<AccelerationStructure::MemoryRequirements>& requirements);
-
 protected:
-    AccelerationStructure(const class DeviceProcedures& device_procedures,
-                          const VkAccelerationStructureTypeKHR acceleration_structure_type,
-                          const std::vector<VkAccelerationStructureCreateGeometryTypeInfoKHR>& geometries,
-                          const bool allow_update);
+    explicit AccelerationStructure(const class DeviceProcedures& device_procedures);
+
+    VkAccelerationStructureBuildSizesInfoKHR getBuildSizes(const uint32_t* p_max_primitive_counts) const;
+    void createAccelerationStructure(Buffer& result_buffer, VkDeviceSize result_offset);
 
     const class DeviceProcedures& device_procedures_;
-    const bool allow_update_;
+
+    const VkBuildAccelerationStructureFlagsKHR flags_;
+
+    VkAccelerationStructureBuildGeometryInfoKHR build_geometry_info_ {};
+    VkAccelerationStructureBuildSizesInfoKHR build_sizes_info_ {};
 
 private:
     const class Device& device_;

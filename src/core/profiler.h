@@ -8,7 +8,7 @@ class Profiler {
 public:
     enum class Id { SceneLoad, Trace, Display, Denoise, Other };
 
-    Profiler::Profiler(Id id);
+    Profiler(Id id);
     Profiler(std::string id);
     ~Profiler();
 
