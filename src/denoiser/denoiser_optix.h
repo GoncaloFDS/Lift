@@ -51,4 +51,6 @@ private:
     CudaBuffer pixel_buffer_in_;
     CudaBuffer pixel_buffer_out_;
     CUstream cuda_stream_;
+
+    OptixImage2D previous_output_{};
 };

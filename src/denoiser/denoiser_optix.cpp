@@ -32,7 +32,7 @@ void DenoiserOptix::setup(vulkan::Device& device, uint32_t queue_index) {
     cuRes = cuStreamCreate(&cuda_stream_, CU_STREAM_DEFAULT);
     if (cuRes != CUDA_SUCCESS) {
         LF_ERROR("ERROR: initOptiX() cuStreamCreate() failed: {0}", cuRes);
-        return ;
+        return;
     }
     CUcontext cu_context;
 
@@ -46,9 +46,10 @@ void DenoiserOptix::setup(vulkan::Device& device, uint32_t queue_index) {
 
     OptixPixelFormat pixel_format = OPTIX_PIXEL_FORMAT_FLOAT4;
 
-    denoiser_options_.inputKind = OPTIX_DENOISER_INPUT_RGB;
-    OPTIX_CHECK(optixDenoiserCreate(optix_device_context_, &denoiser_options_, &denoiser_));
-    OPTIX_CHECK(optixDenoiserSetModel(denoiser_, OPTIX_DENOISER_MODEL_KIND_HDR, nullptr, 0));
+    OPTIX_CHECK(optixDenoiserCreate(optix_device_context_,
+                                    OptixDenoiserModelKind::OPTIX_DENOISER_MODEL_KIND_HDR,
+                                    &denoiser_options_,
+                                    &denoiser_));
     LF_INFO("Initialized Optix Denoiser");
 
     vk_allocator_.init(device.handle(), device.physicalDevice());
@@ -103,16 +104,27 @@ void DenoiserOptix::denoiseImage(vulkan::Device& device,
     denoiser_params.hdrIntensity = p_intensity_;
     denoiser_params.blendFactor = 0.0f;
 
+    OptixDenoiserGuideLayer guide_layer {};
+    guide_layer.albedo = input_layer;
+
+    OptixDenoiserLayer denoiser_layer {};
+    denoiser_layer.input = input_layer;
+    denoiser_layer.output = output_layer;
+    if (previous_output_.data) {
+        denoiser_layer.previousOutput = previous_output_;
+    }
+
+
     OPTIX_CHECK(optixDenoiserInvoke(denoiser_,
                                     stream,
                                     &denoiser_params,
                                     p_state_,
                                     denoiser_sizes_.stateSizeInBytes,
-                                    &input_layer,
+                                    &guide_layer,
+                                    &denoiser_layer,
                                     1,
                                     0,
                                     0,
-                                    &output_layer,
                                     p_scratch_,
                                     denoiser_sizes_.withoutOverlapScratchSizeInBytes));
 
@@ -121,6 +133,8 @@ void DenoiserOptix::denoiseImage(vulkan::Device& device,
     out_image.transitionImageLayout(command_pool, vk::ImageLayout::eTransferDstOptimal);
     out_image.copyFromBuffer(command_pool, pixel_buffer_out_.buf_vk.buffer);
     out_image.transitionImageLayout(command_pool, vk::ImageLayout::eGeneral);
+
+    previous_output_ = output_layer;
 }
 
 void DenoiserOptix::allocateBuffers(vulkan::Device& device) {
